@@ -143,7 +143,7 @@
 </g>
 <!-- Node7 -->
 <g id="node7" class="node"><title>Node7</title>
-<g id="a_node7"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. &#160;IIdentity extends the IDescription interface class, and therefore has, next to the id, a caption and a description. ">
+<g id="a_node7"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. ">
 <polygon fill="white" stroke="black" points="113.129,-683.5 113.129,-747.5 228.07,-747.5 228.07,-683.5 113.129,-683.5"/>
 <text text-anchor="middle" x="170.6" y="-735.5" font-family="Helvetica,sans-Serif" font-size="10.00">HydroCouple::IIdentity</text>
 <polyline fill="none" stroke="black" points="113.129,-729.5 228.07,-729.5 "/>
@@ -202,7 +202,7 @@
 <text text-anchor="start" x="108.061" y="-458.5" font-family="Helvetica,sans-Serif" font-size="10.00">+ email()</text>
 <text text-anchor="start" x="108.061" y="-448.5" font-family="Helvetica,sans-Serif" font-size="10.00">+ version()</text>
 <text text-anchor="start" x="108.061" y="-438.5" font-family="Helvetica,sans-Serif" font-size="10.00">+ category()</text>
-<text text-anchor="start" x="108.061" y="-428.5" font-family="Helvetica,sans-Serif" font-size="10.00">+ hasValidLicense()</text>
+<text text-anchor="start" x="108.061" y="-428.5" font-family="Helvetica,sans-Serif" font-size="10.00">+ validateLicense()</text>
 </a>
 </g>
 </g>

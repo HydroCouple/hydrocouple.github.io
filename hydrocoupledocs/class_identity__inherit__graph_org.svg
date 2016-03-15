@@ -165,7 +165,7 @@
 </g>
 <!-- Node6 -->
 <g id="node6" class="node"><title>Node6</title>
-<g id="a_node6"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. &#160;IIdentity extends the IDescription interface class, and therefore has, next to the id, a caption and a description. ">
+<g id="a_node6"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. ">
 <polygon fill="white" stroke="black" points="155.896,-593.5 155.896,-657.5 270.837,-657.5 270.837,-593.5 155.896,-593.5"/>
 <text text-anchor="middle" x="213.367" y="-645.5" font-family="Helvetica,sans-Serif" font-size="10.00">HydroCouple::IIdentity</text>
 <polyline fill="none" stroke="black" points="155.896,-639.5 270.837,-639.5 "/>

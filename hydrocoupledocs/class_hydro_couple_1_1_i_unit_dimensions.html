@@ -181,19 +181,29 @@ Additional Inherited Members</h2></td></tr>
 <p>Returns the power for the requested dimension. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">dimension</td><td>represents the fundamental unit</td></tr>
+    <tr><td class="paramname">dimension</td><td>represents the fundamental unit.</td></tr>
   </table>
   </dd>
 </dl>
-<p>For a quantity such as flow, which may have the unit m3/s, the getPower method must work as follows:</p>
-<p>myDimension.getPower(FundamentalDimension::AmountOfSubstance) &ndash;&gt; returns 0</p>
-<p>myDimension.getPower(FundamentalDimension::Currency) &ndash;&gt; returns 0</p>
-<p>myDimension.getPower(FundamentalDimension::ElectricCurrent) &ndash;&gt; returns 0</p>
-<p>myDimension.getPower(FundamentalDimension::Length) &ndash;&gt; returns 3</p>
-<p>myDimension.getPower(FundamentalDimension::LuminousIntensity) &ndash;&gt; returns 0</p>
-<p>myDimension.getPower(FundamentalDimension::Mass) &ndash;&gt; returns 0</p>
-<p>myDimension.getPower(FundamentalDimension::Temperature) &ndash;&gt; returns 0</p>
-<p>myDimension.getPower(FundamentalDimension::Time) &ndash;&gt; returns -1 </p>
+<p>For a quantity such as flow, which may have the unit m<sup>3</sup>/s, The getPower method must work as follows:</p>
+<ul>
+<li>getPower( FundamentalUnitDimension::AmountOfSubstance ) <dl class="section return"><dt>Returns</dt><dd>0</dd></dl>
+</li>
+<li>getPower( FundamentalUnitDimension::Currency ) <dl class="section return"><dt>Returns</dt><dd>0</dd></dl>
+</li>
+<li>getPower( FundamentalUnitDimension::ElectricCurrent ) <dl class="section return"><dt>Returns</dt><dd>0</dd></dl>
+</li>
+<li>getPower( FundamentalUnitDimension::Length ) <dl class="section return"><dt>Returns</dt><dd>3</dd></dl>
+</li>
+<li>getPower( FundamentalUnitDimension::LuminousIntensity ) <dl class="section return"><dt>Returns</dt><dd>0</dd></dl>
+</li>
+<li>getPower( FundamentalUnitDimension::Mass ) <dl class="section return"><dt>Returns</dt><dd>0</dd></dl>
+</li>
+<li>getPower( FundamentalUnitDimension::Temperature ) <dl class="section return"><dt>Returns</dt><dd>0</dd></dl>
+</li>
+<li>getPower( FundamentalUnitDimension::Time ) <dl class="section return"><dt>Returns</dt><dd>-1 </dd></dl>
+</li>
+</ul>
 
 </div>
 </div>

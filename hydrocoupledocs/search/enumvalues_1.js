@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['created',['Created',['../namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03a03894703c08dd9ab7306add54a772750',1,'HydroCouple']]],
-  ['currency',['Currency',['../namespace_hydro_couple.html#a3b0c4ea98032b00a2da319636be02d67a13f50b9050ce7c2c465765638343dccb',1,'HydroCouple']]]
+  ['byte',['Byte',['../namespace_hydro_couple_1_1_spatial.html#ae3563ea9d450198e25de5766f335dea4ae21411fb15bc8c0fc0e3d8d7e293cbd7',1,'HydroCouple::Spatial']]]
 ];

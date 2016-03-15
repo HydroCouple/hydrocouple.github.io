@@ -18,8 +18,8 @@ var NAVTREE =
       [ "Class Index", "classes.html", null ],
       [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
       [ "Class Members", "functions.html", [
-        [ "All", "functions.html", null ],
-        [ "Functions", "functions_func.html", null ]
+        [ "All", "functions.html", "functions_dup" ],
+        [ "Functions", "functions_func.html", "functions_func" ]
       ] ]
     ] ],
     [ "Files", null, [
@@ -31,7 +31,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_d_k_2include_2stdafx_8h_source.html",
-"class_hydro_couple_1_1_temporal_1_1_i_time_span.html"
+"class_hydro_couple_1_1_spatial_1_1_i_edge.html#a30037623f57cac236406dc92932f610b",
+"hydrocouplespatial_8h.html#a9e4db482852fdf6cf83f02dc5fac8507a4554161728dc4cbaf8227330d4bd0459"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

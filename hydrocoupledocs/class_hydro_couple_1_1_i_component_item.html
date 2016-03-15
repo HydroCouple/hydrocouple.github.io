@@ -133,7 +133,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a1f4d75e57daa0e7f7af795ce33309e88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the owner <a class="el" href="class_hydro_couple_1_1_i_model_component.html" title="IModelComponent interface is the core interface in the HydroCouple standard defining a model componen...">IModelComponent</a> of this IComponentItem.For an <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a> component item this is the component responsible for providing the content of the <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a>.  <a href="#a1f4d75e57daa0e7f7af795ce33309e88">More...</a><br /></td></tr>
 <tr class="separator:a1f4d75e57daa0e7f7af795ce33309e88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab37dd4f3679947397c9a79edd74d0ea1"><td class="memItemLeft" align="right" valign="top">virtual QList&lt; <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_component_item.html#ab37dd4f3679947397c9a79edd74d0ea1">dimensions</a> () const  =0</td></tr>
-<tr class="memdesc:ab37dd4f3679947397c9a79edd74d0ea1"><td class="mdescLeft">&#160;</td><td class="mdescRight">provides the dimensions associated with this <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a>  <a href="#ab37dd4f3679947397c9a79edd74d0ea1">More...</a><br /></td></tr>
+<tr class="memdesc:ab37dd4f3679947397c9a79edd74d0ea1"><td class="mdescLeft">&#160;</td><td class="mdescRight">provides the dimensions associated with this <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a>.  <a href="#ab37dd4f3679947397c9a79edd74d0ea1">More...</a><br /></td></tr>
 <tr class="separator:ab37dd4f3679947397c9a79edd74d0ea1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_identity"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_identity')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_identity.html">HydroCouple::IIdentity</a></td></tr>
 <tr class="memitem:a6310a9d5339603f3422791b2bd9b4c56 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memItemLeft" align="right" valign="top">virtual QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_identity.html#a6310a9d5339603f3422791b2bd9b4c56">id</a> () const  =0</td></tr>
@@ -162,7 +162,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a> is a fundamental unit of data for a component. </p>
-<p>This interface is not to be implemented directly </p>
+<p>This interface is not to be implemented directly. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="ab37dd4f3679947397c9a79edd74d0ea1"></a>
 <div class="memitem">
@@ -185,14 +185,9 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>provides the dimensions associated with this <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a> </p>
-<p>This function must return the unique <a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> objects from the <a class="el" href="class_hydro_couple_1_1_i_value_set.html" title="IValueSet provides a multi-dimensional data with its context. ">IValueSet</a> objects asssociated with this <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a>. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">void</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A list of <a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> objects </dd></dl>
+<p>provides the dimensions associated with this <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a>. </p>
+<p>This function must return the unique <a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> objects from the <a class="el" href="class_hydro_couple_1_1_i_value_set.html" title="IValueSet provides a multi-dimensional data with its context. ">IValueSet</a> objects asssociated with this <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a>.</p>
+<dl class="section return"><dt>Returns</dt><dd>A list of <a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> objects. </dd></dl>
 
 </div>
 </div>
@@ -218,12 +213,7 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Gets the owner <a class="el" href="class_hydro_couple_1_1_i_model_component.html" title="IModelComponent interface is the core interface in the HydroCouple standard defining a model componen...">IModelComponent</a> of this IComponentItem.For an <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a> component item this is the component responsible for providing the content of the <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a>. </p>
-<p>It is possible for an <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a> to have no owner, in this case the method will return nullptr. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">void</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
+<p>It is possible for an <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a> to have no owner, in this case the method will return nullptr.</p>
 <dl class="section return"><dt>Returns</dt><dd>an <a class="el" href="class_hydro_couple_1_1_i_model_component.html" title="IModelComponent interface is the core interface in the HydroCouple standard defining a model componen...">IModelComponent</a> object that is the parent of this <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a> </dd></dl>
 
 </div>

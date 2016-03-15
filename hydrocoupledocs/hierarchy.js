@@ -40,6 +40,37 @@ var hierarchy =
           [ "HydroCouple::IModelComponent", "class_hydro_couple_1_1_i_model_component.html", [
             [ "AbstractModelComponent", "class_abstract_model_component.html", null ]
           ] ],
+          [ "HydroCouple::Spatial::IGeometry", "class_hydro_couple_1_1_spatial_1_1_i_geometry.html", [
+            [ "HydroCouple::Spatial::ICurve", "class_hydro_couple_1_1_spatial_1_1_i_curve.html", [
+              [ "HydroCouple::Spatial::ILineString", "class_hydro_couple_1_1_spatial_1_1_i_line_string.html", [
+                [ "HydroCouple::Spatial::ILine", "class_hydro_couple_1_1_spatial_1_1_i_line.html", [
+                  [ "HydroCouple::Spatial::IEdge", "class_hydro_couple_1_1_spatial_1_1_i_edge.html", null ]
+                ] ],
+                [ "HydroCouple::Spatial::ILinearRing", "class_hydro_couple_1_1_spatial_1_1_i_linear_ring.html", null ]
+              ] ]
+            ] ],
+            [ "HydroCouple::Spatial::IGeometryCollection", "class_hydro_couple_1_1_spatial_1_1_i_geometry_collection.html", [
+              [ "HydroCouple::Spatial::IMultiCurve", "class_hydro_couple_1_1_spatial_1_1_i_multi_curve.html", [
+                [ "HydroCouple::Spatial::IMultiLineString", "class_hydro_couple_1_1_spatial_1_1_i_multi_line_string.html", null ]
+              ] ],
+              [ "HydroCouple::Spatial::IMultiPoint", "class_hydro_couple_1_1_spatial_1_1_i_multi_point.html", null ],
+              [ "HydroCouple::Spatial::IMultiSurface", "class_hydro_couple_1_1_spatial_1_1_i_multi_surface.html", [
+                [ "HydroCouple::Spatial::IMultiPolygon", "class_hydro_couple_1_1_spatial_1_1_i_multi_polygon.html", null ]
+              ] ]
+            ] ],
+            [ "HydroCouple::Spatial::IPoint", "class_hydro_couple_1_1_spatial_1_1_i_point.html", [
+              [ "HydroCouple::Spatial::IVertex", "class_hydro_couple_1_1_spatial_1_1_i_vertex.html", null ]
+            ] ],
+            [ "HydroCouple::Spatial::ISurface", "class_hydro_couple_1_1_spatial_1_1_i_surface.html", [
+              [ "HydroCouple::Spatial::IPolygon", "class_hydro_couple_1_1_spatial_1_1_i_polygon.html", [
+                [ "HydroCouple::Spatial::ITriangle", "class_hydro_couple_1_1_spatial_1_1_i_triangle.html", null ]
+              ] ],
+              [ "HydroCouple::Spatial::IPolyhedralSurface", "class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface.html", [
+                [ "HydroCouple::Spatial::ITIN", "class_hydro_couple_1_1_spatial_1_1_i_t_i_n.html", null ]
+              ] ]
+            ] ]
+          ] ],
+          [ "HydroCouple::Spatial::ISpatialReferenceSystem", "class_hydro_couple_1_1_spatial_1_1_i_spatial_reference_system.html", null ],
           [ "Identity", "class_identity.html", null ]
         ] ],
         [ "HydroCouple::IUnit", "class_hydro_couple_1_1_i_unit.html", null ],

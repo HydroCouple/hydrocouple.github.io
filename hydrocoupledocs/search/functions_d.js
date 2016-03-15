@@ -1,7 +1,15 @@
 var searchData=
 [
-  ['readvalues',['readValues',['../class_hydro_couple_1_1_i_argument.html#a94cfed51030f49a9514518206217237a',1,'HydroCouple::IArgument::readValues(const QString &amp;value, bool isFile=false)=0'],['../class_hydro_couple_1_1_i_argument.html#a358a3eb7be63c86c85e55ed64eea40aa',1,'HydroCouple::IArgument::readValues(const IArgument *argument)=0']]],
-  ['refresh',['refresh',['../class_hydro_couple_1_1_i_adapted_output.html#abffa58aaf19ff0142bbeaeae1d753f1c',1,'HydroCouple::IAdaptedOutput']]],
-  ['removeadaptedoutput',['removeAdaptedOutput',['../class_hydro_couple_1_1_i_output.html#a9822c0386ace5dc9325baa8ce69ab6ce',1,'HydroCouple::IOutput']]],
-  ['removeconsumer',['removeConsumer',['../class_hydro_couple_1_1_i_output.html#a574a0cb521c0f506b2290b78fb8c43ec',1,'HydroCouple::IOutput']]]
+  ['parent',['parent',['../class_hydro_couple_1_1_i_model_component.html#a041c078db008233254ee3a9e3e1f02f5',1,'HydroCouple::IModelComponent::parent()'],['../class_abstract_model_component.html#adeeb4de83e6ffafd38332ba5c4580fc9',1,'AbstractModelComponent::parent()']]],
+  ['patch',['patch',['../class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface.html#a5158b829c78dadf9fbe09ce9edfaab56',1,'HydroCouple::Spatial::IPolyhedralSurface::patch()'],['../class_hydro_couple_1_1_spatial_1_1_i_t_i_n.html#ac65cf5c335514e3e8ce72f31d42d6d99',1,'HydroCouple::Spatial::ITIN::patch()']]],
+  ['patchcount',['patchCount',['../class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface.html#a247a1e1895ddf5d5d3061fb5e4ed0e63',1,'HydroCouple::Spatial::IPolyhedralSurface']]],
+  ['percentprogress',['percentProgress',['../class_hydro_couple_1_1_i_component_status_change_event_args.html#a00ae1ff9ce409fed2acb42ab9e51847c',1,'HydroCouple::IComponentStatusChangeEventArgs::percentProgress()'],['../class_component_status_change_event_args.html#a8d3b2bb054ca63c81379be12ed714fe8',1,'ComponentStatusChangeEventArgs::percentProgress()']]],
+  ['point',['point',['../class_hydro_couple_1_1_spatial_1_1_i_multi_point.html#aecf0cef399124ac16c91d539b36ee508',1,'HydroCouple::Spatial::IMultiPoint::point()'],['../class_hydro_couple_1_1_spatial_1_1_i_line_string.html#a2cc6fc9df47e0062d2f2de64518c3a92',1,'HydroCouple::Spatial::ILineString::point()']]],
+  ['pointcount',['pointCount',['../class_hydro_couple_1_1_spatial_1_1_i_line_string.html#a3da720108efd4ad564b3cf6e43b6a6e2',1,'HydroCouple::Spatial::ILineString']]],
+  ['pointonsurface',['pointOnSurface',['../class_hydro_couple_1_1_spatial_1_1_i_surface.html#a9e596dc89fb1900159c137df8e16819e',1,'HydroCouple::Spatial::ISurface::pointOnSurface()'],['../class_hydro_couple_1_1_spatial_1_1_i_multi_surface.html#a944c01c291c67531b9c09db0235db0a3',1,'HydroCouple::Spatial::IMultiSurface::pointOnSurface()']]],
+  ['polyhydralsurface',['polyhydralSurface',['../class_hydro_couple_1_1_spatial_1_1_i_polygon.html#ab4c553b426d91038959230e2d3186254',1,'HydroCouple::Spatial::IPolygon']]],
+  ['possiblevalues',['possibleValues',['../class_hydro_couple_1_1_i_value_definition.html#ab0603fb897d4b9b36f2ad536156ffa17',1,'HydroCouple::IValueDefinition']]],
+  ['prepare',['prepare',['../class_hydro_couple_1_1_i_model_component.html#a69556f124b1568595011cb87741e1d47',1,'HydroCouple::IModelComponent::prepare()'],['../class_abstract_model_component.html#add09580468906c1069d2b80a803d38bc',1,'AbstractModelComponent::prepare()']]],
+  ['propertychanged',['propertyChanged',['../class_hydro_couple_1_1_i_property_changed.html#acfeb174c500250c548cc18875aa25ebe',1,'HydroCouple::IPropertyChanged::propertyChanged()'],['../class_component_info.html#a126888870e9c4eae60c179b67a5f39af',1,'ComponentInfo::propertyChanged()']]],
+  ['publications',['publications',['../class_hydro_couple_1_1_i_component_info.html#a2402db50c225ba4dba18ecdad60583d5',1,'HydroCouple::IComponentInfo::publications()'],['../class_component_info.html#a72084c0f6e62bb0688bf3db91a82b59f',1,'ComponentInfo::publications()']]]
 ];

@@ -106,7 +106,7 @@ var sectionId = 'dynsection-0';
 </g>
 <!-- Node4 -->
 <g id="node4" class="node"><title>Node4</title>
-<g id="a_node4"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. &#160;IIdentity extends the IDescription interface class, and therefore has, next to the id, a caption and a description. ">
+<g id="a_node4"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. ">
 <polygon fill="white" stroke="black" points="23.0713,-333.5 23.0713,-397.5 138.012,-397.5 138.012,-333.5 23.0713,-333.5"/>
 <text text-anchor="middle" x="80.5415" y="-385.5" font-family="Helvetica,sans-Serif" font-size="10.00">HydroCouple::IIdentity</text>
 <polyline fill="none" stroke="black" points="23.0713,-379.5 138.012,-379.5 "/>

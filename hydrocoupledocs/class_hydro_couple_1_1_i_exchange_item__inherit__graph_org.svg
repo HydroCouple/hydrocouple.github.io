@@ -84,7 +84,7 @@
 </g>
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
-<g id="a_node3"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. &#160;IIdentity extends the IDescription interface class, and therefore has, next to the id, a caption and a description. ">
+<g id="a_node3"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. ">
 <polygon fill="white" stroke="black" points="63,-524.5 63,-588.5 177.94,-588.5 177.94,-524.5 63,-524.5"/>
 <text text-anchor="middle" x="120.47" y="-576.5" font-family="Helvetica,sans-Serif" font-size="10.00">HydroCouple::IIdentity</text>
 <polyline fill="none" stroke="black" points="63,-570.5 177.94,-570.5 "/>

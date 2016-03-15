@@ -1,7 +1,6 @@
 var class_hydro_couple_1_1_i_argument =
 [
     [ "~IArgument", "class_hydro_couple_1_1_i_argument.html#a9974ea55339aa2a86516cdc5002cec5f", null ],
-    [ "canCopyFromAnother", "class_hydro_couple_1_1_i_argument.html#a020fa568b869641c9ef735c442358fcd", null ],
     [ "canReadFromFile", "class_hydro_couple_1_1_i_argument.html#ae5257ec94c2187088a574a3949fe459c", null ],
     [ "canReadFromString", "class_hydro_couple_1_1_i_argument.html#ab7373f486c7c8859e8db5ada7e28e61a", null ],
     [ "clone", "class_hydro_couple_1_1_i_argument.html#ae95013cb94f662768bbc9a7a7d4a448f", null ],

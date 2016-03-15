@@ -133,13 +133,11 @@ Public Member Functions</h2></td></tr>
 virtual <a class="el" href="class_hydro_couple_1_1_i_output.html">IOutput</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_input.html#a34f3290c124f1717255c5599555b7b1b">getProvider</a> () const  =0</td></tr>
 <tr class="memdesc:a34f3290c124f1717255c5599555b7b1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the producer this consumer should get its values from. <br /></td></tr>
 <tr class="separator:a34f3290c124f1717255c5599555b7b1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5dbd08f733f622d6cb73cddeb31d1021"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5dbd08f733f622d6cb73cddeb31d1021"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_input.html#a5dbd08f733f622d6cb73cddeb31d1021">setProvider</a> (<a class="el" href="class_hydro_couple_1_1_i_output.html">IOutput</a> *provider)=0</td></tr>
-<tr class="memdesc:a5dbd08f733f622d6cb73cddeb31d1021"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the producer this consumer should get its values from. <br /></td></tr>
+<tr class="memitem:a5dbd08f733f622d6cb73cddeb31d1021"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_input.html#a5dbd08f733f622d6cb73cddeb31d1021">setProvider</a> (<a class="el" href="class_hydro_couple_1_1_i_output.html">IOutput</a> *provider)=0</td></tr>
+<tr class="memdesc:a5dbd08f733f622d6cb73cddeb31d1021"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the producer this consumer should get its values from.  <a href="#a5dbd08f733f622d6cb73cddeb31d1021">More...</a><br /></td></tr>
 <tr class="separator:a5dbd08f733f622d6cb73cddeb31d1021"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a061921232b68dc9f15debd6fe23bd432"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a061921232b68dc9f15debd6fe23bd432"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_input.html#a061921232b68dc9f15debd6fe23bd432">canConsume</a> (const <a class="el" href="class_hydro_couple_1_1_i_output.html">IOutput</a> *provider) const  =0</td></tr>
-<tr class="memdesc:a061921232b68dc9f15debd6fe23bd432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if this <a class="el" href="class_hydro_couple_1_1_i_input.html" title="An IInput item that can accept values for an IModelComponent. ">IInput</a> can consume this producer. <br /></td></tr>
+<tr class="memitem:a061921232b68dc9f15debd6fe23bd432"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_input.html#a061921232b68dc9f15debd6fe23bd432">canConsume</a> (const <a class="el" href="class_hydro_couple_1_1_i_output.html">IOutput</a> *provider) const  =0</td></tr>
+<tr class="memdesc:a061921232b68dc9f15debd6fe23bd432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if this <a class="el" href="class_hydro_couple_1_1_i_input.html" title="An IInput item that can accept values for an IModelComponent. ">IInput</a> can consume this producer.  <a href="#a061921232b68dc9f15debd6fe23bd432">More...</a><br /></td></tr>
 <tr class="separator:a061921232b68dc9f15debd6fe23bd432"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_exchange_item"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_exchange_item')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_exchange_item.html">HydroCouple::IExchangeItem</a></td></tr>
 <tr class="memitem:af983bd3d9156633a3b9961de2815575b inherit pub_methods_class_hydro_couple_1_1_i_exchange_item"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_exchange_item.html#af983bd3d9156633a3b9961de2815575b">itemChanged</a> (const <a class="el" href="class_hydro_couple_1_1_i_exchange_item_change_event_args.html">IExchangeItemChangeEventArgs</a> &amp;statusChangedEvent)=0</td></tr>
@@ -150,7 +148,7 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memdesc:a1f4d75e57daa0e7f7af795ce33309e88 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the owner <a class="el" href="class_hydro_couple_1_1_i_model_component.html" title="IModelComponent interface is the core interface in the HydroCouple standard defining a model componen...">IModelComponent</a> of this IComponentItem.For an <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a> component item this is the component responsible for providing the content of the <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a>.  <a href="#a1f4d75e57daa0e7f7af795ce33309e88">More...</a><br /></td></tr>
 <tr class="separator:a1f4d75e57daa0e7f7af795ce33309e88 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab37dd4f3679947397c9a79edd74d0ea1 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memItemLeft" align="right" valign="top">virtual QList&lt; <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_component_item.html#ab37dd4f3679947397c9a79edd74d0ea1">dimensions</a> () const  =0</td></tr>
-<tr class="memdesc:ab37dd4f3679947397c9a79edd74d0ea1 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="mdescLeft">&#160;</td><td class="mdescRight">provides the dimensions associated with this <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a>  <a href="#ab37dd4f3679947397c9a79edd74d0ea1">More...</a><br /></td></tr>
+<tr class="memdesc:ab37dd4f3679947397c9a79edd74d0ea1 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="mdescLeft">&#160;</td><td class="mdescRight">provides the dimensions associated with this <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a>.  <a href="#ab37dd4f3679947397c9a79edd74d0ea1">More...</a><br /></td></tr>
 <tr class="separator:ab37dd4f3679947397c9a79edd74d0ea1 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_identity"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_identity')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_identity.html">HydroCouple::IIdentity</a></td></tr>
 <tr class="memitem:a6310a9d5339603f3422791b2bd9b4c56 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memItemLeft" align="right" valign="top">virtual QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_identity.html#a6310a9d5339603f3422791b2bd9b4c56">id</a> () const  =0</td></tr>
@@ -179,7 +177,72 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>An <a class="el" href="class_hydro_couple_1_1_i_input.html" title="An IInput item that can accept values for an IModelComponent. ">IInput</a> item that can accept values for an <a class="el" href="class_hydro_couple_1_1_i_model_component.html" title="IModelComponent interface is the core interface in the HydroCouple standard defining a model componen...">IModelComponent</a>. </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a061921232b68dc9f15debd6fe23bd432"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool HydroCouple::IInput::canConsume </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="class_hydro_couple_1_1_i_output.html">IOutput</a> *&#160;</td>
+          <td class="paramname"><em>provider</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns true if this <a class="el" href="class_hydro_couple_1_1_i_input.html" title="An IInput item that can accept values for an IModelComponent. ">IInput</a> can consume this producer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">provider</td><td>is the <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a> that can supply the data to this <a class="el" href="class_hydro_couple_1_1_i_input.html" title="An IInput item that can accept values for an IModelComponent. ">IInput</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a5dbd08f733f622d6cb73cddeb31d1021"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void HydroCouple::IInput::setProvider </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_hydro_couple_1_1_i_output.html">IOutput</a> *&#160;</td>
+          <td class="paramname"><em>provider</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sets the producer this consumer should get its values from. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">provider</td><td>is the <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a> that supplies the data to this <a class="el" href="class_hydro_couple_1_1_i_input.html" title="An IInput item that can accept values for an IModelComponent. ">IInput</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>/Users/calebbuahin/Documents/Projects/HydroCouple/HydroCouple/include/<a class="el" href="hydrocouple_8h_source.html">hydrocouple.h</a></li>
 </ul>
 </div><!-- contents -->
