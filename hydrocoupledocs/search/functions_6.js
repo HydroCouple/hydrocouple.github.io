@@ -14,5 +14,6 @@ var searchData=
   ['getprovider',['getProvider',['../class_hydro_couple_1_1_i_input.html#a34f3290c124f1717255c5599555b7b1b',1,'HydroCouple::IInput']]],
   ['getrasterband',['getRasterBand',['../class_hydro_couple_1_1_spatial_1_1_i_raster.html#a2fb7cee15d778f6b2a7c608355ee1031',1,'HydroCouple::Spatial::IRaster']]],
   ['getvalue',['getValue',['../class_hydro_couple_1_1_i_value_set.html#a2e922a3576205d7dad17ce56f77079ee',1,'HydroCouple::IValueSet']]],
-  ['grid',['grid',['../class_hydro_couple_1_1_spatial_1_1_i2_d_regular_grid_component_item.html#abc6181723bbcc33e301ad6b48ef0f8b4',1,'HydroCouple::Spatial::I2DRegularGridComponentItem::grid()'],['../class_hydro_couple_1_1_spatial_1_1_i3_d_regular_grid_component_item.html#a2d5e8d94a138d9622837a3227b52718a',1,'HydroCouple::Spatial::I3DRegularGridComponentItem::grid()']]]
+  ['grid',['grid',['../class_hydro_couple_1_1_spatial_1_1_i2_d_regular_grid_component_item.html#abc6181723bbcc33e301ad6b48ef0f8b4',1,'HydroCouple::Spatial::I2DRegularGridComponentItem::grid()'],['../class_hydro_couple_1_1_spatial_1_1_i3_d_regular_grid_component_item.html#a2d5e8d94a138d9622837a3227b52718a',1,'HydroCouple::Spatial::I3DRegularGridComponentItem::grid()']]],
+  ['gridtype',['gridType',['../class_hydro_couple_1_1_spatial_1_1_i2_d_regular_grid.html#aba2f2063bf2463b482af7a091673ef42',1,'HydroCouple::Spatial::I2DRegularGrid']]]
 ];

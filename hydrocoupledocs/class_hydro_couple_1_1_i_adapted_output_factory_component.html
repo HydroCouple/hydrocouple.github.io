@@ -126,13 +126,22 @@ Inheritance diagram for HydroCouple::IAdaptedOutputFactoryComponent:</div>
 <div class="dyncontent">
 <div class="center"><div class="zoom"><iframe scrolling="no" frameborder="0" src="class_hydro_couple_1_1_i_adapted_output_factory_component__inherit__graph.svg" width="100%" height="600"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div></div>
 </div>
+<div class="dynheader">
+Collaboration diagram for HydroCouple::IAdaptedOutputFactoryComponent:</div>
+<div class="dyncontent">
+<div class="center"><div class="zoom"><iframe scrolling="no" frameborder="0" src="class_hydro_couple_1_1_i_adapted_output_factory_component__coll__graph.svg" width="100%" height="600"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div></div>
+</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a9fdc51f616db2abe7f45e835fead1887"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_adapted_output_factory_component.html#a9fdc51f616db2abe7f45e835fead1887">~IAdaptedOutputFactoryComponent</a> ()</td></tr>
+<tr class="separator:a9fdc51f616db2abe7f45e835fead1887"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49c8894f58670f6363d316b2482b55d6"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_i_adapted_output_factory_component_info.html">IAdaptedOutputFactoryComponentInfo</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_adapted_output_factory_component.html#a49c8894f58670f6363d316b2482b55d6">componentInfo</a> () const  =0</td></tr>
 <tr class="memdesc:a49c8894f58670f6363d316b2482b55d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains the metadata about the <a class="el" href="class_hydro_couple_1_1_i_model_component.html" title="IModelComponent interface is the core interface in the HydroCouple standard defining a model componen...">IModelComponent</a>.  <a href="#a49c8894f58670f6363d316b2482b55d6">More...</a><br /></td></tr>
 <tr class="separator:a49c8894f58670f6363d316b2482b55d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_adapted_output_factory"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_adapted_output_factory')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_adapted_output_factory.html">HydroCouple::IAdaptedOutputFactory</a></td></tr>
+<tr class="memitem:a649a7a9292b5ce8893cc03a959a9b889 inherit pub_methods_class_hydro_couple_1_1_i_adapted_output_factory"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_adapted_output_factory.html#a649a7a9292b5ce8893cc03a959a9b889">~IAdaptedOutputFactory</a> ()</td></tr>
+<tr class="separator:a649a7a9292b5ce8893cc03a959a9b889 inherit pub_methods_class_hydro_couple_1_1_i_adapted_output_factory"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa05c60a5f17dc1b29949cf0c70558c32 inherit pub_methods_class_hydro_couple_1_1_i_adapted_output_factory"><td class="memItemLeft" align="right" valign="top">virtual QList&lt; <a class="el" href="class_hydro_couple_1_1_i_identity.html">IIdentity</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_adapted_output_factory.html#aa05c60a5f17dc1b29949cf0c70558c32">getAvailableAdaptedOutputIds</a> (const <a class="el" href="class_hydro_couple_1_1_i_output.html">IOutput</a> *provider, const <a class="el" href="class_hydro_couple_1_1_i_input.html">IInput</a> *consumer)=0</td></tr>
 <tr class="memdesc:aa05c60a5f17dc1b29949cf0c70558c32 inherit pub_methods_class_hydro_couple_1_1_i_adapted_output_factory"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a list of <a class="el" href="class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. ">IIdentity</a> objects representing the list of the available <a class="el" href="class_hydro_couple_1_1_i_adapted_output.html" title="An IAdaptedOutput adds one or more data operations on top of an IOutput. ">IAdaptedOutput</a> that can make the producer match the consumer.  <a href="#aa05c60a5f17dc1b29949cf0c70558c32">More...</a><br /></td></tr>
 <tr class="separator:aa05c60a5f17dc1b29949cf0c70558c32 inherit pub_methods_class_hydro_couple_1_1_i_adapted_output_factory"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,10 +149,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a6992ae409a1fdf0f970f471f98262a05 inherit pub_methods_class_hydro_couple_1_1_i_adapted_output_factory"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a <a class="el" href="class_hydro_couple_1_1_i_adapted_output.html" title="An IAdaptedOutput adds one or more data operations on top of an IOutput. ">IAdaptedOutput</a> that adapts the producer so that it fits the consumer.  <a href="#a6992ae409a1fdf0f970f471f98262a05">More...</a><br /></td></tr>
 <tr class="separator:a6992ae409a1fdf0f970f471f98262a05 inherit pub_methods_class_hydro_couple_1_1_i_adapted_output_factory"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_identity"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_identity')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_identity.html">HydroCouple::IIdentity</a></td></tr>
+<tr class="memitem:aa69311baebd14ca6078474103f0b69da inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_identity.html#aa69311baebd14ca6078474103f0b69da">~IIdentity</a> ()</td></tr>
+<tr class="separator:aa69311baebd14ca6078474103f0b69da inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6310a9d5339603f3422791b2bd9b4c56 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memItemLeft" align="right" valign="top">virtual QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_identity.html#a6310a9d5339603f3422791b2bd9b4c56">id</a> () const  =0</td></tr>
 <tr class="memdesc:a6310a9d5339603f3422791b2bd9b4c56 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets a unique identifier for the entity.  <a href="#a6310a9d5339603f3422791b2bd9b4c56">More...</a><br /></td></tr>
 <tr class="separator:a6310a9d5339603f3422791b2bd9b4c56 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_description"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_description')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_description.html">HydroCouple::IDescription</a></td></tr>
+<tr class="memitem:ac22c6687c71243d53d2a39dceff15903 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#ac22c6687c71243d53d2a39dceff15903">~IDescription</a> ()</td></tr>
+<tr class="separator:ac22c6687c71243d53d2a39dceff15903 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac93b47c6dbc4d89bd7816080ff6dd98f inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#ac93b47c6dbc4d89bd7816080ff6dd98f">getCaption</a> () const  =0</td></tr>
 <tr class="memdesc:ac93b47c6dbc4d89bd7816080ff6dd98f inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets caption for the entity.  <a href="#ac93b47c6dbc4d89bd7816080ff6dd98f">More...</a><br /></td></tr>
 <tr class="separator:ac93b47c6dbc4d89bd7816080ff6dd98f inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -156,6 +169,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a21a41c2f3dc342e33652b1e084694b6b inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#a21a41c2f3dc342e33652b1e084694b6b">setDescription</a> (const QString &amp;decription)=0</td></tr>
 <tr class="memdesc:a21a41c2f3dc342e33652b1e084694b6b inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets additional descriptive information for the entity.  <a href="#a21a41c2f3dc342e33652b1e084694b6b">More...</a><br /></td></tr>
 <tr class="separator:a21a41c2f3dc342e33652b1e084694b6b inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_property_changed"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_property_changed')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_property_changed.html">HydroCouple::IPropertyChanged</a></td></tr>
+<tr class="memitem:a810e76722859d2a63dfe0e541c84ab98 inherit pub_methods_class_hydro_couple_1_1_i_property_changed"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_property_changed.html#a810e76722859d2a63dfe0e541c84ab98">~IPropertyChanged</a> ()</td></tr>
+<tr class="separator:a810e76722859d2a63dfe0e541c84ab98 inherit pub_methods_class_hydro_couple_1_1_i_property_changed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -166,7 +182,31 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="class_hydro_couple_1_1_i_adapted_output_factory_component.html" title="IAdaptedOutputFactoryComponent is an IAdaptedOutputFactory generated from an IAdaptedOutputFactoryCom...">IAdaptedOutputFactoryComponent</a> is an <a class="el" href="class_hydro_couple_1_1_i_adapted_output_factory.html" title="IAdaptedOutputFactory is used to create instances of IAdaptedProducerExchangeItems. ">IAdaptedOutputFactory</a> generated from an <a class="el" href="class_hydro_couple_1_1_i_adapted_output_factory_component_info.html" title="IAdaptedOutputFactoryComponentInfo interface class provides information about an IAdaptedOutputFactor...">IAdaptedOutputFactoryComponentInfo</a>. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a9fdc51f616db2abe7f45e835fead1887"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual HydroCouple::IAdaptedOutputFactoryComponent::~IAdaptedOutputFactoryComponent </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a49c8894f58670f6363d316b2482b55d6"></a>
 <div class="memitem">
 <div class="memproto">

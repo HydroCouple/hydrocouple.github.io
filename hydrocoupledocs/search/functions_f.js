@@ -6,7 +6,7 @@ var searchData=
   ['setdest',['setDest',['../class_hydro_couple_1_1_spatial_1_1_i_edge.html#a9a4822224ccb9b7380fdcb7944aad575',1,'HydroCouple::Spatial::IEdge']]],
   ['setgeometrycollection',['setGeometryCollection',['../class_hydro_couple_1_1_spatial_1_1_i_geometry_argument.html#ae71eabb1a9afa80abe26bdc334675a9e',1,'HydroCouple::Spatial::IGeometryArgument']]],
   ['setgrid',['setGrid',['../class_hydro_couple_1_1_spatial_1_1_i2_d_regular_grid_argument.html#abafaa3e3bad29f9ddf23b9790768ed4b',1,'HydroCouple::Spatial::I2DRegularGridArgument::setGrid()'],['../class_hydro_couple_1_1_spatial_1_1_i3_d_regular_grid_argument.html#a711eb36ba5e760d7c632dedef65957ac',1,'HydroCouple::Spatial::I3DRegularGridArgument::setGrid()']]],
-  ['setid',['setId',['../class_hydro_couple_1_1_spatial_1_1_i_edge.html#a249837ec5108dc4e9a1613b156a6a4d0',1,'HydroCouple::Spatial::IEdge']]],
+  ['setid',['setId',['../class_hydro_couple_1_1_spatial_1_1_i_edge.html#a249837ec5108dc4e9a1613b156a6a4d0',1,'HydroCouple::Spatial::IEdge::setId()'],['../class_identity.html#a30931aecbd238c1801b9a8ffa7351bed',1,'Identity::setId()']]],
   ['setleft',['setLeft',['../class_hydro_couple_1_1_spatial_1_1_i_edge.html#a30037623f57cac236406dc92932f610b',1,'HydroCouple::Spatial::IEdge']]],
   ['setlibraryfilepath',['setLibraryFilePath',['../class_hydro_couple_1_1_i_component_info.html#aabdd158fd67c99350576cb4dd6f2d65c',1,'HydroCouple::IComponentInfo::setLibraryFilePath()'],['../class_component_info.html#a731472cb76d294ba2709f6f297902891',1,'ComponentInfo::setLibraryFilePath()']]],
   ['setorig',['setOrig',['../class_hydro_couple_1_1_spatial_1_1_i_edge.html#acb91a0b9dc4c8d289929ed1f29391398',1,'HydroCouple::Spatial::IEdge']]],

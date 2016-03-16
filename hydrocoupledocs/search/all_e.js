@@ -5,6 +5,8 @@ var searchData=
   ['rasterdatatype',['RasterDataType',['../namespace_hydro_couple_1_1_spatial.html#ae3563ea9d450198e25de5766f335dea4',1,'HydroCouple::Spatial']]],
   ['rasterdimension',['rasterDimension',['../class_hydro_couple_1_1_spatial_1_1_i_raster_component_item.html#a2a0a6e67432d00a874133c35f0af9ce4',1,'HydroCouple::Spatial::IRasterComponentItem']]],
   ['read',['read',['../class_hydro_couple_1_1_spatial_1_1_i_raster_band.html#a24ba1792b3a352f966fac66c6012fb3a',1,'HydroCouple::Spatial::IRasterBand']]],
+  ['readme_2emd',['Readme.md',['../_d_k_2_r_e_a_d_m_e_8md.html',1,'']]],
+  ['readme_2emd',['README.md',['../_r_e_a_d_m_e_8md.html',1,'']]],
   ['readvalues',['readValues',['../class_hydro_couple_1_1_i_argument.html#a94cfed51030f49a9514518206217237a',1,'HydroCouple::IArgument::readValues(const QString &amp;value, bool isFile=false)=0'],['../class_hydro_couple_1_1_i_argument.html#a358a3eb7be63c86c85e55ed64eea40aa',1,'HydroCouple::IArgument::readValues(const IArgument *argument)=0']]],
   ['rectilinear',['Rectilinear',['../namespace_hydro_couple_1_1_spatial.html#aaf7f0055c26634e2d7cfd7ccde680d53a43083f4faa98823a51b822697f43a63c',1,'HydroCouple::Spatial']]],
   ['refresh',['refresh',['../class_hydro_couple_1_1_i_adapted_output.html#abffa58aaf19ff0142bbeaeae1d753f1c',1,'HydroCouple::IAdaptedOutput']]],

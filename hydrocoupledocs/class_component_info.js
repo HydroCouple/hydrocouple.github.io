@@ -5,7 +5,7 @@ var class_component_info =
     [ "category", "class_component_info.html#a4a8b5b53fee97584c41322bc23e409b7", null ],
     [ "copyright", "class_component_info.html#a5318ef46399f08a59174d0fdec6bf4af", null ],
     [ "email", "class_component_info.html#a6b63475ebf5bf3d8e5402c14b71b82d9", null ],
-    [ "hasValidLicense", "class_component_info.html#a5396b71795a98f83795094302b616125", null ],
+    [ "hasValidLicense", "class_component_info.html#a5f039b9942154ae08e61d29332c1c01f", null ],
     [ "iconFilePath", "class_component_info.html#a014300137459a04843d594af7da960c4", null ],
     [ "libraryFilePath", "class_component_info.html#a03336579a1e1b2e589e86ad2d7652ec1", null ],
     [ "license", "class_component_info.html#a31ac3b134f08ae10bc8deca49f7acc2b", null ],

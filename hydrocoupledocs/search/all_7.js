@@ -1,9 +1,13 @@
 var searchData=
 [
   ['hasprogressmonitor',['hasProgressMonitor',['../class_hydro_couple_1_1_i_component_status_change_event_args.html#a66edca80457072701c2372c6f998928a',1,'HydroCouple::IComponentStatusChangeEventArgs::hasProgressMonitor()'],['../class_component_status_change_event_args.html#a1f0acb5bcd5fb0fcac49292c6aca9523',1,'ComponentStatusChangeEventArgs::hasProgressMonitor()']]],
-  ['hasvalidlicense',['hasValidLicense',['../class_component_info.html#a5396b71795a98f83795094302b616125',1,'ComponentInfo']]],
+  ['hasvalidlicense',['hasValidLicense',['../class_component_info.html#a5f039b9942154ae08e61d29332c1c01f',1,'ComponentInfo']]],
+  ['homepage_2emd',['homepage.md',['../homepage_8md.html',1,'']]],
   ['hydrocouple',['HydroCouple',['../namespace_hydro_couple.html',1,'']]],
   ['hydrocouple_2eh',['hydrocouple.h',['../hydrocouple_8h.html',1,'']]],
+  ['hydrocouple_5fexport',['HYDROCOUPLE_EXPORT',['../hydrocouple_8h.html#ae1eff69fe0f5c0a03920fb8d14ba36f3',1,'hydrocouple.h']]],
+  ['hydrocouplesdk_2eh',['hydrocouplesdk.h',['../hydrocouplesdk_8h.html',1,'']]],
+  ['hydrocouplesdk_5fexport',['HYDROCOUPLESDK_EXPORT',['../hydrocouplesdk_8h.html#a3ebcde28cc2f0b0ed2877225b75abec8',1,'hydrocouplesdk.h']]],
   ['hydrocouplespatial_2eh',['hydrocouplespatial.h',['../hydrocouplespatial_8h.html',1,'']]],
   ['hydrocouplespatiotemporal_2eh',['hydrocouplespatiotemporal.h',['../hydrocouplespatiotemporal_8h.html',1,'']]],
   ['hydrocoupletemporal_2eh',['hydrocoupletemporal.h',['../hydrocoupletemporal_8h.html',1,'']]],

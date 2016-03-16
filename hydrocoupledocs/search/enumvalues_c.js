@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['uint16',['UInt16',['../namespace_hydro_couple_1_1_spatial.html#ae3563ea9d450198e25de5766f335dea4a3237429c66b804b3d521c1696542141e',1,'HydroCouple::Spatial']]],
-  ['uint32',['UInt32',['../namespace_hydro_couple_1_1_spatial.html#ae3563ea9d450198e25de5766f335dea4a7b123fe493b0f4c0ae655be468c91afd',1,'HydroCouple::Spatial']]],
-  ['unknown',['Unknown',['../namespace_hydro_couple_1_1_spatial.html#ae3563ea9d450198e25de5766f335dea4a4eae89240b3b663bd245fd295cb89f04',1,'HydroCouple::Spatial']]],
-  ['updated',['Updated',['../namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03a32c4b74fa698bcaa1257a9a16b174067',1,'HydroCouple']]],
-  ['updating',['Updating',['../namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03a5d9d424626d3e678ab95de1a4badbefb',1,'HydroCouple']]]
+  ['surface',['Surface',['../namespace_hydro_couple_1_1_spatial.html#a9e4db482852fdf6cf83f02dc5fac8507a10f1da6b28c6b4cd69dc923cb6c43570',1,'HydroCouple::Spatial']]],
+  ['surfacem',['SurfaceM',['../namespace_hydro_couple_1_1_spatial.html#a9e4db482852fdf6cf83f02dc5fac8507a931d96b44e17a25877f785028b182d8b',1,'HydroCouple::Spatial']]],
+  ['surfacez',['SurfaceZ',['../namespace_hydro_couple_1_1_spatial.html#a9e4db482852fdf6cf83f02dc5fac8507a9c1f50eec98983e6900ae4b385281153',1,'HydroCouple::Spatial']]],
+  ['surfacezm',['SurfaceZM',['../namespace_hydro_couple_1_1_spatial.html#a9e4db482852fdf6cf83f02dc5fac8507a60ba1f6f1ab65a9be50bbd0df1a36036',1,'HydroCouple::Spatial']]]
 ];
