@@ -3,6 +3,7 @@ var searchData=
   ['canconsume',['canConsume',['../class_hydro_couple_1_1_i_input.html#a061921232b68dc9f15debd6fe23bd432',1,'HydroCouple::IInput']]],
   ['canreadfromfile',['canReadFromFile',['../class_hydro_couple_1_1_i_argument.html#ae5257ec94c2187088a574a3949fe459c',1,'HydroCouple::IArgument']]],
   ['canreadfromstring',['canReadFromString',['../class_hydro_couple_1_1_i_argument.html#ab7373f486c7c8859e8db5ada7e28e61a',1,'HydroCouple::IArgument']]],
+  ['cartesian',['Cartesian',['../namespace_hydro_couple_1_1_spatial.html#aaf7f0055c26634e2d7cfd7ccde680d53aa62beaadd949183c0890ab0abd5d1bf9',1,'HydroCouple::Spatial']]],
   ['categories',['categories',['../class_hydro_couple_1_1_i_quality.html#aa3c160a8e5a5c4bf677f49a56066e152',1,'HydroCouple::IQuality']]],
   ['category',['category',['../class_hydro_couple_1_1_i_component_info.html#af9aa214f54f818367136d58f7514e16e',1,'HydroCouple::IComponentInfo::category()'],['../class_component_info.html#a4a8b5b53fee97584c41322bc23e409b7',1,'ComponentInfo::category()']]],
   ['centroid',['centroid',['../class_hydro_couple_1_1_spatial_1_1_i_surface.html#af60f38557df5e08eefce630aecc4507f',1,'HydroCouple::Spatial::ISurface::centroid()'],['../class_hydro_couple_1_1_spatial_1_1_i_multi_surface.html#a1e61ec15942fa474ea81e9273f2d7c59',1,'HydroCouple::Spatial::IMultiSurface::centroid()']]],
@@ -29,5 +30,6 @@ var searchData=
   ['createcomponentinstance',['createComponentInstance',['../class_hydro_couple_1_1_i_model_component_info.html#a17ae3a8b84fe20a0bcc6901003269058',1,'HydroCouple::IModelComponentInfo::createComponentInstance()'],['../class_hydro_couple_1_1_i_adapted_output_factory_component_info.html#a7c49814edb4f09210cc28ca810e03973',1,'HydroCouple::IAdaptedOutputFactoryComponentInfo::createComponentInstance()']]],
   ['created',['Created',['../namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03a03894703c08dd9ab7306add54a772750',1,'HydroCouple']]],
   ['crosses',['crosses',['../class_hydro_couple_1_1_spatial_1_1_i_geometry.html#ad63b8abf09c7817c13245bbd11413a01',1,'HydroCouple::Spatial::IGeometry']]],
-  ['currency',['Currency',['../namespace_hydro_couple.html#a3b0c4ea98032b00a2da319636be02d67a13f50b9050ce7c2c465765638343dccb',1,'HydroCouple']]]
+  ['currency',['Currency',['../namespace_hydro_couple.html#a3b0c4ea98032b00a2da319636be02d67a13f50b9050ce7c2c465765638343dccb',1,'HydroCouple']]],
+  ['curvilinear',['Curvilinear',['../namespace_hydro_couple_1_1_spatial.html#aaf7f0055c26634e2d7cfd7ccde680d53a9faa5b3b7daf05328db8fec6332fdad8',1,'HydroCouple::Spatial']]]
 ];

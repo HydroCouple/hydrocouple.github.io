@@ -90,7 +90,7 @@ var sectionId = 'dynsection-0';
 </g>
 <!-- Node9 -->
 <g id="node9" class="node"><title>Node9</title>
-<g id="a_node9"><a xlink:href="class_model_component_info.html" target="_top" xlink:title=" ">
+<g id="a_node9"><a xlink:href="class_model_component_info.html" target="_top" xlink:title="The ModelComponentInfo class. ">
 <polygon fill="white" stroke="black" points="55.792,-0.5 55.792,-54.5 167.407,-54.5 167.407,-0.5 55.792,-0.5"/>
 <text text-anchor="middle" x="111.6" y="-42.5" font-family="Helvetica,sans-Serif" font-size="10.00">ModelComponentInfo</text>
 <polyline fill="none" stroke="black" points="55.792,-36.5 167.407,-36.5 "/>
@@ -107,7 +107,7 @@ var sectionId = 'dynsection-0';
 </g>
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
-<g id="a_node2"><a xlink:href="class_identity.html" target="_top" xlink:title="{Identity\n|+ Id\l|+ Identity()\l+ Identity()\l+ ~Identity()\l+ id()\l# setId()\l}">
+<g id="a_node2"><a xlink:href="class_identity.html" target="_top" xlink:title="The Identity class. ">
 <polygon fill="white" stroke="black" points="12.9199,-467.5 12.9199,-561.5 82.2793,-561.5 82.2793,-467.5 12.9199,-467.5"/>
 <text text-anchor="middle" x="47.5996" y="-549.5" font-family="Helvetica,sans-Serif" font-size="10.00">Identity</text>
 <polyline fill="none" stroke="black" points="12.9199,-543.5 82.2793,-543.5 "/>
@@ -128,7 +128,7 @@ var sectionId = 'dynsection-0';
 </g>
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
-<g id="a_node3"><a xlink:href="class_description.html" target="_top" xlink:title="{Description\n|+ Caption\l+ Description\l# m_caption\l# m_description\l|+ Description()\l+ Description()\l+ ~Description()\l+ getCaption()\l+ setCaption()\l+ getDescription()\l+ setDescription()\l}">
+<g id="a_node3"><a xlink:href="class_description.html" target="_top" xlink:title="The Description class. ">
 <polygon fill="white" stroke="black" points="0,-643.5 0,-787.5 95.1992,-787.5 95.1992,-643.5 0,-643.5"/>
 <text text-anchor="middle" x="47.5996" y="-775.5" font-family="Helvetica,sans-Serif" font-size="10.00">Description</text>
 <polyline fill="none" stroke="black" points="0,-769.5 95.1992,-769.5 "/>

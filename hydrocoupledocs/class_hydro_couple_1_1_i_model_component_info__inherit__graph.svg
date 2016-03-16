@@ -67,7 +67,7 @@ var sectionId = 'dynsection-0';
 </g>
 <!-- Node6 -->
 <g id="node6" class="node"><title>Node6</title>
-<g id="a_node6"><a xlink:href="class_model_component_info.html" target="_top" xlink:title=" ">
+<g id="a_node6"><a xlink:href="class_model_component_info.html" target="_top" xlink:title="The ModelComponentInfo class. ">
 <polygon fill="white" stroke="black" points="33.3496,-0.5 33.3496,-54.5 144.965,-54.5 144.965,-0.5 33.3496,-0.5"/>
 <text text-anchor="middle" x="89.1572" y="-42.5" font-family="Helvetica,sans-Serif" font-size="10.00">ModelComponentInfo</text>
 <polyline fill="none" stroke="black" points="33.3496,-36.5 144.965,-36.5 "/>

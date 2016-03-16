@@ -27,7 +27,7 @@
 </g>
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
-<g id="a_node2"><a xlink:href="class_component_status_change_event_args.html" target="_top" xlink:title=" ">
+<g id="a_node2"><a xlink:href="class_component_status_change_event_args.html" target="_top" xlink:title="The ComponentStatusChangeEventArgs class. ">
 <polygon fill="white" stroke="black" points="1.38916,-0.5 1.38916,-164.5 199.718,-164.5 199.718,-0.5 1.38916,-0.5"/>
 <text text-anchor="middle" x="100.554" y="-152.5" font-family="Helvetica,sans-Serif" font-size="10.00">ComponentStatusChangeEventArgs</text>
 <polyline fill="none" stroke="black" points="1.38916,-146.5 199.718,-146.5 "/>

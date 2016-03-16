@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['datatype',['dataType',['../class_hydro_couple_1_1_spatial_1_1_i_raster_band.html#a901ed50209b9ad3124da8418913b8a55',1,'HydroCouple::Spatial::IRasterBand']]],
   ['datetime',['dateTime',['../class_hydro_couple_1_1_temporal_1_1_i_time.html#a06e2a68aafa8a82017d3b7f5ac928f33',1,'HydroCouple::Temporal::ITime']]],
   ['defaultvalue',['defaultValue',['../class_hydro_couple_1_1_i_value_definition.html#a77d4377166b60ec56fd89a4927470fe5',1,'HydroCouple::IValueDefinition']]],
   ['deletefaceedge',['deleteFaceEdge',['../class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface.html#a720d5a0180c57001bced82a2ffe1484f',1,'HydroCouple::Spatial::IPolyhedralSurface']]],

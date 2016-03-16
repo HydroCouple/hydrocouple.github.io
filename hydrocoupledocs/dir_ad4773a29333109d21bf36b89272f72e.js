@@ -1,6 +1,8 @@
 var dir_ad4773a29333109d21bf36b89272f72e =
 [
-    [ "abstractmodelcomponent.h", "abstractmodelcomponent_8h_source.html", null ],
+    [ "abstractmodelcomponent.h", "abstractmodelcomponent_8h.html", [
+      [ "AbstractModelComponent", "class_abstract_model_component.html", "class_abstract_model_component" ]
+    ] ],
     [ "componentinfo.h", "componentinfo_8h_source.html", null ],
     [ "componentstatuschangeeventargs.h", "componentstatuschangeeventargs_8h_source.html", null ],
     [ "description.h", "description_8h_source.html", null ],

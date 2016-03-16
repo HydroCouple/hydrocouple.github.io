@@ -30,7 +30,7 @@
 </g>
 <!-- Node5 -->
 <g id="node5" class="node"><title>Node5</title>
-<g id="a_node5"><a xlink:href="class_abstract_model_component.html" target="_top" xlink:title=" ">
+<g id="a_node5"><a xlink:href="class_abstract_model_component.html" target="_top" xlink:title="AbstractModelComponent class. ">
 <polygon fill="white" stroke="black" points="4.45068,-0.5 4.45068,-274.5 157.184,-274.5 157.184,-0.5 4.45068,-0.5"/>
 <text text-anchor="middle" x="80.8174" y="-262.5" font-family="Helvetica,sans-Serif" font-size="10.00">AbstractModelComponent</text>
 <polyline fill="none" stroke="black" points="4.45068,-256.5 157.184,-256.5 "/>

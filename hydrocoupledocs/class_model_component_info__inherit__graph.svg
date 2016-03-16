@@ -107,7 +107,7 @@ var sectionId = 'dynsection-0';
 </g>
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
-<g id="a_node3"><a xlink:href="class_identity.html" target="_top" xlink:title="{Identity\n|+ Id\l|+ Identity()\l+ Identity()\l+ ~Identity()\l+ id()\l# setId()\l}">
+<g id="a_node3"><a xlink:href="class_identity.html" target="_top" xlink:title="The Identity class. ">
 <polygon fill="white" stroke="black" points="21.2549,-467.5 21.2549,-561.5 90.6143,-561.5 90.6143,-467.5 21.2549,-467.5"/>
 <text text-anchor="middle" x="55.9346" y="-549.5" font-family="Helvetica,sans-Serif" font-size="10.00">Identity</text>
 <polyline fill="none" stroke="black" points="21.2549,-543.5 90.6143,-543.5 "/>
@@ -128,7 +128,7 @@ var sectionId = 'dynsection-0';
 </g>
 <!-- Node4 -->
 <g id="node4" class="node"><title>Node4</title>
-<g id="a_node4"><a xlink:href="class_description.html" target="_top" xlink:title="{Description\n|+ Caption\l+ Description\l# m_caption\l# m_description\l|+ Description()\l+ Description()\l+ ~Description()\l+ getCaption()\l+ setCaption()\l+ getDescription()\l+ setDescription()\l}">
+<g id="a_node4"><a xlink:href="class_description.html" target="_top" xlink:title="The Description class. ">
 <polygon fill="white" stroke="black" points="8.33496,-643.5 8.33496,-787.5 103.534,-787.5 103.534,-643.5 8.33496,-643.5"/>
 <text text-anchor="middle" x="55.9346" y="-775.5" font-family="Helvetica,sans-Serif" font-size="10.00">Description</text>
 <polyline fill="none" stroke="black" points="8.33496,-769.5 103.534,-769.5 "/>

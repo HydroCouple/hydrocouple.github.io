@@ -1,6 +1,7 @@
 var namespace_hydro_couple =
 [
     [ "Spatial", "namespace_hydro_couple_1_1_spatial.html", "namespace_hydro_couple_1_1_spatial" ],
+    [ "SpatioTemporal", "namespace_hydro_couple_1_1_spatio_temporal.html", "namespace_hydro_couple_1_1_spatio_temporal" ],
     [ "Temporal", "namespace_hydro_couple_1_1_temporal.html", "namespace_hydro_couple_1_1_temporal" ],
     [ "IAdaptedOutput", "class_hydro_couple_1_1_i_adapted_output.html", "class_hydro_couple_1_1_i_adapted_output" ],
     [ "IAdaptedOutputFactory", "class_hydro_couple_1_1_i_adapted_output_factory.html", "class_hydro_couple_1_1_i_adapted_output_factory" ],

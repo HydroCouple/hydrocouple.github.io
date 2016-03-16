@@ -121,8 +121,7 @@ $(document).ready(function(){initNavTree('class_abstract_model_component.html','
 </div><!--header-->
 <div class="contents">
 
-<p><hr/>
-  
+<p><a class="el" href="class_abstract_model_component.html" title="AbstractModelComponent class. ">AbstractModelComponent</a> class.  
  <a href="class_abstract_model_component.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="abstractmodelcomponent_8h_source.html">abstractmodelcomponent.h</a>&gt;</code></p>
@@ -316,8 +315,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setId</b> (const QStr
 <tr class="separator:a30931aecbd238c1801b9a8ffa7351bed inherit pro_methods_class_identity"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><hr/>
- </div><h2 class="groupheader">Member Function Documentation</h2>
+<div class="textblock"><p><a class="el" href="class_abstract_model_component.html" title="AbstractModelComponent class. ">AbstractModelComponent</a> class. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a34346734f239bc521fc9cf2626cd9058"></a>
 <div class="memitem">
 <div class="memproto">
@@ -512,7 +511,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setId</b> (const QStr
 <p>Initializes the current IModelComponent. </p>
 <p>The <a class="el" href="class_abstract_model_component.html#a3eda9e6a396888d8ede9164674b7f3b4" title="Initializes the current IModelComponent. ">initialize()</a> method must be invoked before any other method or property in the IModelComponent interface is invoked or accessed, except for the Arguments property.</p>
 <p>Immediately after the method is invoked, it changes the IModelComponent's status to <a class="el" href="namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03a6981f698e60e9a6785da480b7c2f3b43" title="The IModelComponent is initializing itself. This status will end in a status change to HydroCouple::I...">HydroCouple::Initializing</a>. When the method is executed and an error occurs, the status of the component will change to <a class="el" href="namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03a7e67a48b8a07539ef9f0aa0fc82bcc19" title="The IModelComponent was requested to perform the actions to be perform before it will either be dispo...">HydroCouple::Failed</a>, and an exception will be thrown. If the component initializes succesfully, the status is changed to <a class="el" href="namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03ac40679da152b0054941ecff4ed04b9a2" title="The IModelComponent has succesfully initialized itself by calliing IModelComponent::initialize(). The connections between its inputs/outputs and those of other components can be established. ">HydroCouple::Initialized</a>.</p>
-<p>When the <a class="el" href="class_abstract_model_component.html#a3eda9e6a396888d8ede9164674b7f3b4" title="Initializes the current IModelComponent. ">initialize()</a> method has been finished and the status is <a class="el" href="namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03ac40679da152b0054941ecff4ed04b9a2" title="The IModelComponent has succesfully initialized itself by calliing IModelComponent::initialize(). The connections between its inputs/outputs and those of other components can be established. ">HydroCouple::Initialized</a>, the properties Id, Caption, <a class="el" href="class_description.html">Description</a>, Inputs, Outputs, have been set, and the method <a class="el" href="class_abstract_model_component.html#a50f733786f0a473a5ce09fd83af05523" title="Validates the populated instance of the IModelComponent. ">validate()</a> can be called.</p>
+<p>When the <a class="el" href="class_abstract_model_component.html#a3eda9e6a396888d8ede9164674b7f3b4" title="Initializes the current IModelComponent. ">initialize()</a> method has been finished and the status is <a class="el" href="namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03ac40679da152b0054941ecff4ed04b9a2" title="The IModelComponent has succesfully initialized itself by calliing IModelComponent::initialize(). The connections between its inputs/outputs and those of other components can be established. ">HydroCouple::Initialized</a>, the properties Id, Caption, <a class="el" href="class_description.html" title="The Description class. ">Description</a>, Inputs, Outputs, have been set, and the method <a class="el" href="class_abstract_model_component.html#a50f733786f0a473a5ce09fd83af05523" title="Validates the populated instance of the IModelComponent. ">validate()</a> can be called.</p>
 <p>It is only required that the method <a class="el" href="class_abstract_model_component.html#a3eda9e6a396888d8ede9164674b7f3b4" title="Initializes the current IModelComponent. ">initialize()</a> can be invoked once. If the <a class="el" href="class_abstract_model_component.html#a3eda9e6a396888d8ede9164674b7f3b4" title="Initializes the current IModelComponent. ">initialize()</a> method is invoked more than once and the IModelComponent cannot handle this; an exception must be thrown.</p>
 <dl class="section remark"><dt>Remarks</dt><dd>The method will typically populate the component based on the values specified in its arguments, which can be retrieved with arguments. Settings can be used to read input files, allocate memory, and organize input and output exchange items. </dd></dl>
 
