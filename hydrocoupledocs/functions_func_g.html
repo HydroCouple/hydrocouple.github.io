@@ -35,7 +35,7 @@
    <div id="projectname">HydroCouple
    &#160;<span id="projectnumber">1.0.0</span>
    </div>
-   <div id="projectbrief">A Component-Based Model Coupling Interface Definition and SDK</div>
+   <div id="projectbrief">A Component-Based Model Coupling Interface Definition</div>
   </td>
  </tr>
  </tbody>
@@ -83,9 +83,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="functions.html"><span>All</span></a></li>
       <li class="current"><a href="functions_func.html"><span>Functions</span></a></li>
-      <li><a href="functions_vars.html"><span>Variables</span></a></li>
-      <li><a href="functions_prop.html"><span>Properties</span></a></li>
-      <li><a href="functions_rela.html"><span>Related&#160;Functions</span></a></li>
     </ul>
   </div>
   <div id="navrow4" class="tabs3">
@@ -153,9 +150,13 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_geometry_collection.html#a61cba3465ee13c459c842b069569cd28">HydroCouple::Spatial::IGeometryCollection</a>
 , <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_geometry_component_item.html#a94fd5906ef4eebe71ccea4e86eba6d37">HydroCouple::Spatial::IGeometryComponentItem</a>
 , <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_component_item.html#ae5d833241cc3e82b72b87d73746393a8">HydroCouple::Spatial::IPolyhedralSurfaceComponentItem</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_t_i_n_component_item.html#a5241c985acf19ea756c644075c424007">HydroCouple::Spatial::ITINComponentItem</a>
 </li>
 <li>geometryCollection()
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_geometry_component_item.html#ad24fb838f7bfc469559c4f13a9927e9f">HydroCouple::Spatial::IGeometryComponentItem</a>
+</li>
+<li>geometryComponentItem()
+: <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_geometry_value_set.html#afe9959cca0e13bbcb8f8edb4d43767eb">HydroCouple::Spatial::IGeometryValueSet</a>
 </li>
 <li>geometryCount()
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_geometry_collection.html#a1daa1d3cbf726da4af9f58ce90e393cb">HydroCouple::Spatial::IGeometryCollection</a>
@@ -166,6 +167,12 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 <li>geometryType()
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_geometry.html#a1d521dd3913741405da0efe3ab9b70d0">HydroCouple::Spatial::IGeometry</a>
 </li>
+<li>geometryValues()
+: <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_geometry_exchange_item.html#ad4e0ade6c7e4396d4277f2e9128165d6">HydroCouple::Spatial::IGeometryExchangeItem</a>
+</li>
+<li>geometryValueSets()
+: <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_geometry_argument.html#ae7e4e986f3bbd7cd9377563553690f04">HydroCouple::Spatial::IGeometryArgument</a>
+</li>
 <li>geoTransformation()
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster.html#a0f918dd8435650934c15042844ec3045">HydroCouple::Spatial::IRaster</a>
 </li>
@@ -173,15 +180,10 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 : <a class="el" href="class_hydro_couple_1_1_i_adapted_output_factory.html#aa05c60a5f17dc1b29949cf0c70558c32">HydroCouple::IAdaptedOutputFactory</a>
 </li>
 <li>getCaption()
-: <a class="el" href="class_description.html#afd4e8f8495d5b743cdb921260fe5cb42">Description</a>
-, <a class="el" href="class_hydro_couple_1_1_i_description.html#ac93b47c6dbc4d89bd7816080ff6dd98f">HydroCouple::IDescription</a>
+: <a class="el" href="class_hydro_couple_1_1_i_description.html#ac93b47c6dbc4d89bd7816080ff6dd98f">HydroCouple::IDescription</a>
 </li>
 <li>getDescription()
-: <a class="el" href="class_description.html#adf0c2644a4ad349510c1dba0c419a41a">Description</a>
-, <a class="el" href="class_hydro_couple_1_1_i_description.html#a36a868429072aa46c8e99fae001f067e">HydroCouple::IDescription</a>
-</li>
-<li>getDimensionLength()
-: <a class="el" href="class_hydro_couple_1_1_i_value_set.html#a41f99ec67d29d551f4dcc2879abb6fed">HydroCouple::IValueSet</a>
+: <a class="el" href="class_hydro_couple_1_1_i_description.html#a36a868429072aa46c8e99fae001f067e">HydroCouple::IDescription</a>
 </li>
 <li>getPower()
 : <a class="el" href="class_hydro_couple_1_1_i_unit_dimensions.html#a4aac7b262861ef86e060868e371f26aa">HydroCouple::IUnitDimensions</a>
@@ -193,14 +195,43 @@ $(document).ready(function(){initNavTree('functions_func_g.html','');});
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster.html#a2fb7cee15d778f6b2a7c608355ee1031">HydroCouple::Spatial::IRaster</a>
 </li>
 <li>getValue()
-: <a class="el" href="class_hydro_couple_1_1_i_value_set.html#a2e922a3576205d7dad17ce56f77079ee">HydroCouple::IValueSet</a>
+: <a class="el" href="class_hydro_couple_1_1_i_value_set.html#a8dc74b271f3fadfea481d784d157890c">HydroCouple::IValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_geometry_value_set.html#a5f357dfb323a65f6a9a6cee424fc4795">HydroCouple::Spatial::IGeometryValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_value_set.html#a7f8f69957ce8262d960a58e7b86b1fb2">HydroCouple::Spatial::IPolyhedralSurfaceValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster_value_set.html#af9c219e22d8b669272f541f2425bdc23">HydroCouple::Spatial::IRasterValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_regular_grid2_d_value_set.html#ac3037e3f908dd32fa2136faa4ba274a9">HydroCouple::Spatial::IRegularGrid2DValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_regular_grid3_d_value_set.html#a454daa7adb5dac27f204747cc5b00307">HydroCouple::Spatial::IRegularGrid3DValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_t_i_n_value_set.html#aa61a22135e70b81f19e5cca17ae1feec">HydroCouple::Spatial::ITINValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_geometry_value_set.html#ac6acb686238627913c94e2eefd3c33a5">HydroCouple::SpatioTemporal::ITimeGeometryValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_value_set.html#a5a8f78ab6a97fdd2d6daaa22f5c4bb55">HydroCouple::SpatioTemporal::ITimePolyhedralSurfaceValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_value_set.html#a0e7bd0ad043956e4aa7ba8207072d0d3">HydroCouple::SpatioTemporal::ITimeRasterValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_value_set.html#aa83c085355eff7f2a9294011d85ce05a">HydroCouple::SpatioTemporal::ITimeRegularGrid2DValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_value_set.html#a8891bba958e5877c0dc8b0ed5946cf2c">HydroCouple::SpatioTemporal::ITimeRegularGrid3DValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_value_set.html#a4ac52971c3894fc1a4da8eb74f81f4db">HydroCouple::SpatioTemporal::ITimeTINValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_temporal_1_1_i_time_value_set.html#aadebecc5ce45b5fb43c5d3374d74156d">HydroCouple::Temporal::ITimeValueSet</a>
+</li>
+<li>getValues()
+: <a class="el" href="class_hydro_couple_1_1_i_value_set.html#a30982f16f8d1c87f57cbe2f377e26676">HydroCouple::IValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_geometry_value_set.html#aac4ea4e30d3e4afb93179c424bd5fec9">HydroCouple::Spatial::IGeometryValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_value_set.html#abcbf01f563ec90e49b4fc27bde628565">HydroCouple::Spatial::IPolyhedralSurfaceValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster_value_set.html#a955bcb98ab3be6d51d57557f04aec79a">HydroCouple::Spatial::IRasterValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_regular_grid2_d_value_set.html#a0d61184b1ac57b946e75d86b8502d803">HydroCouple::Spatial::IRegularGrid2DValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_regular_grid3_d_value_set.html#a1dbaaa7c9801a5025f19d7388a8907b8">HydroCouple::Spatial::IRegularGrid3DValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_t_i_n_value_set.html#a5d890f212717f07fca74405c0f6275ae">HydroCouple::Spatial::ITINValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_geometry_value_set.html#a5362578efe44591c857b67cc72cfc839">HydroCouple::SpatioTemporal::ITimeGeometryValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_value_set.html#ab46a69baf03e431e25714f07fd434230">HydroCouple::SpatioTemporal::ITimePolyhedralSurfaceValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_value_set.html#ade32d3b94ac095ebdae804547d511c52">HydroCouple::SpatioTemporal::ITimeRasterValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_value_set.html#a35c253dfa968bec7eb1340c91be06266">HydroCouple::SpatioTemporal::ITimeRegularGrid2DValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_value_set.html#ae96024a28e1796e1833ee1c217dc7d54">HydroCouple::SpatioTemporal::ITimeRegularGrid3DValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_value_set.html#a7e257426bfa17a41c28b4dc5f6abb0b4">HydroCouple::SpatioTemporal::ITimeTINValueSet</a>
+, <a class="el" href="class_hydro_couple_1_1_temporal_1_1_i_time_value_set.html#a3e7942a308e85c53bbd29610058da687">HydroCouple::Temporal::ITimeValueSet</a>
 </li>
 <li>grid()
-: <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i2_d_regular_grid_component_item.html#abc6181723bbcc33e301ad6b48ef0f8b4">HydroCouple::Spatial::I2DRegularGridComponentItem</a>
-, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i3_d_regular_grid_component_item.html#a2d5e8d94a138d9622837a3227b52718a">HydroCouple::Spatial::I3DRegularGridComponentItem</a>
+: <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_regular_grid2_d_component_item.html#ab8039f86bbbfd4a48b573e777cab44a5">HydroCouple::Spatial::IRegularGrid2DComponentItem</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_regular_grid3_d_component_item.html#a11d09691c2bdd5f9dd091c381d7a6f17">HydroCouple::Spatial::IRegularGrid3DComponentItem</a>
 </li>
 <li>gridType()
-: <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i2_d_regular_grid.html#aba2f2063bf2463b482af7a091673ef42">HydroCouple::Spatial::I2DRegularGrid</a>
+: <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_regular_grid2_d.html#ab4d87cad70722e62093a5fc9e73c9f81">HydroCouple::Spatial::IRegularGrid2D</a>
 </li>
 </ul>
 </div><!-- contents -->

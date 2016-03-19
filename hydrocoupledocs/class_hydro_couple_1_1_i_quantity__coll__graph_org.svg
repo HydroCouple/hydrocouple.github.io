@@ -21,7 +21,7 @@
 </g>
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
-<g id="a_node2"><a xlink:href="class_hydro_couple_1_1_i_value_definition.html" target="_top" xlink:title="IValueDefinition describes a value returned by the getValues function of IValueSet. ">
+<g id="a_node2"><a xlink:href="class_hydro_couple_1_1_i_value_definition.html" target="_top" xlink:title="IValueDefinition describes a value returned by the getValues() function of IValueSet. ">
 <polygon fill="white" stroke="black" points="0,-114.84 0,-232.185 190.028,-232.185 190.028,-114.84 0,-114.84"/>
 <text text-anchor="middle" x="95.0142" y="-220.185" font-family="Monaco" font-size="10.00">HydroCouple::IValueDefinition</text>
 <polyline fill="none" stroke="black" points="0,-210.85 190.028,-210.85 "/>

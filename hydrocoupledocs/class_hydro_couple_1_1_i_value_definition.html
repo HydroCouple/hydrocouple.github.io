@@ -35,7 +35,7 @@
    <div id="projectname">HydroCouple
    &#160;<span id="projectnumber">1.0.0</span>
    </div>
-   <div id="projectbrief">A Component-Based Model Coupling Interface Definition and SDK</div>
+   <div id="projectbrief">A Component-Based Model Coupling Interface Definition</div>
   </td>
  </tr>
  </tbody>
@@ -117,7 +117,7 @@ $(document).ready(function(){initNavTree('class_hydro_couple_1_1_i_value_definit
 </div><!--header-->
 <div class="contents">
 
-<p><a class="el" href="class_hydro_couple_1_1_i_value_definition.html" title="IValueDefinition describes a value returned by the getValues function of IValueSet. ">IValueDefinition</a> describes a value returned by the getValues function of <a class="el" href="class_hydro_couple_1_1_i_value_set.html" title="IValueSet provides a multi-dimensional data with its context. ">IValueSet</a>.  
+<p><a class="el" href="class_hydro_couple_1_1_i_value_definition.html" title="IValueDefinition describes a value returned by the getValues() function of IValueSet. ">IValueDefinition</a> describes a value returned by the getValues() function of <a class="el" href="class_hydro_couple_1_1_i_value_set.html" title="IValueSet provides a multi-dimensional data with its context. ">IValueSet</a>.  
  <a href="class_hydro_couple_1_1_i_value_definition.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="hydrocouple_8h_source.html">hydrocouple.h</a>&gt;</code></p>
@@ -135,6 +135,7 @@ Collaboration diagram for HydroCouple::IValueDefinition:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a96cce05992617a4a4e1a2f7b7dae0f6f"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_value_definition.html#a96cce05992617a4a4e1a2f7b7dae0f6f">~IValueDefinition</a> ()</td></tr>
+<tr class="memdesc:a96cce05992617a4a4e1a2f7b7dae0f6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">~IValueDefinition  <a href="#a96cce05992617a4a4e1a2f7b7dae0f6f">More...</a><br /></td></tr>
 <tr class="separator:a96cce05992617a4a4e1a2f7b7dae0f6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f3b520e4927c8ad1c0ce79fd19e6e3b"><td class="memItemLeft" align="right" valign="top">virtual QVariant::Type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_value_definition.html#a4f3b520e4927c8ad1c0ce79fd19e6e3b">type</a> () const  =0</td></tr>
 <tr class="memdesc:a4f3b520e4927c8ad1c0ce79fd19e6e3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The object types of value that will be available and is returned by the GetValues function.IPropertyChanged.  <a href="#a4f3b520e4927c8ad1c0ce79fd19e6e3b">More...</a><br /></td></tr>
@@ -175,7 +176,7 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:acfeb174c500250c548cc18875aa25ebe inherit signals_class_hydro_couple_1_1_i_property_changed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="class_hydro_couple_1_1_i_value_definition.html" title="IValueDefinition describes a value returned by the getValues function of IValueSet. ">IValueDefinition</a> describes a value returned by the getValues function of <a class="el" href="class_hydro_couple_1_1_i_value_set.html" title="IValueSet provides a multi-dimensional data with its context. ">IValueSet</a>. </p>
+<div class="textblock"><p><a class="el" href="class_hydro_couple_1_1_i_value_definition.html" title="IValueDefinition describes a value returned by the getValues() function of IValueSet. ">IValueDefinition</a> describes a value returned by the getValues() function of <a class="el" href="class_hydro_couple_1_1_i_value_set.html" title="IValueSet provides a multi-dimensional data with its context. ">IValueSet</a>. </p>
 <p>This interface is not meant to be implemented directly. Instead, implement either <a class="el" href="class_hydro_couple_1_1_i_quality.html" title="Qualitative data described items in terms of some quality or categorization that may be &#39;informal&#39; or...">IQuality</a> or <a class="el" href="class_hydro_couple_1_1_i_quantity.html" title="IQuantity specifies values as an amount of some unit, usually as a floating point number...">IQuantity</a> or a custom derived vale definition interface. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a96cce05992617a4a4e1a2f7b7dae0f6f"></a>
@@ -198,6 +199,8 @@ Additional Inherited Members</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>~IValueDefinition </p>
 
 </div>
 </div>
@@ -300,7 +303,7 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The object types of value that will be available and is returned by the GetValues function.IPropertyChanged. </p>
-<dl class="section return"><dt>Returns</dt><dd>the value type associated with this <a class="el" href="class_hydro_couple_1_1_i_value_definition.html" title="IValueDefinition describes a value returned by the getValues function of IValueSet. ">IValueDefinition</a> </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>the value type associated with this <a class="el" href="class_hydro_couple_1_1_i_value_definition.html" title="IValueDefinition describes a value returned by the getValues() function of IValueSet. ">IValueDefinition</a> </dd></dl>
 
 </div>
 </div>

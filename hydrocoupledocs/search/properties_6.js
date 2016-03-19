@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['oldstatus',['OldStatus',['../class_component_status_change_event_args.html#a9a5dba7ba702afd6bb8ddd7990e8c0d9',1,'ComponentStatusChangeEventArgs']]],
-  ['outputs',['Outputs',['../class_abstract_model_component.html#a71a08832c3f402a48b10cdf2fbea0559',1,'AbstractModelComponent']]]
+  ['oldstatus',['OldStatus',['../class_hydro_couple_s_d_k_1_1_component_status_change_event_args.html#a1745d2ba9a656dec27db72bb3413f2b0',1,'HydroCoupleSDK::ComponentStatusChangeEventArgs']]],
+  ['outputs',['Outputs',['../class_hydro_couple_s_d_k_1_1_abstract_model_component.html#a6dbc74af12f420e8cbb9d31d09599a12',1,'HydroCoupleSDK::AbstractModelComponent']]]
 ];

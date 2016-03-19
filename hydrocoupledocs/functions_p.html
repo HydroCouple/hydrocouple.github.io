@@ -35,7 +35,7 @@
    <div id="projectname">HydroCouple
    &#160;<span id="projectnumber">1.0.0</span>
    </div>
-   <div id="projectbrief">A Component-Based Model Coupling Interface Definition and SDK</div>
+   <div id="projectbrief">A Component-Based Model Coupling Interface Definition</div>
   </td>
  </tr>
  </tbody>
@@ -83,9 +83,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li class="current"><a href="functions.html"><span>All</span></a></li>
       <li><a href="functions_func.html"><span>Functions</span></a></li>
-      <li><a href="functions_vars.html"><span>Variables</span></a></li>
-      <li><a href="functions_prop.html"><span>Properties</span></a></li>
-      <li><a href="functions_rela.html"><span>Related&#160;Functions</span></a></li>
     </ul>
   </div>
   <div id="navrow4" class="tabs3">
@@ -159,12 +156,6 @@ $(document).ready(function(){initNavTree('functions_p.html','');});
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_triangle.html#a371191e54e8e3d464ffb447d4316f2a6">HydroCouple::Spatial::ITriangle</a>
 </li>
 <li>parent()
-: <a class="el" href="class_abstract_model_component.html#adeeb4de83e6ffafd38332ba5c4580fc9">AbstractModelComponent</a>
-</li>
-<li>Parent
-: <a class="el" href="class_abstract_model_component.html#a42b6aa163ca6980d590f2781adf5d505">AbstractModelComponent</a>
-</li>
-<li>parent()
 : <a class="el" href="class_hydro_couple_1_1_i_model_component.html#a041c078db008233254ee3a9e3e1f02f5">HydroCouple::IModelComponent</a>
 </li>
 <li>patch()
@@ -176,10 +167,18 @@ $(document).ready(function(){initNavTree('functions_p.html','');});
 </li>
 <li>patchDimension()
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_component_item.html#acabaacc683f2f5b235af5db01b1e7947">HydroCouple::Spatial::IPolyhedralSurfaceComponentItem</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_t_i_n_component_item.html#a91fa60e5349de6bc0ecf50571fe129d5">HydroCouple::Spatial::ITINComponentItem</a>
+</li>
+<li>patchValues()
+: <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_exchange_item.html#a91cc25dc9cb67b6673ae7f5d7b67dfc1">HydroCouple::Spatial::IPolyhedralSurfaceExchangeItem</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_t_i_n_exchange_item.html#a291b154065aa8bc9ea0c91afea10c0eb">HydroCouple::Spatial::ITINExchangeItem</a>
+</li>
+<li>patchValueSets()
+: <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_argument.html#a97ce5066b33edd0614b1382fbc5013e1">HydroCouple::Spatial::IPolyhedralSurfaceArgument</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_t_i_n_argument.html#acd32e3668174b10172728fa39c4762f5">HydroCouple::Spatial::ITINArgument</a>
 </li>
 <li>percentProgress()
-: <a class="el" href="class_component_status_change_event_args.html#a8d3b2bb054ca63c81379be12ed714fe8">ComponentStatusChangeEventArgs</a>
-, <a class="el" href="class_hydro_couple_1_1_i_component_status_change_event_args.html#a00ae1ff9ce409fed2acb42ab9e51847c">HydroCouple::IComponentStatusChangeEventArgs</a>
+: <a class="el" href="class_hydro_couple_1_1_i_component_status_change_event_args.html#a00ae1ff9ce409fed2acb42ab9e51847c">HydroCouple::IComponentStatusChangeEventArgs</a>
 </li>
 <li>point()
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_line_string.html#a2cc6fc9df47e0062d2f2de64518c3a92">HydroCouple::Spatial::ILineString</a>
@@ -194,6 +193,10 @@ $(document).ready(function(){initNavTree('functions_p.html','');});
 </li>
 <li>polyhedralSurface()
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_component_item.html#a785d00a837ffcc878288175037afc185">HydroCouple::Spatial::IPolyhedralSurfaceComponentItem</a>
+, <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_t_i_n_component_item.html#a9e49ac20d5437e92b5047e8cd722861e">HydroCouple::Spatial::ITINComponentItem</a>
+</li>
+<li>polyhedralSurfaceComponentItem()
+: <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_value_set.html#a946815e6bcbd554e592a6dc6af9611b1">HydroCouple::Spatial::IPolyhedralSurfaceValueSet</a>
 </li>
 <li>polyhydralSurface()
 : <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_polygon.html#ab4c553b426d91038959230e2d3186254">HydroCouple::Spatial::IPolygon</a>
@@ -202,19 +205,13 @@ $(document).ready(function(){initNavTree('functions_p.html','');});
 : <a class="el" href="class_hydro_couple_1_1_i_value_definition.html#ab0603fb897d4b9b36f2ad536156ffa17">HydroCouple::IValueDefinition</a>
 </li>
 <li>prepare()
-: <a class="el" href="class_abstract_model_component.html#add09580468906c1069d2b80a803d38bc">AbstractModelComponent</a>
-, <a class="el" href="class_hydro_couple_1_1_i_model_component.html#a69556f124b1568595011cb87741e1d47">HydroCouple::IModelComponent</a>
+: <a class="el" href="class_hydro_couple_1_1_i_model_component.html#a69556f124b1568595011cb87741e1d47">HydroCouple::IModelComponent</a>
 </li>
 <li>propertyChanged()
-: <a class="el" href="class_abstract_model_component.html#acc927506a153c47a8478b2658c27def2">AbstractModelComponent</a>
-, <a class="el" href="class_component_info.html#a126888870e9c4eae60c179b67a5f39af">ComponentInfo</a>
-, <a class="el" href="class_description.html#a4d7713e2bf82fa9eb2798696e1785871">Description</a>
-, <a class="el" href="class_hydro_couple_1_1_i_property_changed.html#acfeb174c500250c548cc18875aa25ebe">HydroCouple::IPropertyChanged</a>
-, <a class="el" href="class_identity.html#a0f4c85088850e42672e99dad9e9c9943">Identity</a>
+: <a class="el" href="class_hydro_couple_1_1_i_property_changed.html#acfeb174c500250c548cc18875aa25ebe">HydroCouple::IPropertyChanged</a>
 </li>
 <li>publications()
-: <a class="el" href="class_component_info.html#a72084c0f6e62bb0688bf3db91a82b59f">ComponentInfo</a>
-, <a class="el" href="class_hydro_couple_1_1_i_component_info.html#a2402db50c225ba4dba18ecdad60583d5">HydroCouple::IComponentInfo</a>
+: <a class="el" href="class_hydro_couple_1_1_i_component_info.html#a2402db50c225ba4dba18ecdad60583d5">HydroCouple::IComponentInfo</a>
 </li>
 </ul>
 </div><!-- contents -->

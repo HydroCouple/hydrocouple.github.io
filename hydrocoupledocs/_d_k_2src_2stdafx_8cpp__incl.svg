@@ -19,8 +19,8 @@
 </g>
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
-<polygon fill="white" stroke="#bfbfbf" points="33.0054,-0.5 33.0054,-21.835 145.021,-21.835 145.021,-0.5 33.0054,-0.5"/>
-<text text-anchor="middle" x="89.0132" y="-9.83496" font-family="Monaco" font-size="10.00">include/stdafx.h</text>
+<polygon fill="white" stroke="#bfbfbf" points="57.0093,-0.5 57.0093,-21.835 121.017,-21.835 121.017,-0.5 57.0093,-0.5"/>
+<text text-anchor="middle" x="89.0132" y="-9.83496" font-family="Monaco" font-size="10.00">stdafx.h</text>
 </g>
 <!-- Node1&#45;&gt;Node2 -->
 <g id="edge1" class="edge"><title>Node1&#45;&gt;Node2</title>
