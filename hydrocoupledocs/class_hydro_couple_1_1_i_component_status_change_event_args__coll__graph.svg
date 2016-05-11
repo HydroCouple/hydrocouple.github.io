@@ -19,8 +19,8 @@
 <polyline fill="none" stroke="black" points="0,-101.845 232.035,-101.845 "/>
 <text text-anchor="start" x="8" y="-89.8447" font-family="Monaco" font-size="10.00">+ ~IComponentStatusChangeEventArgs()</text>
 <text text-anchor="start" x="8" y="-76.5098" font-family="Monaco" font-size="10.00">+ component()</text>
-<text text-anchor="start" x="8" y="-63.1748" font-family="Monaco" font-size="10.00">+ oldStatus()</text>
-<text text-anchor="start" x="8" y="-49.8398" font-family="Monaco" font-size="10.00">+ newStatus()</text>
+<text text-anchor="start" x="8" y="-63.1748" font-family="Monaco" font-size="10.00">+ previousStatus()</text>
+<text text-anchor="start" x="8" y="-49.8398" font-family="Monaco" font-size="10.00">+ status()</text>
 <text text-anchor="start" x="8" y="-36.5049" font-family="Monaco" font-size="10.00">+ message()</text>
 <text text-anchor="start" x="8" y="-23.1699" font-family="Monaco" font-size="10.00">+ hasProgressMonitor()</text>
 <text text-anchor="start" x="8" y="-9.83496" font-family="Monaco" font-size="10.00">+ percentProgress()</text>

@@ -1,22 +1,25 @@
 <map id="HydroCouple::IExchangeItem" name="HydroCouple::IExchangeItem">
-<area shape="rect" id="node6" href="$class_hydro_couple_1_1_i_input.html" title="An IInput item that can accept values for an IModelComponent. " alt="" coords="5,928,179,1068"/>
-<area shape="rect" id="node7" href="$class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. " alt="" coords="203,892,408,1103"/>
-<area shape="rect" id="node9" href="$class_hydro_couple_1_1_spatial_1_1_i_geometry_exchange_item.html" title="An IExchangeItem class with a geometry component. " alt="" coords="432,937,661,1059"/>
-<area shape="rect" id="node10" href="$class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_exchange_item.html" title="An IPolyhedralSurfaceExchangeItem class with an IPolyhedralSurface component. " alt="" coords="685,937,987,1059"/>
-<area shape="rect" id="node11" href="$class_hydro_couple_1_1_spatial_1_1_i_raster_exhange_item.html" title="An IRasterExhangeItem is an IExchangeItem with an IRaster. " alt="" coords="1011,937,1216,1059"/>
-<area shape="rect" id="node12" href="$class_hydro_couple_1_1_spatial_1_1_i_regular_grid2_d_exhange_item.html" title="An IRegularGrid2DExhangeItem is an IExchangeItem with an IRegularGrid2DComponentItem. " alt="" coords="1240,937,1501,1059"/>
-<area shape="rect" id="node13" href="$class_hydro_couple_1_1_spatial_1_1_i_regular_grid3_d_exhange_item.html" title="An IRegularGrid3DExhangeItem is an IExchangeItem with an IRegularGrid3DComponentItem. " alt="" coords="1525,937,1787,1059"/>
-<area shape="rect" id="node14" href="$class_hydro_couple_1_1_spatial_1_1_i_t_i_n_exchange_item.html" title="An ITINExchangeItem class with an TIN component. " alt="" coords="1811,937,2000,1059"/>
-<area shape="rect" id="node15" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_geometry_exchange_item.html" title="The ITimeGeometryExchangeItem class. " alt="" coords="2024,937,2285,1059"/>
-<area shape="rect" id="node16" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_exchange_item.html" title="The ITimePolyhedralSurfaceExchangeItem class. " alt="" coords="2309,937,2643,1059"/>
-<area shape="rect" id="node17" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_exchange_item.html" title="The ITimeRasterExchangeItem class. " alt="" coords="2667,937,2912,1059"/>
-<area shape="rect" id="node18" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_exchange_item.html" title="The ITimeRegularGrid2DExchangeItem class. " alt="" coords="2936,937,3237,1059"/>
-<area shape="rect" id="node19" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_exchange_item.html" title="The ITimeRegularGrid3DExchangeItem class. " alt="" coords="3261,937,3563,1059"/>
-<area shape="rect" id="node20" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_exchange_item.html" title="The ITimeTINExchangeItem class. " alt="" coords="3587,937,3824,1059"/>
-<area shape="rect" id="node21" href="$class_hydro_couple_1_1_temporal_1_1_i_time_exchange_item.html" title="The ITimeExchangeItem class. " alt="" coords="3848,937,4045,1059"/>
-<area shape="rect" id="node2" href="$class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. " alt="" coords="1787,534,2024,674"/>
-<area shape="rect" id="node3" href="$class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. " alt="" coords="1807,346,2004,486"/>
-<area shape="rect" id="node4" href="$class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object. " alt="" coords="1795,140,2016,298"/>
-<area shape="rect" id="node5" href="$class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes..." alt="" coords="1779,5,2032,92"/>
-<area shape="rect" id="node8" href="$class_hydro_couple_1_1_i_adapted_output.html" title="An IAdaptedOutput adds one or more data operations on top of an IOutput. " alt="" coords="187,1151,424,1345"/>
+<area shape="rect" id="node6" href="$class_hydro_couple_1_1_i_id_based_exchange_item.html" title="The IIdBasedExchangeItem class. " alt="" coords="5,1008,291,1094"/>
+<area shape="rect" id="node7" href="$class_hydro_couple_1_1_i_input.html" title="An IInput item that can accept values for an IModelComponent. " alt="" coords="315,981,488,1121"/>
+<area shape="rect" id="node9" href="$class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. " alt="" coords="512,945,717,1157"/>
+<area shape="rect" id="node11" href="$class_hydro_couple_1_1_spatial_1_1_i_geometry_exchange_item.html" title="An IExchangeItem class with a geometry component. " alt="" coords="741,999,971,1103"/>
+<area shape="rect" id="node12" href="$class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_exchange_item.html" title="An IPolyhedralSurfaceExchangeItem class with an IPolyhedralSurface component. " alt="" coords="995,999,1296,1103"/>
+<area shape="rect" id="node13" href="$class_hydro_couple_1_1_spatial_1_1_i_raster_exhange_item.html" title="An IRasterExhangeItem is an IExchangeItem with an IRaster. " alt="" coords="1320,999,1525,1103"/>
+<area shape="rect" id="node14" href="$class_hydro_couple_1_1_spatial_1_1_i_regular_grid2_d_exhange_item.html" title="An IRegularGrid2DExhangeItem is an IExchangeItem with an IRegularGrid2DComponentItem. " alt="" coords="1549,999,1811,1103"/>
+<area shape="rect" id="node15" href="$class_hydro_couple_1_1_spatial_1_1_i_regular_grid3_d_exhange_item.html" title="An IRegularGrid3DExhangeItem is an IExchangeItem with an IRegularGrid3DComponentItem. " alt="" coords="1835,999,2096,1103"/>
+<area shape="rect" id="node16" href="$class_hydro_couple_1_1_spatial_1_1_i_t_i_n_exchange_item.html" title="An ITINExchangeItem class with an TIN component. " alt="" coords="2120,999,2309,1103"/>
+<area shape="rect" id="node17" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_geometry_exchange_item.html" title="The ITimeGeometryExchangeItem class. " alt="" coords="2333,999,2595,1103"/>
+<area shape="rect" id="node18" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_exchange_item.html" title="The ITimePolyhedralSurfaceExchangeItem class. " alt="" coords="2619,999,2952,1103"/>
+<area shape="rect" id="node19" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_exchange_item.html" title="The ITimeRasterExchangeItem class. " alt="" coords="2976,999,3221,1103"/>
+<area shape="rect" id="node20" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_exchange_item.html" title="The ITimeRegularGrid2DExchangeItem class. " alt="" coords="3245,999,3547,1103"/>
+<area shape="rect" id="node21" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_exchange_item.html" title="The ITimeRegularGrid3DExchangeItem class. " alt="" coords="3571,999,3872,1103"/>
+<area shape="rect" id="node22" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_exchange_item.html" title="The ITimeTINExchangeItem class. " alt="" coords="3896,999,4133,1103"/>
+<area shape="rect" id="node23" href="$class_hydro_couple_1_1_temporal_1_1_i_id_based_time_exchange_item.html" title="The IIdBasedTimeExchangeItem class. " alt="" coords="4157,999,4411,1103"/>
+<area shape="rect" id="node24" href="$class_hydro_couple_1_1_temporal_1_1_i_time_exchange_item.html" title="The ITimeExchangeItem class. " alt="" coords="4435,999,4632,1103"/>
+<area shape="rect" id="node2" href="$class_hydro_couple_1_1_i_component_data_item.html" title="IComponentItem is a fundamental unit of data for a component. " alt="" coords="2080,498,2349,745"/>
+<area shape="rect" id="node3" href="$class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. " alt="" coords="2116,346,2313,450"/>
+<area shape="rect" id="node4" href="$class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object. " alt="" coords="2104,140,2325,298"/>
+<area shape="rect" id="node5" href="$class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes..." alt="" coords="2088,5,2341,92"/>
+<area shape="rect" id="node8" href="$class_hydro_couple_1_1_i_multi_input.html" title="The IMultiInput class is an IInput class that has multiple outputs supplying data to it..." alt="" coords="276,1231,489,1371"/>
+<area shape="rect" id="node10" href="$class_hydro_couple_1_1_i_adapted_output.html" title="An IAdaptedOutput adds one or more data operations on top of an IOutput. " alt="" coords="513,1205,751,1398"/>
 </map>

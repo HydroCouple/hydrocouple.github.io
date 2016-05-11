@@ -13,7 +13,7 @@ var searchData=
   ['compoundcurvem',['CompoundCurveM',['../namespace_hydro_couple_1_1_spatial.html#a9e4db482852fdf6cf83f02dc5fac8507af1b98267746a44a360406feebb11ad9b',1,'HydroCouple::Spatial']]],
   ['compoundcurvez',['CompoundCurveZ',['../namespace_hydro_couple_1_1_spatial.html#a9e4db482852fdf6cf83f02dc5fac8507aea619badc0a1cc647a97b0e12094af7a',1,'HydroCouple::Spatial']]],
   ['compoundcurvezm',['CompoundCurveZM',['../namespace_hydro_couple_1_1_spatial.html#a9e4db482852fdf6cf83f02dc5fac8507a5b0e1c352e9b2a68273290a0912b1847',1,'HydroCouple::Spatial']]],
-  ['constant',['Constant',['../namespace_hydro_couple.html#af73b69b8ec48a7eb3fa11fdfb331c9aba710d40d442023961d81fc71ac071dee1',1,'HydroCouple']]],
+  ['constantlength',['ConstantLength',['../namespace_hydro_couple.html#a4568abf6cb6695e2f046f3d270e3bd62afa2732b9aa74f7a85494aa511de96750',1,'HydroCouple']]],
   ['created',['Created',['../namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03a03894703c08dd9ab7306add54a772750',1,'HydroCouple']]],
   ['currency',['Currency',['../namespace_hydro_couple.html#a3b0c4ea98032b00a2da319636be02d67a13f50b9050ce7c2c465765638343dccb',1,'HydroCouple']]],
   ['curve',['Curve',['../namespace_hydro_couple_1_1_spatial.html#a9e4db482852fdf6cf83f02dc5fac8507ad9bea6544c2a7205a63cdd105e4910c7',1,'HydroCouple::Spatial']]],

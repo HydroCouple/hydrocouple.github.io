@@ -19,9 +19,9 @@
 </g>
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
-<g id="a_node2"><a xlink:href="hydrocouple_8h.html" target="_top" xlink:title="include/hydrocouple.h">
-<polygon fill="white" stroke="black" points="37.9976,-58.835 37.9976,-80.1699 180.018,-80.1699 180.018,-58.835 37.9976,-58.835"/>
-<text text-anchor="middle" x="109.008" y="-68.1699" font-family="Monaco" font-size="10.00">include/hydrocouple.h</text>
+<g id="a_node2"><a xlink:href="hydrocouple_8h.html" target="_top" xlink:title="hydrocouple.h">
+<polygon fill="white" stroke="black" points="62.0015,-58.835 62.0015,-80.1699 156.014,-80.1699 156.014,-58.835 62.0015,-58.835"/>
+<text text-anchor="middle" x="109.008" y="-68.1699" font-family="Monaco" font-size="10.00">hydrocouple.h</text>
 </a>
 </g>
 </g>

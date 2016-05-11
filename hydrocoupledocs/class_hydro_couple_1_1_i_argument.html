@@ -124,12 +124,14 @@ $(document).ready(function(){initNavTree('class_hydro_couple_1_1_i_argument.html
 <div class="dynheader">
 Inheritance diagram for HydroCouple::IArgument:</div>
 <div class="dyncontent">
-<div class="center"><div class="zoom"><iframe scrolling="no" frameborder="0" src="class_hydro_couple_1_1_i_argument__inherit__graph.svg" width="100%" height="600"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div></div>
+<div class="center"><div class="zoom"><iframe scrolling="no" frameborder="0" src="class_hydro_couple_1_1_i_argument__inherit__graph.svg" width="100%" height="600"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 </div>
 <div class="dynheader">
 Collaboration diagram for HydroCouple::IArgument:</div>
 <div class="dyncontent">
-<div class="center"><div class="zoom"><iframe scrolling="no" frameborder="0" src="class_hydro_couple_1_1_i_argument__coll__graph.svg" width="100%" height="600"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div></div>
+<div class="center"><div class="zoom"><iframe scrolling="no" frameborder="0" src="class_hydro_couple_1_1_i_argument__coll__graph.svg" width="100%" height="600"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+</div>
 </div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -142,66 +144,51 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:adc7e97ace24077e2667e8c0578a2a015"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#adc7e97ace24077e2667e8c0578a2a015">isReadOnly</a> () const  =0</td></tr>
 <tr class="memdesc:adc7e97ace24077e2667e8c0578a2a015"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines whether the Values property may be edited.  <a href="#adc7e97ace24077e2667e8c0578a2a015">More...</a><br /></td></tr>
 <tr class="separator:adc7e97ace24077e2667e8c0578a2a015"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae95013cb94f662768bbc9a7a7d4a448f"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_i_argument.html">IArgument</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#ae95013cb94f662768bbc9a7a7d4a448f">clone</a> () const  =0</td></tr>
-<tr class="memdesc:ae95013cb94f662768bbc9a7a7d4a448f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deep clones this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>.  <a href="#ae95013cb94f662768bbc9a7a7d4a448f">More...</a><br /></td></tr>
-<tr class="separator:ae95013cb94f662768bbc9a7a7d4a448f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a441e3196789635ffff236ecfbedd3f15"><td class="memItemLeft" align="right" valign="top">virtual QList&lt; <a class="el" href="class_hydro_couple_1_1_i_value_set.html">IValueSet</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#a441e3196789635ffff236ecfbedd3f15">valueSets</a> () const  =0</td></tr>
-<tr class="memdesc:a441e3196789635ffff236ecfbedd3f15"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_hydro_couple_1_1_i_value_set.html" title="IValueSet provides a multi-dimensional data with its context. ">IValueSet</a> for this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>.  <a href="#a441e3196789635ffff236ecfbedd3f15">More...</a><br /></td></tr>
-<tr class="separator:a441e3196789635ffff236ecfbedd3f15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a576e295dcf833e180f4cd30ad6011c58"><td class="memItemLeft" align="right" valign="top">virtual QList&lt; <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#a576e295dcf833e180f4cd30ad6011c58">dimensions</a> () const  =0</td></tr>
+<tr class="memdesc:a576e295dcf833e180f4cd30ad6011c58"><td class="mdescLeft">&#160;</td><td class="mdescRight">provides the dimensions associated with this IComponentItem.  <a href="#a576e295dcf833e180f4cd30ad6011c58">More...</a><br /></td></tr>
+<tr class="separator:a576e295dcf833e180f4cd30ad6011c58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5010ee105097e07330fdf87c18f5a942"><td class="memItemLeft" align="right" valign="top">virtual QList&lt; <a class="el" href="class_hydro_couple_1_1_i_component_data_item.html">IComponentDataItem</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#a5010ee105097e07330fdf87c18f5a942">componentDataItems</a> () const  =0</td></tr>
+<tr class="memdesc:a5010ee105097e07330fdf87c18f5a942"><td class="mdescLeft">&#160;</td><td class="mdescRight">IValueSet for this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>.  <a href="#a5010ee105097e07330fdf87c18f5a942">More...</a><br /></td></tr>
+<tr class="separator:a5010ee105097e07330fdf87c18f5a942"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88fd1cddbb920f41b6f38555d974301a"><td class="memItemLeft" align="right" valign="top">virtual QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#a88fd1cddbb920f41b6f38555d974301a">toString</a> () const  =0</td></tr>
-<tr class="memdesc:a88fd1cddbb920f41b6f38555d974301a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variables for this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>.  <a href="#a88fd1cddbb920f41b6f38555d974301a">More...</a><br /></td></tr>
+<tr class="memdesc:a88fd1cddbb920f41b6f38555d974301a"><td class="mdescLeft">&#160;</td><td class="mdescRight">XML representation for this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>.  <a href="#a88fd1cddbb920f41b6f38555d974301a">More...</a><br /></td></tr>
 <tr class="separator:a88fd1cddbb920f41b6f38555d974301a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99614e4774f6b93361291e628f1d73b4"><td class="memItemLeft" align="right" valign="top">virtual QList&lt; QString &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#a99614e4774f6b93361291e628f1d73b4">fileExtensions</a> () const </td></tr>
-<tr class="memdesc:a99614e4774f6b93361291e628f1d73b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">File type extensions that can be read by this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>.  <a href="#a99614e4774f6b93361291e628f1d73b4">More...</a><br /></td></tr>
-<tr class="separator:a99614e4774f6b93361291e628f1d73b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c291fe6676bb5847857862a95191546"><td class="memItemLeft" align="right" valign="top">virtual QList&lt; QString &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#a3c291fe6676bb5847857862a95191546">inputfileExtensions</a> () const  =0</td></tr>
+<tr class="memdesc:a3c291fe6676bb5847857862a95191546"><td class="mdescLeft">&#160;</td><td class="mdescRight">File type extensions that can be read by this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>.  <a href="#a3c291fe6676bb5847857862a95191546">More...</a><br /></td></tr>
+<tr class="separator:a3c291fe6676bb5847857862a95191546"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae5257ec94c2187088a574a3949fe459c"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#ae5257ec94c2187088a574a3949fe459c">canReadFromFile</a> () const  =0</td></tr>
 <tr class="memdesc:ae5257ec94c2187088a574a3949fe459c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boolean indicating whether this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a> can read its values from a file.  <a href="#ae5257ec94c2187088a574a3949fe459c">More...</a><br /></td></tr>
 <tr class="separator:ae5257ec94c2187088a574a3949fe459c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab7373f486c7c8859e8db5ada7e28e61a"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#ab7373f486c7c8859e8db5ada7e28e61a">canReadFromString</a> () const  =0</td></tr>
 <tr class="memdesc:ab7373f486c7c8859e8db5ada7e28e61a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boolean indicating whether this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a> copy its values from a QString.  <a href="#ab7373f486c7c8859e8db5ada7e28e61a">More...</a><br /></td></tr>
 <tr class="separator:ab7373f486c7c8859e8db5ada7e28e61a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7af169f8a41d23fe88d0e56b33319839"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="namespace_hydro_couple.html#acb50990a65befacb083217458f655831">ArgumentIOType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#a7af169f8a41d23fe88d0e56b33319839">argumentIOType</a> () const  =0</td></tr>
+<tr class="memdesc:a7af169f8a41d23fe88d0e56b33319839"><td class="mdescLeft">&#160;</td><td class="mdescRight">argumentIOType  <a href="#a7af169f8a41d23fe88d0e56b33319839">More...</a><br /></td></tr>
+<tr class="separator:a7af169f8a41d23fe88d0e56b33319839"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a94cfed51030f49a9514518206217237a"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#a94cfed51030f49a9514518206217237a">readValues</a> (const QString &amp;value, bool isFile=false)=0</td></tr>
 <tr class="memdesc:a94cfed51030f49a9514518206217237a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads values from a QString or a QString representing an input file.  <a href="#a94cfed51030f49a9514518206217237a">More...</a><br /></td></tr>
 <tr class="separator:a94cfed51030f49a9514518206217237a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a358a3eb7be63c86c85e55ed64eea40aa"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_argument.html#a358a3eb7be63c86c85e55ed64eea40aa">readValues</a> (const <a class="el" href="class_hydro_couple_1_1_i_argument.html">IArgument</a> *argument)=0</td></tr>
 <tr class="memdesc:a358a3eb7be63c86c85e55ed64eea40aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads values from another <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>.  <a href="#a358a3eb7be63c86c85e55ed64eea40aa">More...</a><br /></td></tr>
 <tr class="separator:a358a3eb7be63c86c85e55ed64eea40aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_component_item"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_component_item')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_component_item.html">HydroCouple::IComponentItem</a></td></tr>
-<tr class="memitem:ade44a9609fd3e4c2526f3c9274e006cb inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_component_item.html#ade44a9609fd3e4c2526f3c9274e006cb">~IComponentItem</a> ()</td></tr>
-<tr class="separator:ade44a9609fd3e4c2526f3c9274e006cb inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f4d75e57daa0e7f7af795ce33309e88 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_i_model_component.html">IModelComponent</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_component_item.html#a1f4d75e57daa0e7f7af795ce33309e88">modelComponent</a> () const  =0</td></tr>
-<tr class="memdesc:a1f4d75e57daa0e7f7af795ce33309e88 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the owner <a class="el" href="class_hydro_couple_1_1_i_model_component.html" title="IModelComponent interface is the core interface in the HydroCouple standard defining a model componen...">IModelComponent</a> of this IComponentItem.For an <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a> component item this is the component responsible for providing the content of the <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a>.  <a href="#a1f4d75e57daa0e7f7af795ce33309e88">More...</a><br /></td></tr>
-<tr class="separator:a1f4d75e57daa0e7f7af795ce33309e88 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a732fe81a0ac704a4c91ec5ed24d8e528 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_i_identity.html">IIdentity</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_component_item.html#a732fe81a0ac704a4c91ec5ed24d8e528">modelComponentId</a> () const  =0</td></tr>
-<tr class="memdesc:a732fe81a0ac704a4c91ec5ed24d8e528 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the identity of <a class="el" href="class_hydro_couple_1_1_i_model_component.html" title="IModelComponent interface is the core interface in the HydroCouple standard defining a model componen...">IModelComponent</a> of this IComponentItem.For an <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a> component item this is the component responsible for providing the content of the <a class="el" href="class_hydro_couple_1_1_i_output.html" title="An output exchange item that can deliver values from an IModelComponent. ">IOutput</a>.  <a href="#a732fe81a0ac704a4c91ec5ed24d8e528">More...</a><br /></td></tr>
-<tr class="separator:a732fe81a0ac704a4c91ec5ed24d8e528 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab37dd4f3679947397c9a79edd74d0ea1 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memItemLeft" align="right" valign="top">virtual QList&lt; <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_component_item.html#ab37dd4f3679947397c9a79edd74d0ea1">dimensions</a> () const  =0</td></tr>
-<tr class="memdesc:ab37dd4f3679947397c9a79edd74d0ea1 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="mdescLeft">&#160;</td><td class="mdescRight">provides the dimensions associated with this <a class="el" href="class_hydro_couple_1_1_i_component_item.html" title="IComponentItem is a fundamental unit of data for a component. ">IComponentItem</a>.  <a href="#ab37dd4f3679947397c9a79edd74d0ea1">More...</a><br /></td></tr>
-<tr class="separator:ab37dd4f3679947397c9a79edd74d0ea1 inherit pub_methods_class_hydro_couple_1_1_i_component_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_identity"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_identity')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_identity.html">HydroCouple::IIdentity</a></td></tr>
 <tr class="memitem:aa69311baebd14ca6078474103f0b69da inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_identity.html#aa69311baebd14ca6078474103f0b69da">~IIdentity</a> ()</td></tr>
 <tr class="separator:aa69311baebd14ca6078474103f0b69da inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a24666a340e03f04eb3a242de6a23ae0e inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_identity.html#a24666a340e03f04eb3a242de6a23ae0e">MPI_Comm</a> () const  =0</td></tr>
-<tr class="memdesc:a24666a340e03f04eb3a242de6a23ae0e inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="mdescLeft">&#160;</td><td class="mdescRight">MPI_Comm is the communicator in a distributed memory MPI HPC Environment.  <a href="#a24666a340e03f04eb3a242de6a23ae0e">More...</a><br /></td></tr>
-<tr class="separator:a24666a340e03f04eb3a242de6a23ae0e inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3787aa058e62cd93bb782a1f66894827 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_identity.html#a3787aa058e62cd93bb782a1f66894827">MPI_Rank</a> () const  =0</td></tr>
-<tr class="memdesc:a3787aa058e62cd93bb782a1f66894827 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="mdescLeft">&#160;</td><td class="mdescRight">MPIRank is the rank of the processor in the communicator.  <a href="#a3787aa058e62cd93bb782a1f66894827">More...</a><br /></td></tr>
-<tr class="separator:a3787aa058e62cd93bb782a1f66894827 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6310a9d5339603f3422791b2bd9b4c56 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memItemLeft" align="right" valign="top">virtual QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_identity.html#a6310a9d5339603f3422791b2bd9b4c56">id</a> () const  =0</td></tr>
 <tr class="memdesc:a6310a9d5339603f3422791b2bd9b4c56 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets a unique identifier for the entity.  <a href="#a6310a9d5339603f3422791b2bd9b4c56">More...</a><br /></td></tr>
 <tr class="separator:a6310a9d5339603f3422791b2bd9b4c56 inherit pub_methods_class_hydro_couple_1_1_i_identity"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_description"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_description')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_description.html">HydroCouple::IDescription</a></td></tr>
 <tr class="memitem:ac22c6687c71243d53d2a39dceff15903 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#ac22c6687c71243d53d2a39dceff15903">~IDescription</a> ()</td></tr>
 <tr class="separator:ac22c6687c71243d53d2a39dceff15903 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac93b47c6dbc4d89bd7816080ff6dd98f inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#ac93b47c6dbc4d89bd7816080ff6dd98f">getCaption</a> () const  =0</td></tr>
-<tr class="memdesc:ac93b47c6dbc4d89bd7816080ff6dd98f inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets caption for the entity.  <a href="#ac93b47c6dbc4d89bd7816080ff6dd98f">More...</a><br /></td></tr>
-<tr class="separator:ac93b47c6dbc4d89bd7816080ff6dd98f inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac07d2ee45f176c51e4fa8c916c473ec4 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#ac07d2ee45f176c51e4fa8c916c473ec4">setCaption</a> (const QString &amp;caption)=0</td></tr>
+<tr class="memitem:a1b241b4f456cc2a048748434c74b4314 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#a1b241b4f456cc2a048748434c74b4314">caption</a> () const  =0</td></tr>
+<tr class="memdesc:a1b241b4f456cc2a048748434c74b4314 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets caption for the entity.  <a href="#a1b241b4f456cc2a048748434c74b4314">More...</a><br /></td></tr>
+<tr class="separator:a1b241b4f456cc2a048748434c74b4314 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac07d2ee45f176c51e4fa8c916c473ec4 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#ac07d2ee45f176c51e4fa8c916c473ec4">setCaption</a> (const QString &amp;<a class="el" href="class_hydro_couple_1_1_i_description.html#a1b241b4f456cc2a048748434c74b4314">caption</a>)=0</td></tr>
 <tr class="memdesc:ac07d2ee45f176c51e4fa8c916c473ec4 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets caption for the entity.  <a href="#ac07d2ee45f176c51e4fa8c916c473ec4">More...</a><br /></td></tr>
 <tr class="separator:ac07d2ee45f176c51e4fa8c916c473ec4 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a36a868429072aa46c8e99fae001f067e inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#a36a868429072aa46c8e99fae001f067e">getDescription</a> () const  =0</td></tr>
-<tr class="memdesc:a36a868429072aa46c8e99fae001f067e inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets additional descriptive information for the entity.  <a href="#a36a868429072aa46c8e99fae001f067e">More...</a><br /></td></tr>
-<tr class="separator:a36a868429072aa46c8e99fae001f067e inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae42bbb363fa93cfa5eccf86043545029 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#ae42bbb363fa93cfa5eccf86043545029">description</a> () const  =0</td></tr>
+<tr class="memdesc:ae42bbb363fa93cfa5eccf86043545029 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets additional descriptive information for the entity.  <a href="#ae42bbb363fa93cfa5eccf86043545029">More...</a><br /></td></tr>
+<tr class="separator:ae42bbb363fa93cfa5eccf86043545029 inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21a41c2f3dc342e33652b1e084694b6b inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_description.html#a21a41c2f3dc342e33652b1e084694b6b">setDescription</a> (const QString &amp;decription)=0</td></tr>
 <tr class="memdesc:a21a41c2f3dc342e33652b1e084694b6b inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets additional descriptive information for the entity.  <a href="#a21a41c2f3dc342e33652b1e084694b6b">More...</a><br /></td></tr>
 <tr class="separator:a21a41c2f3dc342e33652b1e084694b6b inherit pub_methods_class_hydro_couple_1_1_i_description"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -244,6 +231,32 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a7af169f8a41d23fe88d0e56b33319839"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="namespace_hydro_couple.html#acb50990a65befacb083217458f655831">ArgumentIOType</a> HydroCouple::IArgument::argumentIOType </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>argumentIOType </p>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ae5257ec94c2187088a574a3949fe459c"></a>
 <div class="memitem">
 <div class="memproto">
@@ -294,7 +307,7 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ae95013cb94f662768bbc9a7a7d4a448f"></a>
+<a class="anchor" id="a5010ee105097e07330fdf87c18f5a942"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -302,7 +315,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual <a class="el" href="class_hydro_couple_1_1_i_argument.html">IArgument</a>* HydroCouple::IArgument::clone </td>
+          <td class="memname">virtual QList&lt;<a class="el" href="class_hydro_couple_1_1_i_component_data_item.html">IComponentDataItem</a>*&gt; HydroCouple::IArgument::componentDataItems </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -315,12 +328,11 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Deep clones this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>. </p>
-<p>For example if the argument is a file, it makes a copy of the file with a different file name and reads </p>
+<p>IValueSet for this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>. </p>
 
 </div>
 </div>
-<a class="anchor" id="a99614e4774f6b93361291e628f1d73b4"></a>
+<a class="anchor" id="a576e295dcf833e180f4cd30ad6011c58"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -328,7 +340,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual QList&lt;QString&gt; HydroCouple::IArgument::fileExtensions </td>
+          <td class="memname">virtual QList&lt;<a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a>*&gt; HydroCouple::IArgument::dimensions </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -336,13 +348,40 @@ Additional Inherited Members</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>provides the dimensions associated with this IComponentItem. </p>
+<p>This function must return the unique <a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> objects from the IValueSet objects asssociated with this IComponentItem.</p>
+<dl class="section return"><dt>Returns</dt><dd>A list of <a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> objects. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a3c291fe6676bb5847857862a95191546"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual QList&lt;QString&gt; HydroCouple::IArgument::inputfileExtensions </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 <p>File type extensions that can be read by this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>. </p>
-<dl class="section return"><dt>Returns</dt><dd>a list of strings for compatible file extensions. </dd></dl>
+<p>File extensions must be specified using the Qt format e.g. "Images (*.png *.xpm *.jpg) " </p><dl class="section return"><dt>Returns</dt><dd>a list of strings for compatible file extensions. </dd></dl>
 
 </div>
 </div>
@@ -438,7 +477,7 @@ Additional Inherited Members</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>boolean indicating whether file reading was successful </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>boolean indicating whether file/string reading was successful </dd></dl>
 
 </div>
 </div>
@@ -497,32 +536,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Variables for this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>. </p>
-
-</div>
-</div>
-<a class="anchor" id="a441e3196789635ffff236ecfbedd3f15"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual QList&lt;<a class="el" href="class_hydro_couple_1_1_i_value_set.html">IValueSet</a>*&gt; HydroCouple::IArgument::valueSets </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p><a class="el" href="class_hydro_couple_1_1_i_value_set.html" title="IValueSet provides a multi-dimensional data with its context. ">IValueSet</a> for this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>. </p>
+<p>XML representation for this <a class="el" href="class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul...">IArgument</a>. </p>
 
 </div>
 </div>

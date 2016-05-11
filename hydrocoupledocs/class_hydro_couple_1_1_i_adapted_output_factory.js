@@ -1,6 +1,6 @@
 var class_hydro_couple_1_1_i_adapted_output_factory =
 [
     [ "~IAdaptedOutputFactory", "class_hydro_couple_1_1_i_adapted_output_factory.html#a649a7a9292b5ce8893cc03a959a9b889", null ],
-    [ "createAdaptedOutput", "class_hydro_couple_1_1_i_adapted_output_factory.html#a6992ae409a1fdf0f970f471f98262a05", null ],
-    [ "getAvailableAdaptedOutputIds", "class_hydro_couple_1_1_i_adapted_output_factory.html#aa05c60a5f17dc1b29949cf0c70558c32", null ]
+    [ "createAdaptedOutput", "class_hydro_couple_1_1_i_adapted_output_factory.html#a8f205b74197830a16847fa757b5e71a0", null ],
+    [ "getAvailableAdaptedOutputIds", "class_hydro_couple_1_1_i_adapted_output_factory.html#af66c1a40ea0d17a90bf65170e44c2e56", null ]
 ];

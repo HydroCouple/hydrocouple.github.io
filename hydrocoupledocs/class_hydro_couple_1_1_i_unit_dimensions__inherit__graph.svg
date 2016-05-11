@@ -28,9 +28,9 @@
 <text text-anchor="middle" x="95.0142" y="-198.85" font-family="Monaco" font-size="10.00"> </text>
 <polyline fill="none" stroke="black" points="12.002,-189.515 178.026,-189.515 "/>
 <text text-anchor="start" x="20.002" y="-177.515" font-family="Monaco" font-size="10.00">+ ~IDescription()</text>
-<text text-anchor="start" x="20.002" y="-164.18" font-family="Monaco" font-size="10.00">+ getCaption()</text>
+<text text-anchor="start" x="20.002" y="-164.18" font-family="Monaco" font-size="10.00">+ caption()</text>
 <text text-anchor="start" x="20.002" y="-150.845" font-family="Monaco" font-size="10.00">+ setCaption()</text>
-<text text-anchor="start" x="20.002" y="-137.51" font-family="Monaco" font-size="10.00">+ getDescription()</text>
+<text text-anchor="start" x="20.002" y="-137.51" font-family="Monaco" font-size="10.00">+ description()</text>
 <text text-anchor="start" x="20.002" y="-124.175" font-family="Monaco" font-size="10.00">+ setDescription()</text>
 </a>
 </g>

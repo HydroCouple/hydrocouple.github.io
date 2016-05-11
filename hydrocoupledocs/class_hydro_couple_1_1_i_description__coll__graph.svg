@@ -17,9 +17,9 @@
 <text text-anchor="middle" x="95.0142" y="-84.5098" font-family="Monaco" font-size="10.00"> </text>
 <polyline fill="none" stroke="black" points="12.002,-75.1748 178.026,-75.1748 "/>
 <text text-anchor="start" x="20.002" y="-63.1748" font-family="Monaco" font-size="10.00">+ ~IDescription()</text>
-<text text-anchor="start" x="20.002" y="-49.8398" font-family="Monaco" font-size="10.00">+ getCaption()</text>
+<text text-anchor="start" x="20.002" y="-49.8398" font-family="Monaco" font-size="10.00">+ caption()</text>
 <text text-anchor="start" x="20.002" y="-36.5049" font-family="Monaco" font-size="10.00">+ setCaption()</text>
-<text text-anchor="start" x="20.002" y="-23.1699" font-family="Monaco" font-size="10.00">+ getDescription()</text>
+<text text-anchor="start" x="20.002" y="-23.1699" font-family="Monaco" font-size="10.00">+ description()</text>
 <text text-anchor="start" x="20.002" y="-9.83496" font-family="Monaco" font-size="10.00">+ setDescription()</text>
 </g>
 <!-- Node2 -->

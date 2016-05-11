@@ -6,6 +6,6 @@ var class_hydro_couple_1_1_spatial_1_1_i_raster =
     [ "getRasterBand", "class_hydro_couple_1_1_spatial_1_1_i_raster.html#a2fb7cee15d778f6b2a7c608355ee1031", null ],
     [ "rasterBandCount", "class_hydro_couple_1_1_spatial_1_1_i_raster.html#ab2e66474205ae38839014c875a804373", null ],
     [ "spatialReferenceSystem", "class_hydro_couple_1_1_spatial_1_1_i_raster.html#a57978d6397548c02e566d735386eff80", null ],
-    [ "xSize", "class_hydro_couple_1_1_spatial_1_1_i_raster.html#a0e08c5f1d13eba111a876940251015d8", null ],
-    [ "ySize", "class_hydro_couple_1_1_spatial_1_1_i_raster.html#a5ddebbb393d6c13cdd780d4fbb7b4ac3", null ]
+    [ "xSize", "class_hydro_couple_1_1_spatial_1_1_i_raster.html#a230349770291b0b61459a72c357b9adc", null ],
+    [ "ySize", "class_hydro_couple_1_1_spatial_1_1_i_raster.html#a0e7ea53d6a681f0ac66f52c4d32632c1", null ]
 ];

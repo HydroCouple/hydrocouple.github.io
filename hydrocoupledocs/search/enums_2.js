@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['fundamentalunitdimension',['FundamentalUnitDimension',['../namespace_hydro_couple.html#a3b0c4ea98032b00a2da319636be02d67',1,'HydroCouple']]]
+  ['dimensionlengthtype',['DimensionLengthType',['../namespace_hydro_couple.html#a4568abf6cb6695e2f046f3d270e3bd62',1,'HydroCouple']]]
 ];
