@@ -8,7 +8,6 @@
  viewBox="0.00 0.00 412.03 267.02" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 263.02)">
 <title>/Users/calebbuahin/Documents/Projects/HydroCouple/HydroCouple/include/hydrocouple.h</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-263.02 408.029,-263.02 408.029,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="120.002,-197.18 120.002,-258.52 280.026,-258.52 280.026,-197.18 120.002,-197.18"/>
@@ -20,7 +19,7 @@
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
 <g id="a_node2"><a xlink:href="hydrocouplespatial_8h.html" target="_top" xlink:title="/Users/calebbuahin\l/Documents/Projects\l/HydroCouple/HydroCouple\l/include/hydrocouplespatial.h">
-<polygon fill="white" stroke="black" points="0,-98.8398 0,-160.18 190.028,-160.18 190.028,-98.8398 0,-98.8398"/>
+<polygon fill="none" stroke="black" points="0,-98.8398 0,-160.18 190.028,-160.18 190.028,-98.8398 0,-98.8398"/>
 <text text-anchor="start" x="8" y="-148.18" font-family="Monaco" font-size="10.00">/Users/calebbuahin</text>
 <text text-anchor="start" x="8" y="-134.845" font-family="Monaco" font-size="10.00">/Documents/Projects</text>
 <text text-anchor="start" x="8" y="-121.51" font-family="Monaco" font-size="10.00">/HydroCouple/HydroCouple</text>
@@ -36,7 +35,7 @@
 <!-- Node4 -->
 <g id="node4" class="node"><title>Node4</title>
 <g id="a_node4"><a xlink:href="hydrocoupletemporal_8h.html" target="_top" xlink:title="/Users/calebbuahin\l/Documents/Projects\l/HydroCouple/HydroCouple\l/include/hydrocoupletemporal.h">
-<polygon fill="white" stroke="black" points="208,-98.8398 208,-160.18 404.029,-160.18 404.029,-98.8398 208,-98.8398"/>
+<polygon fill="none" stroke="black" points="208,-98.8398 208,-160.18 404.029,-160.18 404.029,-98.8398 208,-98.8398"/>
 <text text-anchor="start" x="216" y="-148.18" font-family="Monaco" font-size="10.00">/Users/calebbuahin</text>
 <text text-anchor="start" x="216" y="-134.845" font-family="Monaco" font-size="10.00">/Documents/Projects</text>
 <text text-anchor="start" x="216" y="-121.51" font-family="Monaco" font-size="10.00">/HydroCouple/HydroCouple</text>
@@ -52,7 +51,7 @@
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
 <g id="a_node3"><a xlink:href="hydrocouplespatiotemporal_8h.html" target="_top" xlink:title="/Users/calebbuahin\l/Documents/Projects\l/HydroCouple/HydroCouple\l/include/hydrocouplespatiotemporal.h">
-<polygon fill="white" stroke="black" points="83.9966,-0.5 83.9966,-61.8398 316.032,-61.8398 316.032,-0.5 83.9966,-0.5"/>
+<polygon fill="none" stroke="black" points="83.9966,-0.5 83.9966,-61.8398 316.032,-61.8398 316.032,-0.5 83.9966,-0.5"/>
 <text text-anchor="start" x="91.9966" y="-49.8398" font-family="Monaco" font-size="10.00">/Users/calebbuahin</text>
 <text text-anchor="start" x="91.9966" y="-36.5049" font-family="Monaco" font-size="10.00">/Documents/Projects</text>
 <text text-anchor="start" x="91.9966" y="-23.1699" font-family="Monaco" font-size="10.00">/HydroCouple/HydroCouple</text>

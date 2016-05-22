@@ -8,7 +8,6 @@
  viewBox="0.00 0.00 391.03 791.39" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 787.389)">
 <title>HydroCouple::Spatial::IRegularGrid3DExhangeItem</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-787.389 387.028,-787.389 387.028,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="99.0005,-0.5 99.0005,-77.8398 295.03,-77.8398 295.03,-0.5 99.0005,-0.5"/>
@@ -22,7 +21,7 @@
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
 <g id="a_node2"><a xlink:href="class_hydro_couple_1_1_i_exchange_item.html" target="_top" xlink:title="IExchangeItem the base data item the can be exchanged between components at runtime. ">
-<polygon fill="white" stroke="black" points="15.0024,-114.84 15.0024,-192.18 187.028,-192.18 187.028,-114.84 15.0024,-114.84"/>
+<polygon fill="none" stroke="black" points="15.0024,-114.84 15.0024,-192.18 187.028,-192.18 187.028,-114.84 15.0024,-114.84"/>
 <text text-anchor="middle" x="101.015" y="-180.18" font-family="Monaco" font-size="10.00">HydroCouple::IExchangeItem</text>
 <polyline fill="none" stroke="black" points="15.0024,-170.845 187.028,-170.845 "/>
 <text text-anchor="middle" x="101.015" y="-158.845" font-family="Monaco" font-size="10.00"> </text>
@@ -40,7 +39,7 @@
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
 <g id="a_node3"><a xlink:href="class_hydro_couple_1_1_i_component_data_item.html" target="_top" xlink:title="IComponentItem is a fundamental unit of data for a component. ">
-<polygon fill="white" stroke="black" points="0,-229.18 0,-413.199 202.03,-413.199 202.03,-229.18 0,-229.18"/>
+<polygon fill="none" stroke="black" points="0,-229.18 0,-413.199 202.03,-413.199 202.03,-229.18 0,-229.18"/>
 <text text-anchor="middle" x="101.015" y="-401.199" font-family="Monaco" font-size="10.00">HydroCouple::IComponentDataItem</text>
 <polyline fill="none" stroke="black" points="0,-391.864 202.03,-391.864 "/>
 <text text-anchor="middle" x="101.015" y="-379.864" font-family="Monaco" font-size="10.00"> </text>
@@ -66,7 +65,7 @@
 <!-- Node4 -->
 <g id="node4" class="node"><title>Node4</title>
 <g id="a_node4"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. ">
-<polygon fill="white" stroke="black" points="27.0044,-450.199 27.0044,-527.539 175.026,-527.539 175.026,-450.199 27.0044,-450.199"/>
+<polygon fill="none" stroke="black" points="27.0044,-450.199 27.0044,-527.539 175.026,-527.539 175.026,-450.199 27.0044,-450.199"/>
 <text text-anchor="middle" x="101.015" y="-515.539" font-family="Monaco" font-size="10.00">HydroCouple::IIdentity</text>
 <polyline fill="none" stroke="black" points="27.0044,-506.204 175.026,-506.204 "/>
 <text text-anchor="middle" x="101.015" y="-494.204" font-family="Monaco" font-size="10.00"> </text>
@@ -84,7 +83,7 @@
 <!-- Node5 -->
 <g id="node5" class="node"><title>Node5</title>
 <g id="a_node5"><a xlink:href="class_hydro_couple_1_1_i_description.html" target="_top" xlink:title="IDescription interface class provides descriptive information on a HydroCouple object. ">
-<polygon fill="white" stroke="black" points="18.0029,-564.539 18.0029,-681.884 184.027,-681.884 184.027,-564.539 18.0029,-564.539"/>
+<polygon fill="none" stroke="black" points="18.0029,-564.539 18.0029,-681.884 184.027,-681.884 184.027,-564.539 18.0029,-564.539"/>
 <text text-anchor="middle" x="101.015" y="-669.884" font-family="Monaco" font-size="10.00">HydroCouple::IDescription</text>
 <polyline fill="none" stroke="black" points="18.0029,-660.549 184.027,-660.549 "/>
 <text text-anchor="middle" x="101.015" y="-648.549" font-family="Monaco" font-size="10.00"> </text>
@@ -105,7 +104,7 @@
 <!-- Node6 -->
 <g id="node6" class="node"><title>Node6</title>
 <g id="a_node6"><a xlink:href="class_hydro_couple_1_1_i_property_changed.html" target="_top" xlink:title="IPropertyChanged interface is used to emit signal/event when a property of an object changes...">
-<polygon fill="white" stroke="black" points="6.00098,-718.884 6.00098,-782.889 196.029,-782.889 196.029,-718.884 6.00098,-718.884"/>
+<polygon fill="none" stroke="black" points="6.00098,-718.884 6.00098,-782.889 196.029,-782.889 196.029,-718.884 6.00098,-718.884"/>
 <text text-anchor="middle" x="101.015" y="-770.889" font-family="Monaco" font-size="10.00">HydroCouple::IPropertyChanged</text>
 <polyline fill="none" stroke="black" points="6.00098,-761.554 196.029,-761.554 "/>
 <text text-anchor="middle" x="101.015" y="-749.554" font-family="Monaco" font-size="10.00"> </text>
@@ -121,7 +120,7 @@
 </g>
 <!-- Node7 -->
 <g id="node7" class="node"><title>Node7</title>
-<polygon fill="white" stroke="#bfbfbf" points="205.002,-121.507 205.002,-185.512 383.028,-185.512 383.028,-121.507 205.002,-121.507"/>
+<polygon fill="none" stroke="#bfbfbf" points="205.002,-121.507 205.002,-185.512 383.028,-185.512 383.028,-121.507 205.002,-121.507"/>
 <text text-anchor="middle" x="294.015" y="-173.512" font-family="Monaco" font-size="10.00">IRegularGrid3DComponentItem</text>
 <polyline fill="none" stroke="#bfbfbf" points="205.002,-164.177 383.028,-164.177 "/>
 <text text-anchor="middle" x="294.015" y="-152.177" font-family="Monaco" font-size="10.00"> </text>

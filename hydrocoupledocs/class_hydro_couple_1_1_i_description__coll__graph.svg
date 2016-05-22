@@ -8,7 +8,6 @@
  viewBox="0.00 0.00 198.03 227.35" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 223.35)">
 <title>HydroCouple::IDescription</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-223.35 194.028,-223.35 194.028,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="12.002,-0.5 12.002,-117.845 178.026,-117.845 178.026,-0.5 12.002,-0.5"/>
@@ -25,7 +24,7 @@
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
 <g id="a_node2"><a xlink:href="class_hydro_couple_1_1_i_property_changed.html" target="_top" xlink:title="IPropertyChanged interface is used to emit signal/event when a property of an object changes...">
-<polygon fill="white" stroke="black" points="0,-154.845 0,-218.85 190.028,-218.85 190.028,-154.845 0,-154.845"/>
+<polygon fill="none" stroke="black" points="0,-154.845 0,-218.85 190.028,-218.85 190.028,-154.845 0,-154.845"/>
 <text text-anchor="middle" x="95.0142" y="-206.85" font-family="Monaco" font-size="10.00">HydroCouple::IPropertyChanged</text>
 <polyline fill="none" stroke="black" points="0,-197.515 190.028,-197.515 "/>
 <text text-anchor="middle" x="95.0142" y="-185.515" font-family="Monaco" font-size="10.00"> </text>

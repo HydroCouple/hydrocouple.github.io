@@ -31,7 +31,9 @@ var hierarchy =
               [ "HydroCouple::SpatioTemporal::ITimeRegularGrid3DExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_exchange_item.html", null ],
               [ "HydroCouple::SpatioTemporal::ITimeTINExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_exchange_item.html", null ],
               [ "HydroCouple::Temporal::IIdBasedTimeExchangeItem", "class_hydro_couple_1_1_temporal_1_1_i_id_based_time_exchange_item.html", null ],
-              [ "HydroCouple::Temporal::ITimeExchangeItem", "class_hydro_couple_1_1_temporal_1_1_i_time_exchange_item.html", null ]
+              [ "HydroCouple::Temporal::ITimeExchangeItem", "class_hydro_couple_1_1_temporal_1_1_i_time_exchange_item.html", [
+                [ "HydroCouple::Temporal::ITimeSeriesExchangeItem", "class_hydro_couple_1_1_temporal_1_1_i_time_series_exchange_item.html", null ]
+              ] ]
             ] ],
             [ "HydroCouple::IIdBasedComponentDataItem", "class_hydro_couple_1_1_i_id_based_component_data_item.html", [
               [ "HydroCouple::IIdBasedExchangeItem", "class_hydro_couple_1_1_i_id_based_exchange_item.html", null ]
@@ -52,29 +54,32 @@ var hierarchy =
             [ "HydroCouple::Spatial::ITINComponentDataItem", "class_hydro_couple_1_1_spatial_1_1_i_t_i_n_component_data_item.html", [
               [ "HydroCouple::Spatial::ITINExchangeItem", "class_hydro_couple_1_1_spatial_1_1_i_t_i_n_exchange_item.html", null ]
             ] ],
-            [ "HydroCouple::SpatioTemporal::ITimeGeometryComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_geometry_component_data_item.html", [
-              [ "HydroCouple::SpatioTemporal::ITimeGeometryExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_geometry_exchange_item.html", null ]
-            ] ],
-            [ "HydroCouple::SpatioTemporal::ITimePolyhedralSurfaceComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html", [
-              [ "HydroCouple::SpatioTemporal::ITimePolyhedralSurfaceExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_exchange_item.html", null ]
-            ] ],
-            [ "HydroCouple::SpatioTemporal::ITimeRasterComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_component_data_item.html", [
-              [ "HydroCouple::SpatioTemporal::ITimeRasterExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_exchange_item.html", null ]
-            ] ],
-            [ "HydroCouple::SpatioTemporal::ITimeRegularGrid2DComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html", [
-              [ "HydroCouple::SpatioTemporal::ITimeRegularGrid2DExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_exchange_item.html", null ]
-            ] ],
-            [ "HydroCouple::SpatioTemporal::ITimeRegularGrid3DComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_component_data_item.html", [
-              [ "HydroCouple::SpatioTemporal::ITimeRegularGrid3DExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_exchange_item.html", null ]
-            ] ],
-            [ "HydroCouple::SpatioTemporal::ITimeTINComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html", [
-              [ "HydroCouple::SpatioTemporal::ITimeTINExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_exchange_item.html", null ]
-            ] ],
-            [ "HydroCouple::Temporal::IIdBasedTimeComponentDataItem", "class_hydro_couple_1_1_temporal_1_1_i_id_based_time_component_data_item.html", [
-              [ "HydroCouple::Temporal::IIdBasedTimeExchangeItem", "class_hydro_couple_1_1_temporal_1_1_i_id_based_time_exchange_item.html", null ]
-            ] ],
             [ "HydroCouple::Temporal::ITimeComponentDataItem", "class_hydro_couple_1_1_temporal_1_1_i_time_component_data_item.html", [
-              [ "HydroCouple::Temporal::ITimeExchangeItem", "class_hydro_couple_1_1_temporal_1_1_i_time_exchange_item.html", null ]
+              [ "HydroCouple::SpatioTemporal::ITimeGeometryComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_geometry_component_data_item.html", [
+                [ "HydroCouple::SpatioTemporal::ITimeGeometryExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_geometry_exchange_item.html", null ]
+              ] ],
+              [ "HydroCouple::SpatioTemporal::ITimePolyhedralSurfaceComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html", [
+                [ "HydroCouple::SpatioTemporal::ITimePolyhedralSurfaceExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_exchange_item.html", null ]
+              ] ],
+              [ "HydroCouple::SpatioTemporal::ITimeRasterComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_component_data_item.html", [
+                [ "HydroCouple::SpatioTemporal::ITimeRasterExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_exchange_item.html", null ]
+              ] ],
+              [ "HydroCouple::SpatioTemporal::ITimeRegularGrid2DComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html", [
+                [ "HydroCouple::SpatioTemporal::ITimeRegularGrid2DExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_exchange_item.html", null ]
+              ] ],
+              [ "HydroCouple::SpatioTemporal::ITimeRegularGrid3DComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_component_data_item.html", [
+                [ "HydroCouple::SpatioTemporal::ITimeRegularGrid3DExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_exchange_item.html", null ]
+              ] ],
+              [ "HydroCouple::SpatioTemporal::ITimeTINComponentDataItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html", [
+                [ "HydroCouple::SpatioTemporal::ITimeTINExchangeItem", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_exchange_item.html", null ]
+              ] ],
+              [ "HydroCouple::Temporal::IIdBasedTimeComponentDataItem", "class_hydro_couple_1_1_temporal_1_1_i_id_based_time_component_data_item.html", [
+                [ "HydroCouple::Temporal::IIdBasedTimeExchangeItem", "class_hydro_couple_1_1_temporal_1_1_i_id_based_time_exchange_item.html", null ]
+              ] ],
+              [ "HydroCouple::Temporal::ITimeExchangeItem", "class_hydro_couple_1_1_temporal_1_1_i_time_exchange_item.html", null ],
+              [ "HydroCouple::Temporal::ITimeSeriesComponentDataItem", "class_hydro_couple_1_1_temporal_1_1_i_time_series_component_data_item.html", [
+                [ "HydroCouple::Temporal::ITimeSeriesExchangeItem", "class_hydro_couple_1_1_temporal_1_1_i_time_series_exchange_item.html", null ]
+              ] ]
             ] ]
           ] ],
           [ "HydroCouple::IComponentInfo", "class_hydro_couple_1_1_i_component_info.html", [

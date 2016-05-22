@@ -20,6 +20,7 @@
 <area shape="rect" id="node3" href="$class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. " alt="" coords="2116,346,2313,450"/>
 <area shape="rect" id="node4" href="$class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object. " alt="" coords="2104,140,2325,298"/>
 <area shape="rect" id="node5" href="$class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes..." alt="" coords="2088,5,2341,92"/>
-<area shape="rect" id="node8" href="$class_hydro_couple_1_1_i_multi_input.html" title="The IMultiInput class is an IInput class that has multiple outputs supplying data to it..." alt="" coords="276,1231,489,1371"/>
-<area shape="rect" id="node10" href="$class_hydro_couple_1_1_i_adapted_output.html" title="An IAdaptedOutput adds one or more data operations on top of an IOutput. " alt="" coords="513,1205,751,1398"/>
+<area shape="rect" id="node8" href="$class_hydro_couple_1_1_i_multi_input.html" title="The IMultiInput class is an IInput class that has multiple outputs supplying data to it..." alt="" coords="277,1231,491,1371"/>
+<area shape="rect" id="node10" href="$class_hydro_couple_1_1_i_adapted_output.html" title="An IAdaptedOutput adds one or more data operations on top of an IOutput. " alt="" coords="515,1205,752,1398"/>
+<area shape="rect" id="node25" href="$class_hydro_couple_1_1_temporal_1_1_i_time_series_exchange_item.html" title="The ITimeSeriesExchangeItem class. " alt="" coords="4411,1249,4656,1353"/>
 </map>

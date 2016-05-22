@@ -8,7 +8,6 @@
  viewBox="0.00 0.00 215.02 187.01" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 183.01)">
 <title>/Users/calebbuahin/Documents/Projects/HydroCouple/HydroCouple/include/hydrocoupletemporal.h</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-183.01 211.022,-183.01 211.022,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="10.9932,-117.17 10.9932,-178.51 207.022,-178.51 207.022,-117.17 10.9932,-117.17"/>
@@ -20,7 +19,7 @@
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
 <g id="a_node2"><a xlink:href="hydrocouple_8h.html" target="_top" xlink:title="hydrocouple.h">
-<polygon fill="white" stroke="black" points="62.0015,-58.835 62.0015,-80.1699 156.014,-80.1699 156.014,-58.835 62.0015,-58.835"/>
+<polygon fill="none" stroke="black" points="62.0015,-58.835 62.0015,-80.1699 156.014,-80.1699 156.014,-58.835 62.0015,-58.835"/>
 <text text-anchor="middle" x="109.008" y="-68.1699" font-family="Monaco" font-size="10.00">hydrocouple.h</text>
 </a>
 </g>
@@ -32,7 +31,7 @@
 </g>
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
-<polygon fill="white" stroke="#bfbfbf" points="0,-0.5 0,-21.835 112.016,-21.835 112.016,-0.5 0,-0.5"/>
+<polygon fill="none" stroke="#bfbfbf" points="0,-0.5 0,-21.835 112.016,-21.835 112.016,-0.5 0,-0.5"/>
 <text text-anchor="middle" x="56.0078" y="-9.83496" font-family="Monaco" font-size="10.00">QtCore/qglobal.h</text>
 </g>
 <!-- Node2&#45;&gt;Node3 -->
@@ -42,7 +41,7 @@
 </g>
 <!-- Node4 -->
 <g id="node4" class="node"><title>Node4</title>
-<polygon fill="white" stroke="#bfbfbf" points="130.004,-0.5 130.004,-21.835 194.012,-21.835 194.012,-0.5 130.004,-0.5"/>
+<polygon fill="none" stroke="#bfbfbf" points="130.004,-0.5 130.004,-21.835 194.012,-21.835 194.012,-0.5 130.004,-0.5"/>
 <text text-anchor="middle" x="162.008" y="-9.83496" font-family="Monaco" font-size="10.00">QVariant</text>
 </g>
 <!-- Node2&#45;&gt;Node4 -->

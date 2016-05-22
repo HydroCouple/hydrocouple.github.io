@@ -9,8 +9,5 @@ var class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_
     [ "numYCellsDimension", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html#aa31538952f8154475ee9a86ab65aade4", null ],
     [ "setValue", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html#afa9e189413f1bb409723ce238181a894", null ],
     [ "setValues", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html#a072b534a722d00fed616c90dab753c6d", null ],
-    [ "setValues", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html#a95d2ef5c060374c539e82c483994ca8d", null ],
-    [ "timeDimension", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html#a0bc89093b2e7abd1ba436eb754d3dfb7", null ],
-    [ "times", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html#ab4c3d993d19507fc5c00aca5ef3c9d59", null ],
-    [ "timeSpan", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html#acc04a37de3998dc3888c164eb7e19f28", null ]
+    [ "setValues", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html#a95d2ef5c060374c539e82c483994ca8d", null ]
 ];

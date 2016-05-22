@@ -8,7 +8,6 @@
  viewBox="0.00 0.00 168.02 128.67" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 124.675)">
 <title>/Users/calebbuahin/Documents/Projects/HydroCouple/HydroCouple/src/stdafx.cpp</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-124.675 164.023,-124.675 164.023,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="0,-58.835 0,-120.175 160.023,-120.175 160.023,-58.835 0,-58.835"/>
@@ -20,7 +19,7 @@
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
 <g id="a_node2"><a xlink:href="stdafx_8h.html" target="_top" xlink:title="include/stdafx.h">
-<polygon fill="white" stroke="black" points="24.0039,-0.5 24.0039,-21.835 136.02,-21.835 136.02,-0.5 24.0039,-0.5"/>
+<polygon fill="none" stroke="black" points="24.0039,-0.5 24.0039,-21.835 136.02,-21.835 136.02,-0.5 24.0039,-0.5"/>
 <text text-anchor="middle" x="80.0117" y="-9.83496" font-family="Monaco" font-size="10.00">include/stdafx.h</text>
 </a>
 </g>

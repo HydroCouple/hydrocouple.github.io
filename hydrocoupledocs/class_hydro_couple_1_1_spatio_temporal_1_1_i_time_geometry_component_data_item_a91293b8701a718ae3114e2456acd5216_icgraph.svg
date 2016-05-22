@@ -54,7 +54,6 @@ var sectionId = 'dynsection-8';
 <svg id="graph" class="graph">
 <g id="viewport">
 <title>HydroCouple::SpatioTemporal::ITimeGeometryComponentDataItem::setValue</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-402.005 516.072,-402.005 516.072,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="0,-171.5 0,-219.505 208.031,-219.505 208.031,-171.5 0,-171.5"/>
@@ -65,7 +64,7 @@ var sectionId = 'dynsection-8';
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
 <g id="a_node2"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_geometry_component_data_item.html#a57c46ea91026f9f9bae578261bb89c38" target="_top" xlink:title="~ITimeGeometryComponentItem. ">
-<polygon fill="white" stroke="black" points="271.036,-349.5 271.036,-397.505 485.068,-397.505 485.068,-349.5 271.036,-349.5"/>
+<polygon fill="none" stroke="black" points="271.036,-349.5 271.036,-397.505 485.068,-397.505 485.068,-349.5 271.036,-349.5"/>
 <text text-anchor="start" x="279.036" y="-385.505" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="start" x="279.036" y="-372.17" font-family="Monaco" font-size="10.00">::ITimeGeometryComponentDataItem</text>
 <text text-anchor="middle" x="378.052" y="-358.835" font-family="Monaco" font-size="10.00">::~ITimeGeometryComponentDataItem</text>
@@ -80,7 +79,7 @@ var sectionId = 'dynsection-8';
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
 <g id="a_node3"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html#a0e3d64ed6dff6103679b1bb6473ac0ea" target="_top" xlink:title="~ITimeTINComponentItem. ">
-<polygon fill="white" stroke="black" points="286.038,-282.5 286.038,-330.505 470.065,-330.505 470.065,-282.5 286.038,-282.5"/>
+<polygon fill="none" stroke="black" points="286.038,-282.5 286.038,-330.505 470.065,-330.505 470.065,-282.5 286.038,-282.5"/>
 <text text-anchor="start" x="294.038" y="-318.505" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="start" x="294.038" y="-305.17" font-family="Monaco" font-size="10.00">::ITimeTINComponentDataItem</text>
 <text text-anchor="middle" x="378.052" y="-291.835" font-family="Monaco" font-size="10.00">::~ITimeTINComponentDataItem</text>
@@ -95,7 +94,7 @@ var sectionId = 'dynsection-8';
 <!-- Node4 -->
 <g id="node4" class="node"><title>Node4</title>
 <g id="a_node4"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html#a7f4b0fdba01f40134aa118e3eda58ccd" target="_top" xlink:title="~ITimePolyhedralSurfaceComponentItem. ">
-<polygon fill="white" stroke="black" points="244.031,-201.833 244.031,-263.172 512.072,-263.172 512.072,-201.833 244.031,-201.833"/>
+<polygon fill="none" stroke="black" points="244.031,-201.833 244.031,-263.172 512.072,-263.172 512.072,-201.833 244.031,-201.833"/>
 <text text-anchor="start" x="252.031" y="-251.172" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="start" x="252.031" y="-237.837" font-family="Monaco" font-size="10.00">::ITimePolyhedralSurfaceComponent</text>
 <text text-anchor="start" x="252.031" y="-224.502" font-family="Monaco" font-size="10.00">DataItem::~ITimePolyhedralSurfaceComponent</text>
@@ -111,7 +110,7 @@ var sectionId = 'dynsection-8';
 <!-- Node5 -->
 <g id="node5" class="node"><title>Node5</title>
 <g id="a_node5"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_component_data_item.html#a40bb56e657f691f554827b973cb06dab" target="_top" xlink:title="HydroCouple::SpatioTemporal\l::ITimeRasterComponentDataItem\l::~ITimeRasterComponentDataItem">
-<polygon fill="white" stroke="black" points="277.037,-134.5 277.037,-182.505 479.067,-182.505 479.067,-134.5 277.037,-134.5"/>
+<polygon fill="none" stroke="black" points="277.037,-134.5 277.037,-182.505 479.067,-182.505 479.067,-134.5 277.037,-134.5"/>
 <text text-anchor="start" x="285.037" y="-170.505" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="start" x="285.037" y="-157.17" font-family="Monaco" font-size="10.00">::ITimeRasterComponentDataItem</text>
 <text text-anchor="middle" x="378.052" y="-143.835" font-family="Monaco" font-size="10.00">::~ITimeRasterComponentDataItem</text>
@@ -126,7 +125,7 @@ var sectionId = 'dynsection-8';
 <!-- Node6 -->
 <g id="node6" class="node"><title>Node6</title>
 <g id="a_node6"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_component_data_item.html#a2322197c9014c7b93f60db010a8a4174" target="_top" xlink:title="HydroCouple::SpatioTemporal\l::ITimeRegularGrid2DComponentData\lItem::~ITimeRegularGrid2DComponentDataItem">
-<polygon fill="white" stroke="black" points="244.031,-67.5 244.031,-115.505 512.072,-115.505 512.072,-67.5 244.031,-67.5"/>
+<polygon fill="none" stroke="black" points="244.031,-67.5 244.031,-115.505 512.072,-115.505 512.072,-67.5 244.031,-67.5"/>
 <text text-anchor="start" x="252.031" y="-103.505" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="start" x="252.031" y="-90.1699" font-family="Monaco" font-size="10.00">::ITimeRegularGrid2DComponentData</text>
 <text text-anchor="middle" x="378.052" y="-76.835" font-family="Monaco" font-size="10.00">Item::~ITimeRegularGrid2DComponentDataItem</text>
@@ -141,7 +140,7 @@ var sectionId = 'dynsection-8';
 <!-- Node7 -->
 <g id="node7" class="node"><title>Node7</title>
 <g id="a_node7"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_component_data_item.html#a51c986d2f99145968cb7a3e5e58b9996" target="_top" xlink:title="HydroCouple::SpatioTemporal\l::ITimeRegularGrid3DComponentData\lItem::~ITimeRegularGrid3DComponentDataItem">
-<polygon fill="white" stroke="black" points="244.031,-0.5 244.031,-48.5049 512.072,-48.5049 512.072,-0.5 244.031,-0.5"/>
+<polygon fill="none" stroke="black" points="244.031,-0.5 244.031,-48.5049 512.072,-48.5049 512.072,-0.5 244.031,-0.5"/>
 <text text-anchor="start" x="252.031" y="-36.5049" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="start" x="252.031" y="-23.1699" font-family="Monaco" font-size="10.00">::ITimeRegularGrid3DComponentData</text>
 <text text-anchor="middle" x="378.052" y="-9.83496" font-family="Monaco" font-size="10.00">Item::~ITimeRegularGrid3DComponentDataItem</text>

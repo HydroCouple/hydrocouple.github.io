@@ -70,6 +70,8 @@ var searchData=
   ['itimeregulargrid2dexchangeitem',['ITimeRegularGrid2DExchangeItem',['../class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_exchange_item.html',1,'HydroCouple::SpatioTemporal']]],
   ['itimeregulargrid3dcomponentdataitem',['ITimeRegularGrid3DComponentDataItem',['../class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_component_data_item.html',1,'HydroCouple::SpatioTemporal']]],
   ['itimeregulargrid3dexchangeitem',['ITimeRegularGrid3DExchangeItem',['../class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_exchange_item.html',1,'HydroCouple::SpatioTemporal']]],
+  ['itimeseriescomponentdataitem',['ITimeSeriesComponentDataItem',['../class_hydro_couple_1_1_temporal_1_1_i_time_series_component_data_item.html',1,'HydroCouple::Temporal']]],
+  ['itimeseriesexchangeitem',['ITimeSeriesExchangeItem',['../class_hydro_couple_1_1_temporal_1_1_i_time_series_exchange_item.html',1,'HydroCouple::Temporal']]],
   ['itimespan',['ITimeSpan',['../class_hydro_couple_1_1_temporal_1_1_i_time_span.html',1,'HydroCouple::Temporal']]],
   ['itimetincomponentdataitem',['ITimeTINComponentDataItem',['../class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html',1,'HydroCouple::SpatioTemporal']]],
   ['itimetinexchangeitem',['ITimeTINExchangeItem',['../class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_exchange_item.html',1,'HydroCouple::SpatioTemporal']]],

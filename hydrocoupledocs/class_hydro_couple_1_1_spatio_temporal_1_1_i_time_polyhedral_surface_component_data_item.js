@@ -9,8 +9,5 @@ var class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_compone
     [ "polyhedralSurfacePatchDimension", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html#a970684cd14d2235ff98b918b92459faf", null ],
     [ "setValue", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html#a6266caf2a2c5399182dfb8c004ec38ad", null ],
     [ "setValues", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html#a475d81808088d748961f2eae224999f6", null ],
-    [ "setValues", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html#af3b2cdd064b86981173125028363022e", null ],
-    [ "timeDimension", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html#a52bde25d70753d5505ef02de885f7e26", null ],
-    [ "times", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html#ab7a8c7f11859a822f9d8e4b26b60d374", null ],
-    [ "timeSpan", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html#a8fa3d7a13c15d6619c2f2bd93ee4ca2a", null ]
+    [ "setValues", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_component_data_item.html#af3b2cdd064b86981173125028363022e", null ]
 ];

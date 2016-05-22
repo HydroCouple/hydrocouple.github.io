@@ -8,7 +8,6 @@
  viewBox="0.00 0.00 240.04 166.35" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 162.35)">
 <title>HydroCouple::IComponentStatusChangeEventArgs</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-162.35 236.035,-162.35 236.035,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="0,-0.5 0,-157.85 232.035,-157.85 232.035,-0.5 0,-0.5"/>

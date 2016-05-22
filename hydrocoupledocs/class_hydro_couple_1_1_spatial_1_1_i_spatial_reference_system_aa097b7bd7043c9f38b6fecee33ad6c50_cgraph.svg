@@ -8,7 +8,6 @@
  viewBox="0.00 0.00 382.05 191.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 187.005)">
 <title>HydroCouple::Spatial::ISpatialReferenceSystem::~ISpatialReferenceSystem</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-187.005 378.05,-187.005 378.05,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="0,-67.5 0,-115.505 172.025,-115.505 172.025,-67.5 0,-67.5"/>
@@ -19,7 +18,7 @@
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
 <g id="a_node2"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_spatial_reference_system.html#a48964c6e536904351629fdab3af4c0a4" target="_top" xlink:title="Returns the Spatial Reference System ID for a geometric object. This will normally be a foreign key t...">
-<polygon fill="white" stroke="black" points="208.025,-134.5 208.025,-182.505 374.05,-182.505 374.05,-134.5 208.025,-134.5"/>
+<polygon fill="none" stroke="black" points="208.025,-134.5 208.025,-182.505 374.05,-182.505 374.05,-134.5 208.025,-134.5"/>
 <text text-anchor="start" x="216.025" y="-170.505" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="start" x="216.025" y="-157.17" font-family="Monaco" font-size="10.00">::ISpatialReferenceSystem</text>
 <text text-anchor="middle" x="291.038" y="-143.835" font-family="Monaco" font-size="10.00">::authSRID</text>
@@ -34,7 +33,7 @@
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
 <g id="a_node3"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_spatial_reference_system.html#a867cbfb15b9177319787a434a58f1216" target="_top" xlink:title="The Authority Specific Spatial Reference System Identifier. ">
-<polygon fill="white" stroke="black" points="208.025,-67.5 208.025,-115.505 374.05,-115.505 374.05,-67.5 208.025,-67.5"/>
+<polygon fill="none" stroke="black" points="208.025,-67.5 208.025,-115.505 374.05,-115.505 374.05,-67.5 208.025,-67.5"/>
 <text text-anchor="start" x="216.025" y="-103.505" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="start" x="216.025" y="-90.1699" font-family="Monaco" font-size="10.00">::ISpatialReferenceSystem</text>
 <text text-anchor="middle" x="291.038" y="-76.835" font-family="Monaco" font-size="10.00">::authName</text>
@@ -49,7 +48,7 @@
 <!-- Node4 -->
 <g id="node4" class="node"><title>Node4</title>
 <g id="a_node4"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_spatial_reference_system.html#a2646a4ec64cb59f257c328f3e7c8e787" target="_top" xlink:title="HydroCouple::Spatial\l::ISpatialReferenceSystem\l::srText">
-<polygon fill="white" stroke="black" points="208.025,-0.5 208.025,-48.5049 374.05,-48.5049 374.05,-0.5 208.025,-0.5"/>
+<polygon fill="none" stroke="black" points="208.025,-0.5 208.025,-48.5049 374.05,-48.5049 374.05,-0.5 208.025,-0.5"/>
 <text text-anchor="start" x="216.025" y="-36.5049" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="start" x="216.025" y="-23.1699" font-family="Monaco" font-size="10.00">::ISpatialReferenceSystem</text>
 <text text-anchor="middle" x="291.038" y="-9.83496" font-family="Monaco" font-size="10.00">::srText</text>

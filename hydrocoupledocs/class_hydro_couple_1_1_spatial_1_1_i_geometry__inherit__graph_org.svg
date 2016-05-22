@@ -8,7 +8,6 @@
  viewBox="0.00 0.00 1247.02 1913.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 1909.51)">
 <title>HydroCouple::Spatial::IGeometry</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-1909.51 1243.02,-1909.51 1243.02,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="579.997,-804.568 579.997,-1535.32 752.022,-1535.32 752.022,-804.568 579.997,-804.568"/>
@@ -71,7 +70,7 @@
 <!-- Node5 -->
 <g id="node5" class="node"><title>Node5</title>
 <g id="a_node5"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_curve.html" target="_top" xlink:title="A Curve is a 1&#45;dimensional geometric object usually stored as a sequence of IPoints, with the subtype of ICurve specifying the form of the interpolation between IPoints. ">
-<polygon fill="white" stroke="black" points="261,-623.554 261,-767.568 397.02,-767.568 397.02,-623.554 261,-623.554"/>
+<polygon fill="none" stroke="black" points="261,-623.554 261,-767.568 397.02,-767.568 397.02,-623.554 261,-623.554"/>
 <text text-anchor="start" x="269" y="-755.568" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="329.01" y="-742.233" font-family="Monaco" font-size="10.00">::ICurve</text>
 <polyline fill="none" stroke="black" points="261,-732.898 397.02,-732.898 "/>
@@ -94,7 +93,7 @@
 <!-- Node10 -->
 <g id="node10" class="node"><title>Node10</title>
 <g id="a_node10"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_geometry_collection.html" target="_top" xlink:title="An IGeometryCollection is a geometric object that is a collection of some number of IGeometry objects...">
-<polygon fill="white" stroke="black" points="485.998,-643.556 485.998,-747.566 646.021,-747.566 646.021,-643.556 485.998,-643.556"/>
+<polygon fill="none" stroke="black" points="485.998,-643.556 485.998,-747.566 646.021,-747.566 646.021,-643.556 485.998,-643.556"/>
 <text text-anchor="start" x="493.998" y="-735.566" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="566.01" y="-722.231" font-family="Monaco" font-size="10.00">::IGeometryCollection</text>
 <polyline fill="none" stroke="black" points="485.998,-712.896 646.021,-712.896 "/>
@@ -114,7 +113,7 @@
 <!-- Node17 -->
 <g id="node17" class="node"><title>Node17</title>
 <g id="a_node17"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_point.html" target="_top" xlink:title="An IPoint is a 0&#45;dimensional geometric object and represents a single location in coordinate space...">
-<polygon fill="white" stroke="black" points="699,-630.221 699,-760.901 835.02,-760.901 835.02,-630.221 699,-630.221"/>
+<polygon fill="none" stroke="black" points="699,-630.221 699,-760.901 835.02,-760.901 835.02,-630.221 699,-630.221"/>
 <text text-anchor="start" x="707" y="-748.901" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="767.01" y="-735.566" font-family="Monaco" font-size="10.00">::IPoint</text>
 <polyline fill="none" stroke="black" points="699,-726.231 835.02,-726.231 "/>
@@ -136,7 +135,7 @@
 <!-- Node19 -->
 <g id="node19" class="node"><title>Node19</title>
 <g id="a_node19"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_surface.html" target="_top" xlink:title="A ISurface is a 2&#45;dimensional IGeometry object. ">
-<polygon fill="white" stroke="black" points="921.999,-630.221 921.999,-760.901 1070.02,-760.901 1070.02,-630.221 921.999,-630.221"/>
+<polygon fill="none" stroke="black" points="921.999,-630.221 921.999,-760.901 1070.02,-760.901 1070.02,-630.221 921.999,-630.221"/>
 <text text-anchor="start" x="929.999" y="-748.901" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="996.01" y="-735.566" font-family="Monaco" font-size="10.00">::ISurface</text>
 <polyline fill="none" stroke="black" points="921.999,-726.231 1070.02,-726.231 "/>
@@ -158,7 +157,7 @@
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
 <g id="a_node2"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. ">
-<polygon fill="white" stroke="black" points="591.999,-1572.32 591.999,-1649.66 740.021,-1649.66 740.021,-1572.32 591.999,-1572.32"/>
+<polygon fill="none" stroke="black" points="591.999,-1572.32 591.999,-1649.66 740.021,-1649.66 740.021,-1572.32 591.999,-1572.32"/>
 <text text-anchor="middle" x="666.01" y="-1637.66" font-family="Monaco" font-size="10.00">HydroCouple::IIdentity</text>
 <polyline fill="none" stroke="black" points="591.999,-1628.33 740.021,-1628.33 "/>
 <text text-anchor="middle" x="666.01" y="-1616.33" font-family="Monaco" font-size="10.00"> </text>
@@ -176,7 +175,7 @@
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
 <g id="a_node3"><a xlink:href="class_hydro_couple_1_1_i_description.html" target="_top" xlink:title="IDescription interface class provides descriptive information on a HydroCouple object. ">
-<polygon fill="white" stroke="black" points="582.998,-1686.66 582.998,-1804.01 749.022,-1804.01 749.022,-1686.66 582.998,-1686.66"/>
+<polygon fill="none" stroke="black" points="582.998,-1686.66 582.998,-1804.01 749.022,-1804.01 749.022,-1686.66 582.998,-1686.66"/>
 <text text-anchor="middle" x="666.01" y="-1792.01" font-family="Monaco" font-size="10.00">HydroCouple::IDescription</text>
 <polyline fill="none" stroke="black" points="582.998,-1782.67 749.022,-1782.67 "/>
 <text text-anchor="middle" x="666.01" y="-1770.67" font-family="Monaco" font-size="10.00"> </text>
@@ -197,7 +196,7 @@
 <!-- Node4 -->
 <g id="node4" class="node"><title>Node4</title>
 <g id="a_node4"><a xlink:href="class_hydro_couple_1_1_i_property_changed.html" target="_top" xlink:title="IPropertyChanged interface is used to emit signal/event when a property of an object changes...">
-<polygon fill="white" stroke="black" points="570.996,-1841.01 570.996,-1905.01 761.024,-1905.01 761.024,-1841.01 570.996,-1841.01"/>
+<polygon fill="none" stroke="black" points="570.996,-1841.01 570.996,-1905.01 761.024,-1905.01 761.024,-1841.01 570.996,-1841.01"/>
 <text text-anchor="middle" x="666.01" y="-1893.01" font-family="Monaco" font-size="10.00">HydroCouple::IPropertyChanged</text>
 <polyline fill="none" stroke="black" points="570.996,-1883.68 761.024,-1883.68 "/>
 <text text-anchor="middle" x="666.01" y="-1871.68" font-family="Monaco" font-size="10.00"> </text>
@@ -214,7 +213,7 @@
 <!-- Node6 -->
 <g id="node6" class="node"><title>Node6</title>
 <g id="a_node6"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_line_string.html" target="_top" xlink:title="An ILineString is a Curve with linear interpolation between Points. Each consecutive pair of Points d...">
-<polygon fill="white" stroke="black" points="154,-442.539 154,-546.549 290.02,-546.549 290.02,-442.539 154,-442.539"/>
+<polygon fill="none" stroke="black" points="154,-442.539 154,-546.549 290.02,-546.549 290.02,-442.539 154,-442.539"/>
 <text text-anchor="start" x="162" y="-534.549" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="222.01" y="-521.214" font-family="Monaco" font-size="10.00">::ILineString</text>
 <polyline fill="none" stroke="black" points="154,-511.879 290.02,-511.879 "/>
@@ -234,7 +233,7 @@
 <!-- Node7 -->
 <g id="node7" class="node"><title>Node7</title>
 <g id="a_node7"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_line.html" target="_top" xlink:title="The ILine class is an ILineString with exactly 2 IPoints. ">
-<polygon fill="white" stroke="black" points="0,-268.192 0,-345.532 136.02,-345.532 136.02,-268.192 0,-268.192"/>
+<polygon fill="none" stroke="black" points="0,-268.192 0,-345.532 136.02,-345.532 136.02,-268.192 0,-268.192"/>
 <text text-anchor="start" x="8" y="-333.532" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="68.0098" y="-320.197" font-family="Monaco" font-size="10.00">::ILine</text>
 <polyline fill="none" stroke="black" points="0,-310.862 136.02,-310.862 "/>
@@ -252,7 +251,7 @@
 <!-- Node9 -->
 <g id="node9" class="node"><title>Node9</title>
 <g id="a_node9"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_linear_ring.html" target="_top" xlink:title="An ILinearRing is an ILineString that is both isClosed() and isSimple(). ">
-<polygon fill="white" stroke="black" points="154,-268.192 154,-345.532 290.02,-345.532 290.02,-268.192 154,-268.192"/>
+<polygon fill="none" stroke="black" points="154,-268.192 154,-345.532 290.02,-345.532 290.02,-268.192 154,-268.192"/>
 <text text-anchor="start" x="162" y="-333.532" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="222.01" y="-320.197" font-family="Monaco" font-size="10.00">::ILinearRing</text>
 <polyline fill="none" stroke="black" points="154,-310.862 290.02,-310.862 "/>
@@ -270,7 +269,7 @@
 <!-- Node8 -->
 <g id="node8" class="node"><title>Node8</title>
 <g id="a_node8"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_edge.html" target="_top" xlink:title="A directed edge from one vertex to another, adjacent to two faces. Based on Dani Lischinski&#39;s code fr...">
-<polygon fill="white" stroke="black" points="0,-0.5 0,-211.189 136.02,-211.189 136.02,-0.5 0,-0.5"/>
+<polygon fill="none" stroke="black" points="0,-0.5 0,-211.189 136.02,-211.189 136.02,-0.5 0,-0.5"/>
 <text text-anchor="start" x="8" y="-199.189" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="68.0098" y="-185.854" font-family="Monaco" font-size="10.00">::IEdge</text>
 <polyline fill="none" stroke="black" points="0,-176.52 136.02,-176.52 "/>
@@ -298,7 +297,7 @@
 <!-- Node11 -->
 <g id="node11" class="node"><title>Node11</title>
 <g id="a_node11"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_multi_curve.html" target="_top" xlink:title="An IMultiCurve is a 1&#45;dimensional IGeometryCollection whose elements are ICurves. ...">
-<polygon fill="white" stroke="black" points="309,-442.539 309,-546.549 445.02,-546.549 445.02,-442.539 309,-442.539"/>
+<polygon fill="none" stroke="black" points="309,-442.539 309,-546.549 445.02,-546.549 445.02,-442.539 309,-442.539"/>
 <text text-anchor="start" x="317" y="-534.549" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="377.01" y="-521.214" font-family="Monaco" font-size="10.00">::IMultiCurve</text>
 <polyline fill="none" stroke="black" points="309,-511.879 445.02,-511.879 "/>
@@ -318,7 +317,7 @@
 <!-- Node14 -->
 <g id="node14" class="node"><title>Node14</title>
 <g id="a_node14"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_multi_point.html" target="_top" xlink:title="An IMultiPoint is a 0&#45;dimensional IGeometryCollection. ">
-<polygon fill="white" stroke="black" points="463,-449.207 463,-539.881 599.02,-539.881 599.02,-449.207 463,-449.207"/>
+<polygon fill="none" stroke="black" points="463,-449.207 463,-539.881 599.02,-539.881 599.02,-449.207 463,-449.207"/>
 <text text-anchor="start" x="471" y="-527.881" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="531.01" y="-514.546" font-family="Monaco" font-size="10.00">::IMultiPoint</text>
 <polyline fill="none" stroke="black" points="463,-505.211 599.02,-505.211 "/>
@@ -337,7 +336,7 @@
 <!-- Node15 -->
 <g id="node15" class="node"><title>Node15</title>
 <g id="a_node15"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_multi_surface.html" target="_top" xlink:title="A MultiSurface is a 2&#45;dimensional GeometryCollection whose elements are Surfaces, all using coordinat...">
-<polygon fill="white" stroke="black" points="617,-435.872 617,-553.216 753.02,-553.216 753.02,-435.872 617,-435.872"/>
+<polygon fill="none" stroke="black" points="617,-435.872 617,-553.216 753.02,-553.216 753.02,-435.872 617,-435.872"/>
 <text text-anchor="start" x="625" y="-541.216" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="685.01" y="-527.881" font-family="Monaco" font-size="10.00">::IMultiSurface</text>
 <polyline fill="none" stroke="black" points="617,-518.546 753.02,-518.546 "/>
@@ -358,7 +357,7 @@
 <!-- Node12 -->
 <g id="node12" class="node"><title>Node12</title>
 <g id="a_node12"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_multi_line_string.html" target="_top" xlink:title="An IMultiLineString is an IMultiCurve whose elements are ILineStrings. ">
-<polygon fill="white" stroke="black" points="308,-261.524 308,-352.199 450.02,-352.199 450.02,-261.524 308,-261.524"/>
+<polygon fill="none" stroke="black" points="308,-261.524 308,-352.199 450.02,-352.199 450.02,-261.524 308,-261.524"/>
 <text text-anchor="start" x="316" y="-340.199" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="379.01" y="-326.864" font-family="Monaco" font-size="10.00">::IMultiLineString</text>
 <polyline fill="none" stroke="black" points="308,-317.529 450.02,-317.529 "/>
@@ -377,7 +376,7 @@
 <!-- Node13 -->
 <g id="node13" class="node"><title>Node13</title>
 <g id="a_node13"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_network.html" target="_top" xlink:title="The INetwork class. ">
-<polygon fill="white" stroke="black" points="311,-60.5073 311,-151.182 447.02,-151.182 447.02,-60.5073 311,-60.5073"/>
+<polygon fill="none" stroke="black" points="311,-60.5073 311,-151.182 447.02,-151.182 447.02,-60.5073 311,-60.5073"/>
 <text text-anchor="start" x="319" y="-139.182" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="379.01" y="-125.847" font-family="Monaco" font-size="10.00">::INetwork</text>
 <polyline fill="none" stroke="black" points="311,-116.512 447.02,-116.512 "/>
@@ -396,7 +395,7 @@
 <!-- Node16 -->
 <g id="node16" class="node"><title>Node16</title>
 <g id="a_node16"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_multi_polygon.html" target="_top" xlink:title="An IMultiPolygon is an IMultiSurface whose elements are IPolygons. ">
-<polygon fill="white" stroke="black" points="617,-261.524 617,-352.199 753.02,-352.199 753.02,-261.524 617,-261.524"/>
+<polygon fill="none" stroke="black" points="617,-261.524 617,-352.199 753.02,-352.199 753.02,-261.524 617,-261.524"/>
 <text text-anchor="start" x="625" y="-340.199" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="685.01" y="-326.864" font-family="Monaco" font-size="10.00">::IMultiPolygon</text>
 <polyline fill="none" stroke="black" points="617,-317.529 753.02,-317.529 "/>
@@ -415,7 +414,7 @@
 <!-- Node18 -->
 <g id="node18" class="node"><title>Node18</title>
 <g id="a_node18"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_vertex.html" target="_top" xlink:title="The IVertex class is an IPoint of a topologically aware IGeometry. ">
-<polygon fill="white" stroke="black" points="771,-435.872 771,-553.216 907.02,-553.216 907.02,-435.872 771,-435.872"/>
+<polygon fill="none" stroke="black" points="771,-435.872 771,-553.216 907.02,-553.216 907.02,-435.872 771,-435.872"/>
 <text text-anchor="start" x="779" y="-541.216" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="839.01" y="-527.881" font-family="Monaco" font-size="10.00">::IVertex</text>
 <polyline fill="none" stroke="black" points="771,-518.546 907.02,-518.546 "/>
@@ -436,7 +435,7 @@
 <!-- Node20 -->
 <g id="node20" class="node"><title>Node20</title>
 <g id="a_node20"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_polygon.html" target="_top" xlink:title="A IPolygon is a planar ISurface defined by 1 exterior boundary and 0 or more interior boundaries...">
-<polygon fill="white" stroke="black" points="925,-409.202 925,-579.886 1067.02,-579.886 1067.02,-409.202 925,-409.202"/>
+<polygon fill="none" stroke="black" points="925,-409.202 925,-579.886 1067.02,-579.886 1067.02,-409.202 925,-409.202"/>
 <text text-anchor="start" x="933" y="-567.886" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="996.01" y="-554.551" font-family="Monaco" font-size="10.00">::IPolygon</text>
 <polyline fill="none" stroke="black" points="925,-545.216 1067.02,-545.216 "/>
@@ -461,7 +460,7 @@
 <!-- Node22 -->
 <g id="node22" class="node"><title>Node22</title>
 <g id="a_node22"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface.html" target="_top" xlink:title="An IPolyhedralSurface is a contiguous collection of polygons, which share common boundary segments...">
-<polygon fill="white" stroke="black" points="1085,-402.534 1085,-586.554 1239.02,-586.554 1239.02,-402.534 1085,-402.534"/>
+<polygon fill="none" stroke="black" points="1085,-402.534 1085,-586.554 1239.02,-586.554 1239.02,-402.534 1085,-402.534"/>
 <text text-anchor="start" x="1093" y="-574.554" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="1162.01" y="-561.219" font-family="Monaco" font-size="10.00">::IPolyhedralSurface</text>
 <polyline fill="none" stroke="black" points="1085,-551.884 1239.02,-551.884 "/>
@@ -487,7 +486,7 @@
 <!-- Node21 -->
 <g id="node21" class="node"><title>Node21</title>
 <g id="a_node21"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_triangle.html" target="_top" xlink:title="An ITriangle is a IPolygon with 3 distinct, non&#45;collinear vertices and no interior boundary...">
-<polygon fill="white" stroke="black" points="928,-248.189 928,-365.534 1064.02,-365.534 1064.02,-248.189 928,-248.189"/>
+<polygon fill="none" stroke="black" points="928,-248.189 928,-365.534 1064.02,-365.534 1064.02,-248.189 928,-248.189"/>
 <text text-anchor="start" x="936" y="-353.534" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="996.01" y="-340.199" font-family="Monaco" font-size="10.00">::ITriangle</text>
 <polyline fill="none" stroke="black" points="928,-330.864 1064.02,-330.864 "/>
@@ -508,7 +507,7 @@
 <!-- Node23 -->
 <g id="node23" class="node"><title>Node23</title>
 <g id="a_node23"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_t_i_n.html" target="_top" xlink:title="An ITIN is a triangulated irregular network IPolyhedralSurface consisting only of ITriangle patches...">
-<polygon fill="white" stroke="black" points="1094,-261.524 1094,-352.199 1230.02,-352.199 1230.02,-261.524 1094,-261.524"/>
+<polygon fill="none" stroke="black" points="1094,-261.524 1094,-352.199 1230.02,-352.199 1230.02,-261.524 1094,-261.524"/>
 <text text-anchor="start" x="1102" y="-340.199" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="1162.01" y="-326.864" font-family="Monaco" font-size="10.00">::ITIN</text>
 <polyline fill="none" stroke="black" points="1094,-317.529 1230.02,-317.529 "/>

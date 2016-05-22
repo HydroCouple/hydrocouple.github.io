@@ -8,7 +8,6 @@
  viewBox="0.00 0.00 304.02 245.34" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 241.345)">
 <title>/Users/calebbuahin/Documents/Projects/HydroCouple/HydroCouple/include/hydrocouplespatiotemporal.h</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-241.345 300.02,-241.345 300.02,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="32.9927,-175.505 32.9927,-236.845 265.028,-236.845 265.028,-175.505 32.9927,-175.505"/>
@@ -20,7 +19,7 @@
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
 <g id="a_node2"><a xlink:href="hydrocoupletemporal_8h.html" target="_top" xlink:title="hydrocoupletemporal.h">
-<polygon fill="white" stroke="black" points="0,-117.17 0,-138.505 142.021,-138.505 142.021,-117.17 0,-117.17"/>
+<polygon fill="none" stroke="black" points="0,-117.17 0,-138.505 142.021,-138.505 142.021,-117.17 0,-117.17"/>
 <text text-anchor="middle" x="71.0103" y="-126.505" font-family="Monaco" font-size="10.00">hydrocoupletemporal.h</text>
 </a>
 </g>
@@ -33,7 +32,7 @@
 <!-- Node6 -->
 <g id="node6" class="node"><title>Node6</title>
 <g id="a_node6"><a xlink:href="hydrocouplespatial_8h.html" target="_top" xlink:title="hydrocouplespatial.h">
-<polygon fill="white" stroke="black" points="160,-117.17 160,-138.505 296.02,-138.505 296.02,-117.17 160,-117.17"/>
+<polygon fill="none" stroke="black" points="160,-117.17 160,-138.505 296.02,-138.505 296.02,-117.17 160,-117.17"/>
 <text text-anchor="middle" x="228.01" y="-126.505" font-family="Monaco" font-size="10.00">hydrocouplespatial.h</text>
 </a>
 </g>
@@ -46,7 +45,7 @@
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
 <g id="a_node3"><a xlink:href="hydrocouple_8h.html" target="_top" xlink:title="hydrocouple.h">
-<polygon fill="white" stroke="black" points="102.004,-58.835 102.004,-80.1699 196.017,-80.1699 196.017,-58.835 102.004,-58.835"/>
+<polygon fill="none" stroke="black" points="102.004,-58.835 102.004,-80.1699 196.017,-80.1699 196.017,-58.835 102.004,-58.835"/>
 <text text-anchor="middle" x="149.01" y="-68.1699" font-family="Monaco" font-size="10.00">hydrocouple.h</text>
 </a>
 </g>
@@ -58,7 +57,7 @@
 </g>
 <!-- Node4 -->
 <g id="node4" class="node"><title>Node4</title>
-<polygon fill="white" stroke="#bfbfbf" points="40.0024,-0.5 40.0024,-21.835 152.018,-21.835 152.018,-0.5 40.0024,-0.5"/>
+<polygon fill="none" stroke="#bfbfbf" points="40.0024,-0.5 40.0024,-21.835 152.018,-21.835 152.018,-0.5 40.0024,-0.5"/>
 <text text-anchor="middle" x="96.0103" y="-9.83496" font-family="Monaco" font-size="10.00">QtCore/qglobal.h</text>
 </g>
 <!-- Node3&#45;&gt;Node4 -->
@@ -68,7 +67,7 @@
 </g>
 <!-- Node5 -->
 <g id="node5" class="node"><title>Node5</title>
-<polygon fill="white" stroke="#bfbfbf" points="170.006,-0.5 170.006,-21.835 234.014,-21.835 234.014,-0.5 170.006,-0.5"/>
+<polygon fill="none" stroke="#bfbfbf" points="170.006,-0.5 170.006,-21.835 234.014,-21.835 234.014,-0.5 170.006,-0.5"/>
 <text text-anchor="middle" x="202.01" y="-9.83496" font-family="Monaco" font-size="10.00">QVariant</text>
 </g>
 <!-- Node3&#45;&gt;Node5 -->

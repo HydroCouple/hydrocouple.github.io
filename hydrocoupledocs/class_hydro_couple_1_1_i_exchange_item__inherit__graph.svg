@@ -46,7 +46,7 @@ if (edges && edges.length) {
         </defs>
 
 <script type="text/javascript">
-var viewWidth = 3478;
+var viewWidth = 3496;
 var viewHeight = 1052;
 var sectionId = 'dynsection-0';
 </script>
@@ -54,7 +54,6 @@ var sectionId = 'dynsection-0';
 <svg id="graph" class="graph">
 <g id="viewport">
 <title>HydroCouple::IExchangeItem</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-1048.41 3474.03,-1048.41 3474.03,4 -4,4"/>
 <!-- Node1 -->
 <g id="node1" class="node"><title>Node1</title>
 <polygon fill="#bfbfbf" stroke="black" points="1571,-375.864 1571,-453.204 1743.03,-453.204 1743.03,-375.864 1571,-375.864"/>
@@ -68,7 +67,7 @@ var sectionId = 'dynsection-0';
 <!-- Node6 -->
 <g id="node6" class="node"><title>Node6</title>
 <g id="a_node6"><a xlink:href="class_hydro_couple_1_1_i_id_based_exchange_item.html" target="_top" xlink:title="The IIdBasedExchangeItem class. ">
-<polygon fill="white" stroke="black" points="0,-228.187 0,-292.192 214.032,-292.192 214.032,-228.187 0,-228.187"/>
+<polygon fill="none" stroke="black" points="0,-228.187 0,-292.192 214.032,-292.192 214.032,-228.187 0,-228.187"/>
 <text text-anchor="middle" x="107.016" y="-280.192" font-family="Monaco" font-size="10.00">HydroCouple::IIdBasedExchangeItem</text>
 <polyline fill="none" stroke="black" points="0,-270.857 214.032,-270.857 "/>
 <text text-anchor="middle" x="107.016" y="-258.857" font-family="Monaco" font-size="10.00"> </text>
@@ -85,7 +84,7 @@ var sectionId = 'dynsection-0';
 <!-- Node7 -->
 <g id="node7" class="node"><title>Node7</title>
 <g id="a_node7"><a xlink:href="class_hydro_couple_1_1_i_input.html" target="_top" xlink:title="An IInput item that can accept values for an IModelComponent. ">
-<polygon fill="white" stroke="black" points="232.007,-208.185 232.007,-312.194 362.025,-312.194 362.025,-208.185 232.007,-208.185"/>
+<polygon fill="none" stroke="black" points="232.007,-208.185 232.007,-312.194 362.025,-312.194 362.025,-208.185 232.007,-208.185"/>
 <text text-anchor="middle" x="297.016" y="-300.194" font-family="Monaco" font-size="10.00">HydroCouple::IInput</text>
 <polyline fill="none" stroke="black" points="232.007,-290.859 362.025,-290.859 "/>
 <text text-anchor="middle" x="297.016" y="-278.859" font-family="Monaco" font-size="10.00"> </text>
@@ -105,7 +104,7 @@ var sectionId = 'dynsection-0';
 <!-- Node9 -->
 <g id="node9" class="node"><title>Node9</title>
 <g id="a_node9"><a xlink:href="class_hydro_couple_1_1_i_output.html" target="_top" xlink:title="An output exchange item that can deliver values from an IModelComponent. ">
-<polygon fill="white" stroke="black" points="380.005,-181.515 380.005,-338.864 534.027,-338.864 534.027,-181.515 380.005,-181.515"/>
+<polygon fill="none" stroke="black" points="380.005,-181.515 380.005,-338.864 534.027,-338.864 534.027,-181.515 380.005,-181.515"/>
 <text text-anchor="middle" x="457.016" y="-326.864" font-family="Monaco" font-size="10.00">HydroCouple::IOutput</text>
 <polyline fill="none" stroke="black" points="380.005,-317.529 534.027,-317.529 "/>
 <text text-anchor="middle" x="457.016" y="-305.529" font-family="Monaco" font-size="10.00"> </text>
@@ -129,7 +128,7 @@ var sectionId = 'dynsection-0';
 <!-- Node11 -->
 <g id="node11" class="node"><title>Node11</title>
 <g id="a_node11"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_geometry_exchange_item.html" target="_top" xlink:title="An IExchangeItem class with a geometry component. ">
-<polygon fill="white" stroke="black" points="552.003,-221.52 552.003,-298.859 724.029,-298.859 724.029,-221.52 552.003,-221.52"/>
+<polygon fill="none" stroke="black" points="552.003,-221.52 552.003,-298.859 724.029,-298.859 724.029,-221.52 552.003,-221.52"/>
 <text text-anchor="start" x="560.003" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="638.016" y="-273.524" font-family="Monaco" font-size="10.00">::IGeometryExchangeItem</text>
 <polyline fill="none" stroke="black" points="552.003,-264.189 724.029,-264.189 "/>
@@ -147,7 +146,7 @@ var sectionId = 'dynsection-0';
 <!-- Node12 -->
 <g id="node12" class="node"><title>Node12</title>
 <g id="a_node12"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_exchange_item.html" target="_top" xlink:title="An IPolyhedralSurfaceExchangeItem class with an IPolyhedralSurface component. ">
-<polygon fill="white" stroke="black" points="741.999,-221.52 741.999,-298.859 968.033,-298.859 968.033,-221.52 741.999,-221.52"/>
+<polygon fill="none" stroke="black" points="741.999,-221.52 741.999,-298.859 968.033,-298.859 968.033,-221.52 741.999,-221.52"/>
 <text text-anchor="start" x="749.999" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="855.016" y="-273.524" font-family="Monaco" font-size="10.00">::IPolyhedralSurfaceExchangeItem</text>
 <polyline fill="none" stroke="black" points="741.999,-264.189 968.033,-264.189 "/>
@@ -165,7 +164,7 @@ var sectionId = 'dynsection-0';
 <!-- Node13 -->
 <g id="node13" class="node"><title>Node13</title>
 <g id="a_node13"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_raster_exhange_item.html" target="_top" xlink:title="An IRasterExhangeItem is an IExchangeItem with an IRaster. ">
-<polygon fill="white" stroke="black" points="986.005,-221.52 986.005,-298.859 1140.03,-298.859 1140.03,-221.52 986.005,-221.52"/>
+<polygon fill="none" stroke="black" points="986.005,-221.52 986.005,-298.859 1140.03,-298.859 1140.03,-221.52 986.005,-221.52"/>
 <text text-anchor="start" x="994.005" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="1063.02" y="-273.524" font-family="Monaco" font-size="10.00">::IRasterExhangeItem</text>
 <polyline fill="none" stroke="black" points="986.005,-264.189 1140.03,-264.189 "/>
@@ -183,7 +182,7 @@ var sectionId = 'dynsection-0';
 <!-- Node14 -->
 <g id="node14" class="node"><title>Node14</title>
 <g id="a_node14"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_regular_grid2_d_exhange_item.html" target="_top" xlink:title="An IRegularGrid2DExhangeItem is an IExchangeItem with an IRegularGrid2DComponentItem. ">
-<polygon fill="white" stroke="black" points="1158,-221.52 1158,-298.859 1354.03,-298.859 1354.03,-221.52 1158,-221.52"/>
+<polygon fill="none" stroke="black" points="1158,-221.52 1158,-298.859 1354.03,-298.859 1354.03,-221.52 1158,-221.52"/>
 <text text-anchor="start" x="1166" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="1256.02" y="-273.524" font-family="Monaco" font-size="10.00">::IRegularGrid2DExhangeItem</text>
 <polyline fill="none" stroke="black" points="1158,-264.189 1354.03,-264.189 "/>
@@ -201,7 +200,7 @@ var sectionId = 'dynsection-0';
 <!-- Node15 -->
 <g id="node15" class="node"><title>Node15</title>
 <g id="a_node15"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_regular_grid3_d_exhange_item.html" target="_top" xlink:title="An IRegularGrid3DExhangeItem is an IExchangeItem with an IRegularGrid3DComponentItem. ">
-<polygon fill="white" stroke="black" points="1372,-221.52 1372,-298.859 1568.03,-298.859 1568.03,-221.52 1372,-221.52"/>
+<polygon fill="none" stroke="black" points="1372,-221.52 1372,-298.859 1568.03,-298.859 1568.03,-221.52 1372,-221.52"/>
 <text text-anchor="start" x="1380" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="1470.02" y="-273.524" font-family="Monaco" font-size="10.00">::IRegularGrid3DExhangeItem</text>
 <polyline fill="none" stroke="black" points="1372,-264.189 1568.03,-264.189 "/>
@@ -219,7 +218,7 @@ var sectionId = 'dynsection-0';
 <!-- Node16 -->
 <g id="node16" class="node"><title>Node16</title>
 <g id="a_node16"><a xlink:href="class_hydro_couple_1_1_spatial_1_1_i_t_i_n_exchange_item.html" target="_top" xlink:title="An ITINExchangeItem class with an TIN component. ">
-<polygon fill="white" stroke="black" points="1586.01,-221.52 1586.01,-298.859 1728.03,-298.859 1728.03,-221.52 1586.01,-221.52"/>
+<polygon fill="none" stroke="black" points="1586.01,-221.52 1586.01,-298.859 1728.03,-298.859 1728.03,-221.52 1586.01,-221.52"/>
 <text text-anchor="start" x="1594.01" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::Spatial</text>
 <text text-anchor="middle" x="1657.02" y="-273.524" font-family="Monaco" font-size="10.00">::ITINExchangeItem</text>
 <polyline fill="none" stroke="black" points="1586.01,-264.189 1728.03,-264.189 "/>
@@ -237,7 +236,7 @@ var sectionId = 'dynsection-0';
 <!-- Node17 -->
 <g id="node17" class="node"><title>Node17</title>
 <g id="a_node17"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_geometry_exchange_item.html" target="_top" xlink:title="The ITimeGeometryExchangeItem class. ">
-<polygon fill="white" stroke="black" points="1746,-221.52 1746,-298.859 1942.03,-298.859 1942.03,-221.52 1746,-221.52"/>
+<polygon fill="none" stroke="black" points="1746,-221.52 1746,-298.859 1942.03,-298.859 1942.03,-221.52 1746,-221.52"/>
 <text text-anchor="start" x="1754" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="middle" x="1844.02" y="-273.524" font-family="Monaco" font-size="10.00">::ITimeGeometryExchangeItem</text>
 <polyline fill="none" stroke="black" points="1746,-264.189 1942.03,-264.189 "/>
@@ -255,7 +254,7 @@ var sectionId = 'dynsection-0';
 <!-- Node18 -->
 <g id="node18" class="node"><title>Node18</title>
 <g id="a_node18"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_exchange_item.html" target="_top" xlink:title="The ITimePolyhedralSurfaceExchangeItem class. ">
-<polygon fill="white" stroke="black" points="1960,-221.52 1960,-298.859 2210.04,-298.859 2210.04,-221.52 1960,-221.52"/>
+<polygon fill="none" stroke="black" points="1960,-221.52 1960,-298.859 2210.04,-298.859 2210.04,-221.52 1960,-221.52"/>
 <text text-anchor="start" x="1968" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="middle" x="2085.02" y="-273.524" font-family="Monaco" font-size="10.00">::ITimePolyhedralSurfaceExchangeItem</text>
 <polyline fill="none" stroke="black" points="1960,-264.189 2210.04,-264.189 "/>
@@ -273,7 +272,7 @@ var sectionId = 'dynsection-0';
 <!-- Node19 -->
 <g id="node19" class="node"><title>Node19</title>
 <g id="a_node19"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_exchange_item.html" target="_top" xlink:title="The ITimeRasterExchangeItem class. ">
-<polygon fill="white" stroke="black" points="2228,-221.52 2228,-298.859 2412.03,-298.859 2412.03,-221.52 2228,-221.52"/>
+<polygon fill="none" stroke="black" points="2228,-221.52 2228,-298.859 2412.03,-298.859 2412.03,-221.52 2228,-221.52"/>
 <text text-anchor="start" x="2236" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="middle" x="2320.02" y="-273.524" font-family="Monaco" font-size="10.00">::ITimeRasterExchangeItem</text>
 <polyline fill="none" stroke="black" points="2228,-264.189 2412.03,-264.189 "/>
@@ -291,7 +290,7 @@ var sectionId = 'dynsection-0';
 <!-- Node20 -->
 <g id="node20" class="node"><title>Node20</title>
 <g id="a_node20"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid2_d_exchange_item.html" target="_top" xlink:title="The ITimeRegularGrid2DExchangeItem class. ">
-<polygon fill="white" stroke="black" points="2430,-221.52 2430,-298.859 2656.03,-298.859 2656.03,-221.52 2430,-221.52"/>
+<polygon fill="none" stroke="black" points="2430,-221.52 2430,-298.859 2656.03,-298.859 2656.03,-221.52 2430,-221.52"/>
 <text text-anchor="start" x="2438" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="middle" x="2543.02" y="-273.524" font-family="Monaco" font-size="10.00">::ITimeRegularGrid2DExchangeItem</text>
 <polyline fill="none" stroke="black" points="2430,-264.189 2656.03,-264.189 "/>
@@ -309,7 +308,7 @@ var sectionId = 'dynsection-0';
 <!-- Node21 -->
 <g id="node21" class="node"><title>Node21</title>
 <g id="a_node21"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_regular_grid3_d_exchange_item.html" target="_top" xlink:title="The ITimeRegularGrid3DExchangeItem class. ">
-<polygon fill="white" stroke="black" points="2674,-221.52 2674,-298.859 2900.03,-298.859 2900.03,-221.52 2674,-221.52"/>
+<polygon fill="none" stroke="black" points="2674,-221.52 2674,-298.859 2900.03,-298.859 2900.03,-221.52 2674,-221.52"/>
 <text text-anchor="start" x="2682" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="middle" x="2787.02" y="-273.524" font-family="Monaco" font-size="10.00">::ITimeRegularGrid3DExchangeItem</text>
 <polyline fill="none" stroke="black" points="2674,-264.189 2900.03,-264.189 "/>
@@ -327,7 +326,7 @@ var sectionId = 'dynsection-0';
 <!-- Node22 -->
 <g id="node22" class="node"><title>Node22</title>
 <g id="a_node22"><a xlink:href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_exchange_item.html" target="_top" xlink:title="The ITimeTINExchangeItem class. ">
-<polygon fill="white" stroke="black" points="2918,-221.52 2918,-298.859 3096.03,-298.859 3096.03,-221.52 2918,-221.52"/>
+<polygon fill="none" stroke="black" points="2918,-221.52 2918,-298.859 3096.03,-298.859 3096.03,-221.52 2918,-221.52"/>
 <text text-anchor="start" x="2926" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::SpatioTemporal</text>
 <text text-anchor="middle" x="3007.02" y="-273.524" font-family="Monaco" font-size="10.00">::ITimeTINExchangeItem</text>
 <polyline fill="none" stroke="black" points="2918,-264.189 3096.03,-264.189 "/>
@@ -345,7 +344,7 @@ var sectionId = 'dynsection-0';
 <!-- Node23 -->
 <g id="node23" class="node"><title>Node23</title>
 <g id="a_node23"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_id_based_time_exchange_item.html" target="_top" xlink:title="The IIdBasedTimeExchangeItem class. ">
-<polygon fill="white" stroke="black" points="3114,-221.52 3114,-298.859 3304.03,-298.859 3304.03,-221.52 3114,-221.52"/>
+<polygon fill="none" stroke="black" points="3114,-221.52 3114,-298.859 3304.03,-298.859 3304.03,-221.52 3114,-221.52"/>
 <text text-anchor="start" x="3122" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::Temporal</text>
 <text text-anchor="middle" x="3209.02" y="-273.524" font-family="Monaco" font-size="10.00">::IIdBasedTimeExchangeItem</text>
 <polyline fill="none" stroke="black" points="3114,-264.189 3304.03,-264.189 "/>
@@ -363,7 +362,7 @@ var sectionId = 'dynsection-0';
 <!-- Node24 -->
 <g id="node24" class="node"><title>Node24</title>
 <g id="a_node24"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_time_exchange_item.html" target="_top" xlink:title="The ITimeExchangeItem class. ">
-<polygon fill="white" stroke="black" points="3322.01,-221.52 3322.01,-298.859 3470.03,-298.859 3470.03,-221.52 3322.01,-221.52"/>
+<polygon fill="none" stroke="black" points="3322.01,-221.52 3322.01,-298.859 3470.03,-298.859 3470.03,-221.52 3322.01,-221.52"/>
 <text text-anchor="start" x="3330.01" y="-286.859" font-family="Monaco" font-size="10.00">HydroCouple::Temporal</text>
 <text text-anchor="middle" x="3396.02" y="-273.524" font-family="Monaco" font-size="10.00">::ITimeExchangeItem</text>
 <polyline fill="none" stroke="black" points="3322.01,-264.189 3470.03,-264.189 "/>
@@ -381,7 +380,7 @@ var sectionId = 'dynsection-0';
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
 <g id="a_node2"><a xlink:href="class_hydro_couple_1_1_i_component_data_item.html" target="_top" xlink:title="IComponentItem is a fundamental unit of data for a component. ">
-<polygon fill="white" stroke="black" points="1556,-490.204 1556,-674.224 1758.03,-674.224 1758.03,-490.204 1556,-490.204"/>
+<polygon fill="none" stroke="black" points="1556,-490.204 1556,-674.224 1758.03,-674.224 1758.03,-490.204 1556,-490.204"/>
 <text text-anchor="middle" x="1657.02" y="-662.224" font-family="Monaco" font-size="10.00">HydroCouple::IComponentDataItem</text>
 <polyline fill="none" stroke="black" points="1556,-652.889 1758.03,-652.889 "/>
 <text text-anchor="middle" x="1657.02" y="-640.889" font-family="Monaco" font-size="10.00"> </text>
@@ -407,7 +406,7 @@ var sectionId = 'dynsection-0';
 <!-- Node3 -->
 <g id="node3" class="node"><title>Node3</title>
 <g id="a_node3"><a xlink:href="class_hydro_couple_1_1_i_identity.html" target="_top" xlink:title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. ">
-<polygon fill="white" stroke="black" points="1583.01,-711.224 1583.01,-788.563 1731.03,-788.563 1731.03,-711.224 1583.01,-711.224"/>
+<polygon fill="none" stroke="black" points="1583.01,-711.224 1583.01,-788.563 1731.03,-788.563 1731.03,-711.224 1583.01,-711.224"/>
 <text text-anchor="middle" x="1657.02" y="-776.563" font-family="Monaco" font-size="10.00">HydroCouple::IIdentity</text>
 <polyline fill="none" stroke="black" points="1583.01,-767.229 1731.03,-767.229 "/>
 <text text-anchor="middle" x="1657.02" y="-755.229" font-family="Monaco" font-size="10.00"> </text>
@@ -425,7 +424,7 @@ var sectionId = 'dynsection-0';
 <!-- Node4 -->
 <g id="node4" class="node"><title>Node4</title>
 <g id="a_node4"><a xlink:href="class_hydro_couple_1_1_i_description.html" target="_top" xlink:title="IDescription interface class provides descriptive information on a HydroCouple object. ">
-<polygon fill="white" stroke="black" points="1574,-825.563 1574,-942.908 1740.03,-942.908 1740.03,-825.563 1574,-825.563"/>
+<polygon fill="none" stroke="black" points="1574,-825.563 1574,-942.908 1740.03,-942.908 1740.03,-825.563 1574,-825.563"/>
 <text text-anchor="middle" x="1657.02" y="-930.908" font-family="Monaco" font-size="10.00">HydroCouple::IDescription</text>
 <polyline fill="none" stroke="black" points="1574,-921.573 1740.03,-921.573 "/>
 <text text-anchor="middle" x="1657.02" y="-909.573" font-family="Monaco" font-size="10.00"> </text>
@@ -446,7 +445,7 @@ var sectionId = 'dynsection-0';
 <!-- Node5 -->
 <g id="node5" class="node"><title>Node5</title>
 <g id="a_node5"><a xlink:href="class_hydro_couple_1_1_i_property_changed.html" target="_top" xlink:title="IPropertyChanged interface is used to emit signal/event when a property of an object changes...">
-<polygon fill="white" stroke="black" points="1562,-979.908 1562,-1043.91 1752.03,-1043.91 1752.03,-979.908 1562,-979.908"/>
+<polygon fill="none" stroke="black" points="1562,-979.908 1562,-1043.91 1752.03,-1043.91 1752.03,-979.908 1562,-979.908"/>
 <text text-anchor="middle" x="1657.02" y="-1031.91" font-family="Monaco" font-size="10.00">HydroCouple::IPropertyChanged</text>
 <polyline fill="none" stroke="black" points="1562,-1022.58 1752.03,-1022.58 "/>
 <text text-anchor="middle" x="1657.02" y="-1010.58" font-family="Monaco" font-size="10.00"> </text>
@@ -463,45 +462,63 @@ var sectionId = 'dynsection-0';
 <!-- Node8 -->
 <g id="node8" class="node"><title>Node8</title>
 <g id="a_node8"><a xlink:href="class_hydro_couple_1_1_i_multi_input.html" target="_top" xlink:title="The IMultiInput class is an IInput class that has multiple outputs supplying data to it...">
-<polygon fill="white" stroke="black" points="203.004,-20.5024 203.004,-124.512 363.028,-124.512 363.028,-20.5024 203.004,-20.5024"/>
-<text text-anchor="middle" x="283.016" y="-112.512" font-family="Monaco" font-size="10.00">HydroCouple::IMultiInput</text>
-<polyline fill="none" stroke="black" points="203.004,-103.177 363.028,-103.177 "/>
-<text text-anchor="middle" x="283.016" y="-91.1772" font-family="Monaco" font-size="10.00"> </text>
-<polyline fill="none" stroke="black" points="203.004,-81.8423 363.028,-81.8423 "/>
-<text text-anchor="start" x="211.004" y="-69.8423" font-family="Monaco" font-size="10.00">+ ~IMultiInput()</text>
-<text text-anchor="start" x="211.004" y="-56.5073" font-family="Monaco" font-size="10.00">+ providers()</text>
-<text text-anchor="start" x="211.004" y="-43.1724" font-family="Monaco" font-size="10.00">+ addProvider()</text>
-<text text-anchor="start" x="211.004" y="-29.8374" font-family="Monaco" font-size="10.00">+ removeProvider()</text>
+<polygon fill="none" stroke="black" points="204.004,-20.5024 204.004,-124.512 364.028,-124.512 364.028,-20.5024 204.004,-20.5024"/>
+<text text-anchor="middle" x="284.016" y="-112.512" font-family="Monaco" font-size="10.00">HydroCouple::IMultiInput</text>
+<polyline fill="none" stroke="black" points="204.004,-103.177 364.028,-103.177 "/>
+<text text-anchor="middle" x="284.016" y="-91.1772" font-family="Monaco" font-size="10.00"> </text>
+<polyline fill="none" stroke="black" points="204.004,-81.8423 364.028,-81.8423 "/>
+<text text-anchor="start" x="212.004" y="-69.8423" font-family="Monaco" font-size="10.00">+ ~IMultiInput()</text>
+<text text-anchor="start" x="212.004" y="-56.5073" font-family="Monaco" font-size="10.00">+ providers()</text>
+<text text-anchor="start" x="212.004" y="-43.1724" font-family="Monaco" font-size="10.00">+ addProvider()</text>
+<text text-anchor="start" x="212.004" y="-29.8374" font-family="Monaco" font-size="10.00">+ removeProvider()</text>
 </a>
 </g>
 </g>
 <!-- Node7&#45;&gt;Node8 -->
 <g id="edge7" class="edge"><title>Node7&#45;&gt;Node8</title>
-<path fill="none" stroke="midnightblue" d="M292.401,-197.982C290.608,-174.203 288.578,-147.28 286.866,-124.57"/>
-<polygon fill="none" stroke="midnightblue" points="288.911,-198.251 293.153,-207.959 295.892,-197.725 288.911,-198.251"/>
+<path fill="none" stroke="midnightblue" d="M292.731,-197.982C291.066,-174.203 289.181,-147.28 287.591,-124.57"/>
+<polygon fill="none" stroke="midnightblue" points="289.239,-198.228 293.429,-207.959 296.222,-197.739 289.239,-198.228"/>
 </g>
 <!-- Node10 -->
 <g id="node10" class="node"><title>Node10</title>
 <g id="a_node10"><a xlink:href="class_hydro_couple_1_1_i_adapted_output.html" target="_top" xlink:title="An IAdaptedOutput adds one or more data operations on top of an IOutput. ">
-<polygon fill="white" stroke="black" points="381.003,-0.5 381.003,-144.515 559.029,-144.515 559.029,-0.5 381.003,-0.5"/>
-<text text-anchor="middle" x="470.016" y="-132.515" font-family="Monaco" font-size="10.00">HydroCouple::IAdaptedOutput</text>
-<polyline fill="none" stroke="black" points="381.003,-123.18 559.029,-123.18 "/>
-<text text-anchor="middle" x="470.016" y="-111.18" font-family="Monaco" font-size="10.00"> </text>
-<polyline fill="none" stroke="black" points="381.003,-101.845 559.029,-101.845 "/>
-<text text-anchor="start" x="389.003" y="-89.8447" font-family="Monaco" font-size="10.00">+ ~IAdaptedOutput()</text>
-<text text-anchor="start" x="389.003" y="-76.5098" font-family="Monaco" font-size="10.00">+ adaptedOutputFactory()</text>
-<text text-anchor="start" x="389.003" y="-63.1748" font-family="Monaco" font-size="10.00">+ arguments()</text>
-<text text-anchor="start" x="389.003" y="-49.8398" font-family="Monaco" font-size="10.00">+ setArgument()</text>
-<text text-anchor="start" x="389.003" y="-36.5049" font-family="Monaco" font-size="10.00">+ initialize()</text>
-<text text-anchor="start" x="389.003" y="-23.1699" font-family="Monaco" font-size="10.00">+ adaptee()</text>
-<text text-anchor="start" x="389.003" y="-9.83496" font-family="Monaco" font-size="10.00">+ refresh()</text>
+<polygon fill="none" stroke="black" points="382.003,-0.5 382.003,-144.515 560.029,-144.515 560.029,-0.5 382.003,-0.5"/>
+<text text-anchor="middle" x="471.016" y="-132.515" font-family="Monaco" font-size="10.00">HydroCouple::IAdaptedOutput</text>
+<polyline fill="none" stroke="black" points="382.003,-123.18 560.029,-123.18 "/>
+<text text-anchor="middle" x="471.016" y="-111.18" font-family="Monaco" font-size="10.00"> </text>
+<polyline fill="none" stroke="black" points="382.003,-101.845 560.029,-101.845 "/>
+<text text-anchor="start" x="390.003" y="-89.8447" font-family="Monaco" font-size="10.00">+ ~IAdaptedOutput()</text>
+<text text-anchor="start" x="390.003" y="-76.5098" font-family="Monaco" font-size="10.00">+ adaptedOutputFactory()</text>
+<text text-anchor="start" x="390.003" y="-63.1748" font-family="Monaco" font-size="10.00">+ arguments()</text>
+<text text-anchor="start" x="390.003" y="-49.8398" font-family="Monaco" font-size="10.00">+ setArgument()</text>
+<text text-anchor="start" x="390.003" y="-36.5049" font-family="Monaco" font-size="10.00">+ initialize()</text>
+<text text-anchor="start" x="390.003" y="-23.1699" font-family="Monaco" font-size="10.00">+ adaptee()</text>
+<text text-anchor="start" x="390.003" y="-9.83496" font-family="Monaco" font-size="10.00">+ refresh()</text>
 </a>
 </g>
 </g>
 <!-- Node9&#45;&gt;Node10 -->
 <g id="edge9" class="edge"><title>Node9&#45;&gt;Node10</title>
-<path fill="none" stroke="midnightblue" d="M463.172,-171.258C463.795,-162.369 464.421,-153.42 465.029,-144.738"/>
-<polygon fill="none" stroke="midnightblue" points="459.68,-171.031 462.473,-181.251 466.663,-171.519 459.68,-171.031"/>
+<path fill="none" stroke="midnightblue" d="M463.646,-171.258C464.316,-162.369 464.991,-153.42 465.645,-144.738"/>
+<polygon fill="none" stroke="midnightblue" points="460.154,-171.016 462.893,-181.251 467.135,-171.542 460.154,-171.016"/>
+</g>
+<!-- Node25 -->
+<g id="node25" class="node"><title>Node25</title>
+<g id="a_node25"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_time_series_exchange_item.html" target="_top" xlink:title="The ITimeSeriesExchangeItem class. ">
+<polygon fill="none" stroke="black" points="3304,-33.8374 3304,-111.177 3488.03,-111.177 3488.03,-33.8374 3304,-33.8374"/>
+<text text-anchor="start" x="3312" y="-99.1772" font-family="Monaco" font-size="10.00">HydroCouple::Temporal</text>
+<text text-anchor="middle" x="3396.02" y="-85.8423" font-family="Monaco" font-size="10.00">::ITimeSeriesExchangeItem</text>
+<polyline fill="none" stroke="black" points="3304,-76.5073 3488.03,-76.5073 "/>
+<text text-anchor="middle" x="3396.02" y="-64.5073" font-family="Monaco" font-size="10.00"> </text>
+<polyline fill="none" stroke="black" points="3304,-55.1724 3488.03,-55.1724 "/>
+<text text-anchor="start" x="3312" y="-43.1724" font-family="Monaco" font-size="10.00">+ ~ITimeSeriesExchangeItem()</text>
+</a>
+</g>
+</g>
+<!-- Node24&#45;&gt;Node25 -->
+<g id="edge24" class="edge"><title>Node24&#45;&gt;Node25</title>
+<path fill="none" stroke="midnightblue" d="M3396.02,-211.011C3396.02,-179.998 3396.02,-140.255 3396.02,-111.48"/>
+<polygon fill="none" stroke="midnightblue" points="3392.52,-211.166 3396.02,-221.166 3399.52,-211.166 3392.52,-211.166"/>
 </g>
 </g>
 </svg>
