@@ -72,7 +72,7 @@ var sectionId = 'dynsection-1';
 </g>
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
-<g id="a_node2"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_time_component_data_item.html" target="_top" xlink:title="ITimeComponentItem is an IComponentItem with a temporal attribute. ">
+<g id="a_node2"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_time_component_data_item.html" target="_top" xlink:title="ITimeComponentItem is an IComponentItem with a temporal attribute. This class cannot be directly inst...">
 <polygon fill="none" stroke="black" points="18.0029,-194.85 18.0029,-312.194 196.029,-312.194 196.029,-194.85 18.0029,-194.85"/>
 <text text-anchor="start" x="26.0029" y="-300.194" font-family="Monaco" font-size="10.00">HydroCouple::Temporal</text>
 <text text-anchor="middle" x="107.016" y="-286.859" font-family="Monaco" font-size="10.00">::ITimeComponentDataItem</text>

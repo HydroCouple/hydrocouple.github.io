@@ -136,18 +136,6 @@ Collaboration diagram for HydroCouple::SpatioTemporal::ITimeRasterComponentDataI
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a40bb56e657f691f554827b973cb06dab"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_component_data_item.html#a40bb56e657f691f554827b973cb06dab">~ITimeRasterComponentDataItem</a> ()</td></tr>
 <tr class="separator:a40bb56e657f691f554827b973cb06dab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a434d337f1e379f9cf81c6247f4154a45"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_component_data_item.html#a434d337f1e379f9cf81c6247f4154a45">xDimension</a> () const  =0</td></tr>
-<tr class="memdesc:a434d337f1e379f9cf81c6247f4154a45"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> for xDirection.  <a href="#a434d337f1e379f9cf81c6247f4154a45">More...</a><br /></td></tr>
-<tr class="separator:a434d337f1e379f9cf81c6247f4154a45"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad798356b69e9d781becdd41a5aa22f33"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_component_data_item.html#ad798356b69e9d781becdd41a5aa22f33">yDimension</a> () const  =0</td></tr>
-<tr class="memdesc:ad798356b69e9d781becdd41a5aa22f33"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> for yDirection.  <a href="#ad798356b69e9d781becdd41a5aa22f33">More...</a><br /></td></tr>
-<tr class="separator:ad798356b69e9d781becdd41a5aa22f33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58dad0ec39064a8bdd8ff3921ae2576d"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_component_data_item.html#a58dad0ec39064a8bdd8ff3921ae2576d">bandDimension</a> () const  =0</td></tr>
-<tr class="memdesc:a58dad0ec39064a8bdd8ff3921ae2576d"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> for IRasterBands.  <a href="#a58dad0ec39064a8bdd8ff3921ae2576d">More...</a><br /></td></tr>
-<tr class="separator:a58dad0ec39064a8bdd8ff3921ae2576d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0262290acac2e2a61e962d456330a3ec"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster.html">HydroCouple::Spatial::IRaster</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_component_data_item.html#a0262290acac2e2a61e962d456330a3ec">raster</a> () const  =0</td></tr>
-<tr class="memdesc:a0262290acac2e2a61e962d456330a3ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">IRaster associated with this IRasterComponentDataItem.  <a href="#a0262290acac2e2a61e962d456330a3ec">More...</a><br /></td></tr>
-<tr class="separator:a0262290acac2e2a61e962d456330a3ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31bd40ed3c3756f2d66f995f882275a1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_component_data_item.html#a31bd40ed3c3756f2d66f995f882275a1">getValue</a> (int timeDimensionIndex, int xindex, int yindex, int band, QVariant &amp;data) const  =0</td></tr>
 <tr class="memdesc:a31bd40ed3c3756f2d66f995f882275a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets a single value for given x, y, raster band indexes.  <a href="#a31bd40ed3c3756f2d66f995f882275a1">More...</a><br /></td></tr>
 <tr class="separator:a31bd40ed3c3756f2d66f995f882275a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -233,6 +221,21 @@ Public Member Functions</h2></td></tr>
 <tr class="inherit_header pub_methods_class_hydro_couple_1_1_i_property_changed"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_i_property_changed')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_i_property_changed.html">HydroCouple::IPropertyChanged</a></td></tr>
 <tr class="memitem:a810e76722859d2a63dfe0e541c84ab98 inherit pub_methods_class_hydro_couple_1_1_i_property_changed"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_i_property_changed.html#a810e76722859d2a63dfe0e541c84ab98">~IPropertyChanged</a> ()</td></tr>
 <tr class="separator:a810e76722859d2a63dfe0e541c84ab98 inherit pub_methods_class_hydro_couple_1_1_i_property_changed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item.html">HydroCouple::Spatial::IRasterComponentDataItem</a></td></tr>
+<tr class="memitem:a4937f7f84b37a7d94d66460049adc2ac inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item.html#a4937f7f84b37a7d94d66460049adc2ac">~IRasterComponentDataItem</a> ()</td></tr>
+<tr class="separator:a4937f7f84b37a7d94d66460049adc2ac inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adac74fabfab6b77c4053af67de61027a inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item.html#adac74fabfab6b77c4053af67de61027a">xDimension</a> () const  =0</td></tr>
+<tr class="memdesc:adac74fabfab6b77c4053af67de61027a inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> for xDirection.  <a href="#adac74fabfab6b77c4053af67de61027a">More...</a><br /></td></tr>
+<tr class="separator:adac74fabfab6b77c4053af67de61027a inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade670339ff92b63e8c7fdcc258d3913a inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item.html#ade670339ff92b63e8c7fdcc258d3913a">yDimension</a> () const  =0</td></tr>
+<tr class="memdesc:ade670339ff92b63e8c7fdcc258d3913a inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> for yDirection.  <a href="#ade670339ff92b63e8c7fdcc258d3913a">More...</a><br /></td></tr>
+<tr class="separator:ade670339ff92b63e8c7fdcc258d3913a inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96eb33a2b8d2c7b45f5e42c83a8fd0ba inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item.html#a96eb33a2b8d2c7b45f5e42c83a8fd0ba">bandDimension</a> () const  =0</td></tr>
+<tr class="memdesc:a96eb33a2b8d2c7b45f5e42c83a8fd0ba inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> for IRasterBands.  <a href="#a96eb33a2b8d2c7b45f5e42c83a8fd0ba">More...</a><br /></td></tr>
+<tr class="separator:a96eb33a2b8d2c7b45f5e42c83a8fd0ba inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a7274e369e9173b6bdf26d308846d70 inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster.html">IRaster</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item.html#a4a7274e369e9173b6bdf26d308846d70">raster</a> () const  =0</td></tr>
+<tr class="memdesc:a4a7274e369e9173b6bdf26d308846d70 inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster.html" title="A Raster spatial feature. ">IRaster</a> associated with this <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item.html" title="An IRasterComponentDataItem represents an IRaster IComponentItem. ">IRasterComponentDataItem</a>.  <a href="#a4a7274e369e9173b6bdf26d308846d70">More...</a><br /></td></tr>
+<tr class="separator:a4a7274e369e9173b6bdf26d308846d70 inherit pub_methods_class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -275,31 +278,6 @@ Here is the call graph for this function:</div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a58dad0ec39064a8bdd8ff3921ae2576d"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a>* HydroCouple::SpatioTemporal::ITimeRasterComponentDataItem::bandDimension </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p><a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> for IRasterBands. </p>
-
-</div>
-</div>
 <a class="anchor" id="a31bd40ed3c3756f2d66f995f882275a1"></a>
 <div class="memitem">
 <div class="memproto">
@@ -531,31 +509,6 @@ Here is the call graph for this function:</div>
   </table>
   </dd>
 </dl>
-
-</div>
-</div>
-<a class="anchor" id="a0262290acac2e2a61e962d456330a3ec"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="class_hydro_couple_1_1_spatial_1_1_i_raster.html">HydroCouple::Spatial::IRaster</a>* HydroCouple::SpatioTemporal::ITimeRasterComponentDataItem::raster </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>IRaster associated with this IRasterComponentDataItem. </p>
 
 </div>
 </div>
@@ -811,56 +764,6 @@ Here is the call graph for this function:</div>
   </table>
   </dd>
 </dl>
-
-</div>
-</div>
-<a class="anchor" id="a434d337f1e379f9cf81c6247f4154a45"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a>* HydroCouple::SpatioTemporal::ITimeRasterComponentDataItem::xDimension </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p><a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> for xDirection. </p>
-
-</div>
-</div>
-<a class="anchor" id="ad798356b69e9d781becdd41a5aa22f33"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="class_hydro_couple_1_1_i_dimension.html">IDimension</a>* HydroCouple::SpatioTemporal::ITimeRasterComponentDataItem::yDimension </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p><a class="el" href="class_hydro_couple_1_1_i_dimension.html" title="IDimension provides the properties of the dimensions of a vairable. ">IDimension</a> for yDirection. </p>
 
 </div>
 </div>

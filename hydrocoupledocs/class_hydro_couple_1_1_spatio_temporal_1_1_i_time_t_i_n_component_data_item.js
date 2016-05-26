@@ -6,8 +6,5 @@ var class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item 
     [ "getValues", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html#aa39e57b828540185968394f914d47848", null ],
     [ "setValue", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html#aa0452b4c2f52de9c7f0fde44b1f3267a", null ],
     [ "setValues", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html#a7a4877ac3cda1e19c5cac03330ab443a", null ],
-    [ "setValues", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html#a2b73f4f0b024fe31a722ce7982cf680e", null ],
-    [ "TIN", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html#ab642452daa676110dddcd8ff1a6937ab", null ],
-    [ "TINPatchDimension", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html#a6e4bc54b19c24678b73ff18d4e28c488", null ],
-    [ "triangle", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html#a9a231e84f9a1945ffcd931a2ac567c13", null ]
+    [ "setValues", "class_hydro_couple_1_1_spatio_temporal_1_1_i_time_t_i_n_component_data_item.html#a2b73f4f0b024fe31a722ce7982cf680e", null ]
 ];

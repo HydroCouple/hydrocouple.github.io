@@ -26,6 +26,7 @@ var hydrocouple_8h =
     [ "IMultiInput", "class_hydro_couple_1_1_i_multi_input.html", "class_hydro_couple_1_1_i_multi_input" ],
     [ "IIdBasedComponentDataItem", "class_hydro_couple_1_1_i_id_based_component_data_item.html", "class_hydro_couple_1_1_i_id_based_component_data_item" ],
     [ "IIdBasedExchangeItem", "class_hydro_couple_1_1_i_id_based_exchange_item.html", "class_hydro_couple_1_1_i_id_based_exchange_item" ],
+    [ "IIdBasedArgument", "class_hydro_couple_1_1_i_id_based_argument.html", "class_hydro_couple_1_1_i_id_based_argument" ],
     [ "HYDROCOUPLE_EXPORT", "hydrocouple_8h.html#ae1eff69fe0f5c0a03920fb8d14ba36f3", null ],
     [ "ArgumentIOType", "hydrocouple_8h.html#acb50990a65befacb083217458f655831", [
       [ "String", "hydrocouple_8h.html#acb50990a65befacb083217458f655831a561890387c527a811f305d319516ec0d", null ],

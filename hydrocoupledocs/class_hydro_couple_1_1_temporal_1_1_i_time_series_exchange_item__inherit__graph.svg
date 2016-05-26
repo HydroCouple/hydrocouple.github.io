@@ -66,7 +66,7 @@ var sectionId = 'dynsection-0';
 </g>
 <!-- Node2 -->
 <g id="node2" class="node"><title>Node2</title>
-<g id="a_node2"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_time_exchange_item.html" target="_top" xlink:title="The ITimeExchangeItem class. ">
+<g id="a_node2"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_time_exchange_item.html" target="_top" xlink:title="The ITimeExchangeItem class.This class cannot be directly instantiated and must be implemented as as ...">
 <polygon fill="none" stroke="black" points="12.002,-154.845 12.002,-232.185 160.023,-232.185 160.023,-154.845 12.002,-154.845"/>
 <text text-anchor="start" x="20.002" y="-220.185" font-family="Monaco" font-size="10.00">HydroCouple::Temporal</text>
 <text text-anchor="middle" x="86.0127" y="-206.85" font-family="Monaco" font-size="10.00">::ITimeExchangeItem</text>
@@ -128,7 +128,7 @@ var sectionId = 'dynsection-0';
 </g>
 <!-- Node8 -->
 <g id="node8" class="node"><title>Node8</title>
-<g id="a_node8"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_time_component_data_item.html" target="_top" xlink:title="ITimeComponentItem is an IComponentItem with a temporal attribute. ">
+<g id="a_node8"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_time_component_data_item.html" target="_top" xlink:title="ITimeComponentItem is an IComponentItem with a temporal attribute. This class cannot be directly inst...">
 <polygon fill="none" stroke="black" points="190,-309.189 190,-426.534 368.026,-426.534 368.026,-309.189 190,-309.189"/>
 <text text-anchor="start" x="198" y="-414.534" font-family="Monaco" font-size="10.00">HydroCouple::Temporal</text>
 <text text-anchor="middle" x="279.013" y="-401.199" font-family="Monaco" font-size="10.00">::ITimeComponentDataItem</text>

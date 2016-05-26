@@ -64,7 +64,7 @@
 </g>
 <!-- Node7 -->
 <g id="node7" class="node"><title>Node7</title>
-<g id="a_node7"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_time_component_data_item.html" target="_top" xlink:title="ITimeComponentItem is an IComponentItem with a temporal attribute. ">
+<g id="a_node7"><a xlink:href="class_hydro_couple_1_1_temporal_1_1_i_time_component_data_item.html" target="_top" xlink:title="ITimeComponentItem is an IComponentItem with a temporal attribute. This class cannot be directly inst...">
 <polygon fill="none" stroke="black" points="190,-114.84 190,-232.185 368.026,-232.185 368.026,-114.84 190,-114.84"/>
 <text text-anchor="start" x="198" y="-220.185" font-family="Monaco" font-size="10.00">HydroCouple::Temporal</text>
 <text text-anchor="middle" x="279.013" y="-206.85" font-family="Monaco" font-size="10.00">::ITimeComponentDataItem</text>

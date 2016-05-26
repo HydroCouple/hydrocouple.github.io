@@ -35,8 +35,9 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"class_hydro_couple_1_1_spatial_1_1_i_multi_curve.html",
-"class_hydro_couple_1_1_temporal_1_1_i_id_based_time_component_data_item.html#a29a5f40cbf157df554c27f66d5aa24ff"
+"class_hydro_couple_1_1_spatial_1_1_i_line.html",
+"class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_exchange_item.html",
+"hydrocouplespatial_8h.html#ae3563ea9d450198e25de5766f335dea4a4eae89240b3b663bd245fd295cb89f04"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

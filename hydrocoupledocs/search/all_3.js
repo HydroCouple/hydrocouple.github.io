@@ -12,7 +12,7 @@ var searchData=
   ['difference',['difference',['../class_hydro_couple_1_1_spatial_1_1_i_geometry.html#a0e95f3fa5344b16ae95eb3a629ede2f9',1,'HydroCouple::Spatial::IGeometry']]],
   ['dimension',['dimension',['../class_hydro_couple_1_1_spatial_1_1_i_geometry.html#adeb2e25bae49201783b64022a6580b50',1,'HydroCouple::Spatial::IGeometry']]],
   ['dimensionlengthtype',['DimensionLengthType',['../namespace_hydro_couple.html#a4568abf6cb6695e2f046f3d270e3bd62',1,'HydroCouple']]],
-  ['dimensions',['dimensions',['../class_hydro_couple_1_1_i_unit.html#a847ecd57813e78791e048177e1a65c9a',1,'HydroCouple::IUnit::dimensions()'],['../class_hydro_couple_1_1_i_component_data_item.html#a57dd3ec8f97fbb3e4b08b78e223715d0',1,'HydroCouple::IComponentDataItem::dimensions()'],['../class_hydro_couple_1_1_i_argument.html#a576e295dcf833e180f4cd30ad6011c58',1,'HydroCouple::IArgument::dimensions()']]],
+  ['dimensions',['dimensions',['../class_hydro_couple_1_1_i_unit.html#a847ecd57813e78791e048177e1a65c9a',1,'HydroCouple::IUnit::dimensions()'],['../class_hydro_couple_1_1_i_component_data_item.html#a57dd3ec8f97fbb3e4b08b78e223715d0',1,'HydroCouple::IComponentDataItem::dimensions()']]],
   ['disjoint',['disjoint',['../class_hydro_couple_1_1_spatial_1_1_i_geometry.html#ad0a4cedf93360048b59507d363127ec1',1,'HydroCouple::Spatial::IGeometry']]],
   ['distance',['distance',['../class_hydro_couple_1_1_spatial_1_1_i_geometry.html#a8b90bf59748e158b683792910963cb51',1,'HydroCouple::Spatial::IGeometry']]],
   ['done',['Done',['../namespace_hydro_couple.html#a5faa3b28d378bbb00134df393c19ba03af40fdd5edbc491eda64fde975e89ae53',1,'HydroCouple']]],
