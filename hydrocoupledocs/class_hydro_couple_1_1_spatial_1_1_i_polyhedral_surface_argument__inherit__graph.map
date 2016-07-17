@@ -1,0 +1,10 @@
+<map id="HydroCouple::Spatial::IPolyhedralSurfaceArgument" name="HydroCouple::Spatial::IPolyhedralSurfaceArgument">
+<area shape="rect" id="node8" href="$class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_only_argument.html" title="An IPolyhedralSurfaceOnlyArgument class with an IPolyhedralSurface component. " alt="" coords="5,1240,307,1345"/>
+<area shape="rect" id="node9" href="$class_hydro_couple_1_1_spatio_temporal_1_1_i_time_polyhedral_surface_argument.html" title="The ITimePolyhedralSurfaceArgument class. " alt="" coords="331,1240,632,1345"/>
+<area shape="rect" id="node2" href="$class_hydro_couple_1_1_i_argument.html" title="IArgument interface class used to set the arguments for components. They can be complex or simple mul..." alt="" coords="65,793,287,1040"/>
+<area shape="rect" id="node3" href="$class_hydro_couple_1_1_i_component_data_item.html" title="IComponentItem is a fundamental unit of data for a component. " alt="" coords="184,498,453,745"/>
+<area shape="rect" id="node7" href="$class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_component_data_item.html" title="IPolyhedralSurfaceComponentItem represents IPolyhedralSurface IComponentItem. " alt="" coords="311,820,612,1013"/>
+<area shape="rect" id="node4" href="$class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity. " alt="" coords="220,346,417,450"/>
+<area shape="rect" id="node5" href="$class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object. " alt="" coords="208,140,429,298"/>
+<area shape="rect" id="node6" href="$class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes..." alt="" coords="192,5,445,92"/>
+</map>
