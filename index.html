@@ -61,6 +61,9 @@
                         <a href="#page-top"></a>
                     </li>
                     <li class="page-scroll">
+                        <a href="#tools">Tools</a>
+                    </li>
+                    <li class="page-scroll">
                         <a href="#components">Components</a>
                     </li>
                     <li class="page-scroll">
@@ -82,87 +85,53 @@
             <div class="row">
                 <div class="intro-text">
                     <!--<span class="name">What is HydroCouple ?</span>
-                  <hr class="star-light">-->
+                      <hr class="star-light">-->
                     <span class="skills">
-                     <p>
-                         The HydroCouple project is a cross platform component-based modeling framework
-                         for integrated modeling in the environmental and earth systems modeling field.
-                         It developed using C++ and the Qt framework which provides bindings to other programming
-                         languages like java, python, C#, etc. Its interface definitions are largely
-                         based on the OpenMI 2.0 specifications with some advancements to better support 
-                         parallelized simulations and more complex geospatial dataset formats. 
-                     </p>  
-                     
-                      <p>
-                         Another advancement provided by HydroCouple is the definition of standard complex 
-                         data formats for model initialization e.g., computational meshes and associated properties.
-                         This has been advanced so that software and graphic user interfaces that can generate generic
-                         inputs for model initialization.
-                     </p>
-                     
-                     <p>
-                        The HydroCouple project provides interface, a software development kit, as well
-                        as HydroCoupleComposer, a graphical user interface for coupling models.
-                     </p>
-                     <p>
-                        <a href="hydrocoupledocs/index.html" class="btn btn-lg btn-outline">
-                         <i class="fa"></i>Explore HydroCouple's Interface Definitions
-                        </a>
-                     </p>
-                  </span>
+                        <p>
+                            The HydroCouple project is a cross platform component-based modeling framework for integrated modeling in the environmental
+                            and earth systems modeling field. It has been developed using C++ and its interface definitions
+                            are largely based on the OpenMI 2.0 specifications with some advancements to better support simulations
+                            on HPC infrastructure, standard geospatial dataset formats, and customized data exchange workflows.
+                        </p>
+                        <p>
+                            Please join our
+                            <a href="https://github.com/hydrocouple">github repository</a> to contribute and apply the growing list of compliant model components.
+                        </p>
+                        <p>
+                            <a href="hydrocoupledocs/html/index.html" class="btn btn-lg btn-outline">
+                                <i class="fa"></i>Explore HydroCouple's Interface Definitions
+                            </a>
+                        </p>
+                    </span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Portfolio Grid Section -->
-    <section id="components">
+
+    <!-- Tools -->
+    <section id="tools">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <h2>Components</h2>
-                    <hr class="star-primary">
+            <div>
+                <div class="col-sm-12 text-center">
+                    <h2>Tools</h2>
+                    <hr>
                 </div>
             </div>
+
             <div class="row">
+
                 <div class="col-sm-3 portfolio-item">
-                    <a href="#portfolioModal1" class="portfolio-link" data-toggle="modal">
-                        <div class="caption">
-                            <div class="caption-content">
-                                <i class="fa fa-search-plus fa-3x"></i>
-                            </div>
-                        </div>
+                    <a href="#toolsModal1" class="portfolio-link" data-toggle="modal">
+                        <p class="modal-descp">HydroCouple Software Development Kit</p>
                         <img src="img/hydrocouple.png" class="img-responsive" alt="">
                     </a>
                 </div>
+
                 <div class="col-sm-3 portfolio-item">
-                    <a href="#portfolioModal2" class="portfolio-link" data-toggle="modal">
-                        <div class="caption">
-                            <div class="caption-content">
-                                <i class="fa fa-search-plus fa-3x"></i>
-                            </div>
-                        </div>
+                    <a href="#toolsModal2" class="portfolio-link" data-toggle="modal">
+                        <p class="modal-descp">HydroCoupleComposer GUI and CLI</p>
                         <img src="img/components/hydrocouplecomposer.png" class="img-responsive" alt="">
-                    </a>
-                </div>
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#portfolioModal3" class="portfolio-link" data-toggle="modal">
-                        <div class="caption">
-                            <div class="caption-content">
-                                <i class="fa fa-search-plus fa-3x"></i>
-                            </div>
-                        </div>
-                        <img src="img/components/swmmcomponent.png" class="img-responsive" alt="">
-                    </a>
-                </div>
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#portfolioModal4" class="portfolio-link" data-toggle="modal">
-                        <div class="caption">
-                            <div class="caption-content">
-                                <i class="fa fa-search-plus fa-3x"></i>
-                            </div>
-                        </div>
-                        <img src="img/components/fvhmcomponent.png" class="img-responsive" alt="">
                     </a>
                 </div>
 
@@ -170,13 +139,341 @@
         </div>
     </section>
 
+    <!--Tools Modal -->
+    <div class="portfolio-modal modal fade" id="toolsModal1" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <h2>HydroCouple Sofware Development Kit</h2>
+                            <hr>
+                            <img src="img/hydrocouple.png" class="img-responsive img-centered" alt="">
+                            <p>
+                                <a href="https://github.com/HydroCouple">HydroCouple</a> is a C++ component-based modeling framework specification and SDK that can
+                                be used to develop components for integrated modeling.
+                            </p>
+                            <ul class="list-inline item-details">
+                                <li>Source:
+                                    <strong>
+                                        <a href="https://github.com/HydroCouple/HydroCoupleSDK"> Software Development Kit</a>
+                                    </strong>
+                                </li>
+                                <li>Platforms:
+                                    <strong>
+                                        <a href="">Windows, Mac OS X, Linux</a>
+                                    </strong>
+                                </li>
+                            </ul>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                <i class="fa fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="portfolio-modal modal fade" id="toolsModal2" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <h2>HydroCoupleComposer GUI and CLI</h2>
+                            <hr>
+                            <img src="img/components/hydrocouplecomposer.png" class="img-responsive img-centered" alt="">
+                            <p>
+                                This project is a GUI for coupling HydroCouple model components together.
+                            </p>
+                            <ul class="list-inline item-details">
+                                <li>Source:
+                                    <strong>
+                                        <a href="https://github.com/HydroCouple/HydroCoupleComposer">Code</a>
+                                    </strong>
+                                </li>
+                                <li>Platforms:
+                                    <strong>
+                                        <a href="">Windows, Mac OS X, Linux</a>
+                                    </strong>
+                                </li>
+                            </ul>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                <i class="fa fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Components -->
+    <section id="components">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Components</h2>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-3 portfolio-item">
+                    <a href="#componentModal1" class="portfolio-link" data-toggle="modal">
+                        <p class="modal-descp">EPA SWMM Model Component</p>
+                        <img src="img/components/swmmcomponent.png" class="img-responsive" alt="">
+                    </a>
+                </div>
+
+                <div class="col-sm-3 portfolio-item">
+                    <a href="#componentModal2" class="portfolio-link" data-toggle="modal">
+                        <p class="modal-descp">The Finite Volume Hydrologic Model Component</p>
+                        <img src="img/components/fvhmcomponent.png" class="img-responsive" alt="">
+                    </a>
+                </div>
+
+                <div class="col-sm-3 portfolio-item">
+                    <a href="#componentModal3" class="portfolio-link" data-toggle="modal">
+                        <p class="modal-descp">The Triangle Model Component</p>
+                        <img src="img/components/triangle.png" class="img-responsive" alt="">
+                    </a>
+                </div>
+
+                <div class="col-sm-3 portfolio-item">
+                    <a href="#componentModal4" class="portfolio-link" data-toggle="modal">
+                        <p class="modal-descp">Temporal Interpolation AdaptedOutput Factory Component</p>
+                        <img src="img/components/adaptedoutputfactory.png" class="img-responsive" alt="">
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-3 portfolio-item">
+                    <a href="#componentModal5" class="portfolio-link" data-toggle="modal">
+                        <p class="modal-descp">Loop Driven Data Exchange Workflow Component</p>
+                        <img src="img/components/workflow.png" class="img-responsive" alt="">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Components Modal -->
+    <div class="portfolio-modal modal fade" id="componentModal1" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <h2>HydroCouple SWMM Component</h2>
+                            <hr>
+                            <img src="img/components/swmmcomponent.png" class="img-responsive img-centered" alt="">
+                            <p>A HydroCouple component for EPA's Stormwater Modeling System (SWMM)</p>
+                            <ul class="list-inline item-details">
+                                <li>Source:
+                                    <strong>
+                                        <a href="https://github.com/HydroCouple/SWMMComponent">Code</a>
+                                    </strong>
+                                </li>
+                                <li>Platforms:
+                                    <strong>
+                                        <a href="">Windows, Mac OS X, Linux</a>
+                                    </strong>
+                                </li>
+                            </ul>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                <i class="fa fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="portfolio-modal modal fade" id="componentModal2" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <h2> The Finite Volume Hydrologic Model Component</h2>
+                            <hr>
+                            <img src="img/components/fvhmcomponent.png" class="img-responsive img-centered" alt="">
+                            <p>A finite volume based hydrologic model</p>
+                            <ul class="list-inline item-details">
+                                <li>Source:
+                                    <strong>
+                                        <a href="https://github.com/HydroCouple/FVHMComponent">Code</a>
+                                    </strong>
+                                </li>
+                                <li>Platforms:
+                                    <strong>
+                                        <a href="">Windows, Mac OS X, Linux</a>
+                                    </strong>
+                                </li>
+                            </ul>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                <i class="fa fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="portfolio-modal modal fade" id="componentModal3" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <h2> The Triangle Model Component</h2>
+                            <hr>
+                            <img src="img/components/triangle.png" class="img-responsive img-centered" alt="">
+                            <p>A point triangulation model component developed from the Triangle code by Jonathan Shewchuk</p>
+                            <ul class="list-inline item-details">
+                                <li>Source:
+                                    <strong>
+                                        <a href="https://github.com/HydroCouple/TriangleComponent">Code</a>
+                                    </strong>
+                                </li>
+                                <li>Platforms:
+                                    <strong>
+                                        <a href="">Windows, Mac OS X, Linux</a>
+                                    </strong>
+                                </li>
+                            </ul>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                <i class="fa fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="portfolio-modal modal fade" id="componentModal4" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <h2>A Temporal Interpolation AdaptedOutputFactory Component</h2>
+                            <hr>
+                            <img src="img/components/adaptedoutputfactory.png" class="img-responsive img-centered" alt="">
+                            <p>A temporal interpolation adapted output factory component</p>
+                            <ul class="list-inline item-details">
+                                <li>Source:
+                                    <strong>
+                                        <a href="https://github.com/HydroCouple/TemporalInterpAdaptedOutputFactoryComponent">Code</a>
+                                    </strong>
+                                </li>
+                                <li>Platforms:
+                                    <strong>
+                                        <a href="">Windows, Mac OS X, Linux</a>
+                                    </strong>
+                                </li>
+                            </ul>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                <i class="fa fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="portfolio-modal modal fade" id="componentModal5" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <h2>Loop Driven Data Exchange Workflow Component</h2>
+                            <hr>
+                            <img src="img/components/workflow.png" class="img-responsive img-centered" alt="">
+                            <p>A loop driven data exchange workflow component for time marchine modeling</p>
+                            <ul class="list-inline item-details">
+                                <li>Source:
+                                    <strong>
+                                        <a href="https://github.com/HydroCouple/LoopDrivenWorkflowComponent">Code</a>
+                                    </strong>
+                                </li>
+                                <li>Platforms:
+                                    <strong>
+                                        <a href="">Windows, Mac OS X, Linux</a>
+                                    </strong>
+                                </li>
+                            </ul>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                <i class="fa fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- About Section -->
     <section id="publications">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <h2>Publications</h2>
-                    <hr class="star-primary">
+                    <hr>
                 </div>
             </div>
             <div class="row">
@@ -195,14 +492,16 @@
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <h2>Support</h2>
-                    <hr class="star-primary">
+                    <hr>
                 </div>
             </div>
             <div>
                 <p>
-                    The material presented here was supported by National Science Foundation <a href="http://iutahepscor.org/">EPSCoR Grant IIA 1208732</a>                    awarded to Utah State University as part of the State of Utah EPSCoR Research Infrastructure Improvement
-                    Award. Any opinions, findings, and conclusions or recommendations expressed in this material are those
-                    of the author(s) and do not necessarily reflect the views of the National Science Foundation.
+                    The material presented here was supported by National Science Foundation
+                    <a href="http://iutahepscor.org/">EPSCoR Grant IIA 1208732</a> awarded to Utah State University as part of the State of Utah EPSCoR Research
+                    Infrastructure Improvement Award. Any opinions, findings, and conclusions or recommendations expressed
+                    in this material are those of the author(s) and do not necessarily reflect the views of the National
+                    Science Foundation.
                 </p>
             </div>
             <!--<div class="row">
@@ -249,7 +548,6 @@
         </div>
     </section>
 
-
     <!-- Footer -->
     <footer class="text-center">
         <div class="footer-above">
@@ -259,10 +557,14 @@
                         <h3>Around the Web</h3>
                         <ul class="list-inline">
                             <li>
-                                <a href="mailto:caleb.buahin@gmail.com" class="btn-social btn-outline"><i class="fa fa-fw fa-envelope-o"></i></a>
+                                <a href="mailto:caleb.buahin@gmail.com" class="btn-social btn-outline">
+                                    <i class="fa fa-fw fa-envelope-o"></i>
+                                </a>
                             </li>
                             <li>
-                                <a href="https://github.com/hydrocouple" class="btn-social btn-outline"><i class="fa fa-fw fa-github"></i></a>
+                                <a href="https://github.com/hydrocouple" class="btn-social btn-outline">
+                                    <i class="fa fa-fw fa-github"></i>
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -273,7 +575,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        Copyright &copy; HydroCouple 2016
+                        Copyright &copy; HydroCouple 2014-2018
                     </div>
                 </div>
             </div>
@@ -287,176 +589,14 @@
         </a>
     </div>
 
-    <!-- Portfolio Modals -->
-    <div class="portfolio-modal modal fade" id="portfolioModal1" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>HydroCouple</h2>
-                            <hr class="star-primary">
-                            <img src="img/hydrocouple.png" class="img-responsive img-centered" alt="">
-                            <p> <a href="https://github.com/HydroCouple">HydroCouple</a> is a C++ component-based modeling framework
-                                specification and SDK that can be used to develop components for integrated modeling.
-                            </p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong><a href="https://github.com/HydroCouple/HydroCouple">Interface Definitions</a></strong>
-                                    <strong><a href="https://github.com/HydroCouple/HydroCoupleSDK">SDK</a></strong>
-                                </li>
-                                <li>API:
-                                    <strong><a href="hydrocoupledocs/index.html">HydroCouple Interfaces and SDK</a>
-                                    </strong>
-                                </li>
-                                <li>Date:
-                                    <strong><a href="">2015</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong><a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="portfolio-modal modal fade" id="portfolioModal2" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>HydroCoupleComposer</h2>
-                            <hr class="star-primary">
-                            <img src="img/components/hydrocouplecomposer.png" class="img-responsive img-centered" alt="">
-                            <p>
-                                This project is a GUI for coupling HydroCouple model components together.
-                            </p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong><a href="https://github.com/HydroCouple/HydroCoupleComposer">Code</a></strong>
-                                </li>
-                                <li>API:
-                                    <strong><a href=""></a>
-                                    </strong>
-                                </li>
-                                <li>Date:
-                                    <strong><a href="">2015</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong><a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="portfolio-modal modal fade" id="portfolioModal3" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>HydroCouple SWMM Component</h2>
-                            <hr class="star-primary">
-                            <img src="img/components/swmmcomponent.png" class="img-responsive img-centered" alt="">
-                            <p>A HydroCouple component for EPA's Stormwater Modeling System (SWMM)</p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong><a href="https://github.com/HydroCouple/SWMMComponent">Code</a></strong>
-                                </li>
-                                <li>API:
-                                    <strong><a href=""></a>
-                                    </strong>
-                                </li>
-                                <li>Date:
-                                    <strong><a href="">2015</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong><a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
-    <div class="portfolio-modal modal fade" id="portfolioModal4" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>FVHMComponent</h2>
-                            <hr class="star-primary">
-                            <img src="img/components/fvhmcomponent.png" class="img-responsive img-centered" alt="">
-                            <p>A finite volume based hydrologic model</p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong><a href="https://github.com/HydroCouple/FVHMComponent">Code</a></strong>
-                                </li>
-                                <li>API:
-                                    <strong><a href=""></a>
-                                    </strong>
-                                </li>
-                                <li>Date:
-                                    <strong><a href="">2015</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong><a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
+
+
+
+
+
 
     <!-- jQuery -->
     <script src="js/jquery.js"></script>

@@ -22,7 +22,7 @@ a:focus,
 a:active,
 a.active {
     outline: 0;
-    color: #18be9c;
+    color: #2c3e50;
 }
 
 h1,
@@ -36,13 +36,22 @@ h6 {
     font-weight: 700;
 }
 
+hr {
+    margin: 25px auto 30px;
+    padding: 0;
+    max-width: 250px;
+    border: 0;
+    border-top: solid 2.5px;
+    text-align: center; 
+}
+
 hr.star-light,
 hr.star-primary {
     margin: 25px auto 30px;
     padding: 0;
     max-width: 250px;
     border: 0;
-    border-top: solid 5px;
+    border-top: solid 2.5px;
     text-align: center;
 }
 
@@ -456,4 +465,10 @@ footer .footer-below {
 .portfolio-modal .modal-backdrop {
     display: none;
     opacity: 0;
+}
+
+.modal-descp {
+    text-align: center;
+    position: relative;
+    bottom: 0%;
 }
