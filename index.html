@@ -27,7 +27,8 @@
     <!-- Custom Fonts -->
     <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-    <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet"
+        type="text/css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -45,7 +46,8 @@
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header page-scroll">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
@@ -88,14 +90,19 @@
                       <hr class="star-light">-->
                     <span class="skills">
                         <p>
-                            The HydroCouple project is a cross platform component-based modeling framework for integrated modeling in the environmental
-                            and earth systems modeling field. It has been developed using C++ and its interface definitions
-                            are largely based on the OpenMI 2.0 specifications with some advancements to better support simulations
-                            on HPC infrastructure, standard geospatial dataset formats, and customized data exchange workflows.
+                            The HydroCouple project is a cross platform component-based modeling framework for
+                            integrated modeling in the environmental
+                            and earth systems modeling field. It has been developed using C++ and its interface
+                            definitions
+                            are largely based on the OpenMI 2.0 specifications with some advancements to better support
+                            simulations
+                            on HPC infrastructure, standard geospatial dataset formats, and customized data exchange
+                            workflows.
                         </p>
                         <p>
                             Please join our
-                            <a href="https://github.com/hydrocouple">github repository</a> to contribute and apply the growing list of compliant model components.
+                            <a href="https://github.com/hydrocouple">github repository</a> to contribute and apply the
+                            growing list of compliant model components.
                         </p>
                         <p>
                             <a href="hydrocoupledocs/html/index.html" class="btn btn-lg btn-outline">
@@ -121,6 +128,13 @@
 
             <div class="row">
 
+                <div class="col-sm-3 portfolio-item"> 
+                    <a href="#toolsModal2" class="portfolio-link" data-toggle="modal">
+                        <p class="modal-descp">HydroCoupleComposer</p>
+                        <img src="img/components/hydrocouplecomposer.png" class="img-responsive" alt="">
+                    </a>
+                </div>
+
                 <div class="col-sm-3 portfolio-item">
                     <a href="#toolsModal1" class="portfolio-link" data-toggle="modal">
                         <p class="modal-descp">HydroCouple Software Development Kit</p>
@@ -128,16 +142,53 @@
                     </a>
                 </div>
 
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#toolsModal2" class="portfolio-link" data-toggle="modal">
-                        <p class="modal-descp">HydroCoupleComposer GUI and CLI</p>
-                        <img src="img/components/hydrocouplecomposer.png" class="img-responsive" alt="">
-                    </a>
-                </div>
+
 
             </div>
         </div>
     </section>
+
+    <div class="portfolio-modal modal fade" id="toolsModal2" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2">
+                        <div class="modal-body">
+                            <h2>HydroCoupleComposer</h2>
+                            <hr>
+                            <img src="img/components/hydrocouplecomposer.png" class="img-responsive img-centered"
+                                alt="">
+                            <p>
+                                This project is a GUI for coupling HydroCouple model components together.
+                            </p>
+                            <ul class="list-inline item-details">
+                                <li>Source:
+                                    <strong>
+                                        <a href="https://github.com/HydroCouple/HydroCoupleComposer">Code</a>
+                                    </strong>
+                                </li>
+                                <li>Installers:
+                                    <strong>
+                                        <a href="https://github.com/HydroCouple/HydroCoupleComposer/releases">Windows,
+                                            Mac OS X, Linux</a>
+                                    </strong>
+                                </li>
+                            </ul>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                <i class="fa fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!--Tools Modal -->
     <div class="portfolio-modal modal fade" id="toolsModal1" tabindex="-1" role="dialog" aria-hidden="true">
@@ -156,18 +207,21 @@
                             <hr>
                             <img src="img/hydrocouple.png" class="img-responsive img-centered" alt="">
                             <p>
-                                <a href="https://github.com/HydroCouple">HydroCouple</a> is a C++ component-based modeling framework specification and SDK that can
+                                <a href="https://github.com/HydroCouple">HydroCouple</a> is a C++ component-based
+                                modeling framework specification and SDK that can
                                 be used to develop components for integrated modeling.
                             </p>
                             <ul class="list-inline item-details">
                                 <li>Source:
                                     <strong>
-                                        <a href="https://github.com/HydroCouple/HydroCoupleSDK"> Software Development Kit</a>
+                                        <a href="https://github.com/HydroCouple/HydroCoupleSDK"> Software Development
+                                            Kit</a>
                                     </strong>
                                 </li>
-                                <li>Platform Installers:
+                                <li>Platform:
                                     <strong>
-                                        <a href="https://github.com/HydroCouple/HydroCoupleComposer/releases">Windows, Mac OS X, Linux</a>
+                                        <a href="https://github.com/HydroCouple/HydroCoupleComposer/releases">Windows,
+                                            Mac OS X, Linux</a>
                                     </strong>
                                 </li>
                             </ul>
@@ -180,47 +234,6 @@
             </div>
         </div>
     </div>
-
-    <div class="portfolio-modal modal fade" id="toolsModal2" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>HydroCoupleComposer GUI and CLI</h2>
-                            <hr>
-                            <img src="img/components/hydrocouplecomposer.png" class="img-responsive img-centered" alt="">
-                            <p>
-                                This project is a GUI for coupling HydroCouple model components together.
-                            </p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong>
-                                        <a href="https://github.com/HydroCouple/HydroCoupleComposer">Code</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong>
-                                        <a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                <i class="fa fa-times"></i> Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
     <!-- Components -->
     <section id="components">
@@ -367,7 +380,8 @@
                             <h2> The Triangle Model Component</h2>
                             <hr>
                             <img src="img/components/triangle.png" class="img-responsive img-centered" alt="">
-                            <p>A point triangulation model component developed from the Triangle code by Jonathan Shewchuk</p>
+                            <p>A point triangulation model component developed from the Triangle code by Jonathan
+                                Shewchuk</p>
                             <ul class="list-inline item-details">
                                 <li>Source:
                                     <strong>
@@ -405,12 +419,14 @@
                         <div class="modal-body">
                             <h2>A Temporal Interpolation AdaptedOutputFactory Component</h2>
                             <hr>
-                            <img src="img/components/adaptedoutputfactory.png" class="img-responsive img-centered" alt="">
+                            <img src="img/components/adaptedoutputfactory.png" class="img-responsive img-centered"
+                                alt="">
                             <p>A temporal interpolation adapted output factory component</p>
                             <ul class="list-inline item-details">
                                 <li>Source:
                                     <strong>
-                                        <a href="https://github.com/HydroCouple/TemporalInterpAdaptedOutputFactoryComponent">Code</a>
+                                        <a
+                                            href="https://github.com/HydroCouple/TemporalInterpAdaptedOutputFactoryComponent">Code</a>
                                     </strong>
                                 </li>
                                 <li>Platforms:
@@ -477,17 +493,32 @@
                 </div>
             </div>
             <div class="row">
+                <P>
+                        Mihalevich, B.A., B.T. Neilson, J.C. Schmidt, D. Rosenberg, D. Tarboton, C.A. Buahin (2018). A
+                        dynamic river temperature model for the Colorado River within Grand Canyon. 2018 Fall
+                        Meeting, AGU, Washington, D.C.
+                        <p><a href="https://agu.confex.com/agu/fm18/prelim.cgi/Paper/452497">Abstract</a></p>
+                        <p><a href="https://qcnr.usu.edu/coloradoriver/files/research/mihalevich_AGU_2018_final.pdf">Poster</a></p>
+                </P>
+                <P>Buahin, C. A., Horsburgh, J. S. and Neilson, B. T.: Parallel multi-objective calibration of a component-based river temperature model, Environmental Modelling & Software, 116, 57–71, doi:10.1016/j.envsoft.2019.02.012, 2019.
+                </P>
                 <p>
-                    Buahin, C.A. and J.S. Horsburgh, 2016. From OpenMI to HydroCouple: Advancing OpenMI to Support Experimental Simulations and
-                    Standard Geospatial Datasets. Environmental Modelling and Software for Supporting a Sustainable Future.
+                    Buahin, C. A., and Horsburgh, J. S. (2018). “Advancing the Open Modeling Interface (OpenMI) for
+                    integrated water resources modeling.” Environmental Modelling & Software.
+                    DOI:10.1016/j.envsoft.2018.07.015.
+                </p>
+                <p>
+                    Buahin, C. A., Horsburgh, J. S., and Neilson, B. T. (2018). “Enabling High-Performance Heterogeneous
+                    Computing for Component-Based Integrated Water Modeling Frameworks.”
+                    9th International Congress on Environmental Modelling and Software, Modelling for Sustainable
+                    Food-Energy-Water Systems, Fort Collins, Colorado, USA.
+                </p>
+                <p>
+                    Buahin, C.A. and J.S. Horsburgh, 2016. From OpenMI to HydroCouple: Advancing OpenMI to Support
+                    Experimental Simulations and
+                    Standard Geospatial Datasets. Environmental Modelling and Software for Supporting a Sustainable
+                    Future.
                     Toulouse, France, pp. 153–160.
-                </p>
-                <p>
-                    Buahin, C. A., Horsburgh, J. S., and Neilson, B. T. (2018). “Enabling High-Performance Heterogeneous Computing for Component-Based Integrated Water Modeling Frameworks.”
-                    9th International Congress on Environmental Modelling and Software, Modelling for Sustainable Food-Energy-Water Systems, Fort Collins, Colorado, USA.
-                </p>
-                <p>
-                    Buahin, C. A., and Horsburgh, J. S. (2018). “Advancing the Open Modeling Interface (OpenMI) for integrated water resources modeling.” Environmental Modelling & Software. DOI:10.1016/j.envsoft.2018.07.015.
                 </p>
             </div>
         </div>
@@ -505,8 +536,10 @@
             <div>
                 <p>
                     The material presented here was supported by National Science Foundation
-                    <a href="http://iutahepscor.org/">EPSCoR Grant IIA 1208732</a> awarded to Utah State University as part of the State of Utah EPSCoR Research
-                    Infrastructure Improvement Award. Any opinions, findings, and conclusions or recommendations expressed
+                    <a href="http://iutahepscor.org/">EPSCoR Grant IIA 1208732</a> awarded to Utah State University as
+                    part of the State of Utah EPSCoR Research
+                    Infrastructure Improvement Award. Any opinions, findings, and conclusions or recommendations
+                    expressed
                     in this material are those of the author(s) and do not necessarily reflect the views of the National
                     Science Foundation.
                 </p>
