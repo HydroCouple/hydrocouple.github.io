@@ -1,10 +1,14 @@
 var class_hydro_couple_1_1_i_component_data_item =
 [
-    [ "~IComponentDataItem", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a793496d0396b83ef2f2b5aae9fa09d25", null ],
-    [ "dimensionLength", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a64bdb3f780a60970e02a5babcc2a9acf", null ],
-    [ "dimensions", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a57dd3ec8f97fbb3e4b08b78e223715d0", null ],
-    [ "getValue", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#af77692b88b83fc1b1e0abde57439ab35", null ],
-    [ "modelComponent", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#ae4230126266b62c4d5089971ded66cc0", null ],
-    [ "setValue", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a18f0dcd7de2228176e72e0d41a87a83c", null ],
-    [ "valueDefinition", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a88a8c7f806404a2ffad60260f233bffd", null ]
+    [ "~IComponentDataItem", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a783fe10bd65010d10408f163bc237476", null ],
+    [ "dimensionLength", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a19d59ac2e7907eab4e7670c35152c179", null ],
+    [ "dimensions", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#ac8c855c3327a5fcbbe4ef71a6912865a", null ],
+    [ "getValue", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#aacf315f3a6a4620674c3662439141219", null ],
+    [ "hasEditor", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#aabc946f938850a63268664cfa8b0d455", null ],
+    [ "hasViewer", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a14889174d4cec08ddb8fd86dad8973cc", null ],
+    [ "modelComponent", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a1c64d36faa75bdca6613939631ba6741", null ],
+    [ "setValue", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a8db20f8467078dbd47f432d0f6176296", null ],
+    [ "showEditor", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a50dba4937901bbae01c0df8e0564bbb8", null ],
+    [ "showViewer", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a38f3ac7a11939eaee091c1f5eb798094", null ],
+    [ "valueDefinition", "d8/d52/class_hydro_couple_1_1_i_component_data_item.html#a13eae92389bce9a55029e831af5ce00d", null ]
 ];

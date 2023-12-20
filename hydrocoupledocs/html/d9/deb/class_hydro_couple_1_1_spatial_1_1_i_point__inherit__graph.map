@@ -1,4 +1,5 @@
 <map id="HydroCouple::Spatial::IPoint" name="HydroCouple::Spatial::IPoint">
-<area shape="rect" id="node3" href="$d1/d5a/class_hydro_couple_1_1_spatial_1_1_i_vertex.html" title="The IVertex class is an IPoint of a topologically aware IGeometry. " alt="" coords="29,1270,211,1393"/>
-<area shape="rect" id="node2" href="$d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html" title="IGeometry is the root class of the geometry hierarchy. " alt="" coords="5,5,235,999"/>
+<area shape="rect" id="node1" title="An IPoint is a 0&#45;dimensional geometric object and represents a single location in coordinate space." alt="" coords="29,879,188,1029"/>
+<area shape="rect" id="node3" href="$d1/d5a/class_hydro_couple_1_1_spatial_1_1_i_vertex.html" title="The IVertex class is an IPoint of a topologically aware IGeometry." alt="" coords="29,1077,188,1184"/>
+<area shape="rect" id="node2" href="$d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html" title="IGeometry is the root class of the geometry hierarchy." alt="" coords="5,5,212,831"/>
 </map>

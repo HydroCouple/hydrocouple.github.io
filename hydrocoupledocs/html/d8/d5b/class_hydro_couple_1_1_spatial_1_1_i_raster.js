@@ -14,12 +14,12 @@ var class_hydro_couple_1_1_spatial_1_1_i_raster =
       [ "CFloat32", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#ae3ea6483d22355c7d6b8aaa268359d57a2bc275cf234741f12a6fbe02bfb7798c", null ],
       [ "CFloat64", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#ae3ea6483d22355c7d6b8aaa268359d57a5c2b567403b2a5dea831822adc20c91e", null ]
     ] ],
-    [ "~IRaster", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#a13282336b47f8feab0b58deb7d62e524", null ],
+    [ "~IRaster", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#aa197af648e261f1e85a362fb6be43cbd", null ],
     [ "addRasterBand", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#ad62fe6aa4649f4b58cb28ebc50cd53e9", null ],
     [ "geoTransformation", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#a0f918dd8435650934c15042844ec3045", null ],
-    [ "getRasterBand", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#a2fb7cee15d778f6b2a7c608355ee1031", null ],
-    [ "rasterBandCount", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#ab2e66474205ae38839014c875a804373", null ],
-    [ "spatialReferenceSystem", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#a57978d6397548c02e566d735386eff80", null ],
-    [ "xSize", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#a230349770291b0b61459a72c357b9adc", null ],
-    [ "ySize", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#a0e7ea53d6a681f0ac66f52c4d32632c1", null ]
+    [ "getRasterBand", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#aeeafc67779a8c87c2b5ecd3ee655b599", null ],
+    [ "rasterBandCount", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#a5a81d399483e9913dc1a28c627a20dac", null ],
+    [ "spatialReferenceSystem", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#ab1a233f55f6a34a0fdebc69b287c7237", null ],
+    [ "xSize", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#ab54039bd6c44bcdc5ad46d98b49c9bff", null ],
+    [ "ySize", "d8/d5b/class_hydro_couple_1_1_spatial_1_1_i_raster.html#ae7d77ceb3a7867126ce0810e07f2f352", null ]
 ];

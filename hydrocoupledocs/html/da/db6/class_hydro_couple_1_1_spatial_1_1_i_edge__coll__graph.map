@@ -1,2 +1,3 @@
 <map id="HydroCouple::Spatial::IEdge" name="HydroCouple::Spatial::IEdge">
+<area shape="rect" id="node1" title="A directed edge from one vertex to another, adjacent to two faces. Based on Dani Lischinski&#39;s code fr..." alt="" coords="5,5,164,244"/>
 </map>

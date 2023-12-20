@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['electriccurrent',['ElectricCurrent',['../d9/d01/namespace_hydro_couple.html#a3b0c4ea98032b00a2da319636be02d67a1e87d399dcab2379e85b208037a5e58c',1,'HydroCouple']]]
+  ['electriccurrent_1251',['ElectricCurrent',['../dc/df4/class_hydro_couple_1_1_i_unit_dimensions.html#a675c62d965383a91c428e2256dc15a90a2d176ffed7539975afaa6135bfa855f3',1,'HydroCouple::IUnitDimensions']]]
 ];

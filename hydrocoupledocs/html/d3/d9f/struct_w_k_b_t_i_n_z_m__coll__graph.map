@@ -1,5 +1,6 @@
 <map id="WKBTINZM" name="WKBTINZM">
-<area shape="rect" id="node2" href="$d0/dac/struct_w_k_b_polygon_z_m.html" title="The WKBPolygonZM struct. " alt="" coords="9,364,127,486"/>
-<area shape="rect" id="node3" href="$dc/dd2/struct_linear_ring_z_m.html" title="The LinearRingZM struct. " alt="" coords="9,211,127,298"/>
-<area shape="rect" id="node4" href="$d7/ded/struct_point_z_m.html" title="The PointZM struct. " alt="" coords="29,5,107,145"/>
+<area shape="rect" id="node1" title="The WKBTINZM struct." alt="" coords="6,499,131,605"/>
+<area shape="rect" id="node2" href="$d0/dac/struct_w_k_b_polygon_z_m.html" title="The WKBPolygonZM struct." alt="" coords="5,329,132,436"/>
+<area shape="rect" id="node3" href="$dc/dd2/struct_linear_ring_z_m.html" title="The LinearRingZM struct." alt="" coords="13,189,125,267"/>
+<area shape="rect" id="node4" href="$d7/ded/struct_point_z_m.html" title="The PointZM struct." alt="" coords="31,5,107,127"/>
 </map>

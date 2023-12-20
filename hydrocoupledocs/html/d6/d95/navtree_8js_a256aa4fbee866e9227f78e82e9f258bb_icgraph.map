@@ -1,9 +1,0 @@
-<map id="getNode" name="getNode">
-<area shape="rect" id="node2" href="$d6/d95/navtree_8js.html#a4eb1f166c9d93b198e1621a4c787a412" title="expandNode" alt="" coords="131,31,232,60"/>
-<area shape="rect" id="node5" href="$d6/d95/navtree_8js.html#a0238ad48be94f9f5fd305ea40b8f64ab" title="showNode" alt="" coords="296,84,381,114"/>
-<area shape="rect" id="node3" href="$d6/d95/navtree_8js.html#a4d8f406d49520a0cede2e48347a3d7aa" title="createIndent" alt="" coords="280,31,397,60"/>
-<area shape="rect" id="node4" href="$d6/d95/navtree_8js.html#aa2418b16159e9502e990f97ea6ec26c8" title="newNode" alt="" coords="449,5,527,35"/>
-<area shape="rect" id="node6" href="$d6/d95/navtree_8js.html#a0e6a2d65190a43246d668bba554243e5" title="gotoNode" alt="" coords="445,84,531,114"/>
-<area shape="rect" id="node7" href="$d6/d95/navtree_8js.html#a21beb601032fff375100a907f32129a5" title="navTo" alt="" coords="579,84,640,114"/>
-<area shape="rect" id="node8" href="$d6/d95/navtree_8js.html#aa7b3067e7ef0044572ba86240b1e58ce" title="initNavTree" alt="" coords="688,84,797,114"/>
-</map>

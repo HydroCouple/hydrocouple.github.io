@@ -27,6 +27,7 @@ var hydrocouplespatial_8h =
     [ "IRegularGrid2D", "d0/d66/class_hydro_couple_1_1_spatial_1_1_i_regular_grid2_d.html", "d0/d66/class_hydro_couple_1_1_spatial_1_1_i_regular_grid2_d" ],
     [ "IRegularGrid3D", "dd/d91/class_hydro_couple_1_1_spatial_1_1_i_regular_grid3_d.html", "dd/d91/class_hydro_couple_1_1_spatial_1_1_i_regular_grid3_d" ],
     [ "IGeometryComponentDataItem", "d7/d8d/class_hydro_couple_1_1_spatial_1_1_i_geometry_component_data_item.html", "d7/d8d/class_hydro_couple_1_1_spatial_1_1_i_geometry_component_data_item" ],
+    [ "INetworkComponentDataItem", "d1/d71/class_hydro_couple_1_1_spatial_1_1_i_network_component_data_item.html", "d1/d71/class_hydro_couple_1_1_spatial_1_1_i_network_component_data_item" ],
     [ "IPolyhedralSurfaceComponentDataItem", "d0/da8/class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_component_data_item.html", "d0/da8/class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface_component_data_item" ],
     [ "ITINComponentDataItem", "d3/d6c/class_hydro_couple_1_1_spatial_1_1_i_t_i_n_component_data_item.html", "d3/d6c/class_hydro_couple_1_1_spatial_1_1_i_t_i_n_component_data_item" ],
     [ "IRasterComponentDataItem", "db/dc6/class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item.html", "db/dc6/class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item" ],

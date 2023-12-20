@@ -1,4 +1,5 @@
 <map id="WKBPolygon" name="WKBPolygon">
-<area shape="rect" id="node2" href="$d6/db5/struct_linear_ring.html" title="The LinearRing struct. " alt="" coords="5,176,115,262"/>
-<area shape="rect" id="node3" href="$d8/dc8/struct_point.html" title="The Point struct. " alt="" coords="29,5,91,110"/>
+<area shape="rect" id="node1" title="The WKBPolygon struct." alt="" coords="6,300,111,407"/>
+<area shape="rect" id="node2" href="$d6/db5/struct_linear_ring.html" title="The LinearRing struct." alt="" coords="5,160,112,237"/>
+<area shape="rect" id="node3" href="$d8/dc8/struct_point.html" title="The Point struct." alt="" coords="31,5,86,97"/>
 </map>

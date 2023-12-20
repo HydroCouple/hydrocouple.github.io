@@ -1,4 +1,5 @@
 <map id="WKBMultiPoint" name="WKBMultiPoint">
-<area shape="rect" id="node2" href="$d9/db2/struct_w_k_b_point.html" title="The WKBPoint struct. " alt="" coords="13,176,123,280"/>
-<area shape="rect" id="node3" href="$d8/dc8/struct_point.html" title="The Point struct. " alt="" coords="37,5,99,110"/>
+<area shape="rect" id="node1" title="The WKBMultiPoint struct." alt="" coords="5,315,124,421"/>
+<area shape="rect" id="node2" href="$d9/db2/struct_w_k_b_point.html" title="The WKBPoint struct." alt="" coords="13,160,116,252"/>
+<area shape="rect" id="node3" href="$d8/dc8/struct_point.html" title="The Point struct." alt="" coords="37,5,92,97"/>
 </map>
