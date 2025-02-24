@@ -1,5 +1,7 @@
 <map id="WKBMultiPointM" name="WKBMultiPointM">
-<area shape="rect" id="node1" title="The WKBMultiPointM struct." alt="" coords="5,329,136,436"/>
-<area shape="rect" id="node2" href="$da/d8d/struct_w_k_b_point_m.html" title="The WKBPointM struct." alt="" coords="19,175,122,267"/>
-<area shape="rect" id="node3" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="37,5,104,112"/>
+<area shape="rect" id="Node000001" title="The WKBMultiPointM struct." alt="" coords="5,321,128,427"/>
+<area shape="rect" id="Node000002" href="$da/d8d/struct_w_k_b_point_m.html" title="The WKBPointM struct." alt="" coords="20,173,113,259"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="69,259,69,304,64,304,64,259"/>
+<area shape="rect" id="Node000003" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="37,5,96,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="69,111,69,157,64,157,64,111"/>
 </map>

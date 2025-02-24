@@ -1,8 +1,9 @@
 var searchData=
 [
-  ['banddimension_840',['bandDimension',['../db/dc6/class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item.html#ae6d852a4798195e8233f2c38843d8db9',1,'HydroCouple::Spatial::IRasterComponentDataItem::bandDimension()'],['../d6/d72/class_hydro_couple_1_1_spatio_temporal_1_1_i_time_raster_component_data_item.html#a08243272d27028de50758713b8149bd7',1,'HydroCouple::SpatioTemporal::ITimeRasterComponentDataItem::bandDimension()']]],
-  ['boundary_841',['boundary',['../d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html#a6cd8600a56f4e80c6beb3e6c9bdd8e3f',1,'HydroCouple::Spatial::IGeometry']]],
-  ['boundarymulticurve_842',['boundaryMultiCurve',['../de/de8/class_hydro_couple_1_1_spatial_1_1_i_surface.html#ad96f4d3dafcf64baccd3692e20301480',1,'HydroCouple::Spatial::ISurface']]],
-  ['boundingpolygons_843',['boundingPolygons',['../d3/d0f/class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface.html#a96b47bfc6012efe40e8e4a8f11b7d318',1,'HydroCouple::Spatial::IPolyhedralSurface']]],
-  ['buffer_844',['buffer',['../d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html#ac0a457422721cec226e5a8931ab78b39',1,'HydroCouple::Spatial::IGeometry']]]
+  ['banddimension_0',['bandDimension',['../db/dc6/class_hydro_couple_1_1_spatial_1_1_i_raster_component_data_item.html#abced4a5a2ab03c76ef813992266d9487',1,'HydroCouple::Spatial::IRasterComponentDataItem']]],
+  ['blocksignals_1',['blockSignals',['../d5/d8b/class_hydro_couple_1_1_i_signal.html#aaa89b6b33234be98994c81cc9956cd73',1,'HydroCouple::ISignal']]],
+  ['boundary_2',['boundary',['../d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html#ae5e2b9043ee26e9e37a50a76ccbfc013',1,'HydroCouple::Spatial::IGeometry']]],
+  ['boundarymulticurve_3',['boundaryMultiCurve',['../de/de8/class_hydro_couple_1_1_spatial_1_1_i_surface.html#a1a2dd7941507f55529f9d0823778e24e',1,'HydroCouple::Spatial::ISurface']]],
+  ['boundingpolygons_4',['boundingPolygons',['../d3/d0f/class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface.html#a5eb491e5cd1382d4342884627f6c8c43',1,'HydroCouple::Spatial::IPolyhedralSurface']]],
+  ['buffer_5',['buffer',['../d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html#a782b317bb2adab454df54e5ab12ffebd',1,'HydroCouple::Spatial::IGeometry']]]
 ];

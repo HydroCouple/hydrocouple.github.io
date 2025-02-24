@@ -1,7 +1,11 @@
 <map id="HydroCouple::Spatial::ICurve" name="HydroCouple::Spatial::ICurve">
-<area shape="rect" id="node1" title="A Curve is a 1&#45;dimensional geometric object usually stored as a sequence of IPoints,..." alt="" coords="96,879,255,1044"/>
-<area shape="rect" id="node3" href="$d1/dc4/class_hydro_couple_1_1_spatial_1_1_i_line_string.html" title="An ILineString is a Curve with linear interpolation between Points. Each consecutive pair of Points d..." alt="" coords="96,1092,255,1213"/>
-<area shape="rect" id="node2" href="$d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html" title="IGeometry is the root class of the geometry hierarchy." alt="" coords="72,5,279,831"/>
-<area shape="rect" id="node4" href="$d7/ded/class_hydro_couple_1_1_spatial_1_1_i_line.html" title="The ILine class is an ILineString with exactly 2 IPoints." alt="" coords="5,1261,164,1353"/>
-<area shape="rect" id="node5" href="$da/d82/class_hydro_couple_1_1_spatial_1_1_i_linear_ring.html" title="An ILinearRing is an ILineString that is both isClosed() and isSimple()." alt="" coords="188,1261,347,1353"/>
+<area shape="rect" id="Node000001" title="A Curve is a 1&#45;dimensional geometric object usually stored as a sequence of IPoints,..." alt="" coords="92,1133,243,1313"/>
+<area shape="rect" id="Node000003" href="$d1/dc4/class_hydro_couple_1_1_spatial_1_1_i_line_string.html" title="An ILineString is a Curve with linear interpolation between Points. Each consecutive pair of Points d..." alt="" coords="92,1361,243,1481"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,1327,170,1361,165,1361,165,1327"/>
+<area shape="rect" id="Node000002" href="$d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html" title="IGeometry is the root class of the geometry hierarchy." alt="" coords="69,5,266,1085"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,1099,170,1133,165,1133,165,1099"/>
+<area shape="rect" id="Node000004" href="$d7/ded/class_hydro_couple_1_1_spatial_1_1_i_line.html" title="The ILine class is an ILineString with exactly 2 IPoints." alt="" coords="5,1529,156,1609"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="128,1495,106,1530,102,1528,123,1492"/>
+<area shape="rect" id="Node000005" href="$da/d82/class_hydro_couple_1_1_spatial_1_1_i_linear_ring.html" title="An ILinearRing is an ILineString that is both isClosed() and isSimple()." alt="" coords="180,1529,331,1609"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="212,1491,234,1528,230,1530,208,1494"/>
 </map>

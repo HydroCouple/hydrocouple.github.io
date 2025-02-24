@@ -1,5 +1,7 @@
 <map id="HydroCouple::Spatial::IPolyhedralSurface" name="HydroCouple::Spatial::IPolyhedralSurface">
-<area shape="rect" id="node1" title="An IPolyhedralSurface is a contiguous collection of polygons, which share common boundary segments." alt="" coords="19,1077,199,1257"/>
-<area shape="rect" id="node2" href="$de/de8/class_hydro_couple_1_1_spatial_1_1_i_surface.html" title="A ISurface is a 2&#45;dimensional IGeometry object." alt="" coords="19,879,198,1029"/>
-<area shape="rect" id="node3" href="$d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html" title="IGeometry is the root class of the geometry hierarchy." alt="" coords="5,5,212,831"/>
+<area shape="rect" id="Node000001" title="An IPolyhedralSurface is a contiguous collection of polygons, which share common boundary segments." alt="" coords="18,1341,190,1541"/>
+<area shape="rect" id="Node000002" href="$de/de8/class_hydro_couple_1_1_spatial_1_1_i_surface.html" title="A ISurface is a 2&#45;dimensional IGeometry object." alt="" coords="19,1133,189,1293"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,1307,107,1341,101,1341,101,1307"/>
+<area shape="rect" id="Node000003" href="$d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html" title="IGeometry is the root class of the geometry hierarchy." alt="" coords="5,5,203,1085"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="107,1099,107,1133,101,1133,101,1099"/>
 </map>

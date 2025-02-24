@@ -1,6 +1,9 @@
 <map id="WKBMultiPolygonM" name="WKBMultiPolygonM">
-<area shape="rect" id="node1" title="The WKBMultiPolygonM struct." alt="" coords="5,484,156,591"/>
-<area shape="rect" id="node2" href="$d0/d5d/struct_w_k_b_polygon_m.html" title="The WKBPolygonM struct." alt="" coords="22,315,139,421"/>
-<area shape="rect" id="node3" href="$d0/d1b/struct_linear_ring_m.html" title="The LinearRingM struct." alt="" coords="27,175,134,252"/>
-<area shape="rect" id="node4" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="47,5,114,112"/>
+<area shape="rect" id="Node000001" title="The WKBMultiPolygonM struct." alt="" coords="5,469,148,575"/>
+<area shape="rect" id="Node000002" href="$d0/d5d/struct_w_k_b_polygon_m.html" title="The WKBPolygonM struct." alt="" coords="22,301,131,407"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="79,407,79,453,74,453,74,407"/>
+<area shape="rect" id="Node000003" href="$d0/d1b/struct_linear_ring_m.html" title="The LinearRingM struct." alt="" coords="28,173,125,239"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="79,239,79,285,74,285,74,239"/>
+<area shape="rect" id="Node000004" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="47,5,106,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="79,111,79,157,74,157,74,111"/>
 </map>

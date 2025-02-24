@@ -1,4 +1,5 @@
 <map id="LinearRingZ" name="LinearRingZ">
-<area shape="rect" id="node1" title="The LinearRingZ struct." alt="" coords="5,175,112,252"/>
-<area shape="rect" id="node2" href="$d6/d0c/struct_point_z.html" title="The PointZ struct." alt="" coords="27,5,91,112"/>
+<area shape="rect" id="Node000001" title="The LinearRingZ struct." alt="" coords="5,173,103,239"/>
+<area shape="rect" id="Node000002" href="$d6/d0c/struct_point_z.html" title="The PointZ struct." alt="" coords="26,5,82,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="57,111,57,157,51,157,51,111"/>
 </map>

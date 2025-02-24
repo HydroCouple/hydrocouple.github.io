@@ -1,4 +1,7 @@
 <map id="HydroCouple::Temporal::IDateTime" name="HydroCouple::Temporal::IDateTime">
-<area shape="rect" id="node1" title="IDateTime interface based on a Julian day." alt="" coords="49,175,223,281"/>
-<area shape="rect" id="node2" href="$dd/dbf/class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes." alt="" coords="5,5,267,127"/>
+<area shape="rect" id="Node000001" title="IDateTime interface based on a Julian day." alt="" coords="33,327,200,467"/>
+<area shape="rect" id="Node000002" href="$dd/dbf/class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes." alt="" coords="5,213,228,279"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,292,119,326,114,326,114,292"/>
+<area shape="rect" id="Node000003" href="$d5/d8b/class_hydro_couple_1_1_i_signal.html" title=" " alt="" coords="41,5,192,165"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="119,179,119,213,114,213,114,179"/>
 </map>

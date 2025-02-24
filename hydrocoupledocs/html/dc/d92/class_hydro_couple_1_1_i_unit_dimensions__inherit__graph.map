@@ -1,5 +1,9 @@
 <map id="HydroCouple::IUnitDimensions" name="HydroCouple::IUnitDimensions">
-<area shape="rect" id="node1" title="Defines the order of dimension in each FundamentalDimension for a unit." alt="" coords="25,359,247,451"/>
-<area shape="rect" id="node2" href="$db/d64/class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object." alt="" coords="40,175,232,311"/>
-<area shape="rect" id="node3" href="$dd/dbf/class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes." alt="" coords="5,5,267,127"/>
+<area shape="rect" id="Node000001" title="Defines the order of dimension in each FundamentalDimension for a unit." alt="" coords="9,520,224,605"/>
+<area shape="rect" id="Node000002" href="$db/d64/class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object." alt="" coords="25,327,209,472"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,485,119,520,114,520,114,485"/>
+<area shape="rect" id="Node000003" href="$dd/dbf/class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes." alt="" coords="5,213,228,279"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="119,292,119,326,114,326,114,292"/>
+<area shape="rect" id="Node000004" href="$d5/d8b/class_hydro_couple_1_1_i_signal.html" title=" " alt="" coords="41,5,192,165"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="119,179,119,213,114,213,114,179"/>
 </map>
