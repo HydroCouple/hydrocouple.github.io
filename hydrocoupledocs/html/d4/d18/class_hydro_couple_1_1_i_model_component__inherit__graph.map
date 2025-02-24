@@ -1,9 +1,19 @@
 <map id="HydroCouple::IModelComponent" name="HydroCouple::IModelComponent">
-<area shape="rect" id="node1" title="IModelComponent interface is the core interface in the HydroCouple standard defining a model componen..." alt="" coords="263,499,497,723"/>
-<area shape="rect" id="node5" href="$dd/d89/class_hydro_couple_1_1_i_cloneable_model_component.html" title="The ICloneableModelComponent class." alt="" coords="5,771,248,907"/>
-<area shape="rect" id="node6" href="$da/d8b/class_hydro_couple_1_1_i_proxy_model_component.html" title="The IProxyModelComponent class is a class for a remote IModelComponent&#39;s proxy." alt="" coords="273,778,487,899"/>
-<area shape="rect" id="node7" href="$d3/d7d/class_hydro_couple_1_1_temporal_1_1_i_time_model_component.html" title="The ITimeModelComponent class." alt="" coords="512,778,723,899"/>
-<area shape="rect" id="node2" href="$d2/d2a/class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity." alt="" coords="296,359,464,451"/>
-<area shape="rect" id="node3" href="$db/d64/class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object." alt="" coords="284,175,476,311"/>
-<area shape="rect" id="node4" href="$dd/dbf/class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes." alt="" coords="249,5,511,127"/>
+<area shape="rect" id="Node000001" title="IModelComponent interface is the core interface in the HydroCouple standard defining a model componen..." alt="" coords="253,743,479,1008"/>
+<area shape="rect" id="Node000007" href="$dd/d89/class_hydro_couple_1_1_i_cloneable_model_component.html" title="The ICloneableModelComponent class." alt="" coords="5,1056,239,1196"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="245,1003,192,1058,188,1054,242,999"/>
+<area shape="rect" id="Node000008" href="$da/d8b/class_hydro_couple_1_1_i_proxy_model_component.html" title="The IProxyModelComponent class is a class for a remote IModelComponent&#39;s proxy." alt="" coords="263,1056,469,1196"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="369,1022,369,1056,363,1056,363,1022"/>
+<area shape="rect" id="Node000009" href="$d3/d7d/class_hydro_couple_1_1_temporal_1_1_i_time_model_component.html" title="The ITimeModelComponent class for time marching models." alt="" coords="493,1066,695,1186"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="490,1008,542,1064,538,1068,487,1012"/>
+<area shape="rect" id="Node000002" href="$d2/d2a/class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity." alt="" coords="177,565,337,650"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="281,661,314,741,309,743,276,663"/>
+<area shape="rect" id="Node000003" href="$db/d64/class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object." alt="" coords="165,327,349,472"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="259,486,259,564,254,564,254,486"/>
+<area shape="rect" id="Node000004" href="$dd/dbf/class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes." alt="" coords="145,213,368,279"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="259,292,259,326,254,326,254,292"/>
+<area shape="rect" id="Node000005" href="$d5/d8b/class_hydro_couple_1_1_i_signal.html" title=" " alt="" coords="181,5,332,165"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="259,179,259,213,254,213,254,179"/>
+<area shape="rect" id="Node000006" href="$d5/d8b/class_hydro_couple_1_1_i_signal.html" title=" " alt="" coords="361,520,592,695"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="438,708,423,744,418,741,433,706"/>
 </map>

@@ -1,8 +1,21 @@
 <map id="HydroCouple::SpatioTemporal::ITimeGeometryComponentDataItem" name="HydroCouple::SpatioTemporal::ITimeGeometryComponentDataItem">
-<area shape="rect" id="node1" title="ITimeGeometryComponentItem represents an IComponentItem with both temporal and geometric components." alt="" coords="5,984,273,1223"/>
-<area shape="rect" id="node2" href="$d9/d05/class_hydro_couple_1_1_temporal_1_1_i_time_component_data_item.html" title="ITimeComponentItem is an IComponentItem with a temporal attribute. This class cannot be directly inst..." alt="" coords="24,771,255,936"/>
-<area shape="rect" id="node3" href="$d8/d52/class_hydro_couple_1_1_i_component_data_item.html" title="IComponentItem is a fundamental unit of data for a component." alt="" coords="12,499,267,723"/>
-<area shape="rect" id="node4" href="$d2/d2a/class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity." alt="" coords="55,359,223,451"/>
-<area shape="rect" id="node5" href="$db/d64/class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object." alt="" coords="43,175,235,311"/>
-<area shape="rect" id="node6" href="$dd/dbf/class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes." alt="" coords="9,5,270,127"/>
+<area shape="rect" id="Node000001" title="ITimeGeometryComponentItem represents an IComponentItem with both temporal and geometric components." alt="" coords="231,1484,491,1659"/>
+<area shape="rect" id="Node000002" href="$de/d0b/class_hydro_couple_1_1_temporal_1_1_i_time_series_component_data_item.html" title="ITimeComponentItem is an IComponentItem with a temporal attribute. This class cannot be directly inst..." alt="" coords="109,1111,343,1421"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="302,1432,325,1483,320,1485,298,1435"/>
+<area shape="rect" id="Node000003" href="$d8/d52/class_hydro_couple_1_1_i_component_data_item.html" title="IComponentItem is a fundamental unit of data for a component." alt="" coords="103,743,349,1048"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="220,1062,220,1111,214,1111,214,1062"/>
+<area shape="poly" id="edge8_Node000002_Node000003" title=" " alt="" coords="238,1062,238,1111,232,1111,232,1062"/>
+<area shape="rect" id="Node000009" href="$d7/d8d/class_hydro_couple_1_1_spatial_1_1_i_geometry_component_data_item.html" title="IGeometryComponentItem represents IGeometryCollection IComponentItem. This class must be implemented ..." alt="" coords="368,1096,623,1436"/>
+<area shape="poly" id="edge10_Node000009_Node000003" title=" " alt="" coords="347,1058,374,1094,370,1097,343,1061"/>
+<area shape="rect" id="Node000004" href="$d2/d2a/class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity." alt="" coords="37,565,197,650"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="140,662,170,741,165,743,135,664"/>
+<area shape="rect" id="Node000005" href="$db/d64/class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object." alt="" coords="25,327,209,472"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="119,486,119,564,114,564,114,486"/>
+<area shape="rect" id="Node000006" href="$dd/dbf/class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes." alt="" coords="5,213,228,279"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="119,292,119,326,114,326,114,292"/>
+<area shape="rect" id="Node000007" href="$d5/d8b/class_hydro_couple_1_1_i_signal.html" title=" " alt="" coords="41,5,192,165"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="119,179,119,213,114,213,114,179"/>
+<area shape="rect" id="Node000008" href="$d5/d8b/class_hydro_couple_1_1_i_signal.html" title=" " alt="" coords="221,520,452,695"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="301,709,287,743,282,742,296,707"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="417,1450,401,1485,397,1483,412,1448"/>
 </map>

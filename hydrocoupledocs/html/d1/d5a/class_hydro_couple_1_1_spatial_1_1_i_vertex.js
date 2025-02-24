@@ -1,5 +1,6 @@
 var class_hydro_couple_1_1_spatial_1_1_i_vertex =
 [
-    [ "~IVertex", "d1/d5a/class_hydro_couple_1_1_spatial_1_1_i_vertex.html#ae2bd0c90b982e6e9a314f2d94f2fca86", null ],
-    [ "edge", "d1/d5a/class_hydro_couple_1_1_spatial_1_1_i_vertex.html#a5223d777f10a7ca622fb5d64f3ecea52", null ]
+    [ "~IVertex", "d1/d5a/class_hydro_couple_1_1_spatial_1_1_i_vertex.html#a1c3f0924a1c85e2c3ff15a1aaf5a7c47", null ],
+    [ "edge", "d1/d5a/class_hydro_couple_1_1_spatial_1_1_i_vertex.html#ac29dd9b2fa9a3d051ebe190b39900861", null ],
+    [ "index", "d1/d5a/class_hydro_couple_1_1_spatial_1_1_i_vertex.html#af62b040e46fc5e2d0d367bccd8566003", null ]
 ];

@@ -1,7 +1,13 @@
 <map id="HydroCouple::IAdaptedOutputFactoryComponent" name="HydroCouple::IAdaptedOutputFactoryComponent">
-<area shape="rect" id="node1" title="IAdaptedOutputFactoryComponent is an IAdaptedOutputFactory generated from an IAdaptedOutputFactoryCom..." alt="" coords="5,683,288,789"/>
-<area shape="rect" id="node2" href="$da/d70/class_hydro_couple_1_1_i_adapted_output_factory.html" title="IAdaptedOutputFactory is used to create instances of IAdaptedProducerExchangeItems." alt="" coords="39,499,255,635"/>
-<area shape="rect" id="node3" href="$d2/d2a/class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity." alt="" coords="63,359,231,451"/>
-<area shape="rect" id="node4" href="$db/d64/class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object." alt="" coords="51,175,243,311"/>
-<area shape="rect" id="node5" href="$dd/dbf/class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes." alt="" coords="16,5,277,127"/>
+<area shape="rect" id="Node000001" title="IAdaptedOutputFactoryComponent is an IAdaptedOutputFactory generated from an IAdaptedOutputFactoryCom..." alt="" coords="5,836,279,936"/>
+<area shape="rect" id="Node000002" href="$da/d70/class_hydro_couple_1_1_i_adapted_output_factory.html" title="IAdaptedOutputFactory is used to create instances of IAdaptedProducerExchangeItems." alt="" coords="38,653,246,788"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,802,145,836,139,836,139,802"/>
+<area shape="rect" id="Node000003" href="$d2/d2a/class_hydro_couple_1_1_i_identity.html" title="IIdentity interface class defines a method to get the Id of an HydroCouple entity." alt="" coords="62,520,222,605"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="145,619,145,653,139,653,139,619"/>
+<area shape="rect" id="Node000004" href="$db/d64/class_hydro_couple_1_1_i_description.html" title="IDescription interface class provides descriptive information on a HydroCouple object." alt="" coords="50,327,234,472"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="145,485,145,520,139,520,139,485"/>
+<area shape="rect" id="Node000005" href="$dd/dbf/class_hydro_couple_1_1_i_property_changed.html" title="IPropertyChanged interface is used to emit signal/event when a property of an object changes." alt="" coords="31,213,253,279"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="145,292,145,326,139,326,139,292"/>
+<area shape="rect" id="Node000006" href="$d5/d8b/class_hydro_couple_1_1_i_signal.html" title=" " alt="" coords="67,5,217,165"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="145,179,145,213,139,213,139,179"/>
 </map>

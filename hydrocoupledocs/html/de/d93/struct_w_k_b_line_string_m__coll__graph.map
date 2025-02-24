@@ -1,4 +1,5 @@
 <map id="WKBLineStringM" name="WKBLineStringM">
-<area shape="rect" id="node1" title="The WKBLineStringM struct." alt="" coords="5,175,136,281"/>
-<area shape="rect" id="node2" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="37,5,104,112"/>
+<area shape="rect" id="Node000001" title="The WKBLineStringM struct." alt="" coords="5,173,128,279"/>
+<area shape="rect" id="Node000002" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="37,5,96,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="69,111,69,157,64,157,64,111"/>
 </map>

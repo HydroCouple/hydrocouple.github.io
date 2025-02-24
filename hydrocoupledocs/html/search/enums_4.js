@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['geometrytype_1215',['GeometryType',['../d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html#a8d7644027b0f791c863b096463c2b5b3',1,'HydroCouple::Spatial::IGeometry']]]
+  ['fundamentalunitdimension_0',['FundamentalUnitDimension',['../dc/df4/class_hydro_couple_1_1_i_unit_dimensions.html#a675c62d965383a91c428e2256dc15a90',1,'HydroCouple::IUnitDimensions']]]
 ];

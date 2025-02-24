@@ -1,5 +1,7 @@
 <map id="WKBMultiLineStringZ" name="WKBMultiLineStringZ">
-<area shape="rect" id="node1" title="The WKBMultiLineStringZ struct." alt="" coords="5,344,165,451"/>
-<area shape="rect" id="node2" href="$d9/dd3/struct_w_k_b_line_string_z.html" title="The WKBLineStringZ struct." alt="" coords="22,175,149,281"/>
-<area shape="rect" id="node3" href="$d6/d0c/struct_point_z.html" title="The PointZ struct." alt="" coords="53,5,117,112"/>
+<area shape="rect" id="Node000001" title="The WKBMultiLineStringZ struct." alt="" coords="5,341,157,447"/>
+<area shape="rect" id="Node000002" href="$d9/dd3/struct_w_k_b_line_string_z.html" title="The WKBLineStringZ struct." alt="" coords="22,173,141,279"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,279,84,325,79,325,79,279"/>
+<area shape="rect" id="Node000003" href="$d6/d0c/struct_point_z.html" title="The PointZ struct." alt="" coords="53,5,109,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="84,111,84,157,79,157,79,111"/>
 </map>

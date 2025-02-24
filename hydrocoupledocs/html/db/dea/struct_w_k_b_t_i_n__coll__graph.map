@@ -1,6 +1,9 @@
 <map id="WKBTIN" name="WKBTIN">
-<area shape="rect" id="node1" title="The WKBTIN struct." alt="" coords="5,469,131,576"/>
-<area shape="rect" id="node2" href="$df/df9/struct_w_k_b_polygon.html" title="The WKBPolygon struct." alt="" coords="15,300,121,407"/>
-<area shape="rect" id="node3" href="$d6/db5/struct_linear_ring.html" title="The LinearRing struct." alt="" coords="15,160,121,237"/>
-<area shape="rect" id="node4" href="$d8/dc8/struct_point.html" title="The Point struct." alt="" coords="41,5,95,97"/>
+<area shape="rect" id="Node000001" title="The WKBTIN struct." alt="" coords="5,449,123,555"/>
+<area shape="rect" id="Node000002" href="$df/df9/struct_w_k_b_polygon.html" title="The WKBPolygon struct." alt="" coords="15,281,113,387"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,387,67,433,61,433,61,387"/>
+<area shape="rect" id="Node000003" href="$d6/db5/struct_linear_ring.html" title="The LinearRing struct." alt="" coords="15,153,113,219"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="67,219,67,265,61,265,61,219"/>
+<area shape="rect" id="Node000004" href="$d8/dc8/struct_point.html" title="The Point struct." alt="" coords="41,5,87,91"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="67,91,67,137,61,137,61,91"/>
 </map>

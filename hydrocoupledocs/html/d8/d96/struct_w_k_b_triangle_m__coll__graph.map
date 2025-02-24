@@ -1,5 +1,7 @@
 <map id="WKBTriangleM" name="WKBTriangleM">
-<area shape="rect" id="node1" title="The WKBTriangleM struct." alt="" coords="5,315,121,421"/>
-<area shape="rect" id="node2" href="$d0/d1b/struct_linear_ring_m.html" title="The LinearRingM struct." alt="" coords="10,175,117,252"/>
-<area shape="rect" id="node3" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="30,5,97,112"/>
+<area shape="rect" id="Node000001" title="The WKBTriangleM struct." alt="" coords="5,301,113,407"/>
+<area shape="rect" id="Node000002" href="$d0/d1b/struct_linear_ring_m.html" title="The LinearRingM struct." alt="" coords="11,173,108,239"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="62,239,62,285,57,285,57,239"/>
+<area shape="rect" id="Node000003" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="30,5,89,111"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="62,111,62,157,57,157,57,111"/>
 </map>

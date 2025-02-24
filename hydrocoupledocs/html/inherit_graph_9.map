@@ -1,3 +1,37 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$d2/d2c/struct_linear_ring_z.html" title="The LinearRingZ struct." alt="" coords="5,5,105,32"/>
+<area shape="rect" id="Node000000" href="$d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html" title="IGeometry is the root class of the geometry hierarchy." alt="" coords="5,261,164,301"/>
+<area shape="rect" id="Node000001" href="$df/d7f/class_hydro_couple_1_1_spatial_1_1_i_curve.html" title="A Curve is a 1&#45;dimensional geometric object usually stored as a sequence of IPoints,..." alt="" coords="215,109,373,149"/>
+<area shape="poly" id="edge63_Node000000_Node000001" title=" " alt="" coords="123,251,264,147,267,152,126,255"/>
+<area shape="rect" id="Node000005" href="$d7/d83/class_hydro_couple_1_1_spatial_1_1_i_geometry_collection.html" title="An IGeometryCollection is a geometric object that is a collection of some number of IGeometry objects..." alt="" coords="212,213,376,253"/>
+<area shape="poly" id="edge67_Node000000_Node000005" title=" " alt="" coords="177,258,211,250,212,255,178,263"/>
+<area shape="rect" id="Node000011" href="$db/d7e/class_hydro_couple_1_1_spatial_1_1_i_point.html" title="An IPoint is a 0&#45;dimensional geometric object and represents a single location in coordinate space." alt="" coords="215,293,373,333"/>
+<area shape="poly" id="edge73_Node000000_Node000011" title=" " alt="" coords="178,293,215,299,214,304,177,298"/>
+<area shape="rect" id="Node000013" href="$de/de8/class_hydro_couple_1_1_spatial_1_1_i_surface.html" title="A ISurface is a 2&#45;dimensional IGeometry object." alt="" coords="215,389,373,429"/>
+<area shape="poly" id="edge75_Node000000_Node000013" title=" " alt="" coords="131,306,262,387,259,392,128,311"/>
+<area shape="rect" id="Node000002" href="$d1/dc4/class_hydro_couple_1_1_spatial_1_1_i_line_string.html" title="An ILineString is a Curve with linear interpolation between Points. Each consecutive pair of Points d..." alt="" coords="424,69,583,109"/>
+<area shape="poly" id="edge64_Node000001_Node000002" title=" " alt="" coords="386,109,423,102,424,107,387,114"/>
+<area shape="rect" id="Node000003" href="$d7/ded/class_hydro_couple_1_1_spatial_1_1_i_line.html" title="The ILine class is an ILineString with exactly 2 IPoints." alt="" coords="631,5,789,45"/>
+<area shape="poly" id="edge65_Node000002_Node000003" title=" " alt="" coords="581,63,644,43,646,48,582,68"/>
+<area shape="rect" id="Node000004" href="$da/d82/class_hydro_couple_1_1_spatial_1_1_i_linear_ring.html" title="An ILinearRing is an ILineString that is both isClosed() and isSimple()." alt="" coords="631,69,789,109"/>
+<area shape="poly" id="edge66_Node000002_Node000004" title=" " alt="" coords="597,87,631,87,631,92,597,92"/>
+<area shape="rect" id="Node000006" href="$dc/dcf/class_hydro_couple_1_1_spatial_1_1_i_multi_curve.html" title="An IMultiCurve is a 1&#45;dimensional IGeometryCollection whose elements are ICurves." alt="" coords="424,133,583,173"/>
+<area shape="poly" id="edge68_Node000005_Node000006" title=" " alt="" coords="359,206,449,171,451,176,361,211"/>
+<area shape="rect" id="Node000008" href="$d3/d56/class_hydro_couple_1_1_spatial_1_1_i_multi_point.html" title="An IMultiPoint is a 0&#45;dimensional IGeometryCollection." alt="" coords="424,197,583,237"/>
+<area shape="poly" id="edge70_Node000005_Node000008" title=" " alt="" coords="390,223,424,221,424,226,390,229"/>
+<area shape="rect" id="Node000009" href="$d9/d96/class_hydro_couple_1_1_spatial_1_1_i_multi_surface.html" title="A MultiSurface is a 2&#45;dimensional GeometryCollection whose elements are Surfaces, all using coordinat..." alt="" coords="424,261,583,301"/>
+<area shape="poly" id="edge71_Node000005_Node000009" title=" " alt="" coords="390,253,424,261,423,266,389,258"/>
+<area shape="rect" id="Node000007" href="$d3/d70/class_hydro_couple_1_1_spatial_1_1_i_multi_line_string.html" title="An IMultiLineString is an IMultiCurve whose elements are ILineStrings." alt="" coords="631,133,789,173"/>
+<area shape="poly" id="edge69_Node000006_Node000007" title=" " alt="" coords="597,151,631,151,631,156,597,156"/>
+<area shape="rect" id="Node000010" href="$d8/d52/class_hydro_couple_1_1_spatial_1_1_i_multi_polygon.html" title="An IMultiPolygon is an IMultiSurface whose elements are IPolygons." alt="" coords="631,261,789,301"/>
+<area shape="poly" id="edge72_Node000009_Node000010" title=" " alt="" coords="597,279,631,279,631,284,597,284"/>
+<area shape="rect" id="Node000012" href="$d1/d5a/class_hydro_couple_1_1_spatial_1_1_i_vertex.html" title="The IVertex class is an IPoint of a topologically aware IGeometry." alt="" coords="424,325,583,365"/>
+<area shape="poly" id="edge74_Node000011_Node000012" title=" " alt="" coords="387,325,424,331,423,336,386,330"/>
+<area shape="rect" id="Node000014" href="$d4/d85/class_hydro_couple_1_1_spatial_1_1_i_polygon.html" title="A IPolygon is a planar ISurface defined by 1 exterior boundary and 0 or more interior boundaries." alt="" coords="424,389,583,429"/>
+<area shape="poly" id="edge76_Node000013_Node000014" title=" " alt="" coords="387,407,424,407,424,412,387,412"/>
+<area shape="rect" id="Node000016" href="$d3/d0f/class_hydro_couple_1_1_spatial_1_1_i_polyhedral_surface.html" title="An IPolyhedralSurface is a contiguous collection of polygons, which share common boundary segments." alt="" coords="424,453,583,493"/>
+<area shape="poly" id="edge78_Node000013_Node000016" title=" " alt="" coords="374,431,438,451,437,456,372,436"/>
+<area shape="rect" id="Node000015" href="$d5/dd6/class_hydro_couple_1_1_spatial_1_1_i_triangle.html" title="An ITriangle is a IPolygon with 3 distinct, non&#45;collinear vertices and no interior boundary." alt="" coords="631,389,789,429"/>
+<area shape="poly" id="edge77_Node000014_Node000015" title=" " alt="" coords="597,407,631,407,631,412,597,412"/>
+<area shape="rect" id="Node000017" href="$d9/d8c/class_hydro_couple_1_1_spatial_1_1_i_t_i_n.html" title="An ITIN is a triangulated irregular network IPolyhedralSurface consisting only of ITriangle patches." alt="" coords="631,453,789,493"/>
+<area shape="poly" id="edge79_Node000016_Node000017" title=" " alt="" coords="597,471,631,471,631,476,597,476"/>
 </map>
