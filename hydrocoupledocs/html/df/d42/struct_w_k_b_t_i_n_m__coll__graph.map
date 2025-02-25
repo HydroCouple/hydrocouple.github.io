@@ -1,9 +1,0 @@
-<map id="WKBTINM" name="WKBTINM">
-<area shape="rect" id="Node000001" title="The WKBTINM struct." alt="" coords="5,469,123,575"/>
-<area shape="rect" id="Node000002" href="$d0/d5d/struct_w_k_b_polygon_m.html" title="The WKBPolygonM struct." alt="" coords="9,301,119,407"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,407,67,453,61,453,61,407"/>
-<area shape="rect" id="Node000003" href="$d0/d1b/struct_linear_ring_m.html" title="The LinearRingM struct." alt="" coords="15,173,113,239"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="67,239,67,285,61,285,61,239"/>
-<area shape="rect" id="Node000004" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="35,5,93,111"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="67,111,67,157,61,157,61,111"/>
-</map>

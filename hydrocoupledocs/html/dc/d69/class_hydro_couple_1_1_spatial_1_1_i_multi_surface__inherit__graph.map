@@ -1,9 +1,0 @@
-<map id="HydroCouple::Spatial::IMultiSurface" name="HydroCouple::Spatial::IMultiSurface">
-<area shape="rect" id="Node000001" title="A MultiSurface is a 2&#45;dimensional GeometryCollection whose elements are Surfaces, all using coordinat..." alt="" coords="29,1301,179,1441"/>
-<area shape="rect" id="Node000004" href="$d8/d52/class_hydro_couple_1_1_spatial_1_1_i_multi_polygon.html" title="An IMultiPolygon is an IMultiSurface whose elements are IPolygons." alt="" coords="29,1489,179,1589"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="107,1455,107,1489,101,1489,101,1455"/>
-<area shape="rect" id="Node000002" href="$d7/d83/class_hydro_couple_1_1_spatial_1_1_i_geometry_collection.html" title="An IGeometryCollection is a geometric object that is a collection of some number of IGeometry objects..." alt="" coords="12,1133,196,1253"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,1267,107,1301,101,1301,101,1267"/>
-<area shape="rect" id="Node000003" href="$d3/d92/class_hydro_couple_1_1_spatial_1_1_i_geometry.html" title="IGeometry is the root class of the geometry hierarchy." alt="" coords="5,5,203,1085"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="107,1099,107,1133,101,1133,101,1099"/>
-</map>

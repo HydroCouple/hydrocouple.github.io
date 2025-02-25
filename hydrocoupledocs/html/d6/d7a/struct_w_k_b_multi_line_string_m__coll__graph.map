@@ -1,7 +1,0 @@
-<map id="WKBMultiLineStringM" name="WKBMultiLineStringM">
-<area shape="rect" id="Node000001" title="The WKBMultiLineStringM struct." alt="" coords="5,341,160,447"/>
-<area shape="rect" id="Node000002" href="$db/d52/struct_w_k_b_line_string_m.html" title="The WKBLineStringM struct." alt="" coords="21,173,144,279"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,279,85,325,80,325,80,279"/>
-<area shape="rect" id="Node000003" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="53,5,112,111"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="85,111,85,157,80,157,80,111"/>
-</map>

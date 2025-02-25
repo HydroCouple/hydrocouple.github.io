@@ -1,9 +1,0 @@
-<map id="WKBTINZ" name="WKBTINZ">
-<area shape="rect" id="Node000001" title="The WKBTINZ struct." alt="" coords="5,469,123,575"/>
-<area shape="rect" id="Node000002" href="$db/dad/struct_w_k_b_polygon_z.html" title="The WKBPolygonZ struct." alt="" coords="11,301,117,407"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,407,67,453,61,453,61,407"/>
-<area shape="rect" id="Node000003" href="$d2/d2c/struct_linear_ring_z.html" title="The LinearRingZ struct." alt="" coords="15,173,113,239"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="67,239,67,285,61,285,61,239"/>
-<area shape="rect" id="Node000004" href="$d6/d0c/struct_point_z.html" title="The PointZ struct." alt="" coords="36,5,92,111"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="67,111,67,157,61,157,61,111"/>
-</map>

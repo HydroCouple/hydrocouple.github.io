@@ -1,9 +1,0 @@
-<map id="WKBPolyhedralSurfaceZM" name="WKBPolyhedralSurfaceZM">
-<area shape="rect" id="Node000001" title="The WKBPolyhedralSurfaceZM struct." alt="" coords="5,489,189,595"/>
-<area shape="rect" id="Node000002" href="$d0/dac/struct_w_k_b_polygon_z_m.html" title="The WKBPolygonZM struct." alt="" coords="38,321,157,427"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,427,100,473,95,473,95,427"/>
-<area shape="rect" id="Node000003" href="$dc/dd2/struct_linear_ring_z_m.html" title="The LinearRingZM struct." alt="" coords="45,193,149,259"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="100,259,100,305,95,305,95,259"/>
-<area shape="rect" id="Node000004" href="$d7/ded/struct_point_z_m.html" title="The PointZM struct." alt="" coords="63,5,131,131"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="100,131,100,177,95,177,95,131"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="WKBPolygonM" name="WKBPolygonM">
-<area shape="rect" id="Node000001" title="The WKBPolygonM struct." alt="" coords="5,301,115,407"/>
-<area shape="rect" id="Node000002" href="$d0/d1b/struct_linear_ring_m.html" title="The LinearRingM struct." alt="" coords="11,173,109,239"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="63,239,63,285,57,285,57,239"/>
-<area shape="rect" id="Node000003" href="$de/d55/struct_point_m.html" title="The PointM struct." alt="" coords="31,5,89,111"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="63,111,63,157,57,157,57,111"/>
-</map>
