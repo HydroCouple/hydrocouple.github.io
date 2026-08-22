@@ -124,14 +124,14 @@ img { max-width: 100%; height: auto; }
 }
 .hero .hero-grid { max-width: 1280px; }
 .hero-grid .hero-copy .lede { font-size: 1.02rem; margin-bottom: 24px; }
-.hero-media { margin: 0; min-width: 0; }
-.hero-media img {
-  display: block; width: 100%; border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 26px 70px rgba(0, 20, 45, 0.45), 0 4px 16px rgba(0, 20, 45, 0.3);
+.hero-media {
+  margin: 0; min-width: 0;
+  background: rgba(255, 255, 255, 0.14);
+  padding: 12px; border-radius: 18px;
+  box-shadow: 0 28px 70px rgba(0, 20, 45, 0.4);
 }
-.hero-media figcaption {
-  margin-top: 12px; font-size: 0.84rem; color: #b9dcf5; line-height: 1.5;
+.hero-media img {
+  display: block; width: 100%; border-radius: 10px;
 }
 .hero-pill {
   background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.35); color: #d6ebff;
