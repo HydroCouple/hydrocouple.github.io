@@ -119,9 +119,9 @@ img { max-width: 100%; height: auto; }
 
 /* ---------- Hero two-column layout with showcase image ---------- */
 .hero-stack { display: flex; flex-direction: column; align-items: center; gap: 44px; }
-.hero-stack .hero-copy { max-width: 860px; text-align: center; }
-.hero-stack .hero-copy h1 { max-width: none; margin-left: auto; margin-right: auto; }
-.hero-stack .hero-copy .lede { font-size: 1.05rem; margin-left: auto; margin-right: auto; margin-bottom: 26px; }
+.hero-stack .hero-copy { width: 100%; text-align: center; }
+.hero-stack .hero-copy h1 { max-width: none; }
+.hero-stack .hero-copy .lede { font-size: 1.05rem; max-width: none; margin-bottom: 26px; }
 .hero-stack .hero-actions { justify-content: center; }
 .hero-media {
   margin: 0; width: 100%; max-width: 1040px;
