@@ -1,721 +1,343 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="HydroCouple Documentation">
-    <meta name="author" content="Caleb Buahin">
-
-    <title>HydroCouple</title>
-
-    <!--My icon gye nyame-->
-    <link href="img/hydrocouple.png" rel="icon">
-
-    <!-- Bootstrap Core CSS - Uses Bootswatch Flatly Theme: http://bootswatch.com/flatly/ -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <!--Academic Icons-->
-    <link href="css/academicons.css" rel="stylesheet">
-    <link href="css/academicons.min.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link href="css/freelancer.css" rel="stylesheet">
-    <link href="css/citation.css" rel="stylesheet">
-
-    <!-- Custom Fonts -->
-    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
-    <link href="http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet"
-        type="text/css">
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="HydroCouple — open interface definitions and data standards for digital public water infrastructure. Open-Source SWMM at the center of a couplable ecosystem of water models.">
+  <meta name="author" content="Caleb Buahin">
+  <title>HydroCouple — Digital Public Water Infrastructure</title>
+  <link href="img/hydrocouple.png" rel="icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="css/site.css" rel="stylesheet">
 </head>
+<body>
 
-<body id="page-top" class="index">
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html"><img src="img/hydrocouple.png" alt="HydroCouple logo">HydroCouple</a>
+    <button class="nav-toggle" aria-label="Menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
+    <ul class="nav-links" id="navlinks">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="standards.html">Standards</a></li>
+      <li><a href="ecosystem.html">Ecosystem</a></li>
+      <li><a href="publications.html">Publications</a></li>
+      <li><a href="docs.html">Docs</a></li>
+      <li><a class="cta" href="https://github.com/hydrocouple">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header page-scroll">
-                <button type="button" class="navbar-toggle" data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#page-top">HydroCouple</a>
-            </div>
-
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="hidden">
-                        <a href="#page-top"></a>
-                    </li>
-                    <li class="page-scroll">
-                        <a href="#tools">Tools</a>
-                    </li>
-                    <li class="page-scroll">
-                        <a href="#components">Components</a>
-                    </li>
-                    <li class="page-scroll">
-                        <a href="#publications">Publications</a>
-                    </li>
-                    <li class="page-scroll">
-                        <a href="#support">Support</a>
-                    </li>
-                </ul>
-            </div>
-            <!-- /.navbar-collapse -->
-        </div>
-        <!-- /.container-fluid -->
-    </nav>
-
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="row">
-                <div class="intro-text">
-                    <!--<span class="name">What is HydroCouple ?</span>
-                      <hr class="star-light">-->
-                    <span class="skills">
-                        <p>
-                            The HydroCouple project is a cross platform component-based modeling framework for
-                            integrated modeling in the environmental and earth systems modeling field. It is
-                            developed using C++ and its interface definitions aro better support simulations
-                            on HPC infrastructure, standard geospatial dataset formats, and customizable data exchange
-                            workflows.
-                        </p>
-                        <p>
-                            Join our <a href="https://github.com/hydrocouple">GitHub repository</a>
-                            to contribute and use the growing list of compliant model components.
-                        </p>
-                        <p>
-                            <a href="hydrocoupledocs/html/index.html" class="btn btn-lg btn-outline">
-                                <i class="fa"></i>Explore HydroCouple's Interface Definitions
-                            </a>
-                        </p>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </header>
-
-
-    <!-- Tools -->
-    <section id="tools">
-        <div class="container">
-            <div>
-                <div class="col-sm-12 text-center">
-                    <h2>Software Stack</h2>
-                    <hr>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 portfolio-item">
-                    <h4 class="modal-descp">HydroCouple Composer</h4>
-                    <a href="#toolsModal2" class="portfolio-link" data-toggle="modal">
-                        <img src="img/components/hydrocouplecomposer.png" class="img-responsive" alt="">
-                    </a>
-                </div>
-                <div class="col-md-6 portfolio-item">
-                    <H4 class="modal-descp">HydroCouple SDK</H4>
-                    <a href="#toolsModal1" class="portfolio-link" data-toggle="modal">
-                        <img src="img/hydrocouple.png" class="img-responsive" alt="">
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="portfolio-modal modal fade" id="toolsModal2" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>HydroCoupleComposer</h2>
-                            <hr>
-                            <img src="img/components/hydrocouplecomposer.png" class="img-responsive img-centered"
-                                alt="">
-                            <p>
-                                This project is a GUI for coupling HydroCouple model components together.
-                            </p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong>
-                                        <a href="https://github.com/HydroCouple/HydroCoupleComposer">Code</a>
-                                    </strong>
-                                </li>
-                                <li>Installers:
-                                    <strong>
-                                        <a href="https://github.com/HydroCouple/HydroCoupleComposer/releases">Windows,
-                                            Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                <i class="fa fa-times"></i> Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<header class="hero">
+  <div class="container">
+    <span class="hero-kicker">Open standards · Open models · AI-ready</span>
+    <h1>Digital public water infrastructure, built in the open — ready for AI</h1>
+    <p class="lede">
+      The water systems that protect our communities are increasingly managed through models —
+      of rainfall, runoff, pipes, streams, and aquifers. HydroCouple provides the open interface
+      definitions and data standards that let these models connect into a single, composable
+      digital representation of the urban water cycle, with <strong>Open-Source&nbsp;SWMM&nbsp;6.0&nbsp;(SWMM2D)</strong> —
+      a HydroCouple initiative — as its flagship engine. And because the whole stack speaks
+      standard interfaces, it is native ground for <strong>artificial intelligence</strong>:
+      AI agents build and interrogate models through open tooling, reinforcement learning
+      controls infrastructure in real time, and physics-based engines supply the trustworthy
+      simulation AI needs to learn from.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-solid" href="ecosystem.html">Explore the Ecosystem</a>
+      <a class="btn btn-ghost" href="standards.html">Read the Standards</a>
+      <a class="btn btn-ghost" href="ecosystem.html#ai">AI + Water Modeling</a>
     </div>
-
-    <!--Tools Modal -->
-    <div class="portfolio-modal modal fade" id="toolsModal1" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>HydroCouple Sofware Development Kit</h2>
-                            <hr>
-                            <img src="img/hydrocouple.png" class="img-responsive img-centered" alt="">
-                            <p>
-                                <a href="https://github.com/HydroCouple">HydroCouple</a> is a C++ component-based
-                                modeling framework specification and SDK that can
-                                be used to develop components for integrated modeling.
-                            </p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong>
-                                        <a href="https://github.com/HydroCouple/HydroCoupleSDK"> Software Development
-                                            Kit</a>
-                                    </strong>
-                                </li>
-                                <li>Platform:
-                                    <strong>
-                                        <a href="https://github.com/HydroCouple/HydroCoupleComposer/releases">Windows,
-                                            Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                <i class="fa fa-times"></i> Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="pill-row" style="margin-top:6px">
+      <span class="pill" style="background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.35);color:#d6ebff">🤖 Agent-driven modeling via MCP</span>
+      <span class="pill" style="background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.35);color:#d6ebff">🧠 Reinforcement-learning control</span>
+      <span class="pill" style="background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.35);color:#d6ebff">⚙️ Physics-based digital twins</span>
     </div>
+  </div>
+  <svg class="hero-wave" viewBox="0 0 1440 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,40 C240,70 480,8 720,30 C960,52 1200,20 1440,44 L1440,70 L0,70 Z" fill="#fafcfd"/>
+  </svg>
+</header>
 
-    <!-- Components -->
-    <section id="components">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <h2>Components</h2>
-                    <hr>
-                </div>
-            </div>
-            <div class="row">
-
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#componentModal1" class="portfolio-link" data-toggle="modal">
-                        <p class="modal-descp">EPA SWMM Model Component</p>
-                        <img src="img/components/swmmcomponent.png" class="img-responsive" alt="" height="400" width="600">
-                    </a>
-                </div>
-
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#componentModal2" class="portfolio-link" data-toggle="modal">
-                        <p class="modal-descp">The Finite Volume Hydrologic Model Component</p>
-                        <img src="img/components/fvhmcomponent.png" class="img-responsive" alt="" height="400" width="600"> 
-                    </a>
-                </div>
-
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#componentModal3" class="portfolio-link" data-toggle="modal">
-                        <p class="modal-descp">The Triangle Model Component</p>
-                        <img src="img/components/triangle.png" class="img-responsive" alt="" height="400" width="600">
-                    </a>
-                </div>
-
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#componentModal4" class="portfolio-link" data-toggle="modal">
-                        <p class="modal-descp">Temporal Interpolation AdaptedOutput Factory Component</p>
-                        <img src="img/components/adaptedoutputfactory.png" class="img-responsive" alt="" height="400" width="600">
-                    </a>
-                </div>
-
-            </div>
-
-            <div class="row">
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#componentModal5" class="portfolio-link" data-toggle="modal">
-                        <p class="modal-descp">Loop Driven Data Exchange Workflow Component</p>
-                        <img src="img/components/workflow.png" class="img-responsive" alt="" height="400" width="600">
-                    </a>
-                </div>
-
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#componentModal6" class="portfolio-link" data-toggle="modal">
-                        <p class="modal-descp">Groundwater Component</p>
-                        <img src="img/components/gwcomponenticon.png" class="img-responsive" alt="" height="400" width="600">
-                    </a>
-                </div>
-
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#componentModal7" class="portfolio-link" data-toggle="modal">
-                        <p class="modal-descp">Hyporheic Transient Zone Storage Component</p>
-                        <img src="img/components/htscomponenticon.png" class="img-responsive" alt="" height="400" width="600">
-                    </a>
-                </div>
-
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#componentModal8" class="portfolio-link" data-toggle="modal">
-                        <p class="modal-descp">Radiative Heat Exchange Component</p>
-                        <img src="img/components/htscomponenticon.png" class="img-responsive" alt="" height="400" width="600">
-                    </a>
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col-sm-3 portfolio-item">
-                    <a href="#componentModal9" class="portfolio-link" data-toggle="modal">
-                        <p class="modal-descp">Channel Solute and Heat Transport Component</p>
-                        <img src="img/components/htscomponenticon.png" class="img-responsive" alt="" height="400" width="600">
-                    </a>
-                </div>
-
-
-            </div>
-
-        </div>
-    </section>
-
-
-    <!-- Components Modal -->
-    <div class="portfolio-modal modal fade" id="componentModal1" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>HydroCouple SWMM Component</h2>
-                            <hr>
-                            <img src="img/components/swmmcomponent.png" class="img-responsive img-centered" alt="">
-                            <p>A HydroCouple component for EPA's Stormwater Modeling System (SWMM)</p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong>
-                                        <a href="https://github.com/HydroCouple/SWMMComponent">Code</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong>
-                                        <a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                <i class="fa fa-times"></i> Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Why -->
+<section>
+  <div class="container">
+    <div class="section-kicker">The challenge</div>
+    <h2>Water doesn't respect model boundaries</h2>
+    <p class="section-intro">
+      A storm moves through a city as one connected event — rain becomes runoff, runoff enters sewers,
+      sewers surcharge into streets, streams exchange with groundwater. Yet the models that simulate
+      each of these processes have historically been silos: separate codes, separate file formats,
+      separate assumptions, glued together with one-off scripts that break and can't be reproduced.
+      The digital water transformation demands something better — a public, standards-based
+      integration layer that any model can plug into.
+    </p>
+    <div class="grid cols-3">
+      <div class="card">
+        <span class="card-icon">🧩</span>
+        <h3>Composable models</h3>
+        <p>Process models compiled as components with standard interfaces, organized into coupled
+           compositions that represent whole systems — not stitched-together scripts.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🗺️</span>
+        <h3>Standard data in, standard data out</h3>
+        <p>Interface definitions built around standard geospatial data — time series, meshes,
+           networks, rasters — so exchanged quantities carry their geometry, units, and metadata.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">⚡</span>
+        <h3>Built for modern computing</h3>
+        <p>Interfaces designed for HPC and cloud execution: component cloning, parallel runs,
+           and customizable data-exchange workflows for calibration and uncertainty analysis.</p>
+      </div>
     </div>
+  </div>
+</section>
 
-    <div class="portfolio-modal modal fade" id="componentModal2" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2> The Finite Volume Hydrologic Model Component</h2>
-                            <hr>
-                            <img src="img/components/fvhmcomponent.png" class="img-responsive img-centered" alt="">
-                            <p>A finite volume based hydrologic model</p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong>
-                                        <a href="https://github.com/HydroCouple/FVHMComponent">Code</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong>
-                                        <a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                <i class="fa fa-times"></i> Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Architecture figure -->
+<section class="alt">
+  <div class="container">
+    <div class="section-kicker">The architecture</div>
+    <h2>Interface definitions are the glue</h2>
+    <p class="section-intro">
+      Every component in the ecosystem — hydrologic, hydraulic, water quality, groundwater —
+      implements the same HydroCouple interface definitions. That common contract is what turns
+      a collection of independent codes into an integrated digital representation of public
+      water infrastructure. Open-Source SWMM sits at the center; the interfaces make the coupling possible.
+    </p>
+
+    <figure class="figure-block">
+      <svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HydroCouple architecture: models connected through the HydroCouple interface layer with Open-Source SWMM at the center">
+        <defs>
+          <linearGradient id="glueGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#0071bf"/><stop offset="1" stop-color="#0096ff"/>
+          </linearGradient>
+          <linearGradient id="swmmGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fdf0dc"/><stop offset="1" stop-color="#fbe3bd"/>
+          </linearGradient>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#35516b"/>
+          </marker>
+        </defs>
+
+        <!-- Row: upstream data sources -->
+        <g font-family="Inter, sans-serif" font-size="15" text-anchor="middle">
+          <rect x="30"  y="30" width="210" height="58" rx="10" fill="#eef5fb" stroke="#d7e5f0"/>
+          <text x="135" y="55" fill="#0a1c2e" font-weight="600">Sensors &amp; SCADA</text>
+          <text x="135" y="76" fill="#35516b" font-size="12">rain gages · level · flow</text>
+
+          <rect x="245" y="30" width="210" height="58" rx="10" fill="#eef5fb" stroke="#d7e5f0"/>
+          <text x="350" y="55" fill="#0a1c2e" font-weight="600">Climate Forcing</text>
+          <text x="350" y="76" fill="#35516b" font-size="12">reanalysis · forecasts · scenarios</text>
+
+          <rect x="460" y="30" width="210" height="58" rx="10" fill="#eef5fb" stroke="#d7e5f0"/>
+          <text x="565" y="55" fill="#0a1c2e" font-weight="600">GIS &amp; Asset Data</text>
+          <text x="565" y="76" fill="#35516b" font-size="12">networks · terrain · land use</text>
+
+          <rect x="675" y="30" width="210" height="58" rx="10" fill="#eef5fb" stroke="#d7e5f0"/>
+          <text x="780" y="55" fill="#0a1c2e" font-weight="600">Observed Records</text>
+          <text x="780" y="76" fill="#35516b" font-size="12">calibration · validation</text>
+        </g>
+
+        <!-- arrows into glue -->
+        <g stroke="#35516b" stroke-width="1.6" marker-end="url(#arrow)">
+          <line x1="135" y1="88" x2="330" y2="176"/>
+          <line x1="350" y1="88" x2="430" y2="176"/>
+          <line x1="565" y1="88" x2="530" y2="176"/>
+          <line x1="780" y1="88" x2="630" y2="176"/>
+        </g>
+
+        <!-- The glue bar -->
+        <rect x="100" y="180" width="800" height="76" rx="14" fill="url(#glueGrad)"/>
+        <g font-family="Sora, sans-serif" text-anchor="middle">
+          <text x="500" y="212" fill="#ffffff" font-size="21" font-weight="700">HydroCouple Interface Definitions</text>
+          <text x="500" y="238" fill="#cfe9ff" font-size="13.5" font-family="JetBrains Mono, monospace">IComponent · IExchangeItem · IArgument · IGeometry · ITime · IUnit</text>
+        </g>
+
+        <!-- arrows glue to components -->
+        <g stroke="#35516b" stroke-width="1.6">
+          <line x1="220" y1="256" x2="220" y2="306" marker-end="url(#arrow)"/>
+          <line x1="500" y1="256" x2="500" y2="292" marker-end="url(#arrow)"/>
+          <line x1="780" y1="256" x2="780" y2="306" marker-end="url(#arrow)"/>
+          <line x1="330" y1="256" x2="365" y2="306" marker-end="url(#arrow)"/>
+          <line x1="670" y1="256" x2="635" y2="306" marker-end="url(#arrow)"/>
+        </g>
+
+        <!-- SWMM centerpiece -->
+        <rect x="378" y="296" width="244" height="126" rx="14" fill="url(#swmmGrad)" stroke="#f29f38" stroke-width="2.5"/>
+        <g font-family="Sora, sans-serif" text-anchor="middle">
+          <text x="500" y="322" fill="#4a2c00" font-size="11.5" font-weight="700" letter-spacing="1.5">FLAGSHIP ENGINE</text>
+          <text x="500" y="347" fill="#0a1c2e" font-size="17" font-weight="800">Open-Source SWMM 6.0</text>
+          <text x="500" y="369" fill="#0a1c2e" font-size="15" font-weight="700">(SWMM2D)</text>
+          <text x="500" y="391" fill="#35516b" font-size="12" font-family="Inter, sans-serif">hydrology · hydraulics · water quality</text>
+          <text x="500" y="409" fill="#35516b" font-size="12" font-family="Inter, sans-serif">1D/2D · GPU-ready · reentrant engine</text>
+        </g>
+
+        <!-- Left component stack -->
+        <g font-family="Inter, sans-serif" font-size="14" text-anchor="middle">
+          <rect x="120" y="306" width="200" height="50" rx="10" fill="#ffffff" stroke="#d7e5f0"/>
+          <text x="220" y="328" fill="#0a1c2e" font-weight="600">Groundwater</text>
+          <text x="220" y="347" fill="#35516b" font-size="12">head-driven exchange</text>
+
+          <rect x="120" y="368" width="200" height="50" rx="10" fill="#ffffff" stroke="#d7e5f0"/>
+          <text x="220" y="390" fill="#0a1c2e" font-weight="600">2D Overland Flow</text>
+          <text x="220" y="409" fill="#35516b" font-size="12">street-scale flooding</text>
+        </g>
+
+        <!-- Right component stack -->
+        <g font-family="Inter, sans-serif" font-size="14" text-anchor="middle">
+          <rect x="680" y="306" width="200" height="50" rx="10" fill="#ffffff" stroke="#d7e5f0"/>
+          <text x="780" y="328" fill="#0a1c2e" font-weight="600">Stream Temperature</text>
+          <text x="780" y="347" fill="#35516b" font-size="12">solute &amp; heat transport</text>
+
+          <rect x="680" y="368" width="200" height="50" rx="10" fill="#ffffff" stroke="#d7e5f0"/>
+          <text x="780" y="390" fill="#0a1c2e" font-weight="600">Hydrologic Models</text>
+          <text x="780" y="409" fill="#35516b" font-size="12">finite volume · snowmelt</text>
+        </g>
+
+        <!-- coupling arrows between SWMM and neighbors -->
+        <g stroke="#f29f38" stroke-width="2">
+          <line x1="320" y1="345" x2="378" y2="345" marker-end="url(#arrow)"/>
+          <line x1="378" y1="380" x2="320" y2="393" marker-end="url(#arrow)"/>
+          <line x1="622" y1="345" x2="680" y2="331" marker-end="url(#arrow)"/>
+          <line x1="680" y1="393" x2="622" y2="380" marker-end="url(#arrow)"/>
+        </g>
+
+        <!-- arrows to outcomes -->
+        <g stroke="#35516b" stroke-width="1.6" marker-end="url(#arrow)">
+          <line x1="290" y1="430" x2="255" y2="478"/>
+          <line x1="500" y1="422" x2="500" y2="478"/>
+          <line x1="710" y1="430" x2="745" y2="478"/>
+        </g>
+
+        <!-- Outcomes row -->
+        <g font-family="Inter, sans-serif" font-size="14.5" text-anchor="middle">
+          <rect x="120" y="482" width="230" height="52" rx="10" fill="#dff2e7" stroke="#bfe4cf"/>
+          <text x="235" y="504" fill="#14532d" font-weight="600">Flood-risk planning</text>
+          <text x="235" y="522" fill="#2e6b47" font-size="12">consent decrees · resilience</text>
+
+          <rect x="385" y="482" width="230" height="52" rx="10" fill="#dff2e7" stroke="#bfe4cf"/>
+          <text x="500" y="504" fill="#14532d" font-weight="600">Real-time operations</text>
+          <text x="500" y="522" fill="#2e6b47" font-size="12">forecasting · smart control</text>
+
+          <rect x="650" y="482" width="230" height="52" rx="10" fill="#dff2e7" stroke="#bfe4cf"/>
+          <text x="765" y="504" fill="#14532d" font-weight="600">Water-quality compliance</text>
+          <text x="765" y="522" fill="#2e6b47" font-size="12">TMDLs · CSO/SSO reporting</text>
+        </g>
+      </svg>
+      <figcaption>
+        One integration layer, many models: data sources flow through the HydroCouple interface
+        definitions to a composable set of model components — with Open-Source SWMM 6.0 (SWMM2D)
+        at the center — supporting planning, operations, and compliance.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- Flagship -->
+<section>
+  <div class="container">
+    <div class="section-kicker">The centerpiece</div>
+    <h2>Open-Source SWMM 6.0 (SWMM2D): a public model, reimagined</h2>
+    <p class="section-intro">
+      For five decades, EPA's Storm Water Management Model has been the public backbone of urban
+      stormwater engineering. <strong>Open-Source SWMM 6.0 (SWMM2D)</strong> — a HydroCouple
+      Open-Source SWMM initiative — carries that legacy forward as a community-driven,
+      next-generation engine — a modern C++20 rewrite with a reentrant core, data-oriented design,
+      GPU-capable 2D solvers, Python bindings, and an agent-ready tooling layer — released in the
+      open and validated against published benchmarks.
+    </p>
+    <div class="grid cols-3">
+      <div class="card flagship">
+        <span class="badge flagship-badge">Flagship</span>
+        <h3>Engine</h3>
+        <p>Next-generation computational core: hydrology, hydraulics, and water quality with a
+           reentrant API, structure-of-arrays performance, plugin I/O, and 1D/2D coupling.</p>
+        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.engine">openswmm.engine →</a></p>
+      </div>
+      <div class="card">
+        <span class="badge available">Available</span>
+        <h3>Desktop GUI</h3>
+        <p>A modern interface for building, running, and interrogating models — bringing the
+           next-generation engine to practicing engineers.</p>
+        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.gui">openswmm.gui →</a></p>
+      </div>
+      <div class="card">
+        <span class="badge available">Available</span>
+        <h3>Agent &amp; MCP Tooling</h3>
+        <p>A Model Context Protocol server exposing the engine to AI agents and LLM-driven
+           workflows — build, edit, run, and analyze models programmatically.</p>
+        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.mcp">openswmm.mcp →</a></p>
+      </div>
     </div>
+  </div>
+</section>
 
-    <div class="portfolio-modal modal fade" id="componentModal3" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2> The Triangle Model Component</h2>
-                            <hr>
-                            <img src="img/components/triangle.png" class="img-responsive img-centered" alt="">
-                            <p>A point triangulation model component developed from the Triangle code by Jonathan
-                                Shewchuk</p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong>
-                                        <a href="https://github.com/HydroCouple/TriangleComponent">Code</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong>
-                                        <a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                <i class="fa fa-times"></i> Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Stats -->
+<section class="alt">
+  <div class="container">
+    <div class="stats">
+      <div class="stat"><span class="num">50+</span><span class="lbl">years of public SWMM science</span></div>
+      <div class="stat"><span class="num">C++20</span><span class="lbl">modern, reentrant engine core</span></div>
+      <div class="stat"><span class="num">1D + 2D</span><span class="lbl">coupled hydraulics with GPU backends</span></div>
+      <div class="stat"><span class="num">1,396</span><span class="lbl">models in the open benchmark corpus</span></div>
+      <div class="stat"><span class="num">Open</span><span class="lbl">Apache-2.0 engine · open standards</span></div>
     </div>
+  </div>
+</section>
 
-
-    <div class="portfolio-modal modal fade" id="componentModal4" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>A Temporal Interpolation AdaptedOutputFactory Component</h2>
-                            <hr>
-                            <img src="img/components/adaptedoutputfactory.png" class="img-responsive img-centered"
-                                alt="">
-                            <p>A temporal interpolation adapted output factory component</p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong>
-                                        <a
-                                            href="https://github.com/HydroCouple/TemporalInterpAdaptedOutputFactoryComponent">Code</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong>
-                                        <a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                <i class="fa fa-times"></i> Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Get involved -->
+<section>
+  <div class="container narrow center">
+    <div class="section-kicker">Get involved</div>
+    <h2 style="max-width:none">Help build the water infrastructure commons</h2>
+    <p class="section-intro" style="margin-left:auto;margin-right:auto">
+      HydroCouple and Open-Source SWMM 6.0 (SWMM2D) are developed in the open. Use the models, report issues,
+      contribute components, or bring your utility's use case to the table.
+    </p>
+    <div class="hero-actions" style="justify-content:center">
+      <a class="btn btn-primary" href="https://github.com/hydrocouple">Contribute on GitHub</a>
+      <a class="btn btn-quiet" href="ecosystem.html">See What's Planned</a>
     </div>
+  </div>
+</section>
 
-    <div class="portfolio-modal modal fade" id="componentModal5" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Loop Driven Data Exchange Workflow Component</h2>
-                            <hr>
-                            <img src="img/components/workflow.png" class="img-responsive img-centered" alt="">
-                            <p>A loop driven data exchange workflow component for time marchine modeling</p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong>
-                                        <a href="https://github.com/HydroCouple/LoopDrivenWorkflowComponent">Code</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong>
-                                        <a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                <i class="fa fa-times"></i> Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>HydroCouple</h4>
+        <p style="font-size:0.92rem; max-width:44ch">
+          Open interface definitions and data standards for composable water-systems modeling —
+          the integration layer for digital public water infrastructure, and home of the
+          Open-Source SWMM initiative.
+        </p>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <ul>
+          <li><a href="standards.html">Standards</a></li>
+          <li><a href="ecosystem.html">Ecosystem</a></li>
+          <li><a href="publications.html">Publications</a></li>
+          <li><a href="docs.html">Documentation</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="https://github.com/hydrocouple">GitHub</a></li>
+          <li><a href="mailto:caleb.buahin@gmail.com">Email</a></li>
+        </ul>
+      </div>
     </div>
-
-    <div class="portfolio-modal modal fade" id="componentModal6" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Groundwater Component</h2>
-                            <hr>
-                            <img src="img/components/gwcomponenticon.png" class="img-responsive img-centered" alt="">
-                            <p>A vertically averaged groundwater component developed for estimating groundwater surfacewater exchanges</p>
-                            <ul class="list-inline item-details">
-                                <li>Source:
-                                    <strong>
-                                        <a href="https://github.com/HydroCouple/GWComponent">Code</a>
-                                    </strong>
-                                </li>
-                                <li>Platforms:
-                                    <strong>
-                                        <a href="">Windows, Mac OS X, Linux</a>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">
-                                <i class="fa fa-times"></i> Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="footer-note">
+      © 2014–2026 HydroCouple. Portions of Open-Source SWMM derive from the USEPA Storm Water
+      Management Model, which resides in the public domain; the USEPA does not endorse this project.
+      Early development supported by NSF EPSCoR Grant IIA-1208732.
     </div>
-
-    <!-- About Section -->
-    <section id="publications">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <h2>Publications</h2>
-                    <hr>
-                </div>
-            </div>
-
-            <div>
-                <div class="csl-bib-body" style="line-height: 1.35; margin-left: 2em; text-indent:-2em;">
-
-                    <div class="csl-entry">Mihalevich, B.A., Neilson, B.T., Buahin, C.A., 2022. Evaluation of the ERA5-Land Reanalysis Data Set for Process-Based River Temperature Modeling Over Data Sparse and Topographically Complex Regions. Water Resources Research 58, e2021WR031294. <a href="https://doi.org/10.1029/2021WR031294">https://doi.org/10.1029/2021WR031294</a></div>
-                    <span class="Z3988" title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rfr_id=info%3Asid%2Fzotero.org%3A2&amp;rft_id=info%3Adoi%2F10.1029%2F2021WR031294&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Evaluation%20of%20the%20ERA5-Land%20Reanalysis%20Data%20Set%20for%20Process-Based%20River%20Temperature%20Modeling%20Over%20Data%20Sparse%20and%20Topographically%20Complex%20Regions&amp;rft.jtitle=Water%20Resources%20Research&amp;rft.volume=58&amp;rft.issue=7&amp;rft.aufirst=Bryce%20A.&amp;rft.aulast=Mihalevich&amp;rft.au=Bryce%20A.%20Mihalevich&amp;rft.au=Bethany%20T.%20Neilson&amp;rft.au=Caleb%20A.%20Buahin&amp;rft.date=2022&amp;rft.pages=e2021WR031294&amp;rft.issn=1944-7973&amp;rft.language=en"></span>
-                    
-                    <div class="csl-entry">Leach, J.A., Moore, R.D., Laudon, H., Buahin, C.A., Neilson, B.T., 2022. Do headwater lakes moderate downstream temperature response to forest harvesting? Illustrating opportunities and obstacles associated with virtual experiments. Hydrological Processes 36, e14593. <a href="https://doi.org/10.1002/hyp.14593">https://doi.org/10.1002/hyp.14593</a></div>
-                    <span class="Z3988" title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rfr_id=info%3Asid%2Fzotero.org%3A2&amp;rft_id=info%3Adoi%2F10.1002%2Fhyp.14593&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Do%20headwater%20lakes%20moderate%20downstream%20temperature%20response%20to%20forest%20harvesting%3F%20Illustrating%20opportunities%20and%20obstacles%20associated%20with%20virtual%20experiments&amp;rft.jtitle=Hydrological%20Processes&amp;rft.volume=36&amp;rft.issue=6&amp;rft.aufirst=Jason%20A.&amp;rft.aulast=Leach&amp;rft.au=Jason%20A.%20Leach&amp;rft.au=R.%20Dan%20Moore&amp;rft.au=Hjalmar%20Laudon&amp;rft.au=Caleb%20A.%20Buahin&amp;rft.au=Bethany%20T.%20Neilson&amp;rft.date=2022&amp;rft.pages=e14593&amp;rft.issn=1099-1085&amp;rft.language=en"></span>
-                    
-                    <div class="csl-entry">Leach, J.A., Neilson, B.T., Buahin, C.A., Moore, R.D., Laudon, H., 2021. Lake Outflow and Hillslope Lateral Inflows Dictate Thermal Regimes of Forested Streams Draining Small Lakes. Water Resources Research 57, e2020WR028136. <a href="https://doi.org/10.1029/2020WR028136">https://doi.org/10.1029/2020WR028136</a></div>
-                    <span class="Z3988" title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rfr_id=info%3Asid%2Fzotero.org%3A2&amp;rft_id=info%3Adoi%2F10.1029%2F2020WR028136&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Lake%20Outflow%20and%20Hillslope%20Lateral%20Inflows%20Dictate%20Thermal%20Regimes%20of%20Forested%20Streams%20Draining%20Small%20Lakes&amp;rft.jtitle=Water%20Resources%20Research&amp;rft.volume=57&amp;rft.issue=6&amp;rft.aufirst=Jason%20A.&amp;rft.aulast=Leach&amp;rft.au=Jason%20A.%20Leach&amp;rft.au=Bethany%20T.%20Neilson&amp;rft.au=Caleb%20A.%20Buahin&amp;rft.au=R.%20Dan%20Moore&amp;rft.au=Hjalmar%20Laudon&amp;rft.date=2021&amp;rft.pages=e2020WR028136&amp;rft.issn=1944-7973&amp;rft.language=en"></span>
-                    
-                    <div class="csl-entry">Mihalevich, B.A., Neilson, B.T., Buahin, C.A., Yackulic, C.B., Schmidt, J.C., 2020. Water Temperature Controls for Regulated Canyon-Bound Rivers. Water Resources Research 56, e2020WR027566. <a href="https://doi.org/10.1029/2020WR027566">https://doi.org/10.1029/2020WR027566</a></div>
-                    <span class="Z3988" title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rfr_id=info%3Asid%2Fzotero.org%3A2&amp;rft_id=info%3Adoi%2Fhttps%3A%2F%2Fdoi.org%2F10.1029%2F2020WR027566&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Water%20Temperature%20Controls%20for%20Regulated%20Canyon-Bound%20Rivers&amp;rft.jtitle=Water%20Resources%20Research&amp;rft.volume=56&amp;rft.issue=12&amp;rft.aufirst=Bryce%20A.&amp;rft.aulast=Mihalevich&amp;rft.au=Bryce%20A.%20Mihalevich&amp;rft.au=Bethany%20T.%20Neilson&amp;rft.au=Caleb%20A.%20Buahin&amp;rft.au=Charles%20B.%20Yackulic&amp;rft.au=John%20C.%20Schmidt&amp;rft.date=2020&amp;rft.pages=e2020WR027566&amp;rft.issn=1944-7973&amp;rft.language=en"></span>
-                  
-                    <div class="csl-entry">Buahin, C.A., Horsburgh, J.S., Neilson, B.T., 2019. Parallel multi-objective calibration of a component-based river temperature model. Environmental Modelling &amp; Software 116, 57–71. <a href="https://doi.org/10.1016/j.envsoft.2019.02.012">https://doi.org/10.1016/j.envsoft.2019.02.012</a></div>
-                    <span class="Z3988" title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rfr_id=info%3Asid%2Fzotero.org%3A2&amp;rft_id=info%3Adoi%2F10.1016%2Fj.envsoft.2019.02.012&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Parallel%20multi-objective%20calibration%20of%20a%20component-based%20river%20temperature%20model&amp;rft.jtitle=Environmental%20Modelling%20%26%20Software&amp;rft.volume=116&amp;rft.aufirst=Caleb%20A.&amp;rft.aulast=Buahin&amp;rft.au=Caleb%20A.%20Buahin&amp;rft.au=Jeffery%20S.%20Horsburgh&amp;rft.au=Bethany%20T.%20Neilson&amp;rft.date=2019-06&amp;rft.pages=57-71&amp;rft.spage=57&amp;rft.epage=71&amp;rft.issn=13648152&amp;rft.language=en"></span>
-                    
-                    <div class="csl-entry">Buahin, C.A., Horsburgh, J.S., 2018. Advancing the Open Modeling Interface (OpenMI) for integrated water resources modeling. Environmental Modelling &amp; Software 108, 133–153. <a href="https://doi.org/10.1016/j.envsoft.2018.07.015">https://doi.org/10.1016/j.envsoft.2018.07.015</a></div>
-                    <span class="Z3988" title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rfr_id=info%3Asid%2Fzotero.org%3A2&amp;rft_id=info%3Adoi%2F10.1016%2Fj.envsoft.2018.07.015&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rft.genre=article&amp;rft.atitle=Advancing%20the%20Open%20Modeling%20Interface%20(OpenMI)%20for%20integrated%20water%20resources%20modeling&amp;rft.jtitle=Environmental%20Modelling%20%26%20Software&amp;rft.stitle=Environmental%20Modelling%20%26%20Software&amp;rft.volume=108&amp;rft.aufirst=Caleb%20A.&amp;rft.aulast=Buahin&amp;rft.au=Caleb%20A.%20Buahin&amp;rft.au=Jeffery%20S.%20Horsburgh&amp;rft.date=2018-10-01&amp;rft.pages=133-153&amp;rft.spage=133&amp;rft.epage=153&amp;rft.issn=1364-8152"></span>
-
-                </div>
-            </div>
-            
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="support">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <h2>Support</h2>
-                    <hr>
-                </div>
-            </div>
-            <div>
-                <p>
-                    The material presented here was supported by National Science Foundation
-                    <a href="http://iutahepscor.org/">EPSCoR Grant IIA 1208732</a> awarded to Utah State University as
-                    part of the State of Utah EPSCoR Research
-                    Infrastructure Improvement Award. Any opinions, findings, and conclusions or recommendations
-                    expressed
-                    in this material are those of the author(s) and do not necessarily reflect the views of the National
-                    Science Foundation.
-                </p>
-            </div>
-            <!--<div class="row">
-                <div class="col-lg-8 col-lg-offset-2">
-                    <form name="sentMessage" id="contactForm" novalidate>
-                        <div class="row control-group">
-                            <div class="form-group col-xs-12 floating-label-form-group controls">
-                                <label>Name</label>
-                                <input type="text" class="form-control" placeholder="Name" id="name" required data-validation-required-message="Please enter your name.">
-                                <p class="help-block text-danger"></p>
-                            </div>
-                        </div>
-                        <div class="row control-group">
-                            <div class="form-group col-xs-12 floating-label-form-group controls">
-                                <label>Email Address</label>
-                                <input type="email" class="form-control" placeholder="Email Address" id="email" required data-validation-required-message="Please enter your email address.">
-                                <p class="help-block text-danger"></p>
-                            </div>
-                        </div>
-                        <div class="row control-group">
-                            <div class="form-group col-xs-12 floating-label-form-group controls">
-                                <label>Phone Number</label>
-                                <input type="tel" class="form-control" placeholder="Phone Number" id="phone" required data-validation-required-message="Please enter your phone number.">
-                                <p class="help-block text-danger"></p>
-                            </div>
-                        </div>
-                        <div class="row control-group">
-                            <div class="form-group col-xs-12 floating-label-form-group controls">
-                                <label>Message</label>
-                                <textarea rows="5" class="form-control" placeholder="Message" id="message" required data-validation-required-message="Please enter a message."></textarea>
-                                <p class="help-block text-danger"></p>
-                            </div>
-                        </div>
-                        <br>
-                        <div id="success"></div>
-                        <div class="row">
-                            <div class="form-group col-xs-12">
-                                <button type="submit" class="btn btn-success btn-lg">Send</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>-->
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="text-center">
-        <div class="footer-above">
-            <div class="container">
-                <div class="row">
-                    <div class="footer-col col-md-12">
-                        <h3>Around the Web</h3>
-                        <ul class="list-inline">
-                            <li>
-                                <a href="mailto:caleb.buahin@gmail.com" class="btn-social btn-outline">
-                                    <i class="fa fa-fw fa-envelope-o"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://github.com/hydrocouple" class="btn-social btn-outline">
-                                    <i class="fa fa-fw fa-github"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer-below">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        Copyright &copy; HydroCouple 2014-2022
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scroll to Top Button (Only visible on small and extra-small screen sizes) -->
-    <div class="scroll-top page-scroll visible-xs visible-sm">
-        <a class="btn btn-primary" href="#page-top">
-            <i class="fa fa-chevron-up"></i>
-        </a>
-    </div>
-
-
-
-
-
-
-
-
-
-
-    <!-- jQuery -->
-    <script src="js/jquery.js"></script>
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
-
-    <!-- Plugin JavaScript -->
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-    <script src="js/classie.js"></script>
-    <script src="js/cbpAnimatedHeader.js"></script>
-
-    <!-- Contact Form JavaScript -->
-    <script src="js/jqBootstrapValidation.js"></script>
-    <script src="js/contact_me.js"></script>
-
-    <!-- Custom Theme JavaScript -->
-    <script src="js/freelancer.js"></script>
+  </div>
+</footer>
 
 </body>
-
 </html>
