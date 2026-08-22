@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="HydroCouple — open interface definitions and data standards for digital public water infrastructure. Open-Source SWMM at the center of a couplable ecosystem of water models.">
+  <meta name="description" content="HydroCouple provides open interface definitions and data standards for digital public water infrastructure, with Open-Source SWMM at the center of a couplable ecosystem of water models.">
   <meta name="author" content="Caleb Buahin">
-  <title>HydroCouple — Digital Public Water Infrastructure</title>
+  <title>HydroCouple | Digital Public Water Infrastructure</title>
   <link href="img/hydrocouple.png" rel="icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -29,30 +29,38 @@
 </nav>
 
 <header class="hero">
-  <div class="container">
-    <span class="hero-kicker">Open standards · Open models · AI-ready</span>
-    <h1>Digital public water infrastructure, built in the open — ready for AI</h1>
-    <p class="lede">
-      The water systems that protect our communities are increasingly managed through models —
-      of rainfall, runoff, pipes, streams, and aquifers. HydroCouple provides the open interface
-      definitions and data standards that let these models connect into a single, composable
-      digital representation of the urban water cycle, with <strong>Open-Source&nbsp;SWMM&nbsp;6.0&nbsp;(SWMM2D)</strong> —
-      a HydroCouple initiative — as its flagship engine. And because the whole stack speaks
-      standard interfaces, it is native ground for <strong>artificial intelligence</strong>:
-      AI agents build and interrogate models through open tooling, reinforcement learning
-      controls infrastructure in real time, and physics-based engines supply the trustworthy
-      simulation AI needs to learn from.
-    </p>
-    <div class="hero-actions">
-      <a class="btn btn-solid" href="ecosystem.html">Explore the Ecosystem</a>
-      <a class="btn btn-ghost" href="standards.html">Read the Standards</a>
-      <a class="btn btn-ghost" href="ecosystem.html#ai">AI + Water Modeling</a>
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="hero-kicker">Open standards · Open models · AI-ready</span>
+      <h1>Digital public water infrastructure, built in the open and ready for AI</h1>
+      <p class="lede">
+        The water systems that protect our communities are increasingly managed through models of
+        rainfall, runoff, pipes, streams, and aquifers. HydroCouple provides the open interface
+        definitions and data standards that let these models connect into a single, composable
+        digital representation of the urban water cycle, with
+        <strong>Open-Source&nbsp;SWMM&nbsp;6.0&nbsp;(SWMM2D)</strong>, a HydroCouple initiative,
+        as its flagship engine. Because the whole stack speaks standard interfaces, it is native
+        ground for <strong>artificial intelligence</strong> in modeling, operations, and control.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-solid" href="ecosystem.html">Explore the Ecosystem</a>
+        <a class="btn btn-ghost" href="standards.html">Read the Standards</a>
+        <a class="btn btn-ghost" href="ecosystem.html#ai">AI + Water Modeling</a>
+      </div>
+      <div class="pill-row" style="margin-top:6px">
+        <span class="pill hero-pill">Agent-driven modeling via MCP</span>
+        <span class="pill hero-pill">Reinforcement-learning control</span>
+        <span class="pill hero-pill">Physics-based digital twins</span>
+      </div>
     </div>
-    <div class="pill-row" style="margin-top:6px">
-      <span class="pill" style="background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.35);color:#d6ebff">🤖 Agent-driven modeling via MCP</span>
-      <span class="pill" style="background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.35);color:#d6ebff">🧠 Reinforcement-learning control</span>
-      <span class="pill" style="background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.35);color:#d6ebff">⚙️ Physics-based digital twins</span>
-    </div>
+    <figure class="hero-media">
+      <img src="img/screenshots/openswmm_gui_hero.jpg"
+           alt="Open-Source SWMM 6.0 GUI showing a coupled 1D and 2D flood simulation over aerial imagery of the Bellinge catchment, with velocity vectors, a conduit profile view, and a live attribute table">
+      <figcaption>
+        Open-Source SWMM 6.0 (SWMM2D): coupled 1D/2D flood simulation with velocity vectors,
+        profile views, and live attribute queries.
+      </figcaption>
+    </figure>
   </div>
   <svg class="hero-wave" viewBox="0 0 1440 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
     <path d="M0,40 C240,70 480,8 720,30 C960,52 1200,20 1440,44 L1440,70 L0,70 Z" fill="#fafcfd"/>
@@ -65,28 +73,22 @@
     <div class="section-kicker">The challenge</div>
     <h2>Water doesn't respect model boundaries</h2>
     <p class="section-intro">
-      A storm moves through a city as one connected event — rain becomes runoff, runoff enters sewers,
+      A storm moves through a city as one connected event: rain becomes runoff, runoff enters sewers,
       sewers surcharge into streets, streams exchange with groundwater. Yet the models that simulate
       each of these processes have historically been silos: separate codes, separate file formats,
       separate assumptions, glued together with one-off scripts that break and can't be reproduced.
-      The digital water transformation demands something better — a public, standards-based
-      integration layer that any model can plug into.
+      The digital water transformation demands a public, standards-based integration layer that any model can plug into.
     </p>
     <div class="grid cols-3">
       <div class="card">
-        <span class="card-icon">🧩</span>
         <h3>Composable models</h3>
-        <p>Process models compiled as components with standard interfaces, organized into coupled
-           compositions that represent whole systems — not stitched-together scripts.</p>
+        <p>Process models compiled as components with standard interfaces, organized into coupled compositions that represent whole systems.</p>
       </div>
       <div class="card">
-        <span class="card-icon">🗺️</span>
         <h3>Standard data in, standard data out</h3>
-        <p>Interface definitions built around standard geospatial data — time series, meshes,
-           networks, rasters — so exchanged quantities carry their geometry, units, and metadata.</p>
+        <p>Interface definitions built around standard geospatial data (time series, meshes, networks, rasters) so exchanged quantities carry their geometry, units, and metadata.</p>
       </div>
       <div class="card">
-        <span class="card-icon">⚡</span>
         <h3>Built for modern computing</h3>
         <p>Interfaces designed for HPC and cloud execution: component cloning, parallel runs,
            and customizable data-exchange workflows for calibration and uncertainty analysis.</p>
@@ -101,8 +103,7 @@
     <div class="section-kicker">The architecture</div>
     <h2>Interface definitions are the glue</h2>
     <p class="section-intro">
-      Every component in the ecosystem — hydrologic, hydraulic, water quality, groundwater —
-      implements the same HydroCouple interface definitions. That common contract is what turns
+      Every component in the ecosystem (hydrologic, hydraulic, water quality, groundwater) implements the same HydroCouple interface definitions. That common contract is what turns
       a collection of independent codes into an integrated digital representation of public
       water infrastructure. Open-Source SWMM sits at the center; the interfaces make the coupling possible.
     </p>
@@ -228,8 +229,7 @@
       </svg>
       <figcaption>
         One integration layer, many models: data sources flow through the HydroCouple interface
-        definitions to a composable set of model components — with Open-Source SWMM 6.0 (SWMM2D)
-        at the center — supporting planning, operations, and compliance.
+        definitions to a composable set of model components, with Open-Source SWMM 6.0 (SWMM2D) at the center, supporting planning, operations, and compliance.
       </figcaption>
     </figure>
   </div>
@@ -242,10 +242,7 @@
     <h2>Open-Source SWMM 6.0 (SWMM2D): a public model, reimagined</h2>
     <p class="section-intro">
       For five decades, EPA's Storm Water Management Model has been the public backbone of urban
-      stormwater engineering. <strong>Open-Source SWMM 6.0 (SWMM2D)</strong> — a HydroCouple
-      Open-Source SWMM initiative — carries that legacy forward as a community-driven,
-      next-generation engine — a modern C++20 rewrite with a reentrant core, data-oriented design,
-      GPU-capable 2D solvers, Python bindings, and an agent-ready tooling layer — released in the
+      stormwater engineering. <strong>Open-Source SWMM 6.0 (SWMM2D)</strong>, a HydroCouple initiative, carries that legacy forward as a community-driven, next-generation engine: a modern C++20 rewrite with a reentrant core, data-oriented design, GPU-capable 2D solvers, Python bindings, and an agent-ready tooling layer, released in the
       open and validated against published benchmarks.
     </p>
     <div class="grid cols-3">
@@ -259,15 +256,14 @@
       <div class="card">
         <span class="badge available">Available</span>
         <h3>Desktop GUI</h3>
-        <p>A modern interface for building, running, and interrogating models — bringing the
+        <p>A modern interface for building, running, and interrogating models, bringing the
            next-generation engine to practicing engineers.</p>
         <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.gui">openswmm.gui →</a></p>
       </div>
       <div class="card">
         <span class="badge available">Available</span>
         <h3>Agent &amp; MCP Tooling</h3>
-        <p>A Model Context Protocol server exposing the engine to AI agents and LLM-driven
-           workflows — build, edit, run, and analyze models programmatically.</p>
+        <p>A Model Context Protocol server exposing the engine to AI agents and LLM-driven workflows to build, edit, run, and analyze models programmatically.</p>
         <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.mcp">openswmm.mcp →</a></p>
       </div>
     </div>
@@ -309,9 +305,7 @@
       <div>
         <h4>HydroCouple</h4>
         <p style="font-size:0.92rem; max-width:44ch">
-          Open interface definitions and data standards for composable water-systems modeling —
-          the integration layer for digital public water infrastructure, and home of the
-          Open-Source SWMM initiative.
+          Open interface definitions and data standards for composable water-systems modeling. It is the integration layer for digital public water infrastructure and the home of the Open-Source SWMM initiative.
         </p>
       </div>
       <div>

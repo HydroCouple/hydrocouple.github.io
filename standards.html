@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="HydroCouple interface definitions and data standards — the open contract that makes model coupling possible for digital water infrastructure.">
+  <meta name="description" content="HydroCouple interface definitions and data standards: the open contract that makes model coupling possible for digital water infrastructure.">
   <meta name="author" content="Caleb Buahin">
-  <title>Standards — HydroCouple</title>
+  <title>Standards | HydroCouple</title>
   <link href="img/hydrocouple.png" rel="icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -33,8 +33,7 @@
     <span class="hero-kicker">Interface definitions · Data standards</span>
     <h1>The open contract that makes coupling possible</h1>
     <p class="lede">
-      Integration doesn't come from any single model — it comes from an agreement about how models
-      describe themselves, exchange data, and march through time. The HydroCouple interface
+      Integration comes from an agreement about how models describe themselves, exchange data, and march through time. The HydroCouple interface
       definitions are that agreement: a C++ specification, building on OpenMI&nbsp;2.0 concepts and
       extending them for standard geospatial data and high-performance computing.
     </p>
@@ -62,22 +61,16 @@
     </p>
     <div class="grid cols-3">
       <div class="card">
-        <span class="card-icon">🔍</span>
         <h3>Reproducible</h3>
-        <p>A coupled composition is a declared artifact — which components, which connections,
-           which data — not an undocumented script. Results can be audited and rerun.</p>
+        <p>A coupled composition is a declared artifact listing which components, which connections, and which data. Results can be audited and rerun.</p>
       </div>
       <div class="card">
-        <span class="card-icon">🔓</span>
         <h3>Vendor-neutral</h3>
-        <p>Any conforming component can participate, open or commercial. The standard levels the
-           field instead of privileging one supplier's stack.</p>
+        <p>Any conforming component can participate, open or commercial. The standard levels the field for every participant.</p>
       </div>
       <div class="card">
-        <span class="card-icon">🌱</span>
         <h3>Extensible</h3>
-        <p>New processes — water quality, ecology, energy — join the composition by implementing
-           the interfaces, not by rewriting existing models.</p>
+        <p>New processes such as water quality, ecology, and energy join the composition by implementing the interfaces. Existing models stay as they are.</p>
       </div>
     </div>
   </div>
@@ -97,9 +90,9 @@
       <div>
         <h3 style="margin-bottom:14px">Component model</h3>
         <ul class="iface-list">
-          <li><span class="code-tag">IModelComponent</span><span class="desc">The unit of composition: initialize, validate, prepare, update, finish — a common lifecycle every model exposes.</span></li>
+          <li><span class="code-tag">IModelComponent</span><span class="desc">The unit of composition: initialize, validate, prepare, update, finish, a common lifecycle every model exposes.</span></li>
           <li><span class="code-tag">IComponentInfo</span><span class="desc">Self-description: identity, version, vendor, license, and the inputs/outputs a component offers.</span></li>
-          <li><span class="code-tag">IArgument</span><span class="desc">Typed configuration passed to a component before execution — file paths, parameters, options.</span></li>
+          <li><span class="code-tag">IArgument</span><span class="desc">Typed configuration passed to a component before execution: file paths, parameters, options.</span></li>
           <li><span class="code-tag">ICloneableModelComponent</span><span class="desc">Component cloning for parallel ensembles, calibration, and uncertainty runs on HPC.</span></li>
         </ul>
       </div>
@@ -107,7 +100,7 @@
         <h3 style="margin-bottom:14px">Data exchange</h3>
         <ul class="iface-list">
           <li><span class="code-tag">IOutput / IInput</span><span class="desc">Exchange items: the quantities a component provides or consumes, with units, dimensions, and value definitions.</span></li>
-          <li><span class="code-tag">IAdaptedOutput</span><span class="desc">On-the-wire transformation — temporal interpolation, spatial mapping, unit conversion — between producer and consumer.</span></li>
+          <li><span class="code-tag">IAdaptedOutput</span><span class="desc">On-the-wire transformation (temporal interpolation, spatial mapping, unit conversion) between producer and consumer.</span></li>
           <li><span class="code-tag">IGeometry · IPolyhedralSurface · IRaster</span><span class="desc">Standard geospatial data types (Simple Features-aligned) so exchanged values carry their geometry.</span></li>
           <li><span class="code-tag">ITime · ITimeSeries</span><span class="desc">Temporal semantics for time-marching co-simulation and time series exchange.</span></li>
         </ul>
@@ -168,7 +161,7 @@
     <div class="section-kicker">Data standards</div>
     <h2>Standard formats at every boundary</h2>
     <p class="section-intro">
-      HydroCouple leans on established open standards rather than inventing new formats, so
+      HydroCouple builds on established open standards, so
       compositions interoperate with the GIS, sensor, and scientific-data tooling agencies and
       utilities already run.
     </p>
@@ -182,8 +175,7 @@
       <div class="card">
         <span class="badge standard">Storage</span>
         <h3>GeoPackage / SQLite</h3>
-        <p>Model inputs, results, and observed data in a single portable, queryable container —
-           the native I/O strategy of Open-Source SWMM 6.0.</p>
+        <p>Model inputs, results, and observed data in a single portable, queryable container, the native I/O strategy of Open-Source SWMM 6.0.</p>
       </div>
       <div class="card">
         <span class="badge standard">Scientific data</span>
@@ -207,8 +199,7 @@
     <div class="section-kicker">Modern computing</div>
     <h2>Designed for HPC and the cloud</h2>
     <p class="section-intro">
-      Digital water infrastructure has to answer operational questions — how big, how fast, how
-      uncertain — that a single desktop run cannot. The interface definitions were designed from
+      Digital water infrastructure has to answer operational questions (how big, how fast, how uncertain) that a single desktop run cannot. The interface definitions were designed from
       the start for parallel and distributed execution.
     </p>
     <div class="grid cols-3">
@@ -219,8 +210,7 @@
       </div>
       <div class="card">
         <h3>Workflow control</h3>
-        <p>Customizable data-exchange workflows — loop-driven time marching, iterative coupling,
-           optimization drivers — without modifying the components themselves.</p>
+        <p>Customizable data-exchange workflows (loop-driven time marching, iterative coupling, optimization drivers) without modifying the components themselves.</p>
       </div>
       <div class="card">
         <h3>Portable acceleration</h3>
@@ -240,9 +230,7 @@
       <div>
         <h4>HydroCouple</h4>
         <p style="font-size:0.92rem; max-width:44ch">
-          Open interface definitions and data standards for composable water-systems modeling —
-          the integration layer for digital public water infrastructure, and home of the
-          Open-Source SWMM initiative.
+          Open interface definitions and data standards for composable water-systems modeling. It is the integration layer for digital public water infrastructure and the home of the Open-Source SWMM initiative.
         </p>
       </div>
       <div>
