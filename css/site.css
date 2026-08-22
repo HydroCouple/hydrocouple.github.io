@@ -65,7 +65,7 @@ img { max-width: 100%; height: auto; }
   display: flex; align-items: center; gap: 10px;
   font-family: var(--font-head); font-weight: 700; font-size: 1.12rem; color: var(--ink);
 }
-.nav-brand img { width: 30px; height: 30px; }
+.nav-brand img { height: 30px; width: auto; }
 .nav-links { display: flex; gap: 4px; margin-left: auto; list-style: none; align-items: center; }
 .nav-links a {
   padding: 8px 13px; border-radius: 8px; font-size: 0.95rem; font-weight: 500; color: var(--ink-soft);
