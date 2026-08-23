@@ -133,10 +133,13 @@ img { max-width: 100%; height: auto; }
   display: block; width: 100%; border-radius: 10px;
 }
 .hero-tagline {
-  margin-bottom: 14px; text-align: center;
+  margin-top: 14px; text-align: center;
   font-family: var(--font-head); font-size: 1.05rem; font-weight: 600;
   letter-spacing: 0.02em; color: #cfe9ff;
 }
+.hero-copy-top .hero-kicker { margin-bottom: 12px; }
+.hero-copy-top h1 { margin-bottom: 0; }
+.hero-stack .hero-copy-top + .hero-media { margin-top: 0; }
 .hero-pill {
   background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.35); color: #d6ebff;
 }
