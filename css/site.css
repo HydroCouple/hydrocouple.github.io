@@ -284,6 +284,19 @@ section h2 { font-size: clamp(1.55rem, 3vw, 2.15rem); font-weight: 750; margin-b
   border-left: 4px solid var(--accent); padding-left: 18px; margin: 0 0 20px;
   color: var(--ink-soft); font-style: italic;
 }
+/* ---------- Comments (giscus) ---------- */
+.article-comments {
+  margin-top: 46px; padding-top: 30px; border-top: 1px solid var(--line);
+}
+.article-comments h3 {
+  font-size: 1.15rem; margin-bottom: 6px;
+}
+.article-comments .comments-note {
+  font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 18px;
+}
+.article-comments .giscus { min-height: 180px; }
+.article-comments .giscus-frame { border: 0; width: 100%; }
+
 .article-figs-label {
   font-size: 0.8rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase;
   color: var(--accent); margin: 34px 0 4px;

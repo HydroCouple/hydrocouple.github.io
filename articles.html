@@ -456,6 +456,26 @@
              <p><em>This document will be updated as the alpha program progresses. Last updated: May 2026.</em></p>
           </div>
         </article>
+        <!-- ─────────── COMMENTS ─────────── -->
+        <!--
+          Powered by giscus (https://giscus.app) using GitHub Discussions.
+          BEFORE THIS WORKS, complete three one-time steps:
+            1. Enable Discussions on the repo below and add a category (e.g. "Article comments").
+            2. Install the giscus GitHub App on that repo: https://github.com/apps/giscus
+            3. Visit https://giscus.app, enter the repo, and copy the generated
+               data-repo-id and data-category-id into GISCUS_CONFIG in the script at the
+               bottom of this file. The placeholders below will not work until replaced.
+        -->
+        <section class="article-comments" id="articleComments">
+          <h3>Discussion</h3>
+          <p class="comments-note">
+            Comments are powered by GitHub Discussions. Sign in with a GitHub account to join the
+            conversation, or
+            <a id="commentsRepoLink" href="https://github.com/HydroCouple/openswmm.engine/discussions">open the discussion on GitHub</a>.
+          </p>
+          <div id="giscusMount"></div>
+        </section>
+
       </div>
     </div>
   </div>
@@ -495,9 +515,58 @@
 </footer>
 
 <script>
+/* ─── giscus configuration ───────────────────────────────────────────────
+   Replace the two *_ID placeholders with the values generated at
+   https://giscus.app after installing the giscus app on the repo below.
+   Everything else is already set up: each article gets its own discussion
+   thread, keyed by its slug via the "specific" mapping.
+──────────────────────────────────────────────────────────────────────── */
+var GISCUS_CONFIG = {
+  repo:        'HydroCouple/openswmm.engine',
+  repoId:      'REPLACE_WITH_REPO_ID',
+  category:    'Article comments',
+  categoryId:  'REPLACE_WITH_CATEGORY_ID',
+  theme:       'light',
+  lang:        'en'
+};
+
 (function () {
   var links = document.querySelectorAll('#articleIndex a');
   var articles = document.querySelectorAll('#articlePane > article');
+  var mount = document.getElementById('giscusMount');
+  var repoLink = document.getElementById('commentsRepoLink');
+
+  function loadComments(id) {
+    if (!mount) return;
+    mount.innerHTML = '';
+    if (repoLink) {
+      repoLink.href = 'https://github.com/' + GISCUS_CONFIG.repo + '/discussions';
+    }
+    if (GISCUS_CONFIG.repoId.indexOf('REPLACE_') === 0) {
+      mount.innerHTML = '<p class="comments-note"><em>Comments are not configured yet. '
+        + 'See the setup notes in the page source.</em></p>';
+      return;
+    }
+    var title = document.querySelector('#' + CSS.escape(id) + ' .article-head h2');
+    var s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.setAttribute('data-repo', GISCUS_CONFIG.repo);
+    s.setAttribute('data-repo-id', GISCUS_CONFIG.repoId);
+    s.setAttribute('data-category', GISCUS_CONFIG.category);
+    s.setAttribute('data-category-id', GISCUS_CONFIG.categoryId);
+    s.setAttribute('data-mapping', 'specific');
+    s.setAttribute('data-term', 'article: ' + id);
+    s.setAttribute('data-strict', '1');
+    s.setAttribute('data-reactions-enabled', '1');
+    s.setAttribute('data-emit-metadata', '0');
+    s.setAttribute('data-input-position', 'top');
+    s.setAttribute('data-theme', GISCUS_CONFIG.theme);
+    s.setAttribute('data-lang', GISCUS_CONFIG.lang);
+    s.setAttribute('data-loading', 'lazy');
+    s.crossOrigin = 'anonymous';
+    s.async = true;
+    mount.appendChild(s);
+  }
 
   function show(id, push) {
     var found = false;
@@ -514,6 +583,7 @@
       l.classList.toggle('active', l.getAttribute('data-target') === id);
     });
     if (push && history.replaceState) history.replaceState(null, '', '#' + id);
+    loadComments(id);
   }
 
   links.forEach(function (l) {
