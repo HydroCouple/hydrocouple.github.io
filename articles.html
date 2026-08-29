@@ -516,16 +516,16 @@
 
 <script>
 /* ─── giscus configuration ───────────────────────────────────────────────
-   Replace the two *_ID placeholders with the values generated at
-   https://giscus.app after installing the giscus app on the repo below.
-   Everything else is already set up: each article gets its own discussion
-   thread, keyed by its slug via the "specific" mapping.
+   Values generated at https://giscus.app for hydrocouple/openswmm.engine.
+   Each article gets its own discussion thread, keyed by its slug via the
+   "specific" mapping (rather than "pathname", which would give all six
+   articles on this page a single shared thread).
 ──────────────────────────────────────────────────────────────────────── */
 var GISCUS_CONFIG = {
   repo:        'hydrocouple/openswmm.engine',
   repoId:      'R_kgDOPK_dWQ',
-  category:    'Announcements',
-  categoryId:  'DIC_kwDOPK_dWc4CuKb4',
+  category:    'Article comments',
+  categoryId:  'DIC_kwDOPK_dWc4DEa-B',
   theme:       'light',
   lang:        'en'
 };
@@ -547,7 +547,6 @@ var GISCUS_CONFIG = {
         + 'See the setup notes in the page source.</em></p>';
       return;
     }
-    var title = document.querySelector('#' + CSS.escape(id) + ' .article-head h2');
     var s = document.createElement('script');
     s.src = 'https://giscus.app/client.js';
     s.setAttribute('data-repo', GISCUS_CONFIG.repo);
@@ -562,7 +561,6 @@ var GISCUS_CONFIG = {
     s.setAttribute('data-input-position', 'top');
     s.setAttribute('data-theme', GISCUS_CONFIG.theme);
     s.setAttribute('data-lang', GISCUS_CONFIG.lang);
-    s.setAttribute('data-loading', 'lazy');
     s.crossOrigin = 'anonymous';
     s.async = true;
     mount.appendChild(s);
