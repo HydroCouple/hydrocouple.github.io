@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Technical articles on the development of Open-Source SWMM 6.0 (SWMM2D): solver formulations, verification, and the HydroCouple framework.">
+  <meta name="author" content="Caleb Buahin">
+  <title>Articles | HydroCouple</title>
+  <link href="img/hydrocouple.png" rel="icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="css/site.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html"><img src="img/hydrocouple.png" alt="HydroCouple logo">HydroCouple</a>
+    <button class="nav-toggle" aria-label="Menu" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
+    <ul class="nav-links" id="navlinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="standards.html">Standards</a></li>
+      <li><a href="ecosystem.html">Ecosystem</a></li>
+      <li><a href="articles.html" class="active">Articles</a></li>
+      <li><a href="publications.html">Publications</a></li>
+      <li><a href="docs.html">Docs</a></li>
+      <li><a class="cta" href="https://github.com/hydrocouple">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <span class="hero-kicker">Engineering notes · Solver science</span>
+    <h1>Articles</h1>
+    <p class="lede">
+      Working notes from the development of Open-Source SWMM 6.0 (SWMM2D): new process
+      formulations, numerical methods, verification practice, and the reasoning behind the
+      design decisions in the engine.
+    </p>
+  </div>
+  <svg class="hero-wave" viewBox="0 0 1440 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,40 C240,70 480,8 720,30 C960,52 1200,20 1440,44 L1440,70 L0,70 Z" fill="#fafcfd"/>
+  </svg>
+</header>
+
+<section>
+  <div class="container">
+    <div class="articles-layout">
+
+      <!-- ============ LEFT: INDEX ============ -->
+      <aside class="article-index">
+        <h3>Contents</h3>
+        <ol id="articleIndex">
+          <li><a href="#conservative-hydraulic-routing" data-target="conservative-hydraulic-routing">A New Conservative Hydraulic Routing Alternative to SWMM's Dynamic Wave Routing</a></li>
+          <li><a href="#testing-and-validation" data-target="testing-and-validation">How is Open-Source SWMM6 Being Tested and Validated?</a></li>
+          <li><a href="#dynamic-preissmann-slot" data-target="dynamic-preissmann-slot">A Dynamic Preissmann Slot for Open-Source SWMM2D</a></li>
+          <li><a href="#rdii-reimagined" data-target="rdii-reimagined">Reimagining the RDII Implementation in Open-Source SWMM (SWMM2D)</a></li>
+          <li><a href="#semi-implicit-node-continuity" data-target="semi-implicit-node-continuity">New Optional Semi-Implicit Node Continuity Formulation for SWMM</a></li>
+          <li><a href="#swmm2d-alpha-release" data-target="swmm2d-alpha-release">Open-Source SWMM 6.0.0 (SWMM2D) — Alpha Release Announcement</a></li>
+        </ol>
+      </aside>
+
+      <!-- ============ RIGHT: READER ============ -->
+      <div class="article-pane" id="articlePane">
+
+        <!-- ─────────── ARTICLE ─────────── -->
+        <article id="conservative-hydraulic-routing">
+          <div class="article-head">
+            <h2>A New Conservative Hydraulic Routing Alternative to SWMM's Dynamic Wave Routing</h2>
+            <div class="article-meta">
+              <span>Caleb Buahin</span>
+              <a class="src-link" href="https://www.linkedin.com/pulse/new-conservative-hydraulic-routing-alternative-swmms-dynamic-buahin-bovgc/">Read the original on LinkedIn →</a>
+            </div>
+          </div>
+          <div class="article-body">
+            <p class="article-draft"><strong>Body text pending.</strong> Paste the article prose here, using <code>&lt;p&gt;</code> for paragraphs and <code>&lt;h3&gt;</code> for section headings. Figures recovered from the original are placed below and can be reordered or interleaved with the text.</p>
+            <figure><img src="img/articles/conservative-hydraulic-routing/fig1.jpg" alt="Figure 1"><figcaption>Figure 1</figcaption></figure>
+            <figure><img src="img/articles/conservative-hydraulic-routing/fig2.jpg" alt="Figure 2"><figcaption>Figure 2</figcaption></figure>
+            <figure><img src="img/articles/conservative-hydraulic-routing/fig3.gif" alt="Figure 3 (animation)"><figcaption>Figure 3</figcaption></figure>
+            <figure><img src="img/articles/conservative-hydraulic-routing/fig4.jpg" alt="Figure 4"><figcaption>Figure 4</figcaption></figure>
+            <figure><img src="img/articles/conservative-hydraulic-routing/fig5.jpg" alt="Figure 5"><figcaption>Figure 5</figcaption></figure>
+            <figure><img src="img/articles/conservative-hydraulic-routing/fig6.jpg" alt="Figure 6"><figcaption>Figure 6</figcaption></figure>
+            <figure><img src="img/articles/conservative-hydraulic-routing/fig7.jpg" alt="Figure 7"><figcaption>Figure 7</figcaption></figure>
+            <figure><img src="img/articles/conservative-hydraulic-routing/fig8.jpg" alt="Figure 8"><figcaption>Figure 8</figcaption></figure>
+            <figure><img src="img/articles/conservative-hydraulic-routing/fig9.jpg" alt="Figure 9"><figcaption>Figure 9</figcaption></figure>
+            <figure><img src="img/articles/conservative-hydraulic-routing/fig10.jpg" alt="Figure 10"><figcaption>Figure 10</figcaption></figure>
+          </div>
+        </article>
+
+        <!-- ─────────── ARTICLE ─────────── -->
+        <article id="testing-and-validation">
+          <div class="article-head">
+            <h2>How is Open-Source SWMM6 Being Tested and Validated?</h2>
+            <div class="article-meta">
+              <span>Caleb Buahin</span>
+              <a class="src-link" href="https://www.linkedin.com/pulse/how-open-source-swmm6-being-tested-validated-caleb-buahin-kuq8c/">Read the original on LinkedIn →</a>
+            </div>
+          </div>
+          <div class="article-body">
+            <p class="article-draft"><strong>Body text pending.</strong> Paste the article prose here.</p>
+            <figure><img src="img/articles/testing-and-validation/fig1.jpg" alt="EXTRAN1 network with comparison points marked"><figcaption>Figure 1</figcaption></figure>
+            <figure><img src="img/articles/testing-and-validation/fig2.jpg" alt="Figure 2"><figcaption>Figure 2</figcaption></figure>
+            <figure><img src="img/articles/testing-and-validation/fig3.jpg" alt="Figure 3"><figcaption>Figure 3</figcaption></figure>
+            <figure><img src="img/articles/testing-and-validation/fig4.jpg" alt="Figure 4"><figcaption>Figure 4</figcaption></figure>
+            <figure><img src="img/articles/testing-and-validation/fig5.jpg" alt="Figure 5"><figcaption>Figure 5</figcaption></figure>
+            <figure><img src="img/articles/testing-and-validation/fig6.jpg" alt="Figure 6"><figcaption>Figure 6</figcaption></figure>
+            <figure><img src="img/articles/testing-and-validation/fig7.jpg" alt="Figure 7"><figcaption>Figure 7</figcaption></figure>
+            <figure><img src="img/articles/testing-and-validation/fig8.jpg" alt="Figure 8"><figcaption>Figure 8</figcaption></figure>
+            <figure><img src="img/articles/testing-and-validation/fig9.jpg" alt="Figure 9"><figcaption>Figure 9</figcaption></figure>
+            <figure><img src="img/articles/testing-and-validation/fig10.jpg" alt="Figure 10"><figcaption>Figure 10</figcaption></figure>
+            <figure><img src="img/articles/testing-and-validation/fig11.jpg" alt="Figure 11"><figcaption>Figure 11</figcaption></figure>
+          </div>
+        </article>
+
+        <!-- ─────────── ARTICLE ─────────── -->
+        <article id="dynamic-preissmann-slot">
+          <div class="article-head">
+            <h2>A Dynamic Preissmann Slot for Open-Source SWMM2D</h2>
+            <div class="article-meta">
+              <span>Caleb Buahin</span>
+              <a class="src-link" href="https://www.linkedin.com/pulse/dynamic-preissmann-slot-open-source-swmm2d-caleb-buahin-rc8we/">Read the original on LinkedIn →</a>
+            </div>
+          </div>
+          <div class="article-body">
+            <p class="article-draft"><strong>Body text pending.</strong> Paste the article prose here.</p>
+            <figure><img src="img/articles/dynamic-preissmann-slot/fig1.jpg" alt="Figure 1"><figcaption>Figure 1</figcaption></figure>
+            <figure><img src="img/articles/dynamic-preissmann-slot/fig2.jpg" alt="Figure 2"><figcaption>Figure 2</figcaption></figure>
+            <figure><img src="img/articles/dynamic-preissmann-slot/fig3.jpg" alt="Figure 3"><figcaption>Figure 3</figcaption></figure>
+            <figure><img src="img/articles/dynamic-preissmann-slot/fig4.jpg" alt="Figure 4"><figcaption>Figure 4</figcaption></figure>
+            <figure><img src="img/articles/dynamic-preissmann-slot/fig5.jpg" alt="Figure 5"><figcaption>Figure 5</figcaption></figure>
+            <figure><img src="img/articles/dynamic-preissmann-slot/fig6.jpg" alt="Figure 6"><figcaption>Figure 6</figcaption></figure>
+          </div>
+        </article>
+
+        <!-- ─────────── ARTICLE ─────────── -->
+        <article id="rdii-reimagined">
+          <div class="article-head">
+            <h2>Reimagining the RDII Implementation in Open-Source SWMM (SWMM2D)</h2>
+            <div class="article-meta">
+              <span>Caleb Buahin</span>
+              <a class="src-link" href="https://www.linkedin.com/pulse/reimagining-rdii-implementation-open-source-swmm-swmm2d-caleb-buahin-txlfe/">Read the original on LinkedIn →</a>
+            </div>
+          </div>
+          <div class="article-body">
+            <p class="article-draft"><strong>Body text pending.</strong> Paste the article prose here.</p>
+            <figure><img src="img/articles/rdii-reimagined/fig1.jpg" alt="Figure 1"><figcaption>Figure 1</figcaption></figure>
+            <figure><img src="img/articles/rdii-reimagined/fig2.jpg" alt="Figure 2"><figcaption>Figure 2</figcaption></figure>
+          </div>
+        </article>
+
+        <!-- ─────────── ARTICLE ─────────── -->
+        <article id="semi-implicit-node-continuity">
+          <div class="article-head">
+            <h2>New Optional Semi-Implicit Node Continuity Formulation for SWMM</h2>
+            <div class="article-meta">
+              <span>Caleb Buahin</span>
+              <a class="src-link" href="https://www.linkedin.com/pulse/new-optional-semi-implicit-node-continuity-swmm-caleb-buahin-xu0je/">Read the original on LinkedIn →</a>
+            </div>
+          </div>
+          <div class="article-body">
+            <p class="article-draft"><strong>Body text pending.</strong> Paste the article prose here.</p>
+            <figure><img src="img/articles/semi-implicit-node-continuity/fig1.jpg" alt="Figure 1"><figcaption>Figure 1</figcaption></figure>
+            <figure><img src="img/articles/semi-implicit-node-continuity/fig2.jpg" alt="Figure 2"><figcaption>Figure 2</figcaption></figure>
+          </div>
+        </article>
+
+        <!-- ─────────── ARTICLE ─────────── -->
+        <article id="swmm2d-alpha-release">
+          <div class="article-head">
+            <h2>Open-Source SWMM 6.0.0 (SWMM2D) — Alpha Release Announcement</h2>
+            <div class="article-meta">
+              <span>Caleb Buahin</span>
+              <a class="src-link" href="https://www.linkedin.com/pulse/open-source-swmm-600-swmm2d-alpha-release-caleb-buahin-bgule/">Read the original on LinkedIn →</a>
+            </div>
+          </div>
+          <div class="article-body">
+            <p class="article-draft"><strong>Body text pending.</strong> Paste the article prose here.</p>
+            <figure><img src="img/articles/swmm2d-alpha-release/fig1.jpg" alt="Figure 1"><figcaption>Figure 1</figcaption></figure>
+            <figure><img src="img/articles/swmm2d-alpha-release/fig2.jpg" alt="Figure 2"><figcaption>Figure 2</figcaption></figure>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>HydroCouple</h4>
+        <p style="font-size:0.92rem; max-width:44ch">
+          The enabling architectures for innovation in water modeling: open interface definitions, data standards, and computational engines. The integration layer for digital public water infrastructure and home of the Open-Source SWMM initiative.
+        </p>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <ul>
+          <li><a href="standards.html">Standards</a></li>
+          <li><a href="ecosystem.html">Ecosystem</a></li>
+          <li><a href="articles.html">Articles</a></li>
+          <li><a href="publications.html">Publications</a></li>
+          <li><a href="docs.html">Documentation</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="https://github.com/hydrocouple">GitHub</a></li>
+          <li><a href="mailto:caleb.buahin@gmail.com">Email</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-note">
+      © 2014–2026 HydroCouple.
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var links = document.querySelectorAll('#articleIndex a');
+  var articles = document.querySelectorAll('#articlePane > article');
+
+  function show(id, push) {
+    var found = false;
+    articles.forEach(function (a) {
+      var on = a.id === id;
+      a.classList.toggle('active', on);
+      if (on) found = true;
+    });
+    if (!found && articles.length) {
+      articles[0].classList.add('active');
+      id = articles[0].id;
+    }
+    links.forEach(function (l) {
+      l.classList.toggle('active', l.getAttribute('data-target') === id);
+    });
+    if (push && history.replaceState) history.replaceState(null, '', '#' + id);
+  }
+
+  links.forEach(function (l) {
+    l.addEventListener('click', function (e) {
+      e.preventDefault();
+      show(l.getAttribute('data-target'), true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  window.addEventListener('hashchange', function () {
+    show(location.hash.replace('#', ''), false);
+  });
+
+  show(location.hash.replace('#', ''), false);
+})();
+</script>
+
+</body>
+</html>
