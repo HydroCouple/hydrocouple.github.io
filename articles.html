@@ -547,6 +547,15 @@ var GISCUS_CONFIG = {
         + 'See the setup notes in the page source.</em></p>';
       return;
     }
+    // giscus refuses to frame a page served from file:// (null origin), so give a
+    // useful message during local preview instead of a "refused to connect" box.
+    if (location.protocol === 'file:') {
+      mount.innerHTML = '<p class="comments-note"><em>Comments load only over http(s). '
+        + 'Run <code>python3 -m http.server 8000</code> and open '
+        + '<code>http://localhost:8000/articles.html</code>, or view the published site.'
+        + '</em></p>';
+      return;
+    }
     var s = document.createElement('script');
     s.src = 'https://giscus.app/client.js';
     s.setAttribute('data-repo', GISCUS_CONFIG.repo);
