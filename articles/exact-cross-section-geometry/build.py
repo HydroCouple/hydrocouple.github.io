@@ -20,7 +20,9 @@ ROOT  = os.path.abspath(os.path.join(HERE, '..', '..'))
 SHA   = '7ff727be74f0f85661b0b8fc09a32401964c0f36'
 BASE  = 'https://github.com/HydroCouple/openswmm.engine/blob/%s/' % SHA
 AUTHORS = ['Corinne Wiesner-Friedman']   # byline credits the article's author only
-DATE    = 'August 2026'
+DATE    = '08-30-2026'  # MM-DD-YYYY, matches the site's date-badge index (added 2026-08-31
+                         # after articles.html was independently rebuilt and lost this block —
+                         # see the note in the article's own README)
 SRCLINK = ('https://github.com/HydroCouple/openswmm.engine/tree/feature/xsect-geometry',
            'Code and branch on GitHub →')
 
@@ -158,6 +160,11 @@ def render(md):
     return title, block
 
 
+def _mdY_to_sortkey(mdY):
+    m, d, y = mdY.split('-')
+    return (y, m, d)
+
+
 def main():
     title, block = render(io.open(os.path.join(HERE, 'article.md'), encoding='utf-8').read())
     p = os.path.join(ROOT, 'articles.html')
@@ -174,16 +181,39 @@ def main():
             sys.exit('could not find the first <article> block in articles.html')
         s = s[:m.start()] + block + s[m.start():]
 
-    # --- index entry + numbering ---
-    if 'data-target="%s"' % SLUG not in s:
-        m = re.search(r'<ol id="articleIndex" style="--art-start: (\d+)">\n', s)
-        n = int(m.group(1))
-        s = (s[:m.start()] + '<ol id="articleIndex" style="--art-start: %d">\n' % (n + 1) +
-             '          <li><a href="#%s" data-target="%s">%s</a></li>\n' % (SLUG, SLUG, html.escape(title)) +
-             s[m.end():])
-    else:
-        s = re.sub(r'(<li><a href="#%s" data-target="%s">).*?(</a></li>)' % (SLUG, SLUG),
-                   lambda m: m.group(1) + html.escape(title) + m.group(2), s, count=1)
+    # --- index entry ---
+    # The index is <ol id="articleIndex"> with <li><a href="#slug" data-target="slug">
+    # <span class="art-date">MM-DD-YYYY</span><span class="art-title">Title</span></a></li>
+    # entries, newest first (no counter/--art-start any more — that scheme was replaced
+    # 2026-08-31; see build.py's DATE comment). Insert/move this article into the correct
+    # chronological slot rather than always prepending, since a future article added here
+    # is not guaranteed to be the newest one on the page.
+    li = ('          <li><a href="#%s" data-target="%s">'
+          '<span class="art-date">%s</span><span class="art-title">%s</span></a></li>\n'
+          % (SLUG, SLUG, DATE, html.escape(title)))
+
+    s = re.sub(r'[ \t]*<li><a href="#%s" data-target="%s">.*?</a></li>\n' % (SLUG, SLUG), '', s)
+
+    ol = re.search(r'<ol id="articleIndex"[^>]*>\n', s)
+    if not ol:
+        sys.exit('could not find <ol id="articleIndex"> in articles.html')
+    body_start = ol.end()
+    body_end = body_start + s[body_start:].index('</ol>')
+    region = s[body_start:body_end]
+    # Every <li> ends in its own trailing "\n"; only the pure-whitespace indent
+    # of the closing tag itself (e.g. "        ") is left over after the last
+    # one, and must be re-attached rather than dropped, or the reconstructed
+    # </ol> loses its indentation. (An earlier version instead let an optional
+    # leading \n in the close-tag pattern greedily eat the LAST <li>'s own
+    # terminating newline, silently dropping that item from findall — caught
+    # by diffing against the six pre-existing articles before pushing.)
+    tail_ws = re.search(r'[ \t]*\Z', region).group(0)
+    items = re.findall(r'[ \t]*<li>.*?</li>\n', region[:len(region) - len(tail_ws)], re.S)
+    dates = [re.search(r'class="art-date">([^<]+)<', it) for it in items]
+    key = _mdY_to_sortkey(DATE)
+    idx = next((i for i, d in enumerate(dates) if d and _mdY_to_sortkey(d.group(1)) < key), len(items))
+    items.insert(idx, li)
+    s = s[:body_start] + ''.join(items) + tail_ws + s[body_end:]
 
     io.open(p, 'w', encoding='utf-8').write(s)
     print('articles.html updated: %s' % SLUG)
