@@ -9,14 +9,29 @@
 
 ## Where this started
 
-I am building an uncertainty sidecar slowly for SWMM on a different branch and it leads me to wonder about all uncertainty that exists in SWMM that I may overlook. I started to think about SWMM's look up tables, which are approximations of pipe shapes. I was thinking well how much error might this account for and under what conditions? What might this mean for pipe Manning's? When we calibrate this, are we just calibrating something that may very well just be an error term? In particular, how might this affect the finite volume solve? 
+I am building an uncertainty sidecar slowly for SWMM on a different branch
+(I am super excited to post about that down the road). It has me constantly
+wondering about uncertainty that exists in SWMM that I may overlook. I started
+to think about SWMM's look up tables, which are approximations of pipe shapes.
+I was thinking, well, how much error might this account for and under what
+conditions? What might this mean for pipe Manning's? When we calibrate this,
+are we just calibrating something that may very well just be an error term? In
+particular, how might this affect the finite volume solve?
 
-Started investigating this from a practical perspective, wondering what approach would both reduce that error *and* let people input any hollow pipe shape they want. 
+I started investigating this and after realizing that pipe geometry has bigger
+implications to a finite volume solver, I ended up pursuing work from the
+practical perspective of finding an approach that would reduce that error and
+let people input any hollow pipe shape they want.
 
-What follows is an AI-written summary that I directed and verified about what turned up and some of what it
-implies.
+I have really enjoyed reviewing some math I kind of knew and deepening my
+understanding of it in application to this work.
 
-Maybe this will spark your interest if you have a network with some funky shapes. I hope you try out these new features, help debug a bit, and get back to me on how your results may have changed. 
+What follows is an AI-written summary that I directed and verified about what
+turned up and some of what it implies.
+
+Maybe this will spark your interest if you have a network with some funky
+shapes. I hope you try out these new features, help debug a bit, and get back
+to me on how your results may have changed.
 
 *— Corinne Wiesner-Friedman*
 
