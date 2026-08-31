@@ -60,13 +60,28 @@ def inline(t):
     return t
 
 
+NUM_CELL = re.compile(r'^[~−\-+]?\d')  # leading digit, optionally signed/approx
+
+
 def table(rows):
+    """A column is right-aligned (class="num") only when EVERY data cell in it
+    starts with a digit (allowing a leading ~/-/+/−) — so a prose table (all
+    text) stays fully left-aligned, a numeric table right-aligns its data columns
+    against a left-aligned label column, and a column mixing numbers with a text
+    verdict (e.g. "no meaningful change") also stays left, which is the reading
+    that column actually wants."""
     hdr = [c.strip() for c in rows[0].strip('|').split('|')]
-    o = ['<table><thead><tr>' + ''.join('<th>%s</th>' % inline(c) for c in hdr) +
+    body = [[c.strip() for c in r.strip('|').split('|')] for r in rows[2:]]
+    ncol = len(hdr)
+    numeric = [bool(body) and all(NUM_CELL.match(r[i]) for r in body if i < len(r) and r[i])
+              for i in range(ncol)]
+    def cls(i):
+        return ' class="num"' if numeric[i] else ''
+    o = ['<table><thead><tr>' +
+         ''.join('<th%s>%s</th>' % (cls(i), inline(c)) for i, c in enumerate(hdr)) +
          '</tr></thead><tbody>']
-    for r in rows[2:]:
-        cs = [c.strip() for c in r.strip('|').split('|')]
-        o.append('<tr>' + ''.join('<td>%s</td>' % inline(c) for c in cs) + '</tr>')
+    for r in body:
+        o.append('<tr>' + ''.join('<td%s>%s</td>' % (cls(i), inline(c)) for i, c in enumerate(r)) + '</tr>')
     return ''.join(o) + '</tbody></table>'
 
 
