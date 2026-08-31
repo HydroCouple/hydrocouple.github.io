@@ -224,18 +224,18 @@ section h2 { font-size: clamp(1.55rem, 3vw, 2.15rem); font-weight: 750; margin-b
   font-size: 0.8rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase;
   color: var(--accent); margin-bottom: 14px;
 }
-/* Newest first, but numbered by publication order (oldest = 1), so the counter runs down. */
-.article-index ol { list-style: none; counter-reset: art var(--art-start, 7); display: grid; gap: 2px; }
-.article-index li { counter-increment: art -1; }
+/* Newest first, organized by publication date. */
+.article-index ol { list-style: none; display: grid; gap: 2px; }
 .article-index a {
-  display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start;
+  display: block;
   padding: 11px 12px; border-radius: 8px; border-left: 3px solid transparent;
   font-size: 0.93rem; line-height: 1.4; color: var(--ink-soft); font-weight: 500;
 }
-.article-index a::before {
-  content: counter(art) "."; font-family: var(--font-mono); font-size: 0.8rem;
-  color: var(--accent); padding-top: 1px;
+.article-index .art-date {
+  display: block; font-family: var(--font-mono); font-size: 0.73rem;
+  letter-spacing: 0.03em; color: var(--accent); margin-bottom: 3px;
 }
+.article-index a.active .art-date { color: var(--primary); }
 .article-index a:hover { background: var(--mist); color: var(--primary-deep); }
 .article-index a.active {
   background: var(--accent-soft); border-left-color: var(--accent);

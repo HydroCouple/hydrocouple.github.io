@@ -51,104 +51,19 @@
       <!-- ============ LEFT: INDEX ============ -->
       <aside class="article-index">
         <h3>Contents</h3>
-        <!-- Newest first. --art-start = number of articles + 1, so numbering runs
-             down and article 1 is the earliest published. Update when adding articles. -->
-        <ol id="articleIndex" style="--art-start: 8">
-          <li><a href="#exact-cross-section-geometry" data-target="exact-cross-section-geometry">Exact and user-defined cross-section geometry for SWMM</a></li>
-          <li><a href="#conservative-hydraulic-routing" data-target="conservative-hydraulic-routing">A New Conservative Hydraulic Routing Alternative to SWMM&#x27;s Dynamic Wave Routing</a></li>
-          <li><a href="#testing-and-validation" data-target="testing-and-validation">How is Open-Source SWMM6 Being Tested and Validated?</a></li>
-          <li><a href="#dynamic-preissmann-slot" data-target="dynamic-preissmann-slot">A Dynamic Preissmann Slot for Open-Source SWMM2D</a></li>
-          <li><a href="#rdii-reimagined" data-target="rdii-reimagined">Reimagining the RDII Implementation in Open-Source SWMM (SWMM2D)</a></li>
-          <li><a href="#semi-implicit-node-continuity" data-target="semi-implicit-node-continuity">New Optional Semi-Implicit Node Continuity Formulation for SWMM</a></li>
-          <li><a href="#swmm2d-alpha-release" data-target="swmm2d-alpha-release">Open-Source SWMM 6.0.0 (SWMM2D) — Alpha Release Announcement</a></li>
+        <!-- Newest first, organized by publication date. -->
+        <ol id="articleIndex">
+          <li><a href="#conservative-hydraulic-routing" data-target="conservative-hydraulic-routing"><span class="art-date">08-16-2026</span><span class="art-title">A New Conservative Hydraulic Routing Alternative to SWMM&#x27;s Dynamic Wave Routing</span></a></li>
+          <li><a href="#testing-and-validation" data-target="testing-and-validation"><span class="art-date">06-23-2026</span><span class="art-title">How is Open-Source SWMM6 Being Tested and Validated?</span></a></li>
+          <li><a href="#rdii-reimagined" data-target="rdii-reimagined"><span class="art-date">05-25-2026</span><span class="art-title">Reimagining the RDII Implementation in Open-Source SWMM (SWMM2D)</span></a></li>
+          <li><a href="#swmm2d-alpha-release" data-target="swmm2d-alpha-release"><span class="art-date">05-05-2026</span><span class="art-title">Open-Source SWMM 6.0.0 (SWMM2D) — Alpha Release Announcement</span></a></li>
+          <li><a href="#dynamic-preissmann-slot" data-target="dynamic-preissmann-slot"><span class="art-date">04-24-2026</span><span class="art-title">A Dynamic Preissmann Slot for Open-Source SWMM2D</span></a></li>
+          <li><a href="#semi-implicit-node-continuity" data-target="semi-implicit-node-continuity"><span class="art-date">04-23-2026</span><span class="art-title">New Optional Semi-Implicit Node Continuity Formulation for SWMM</span></a></li>
         </ol>
       </aside>
 
       <!-- ============ RIGHT: READER ============ -->
       <div class="article-pane" id="articlePane">
-
-        <!-- ─────────── ARTICLE ─────────── -->
-        <article id="exact-cross-section-geometry">
-          <div class="article-head">
-            <h2>Exact and user-defined cross-section geometry for SWMM</h2>
-            <div class="article-meta">
-              <span>Corinne Wiesner-Friedman</span>
-              <span>·</span>
-              <span>August 2026</span>
-              <a class="src-link" href="https://github.com/HydroCouple/openswmm.engine/tree/feature/xsect-geometry">Code and branch on GitHub →</a>
-            </div>
-          </div>
-          <div class="article-body">
-            <p><em>What built-in shape tables get wrong, what replaces them, and what it costs</em></p>
-            <h3>Where this started</h3>
-            <p>I am building an uncertainty sidecar slowly for SWMM on a different branch (I am super excited to post about that down the road). It has me constantly wondering about uncertainty that exists in SWMM that I may overlook. I started to think about SWMM&#x27;s look up tables, which are approximations of pipe shapes. I was thinking, well, how much error might this account for and under what conditions? What might this mean for pipe Manning&#x27;s? When we calibrate this, are we just calibrating something that may very well just be an error term? In particular, how might this affect the finite volume solve?</p>
-            <p>I started investigating this and after realizing that pipe geometry has bigger implications to a finite volume solver, I ended up pursuing work from the practical perspective of finding an approach that would reduce that error and let people input any hollow pipe shape they want.</p>
-            <p>I have really enjoyed reviewing some math I kind of knew and deepening my understanding of it in application to this work.</p>
-            <p>What follows is an AI-written summary that I directed and verified about what turned up and some of what it implies.</p>
-            <p>Maybe this will spark your interest if you have a network with some funky shapes. I hope you try out these new features, help debug a bit, and get back to me on how your results may have changed.</p>
-            <p><em>— Corinne Wiesner-Friedman</em></p>
-            <blockquote><p>Five-minute version. SWMM describes each built-in pipe shape with two small lookup tables that contradict each other: differentiate the area description and you do not get the width table back. That is not a precision problem. The equations these solvers integrate assume top width <em>is</em> the derivative of area, so an inconsistent pair means the solver is being handed a cross-section that cannot exist. We replaced the tables with exact geometry, which fixes that by construction.</p><p>The finding worth your attention is what happened next: switching to exact geometry moved dynamic-wave hydrographs — a median of 7% of peak flow at each conduit&#x27;s worst moment, 1.2% averaged over the whole record — while the continuity error stayed flat at ~0.08%. The model&#x27;s standard quality check is structurally blind to this class of error. Peak values themselves barely moved, which is a finding in its own right. Everything below expands on that, and every claim links to the code or the measurement behind it.</p></blockquote>
-            <h3>Continuity stayed flat while the predictions moved</h3>
-            <figure><img src="img/articles/exact-cross-section-geometry/fig1.png" alt="Continuity is flat while predictions move" loading="lazy"></figure>
-            <p>Both panels are the same two runs: Bellinge (1015 conduits, 48 h, dry-weather), dynamic wave, one binary, one changed option — <code>XSECT_GEOMETRY LEGACY</code> versus <code>EXACT</code>.</p>
-            <p><em>Left:</em> what the model says about its own quality. Continuity error moves from 0.073% to 0.085%. By that measure, nothing happened.</p>
-            <p><em>Right:</em> what the model actually computed. Take each of the 189 conduits carrying more than 1 L/s and ask how far apart the two flow records ever get, as a fraction of that conduit&#x27;s own peak: 80% diverge by more than 1% of peak at some point, 45% by more than 10%, and 33% by more than 25%. Median 7.0%; averaged over the whole 48 h rather than taken at the worst instant, the median is still 1.2% and the upper decile 14%. Node depths behave the same way (median 5.8% at the worst instant; one node&#x27;s depth differs by 755 mm at one moment).</p>
-            <p>What does <em>not</em> move is the peak. Peak flows agree to a median of 0.20%, and the largest change in any node&#x27;s peak depth across the whole network is 2 mm. So exact geometry does not rescale the answer — it shifts the timing and shape of the hydrograph underneath an almost unchanged peak. That distinction matters if you calibrate to peaks, and it matters more if you use the model for anything that integrates over the record: first flush, pump cycling, CSO spill duration, sediment transport.</p>
-            <p>Same water, same network, same solver, same time-step settings. The only difference is how the pipe&#x27;s cross-section was described.</p>
-            <blockquote><p>The uncomfortable implication. A modeler checking continuity to decide whether a run is trustworthy would see no reason for concern in either run. The error is real, it is systematic, and the standard diagnostic cannot see it. That is what &quot;unquantified uncertainty&quot; looks like in practice — not a missing error bar, but a quality check pointed at the wrong quantity.</p></blockquote>
-            <h3>The area and width tables describe different pipes</h3>
-            <p>SWMM describes each shape&#x27;s area and its top width with separate, independently digitized tables — and for four shapes the area description is itself a second table, inverted. But width is the derivative of area; they are not independent facts. Differentiate the area description and you should recover the width table. You do not.</p>
-            <figure><img src="img/articles/exact-cross-section-geometry/fig2.png" alt="One pipe, two water levels" loading="lazy"></figure>
-            <p>A 2 m gothic sewer holding 2% of its capacity. Gothic is one of the shapes that ships no area table, so its area comes from a 51-point <em>depth-of-area</em> table instead: read that, and the water surface is at 0.090 m. Integrate the shape&#x27;s own 21-point width table to the same stored volume and it is at 0.146 m. The orange band is the 56 mm the two descriptions cannot agree about — drawn at true scale. At 0.5% capacity the two answers are 23 mm and 74 mm — more than a factor of 3.</p>
-            <p>A LEGACY run consults both tables in the same timestep — area from one, width from the other — so the disagreement propagates into surface storage, friction and wave speed continuously.</p>
-            <p>The disagreement is worst where models spend dry weather, and it is much worse for some shapes than others:</p>
-            <div class="table-scroll"><table><thead><tr><th>Shape</th><th class="num">width pts</th><th class="num">at 2% depth</th><th class="num">median, full range</th><th class="num">&gt;10% off across</th></tr></thead><tbody><tr><td>CIRCULAR</td><td class="num">51</td><td class="num">−34% / +22%</td><td class="num">0.7%</td><td class="num">5% of depth</td></tr><tr><td>HORSESHOE</td><td class="num">26</td><td class="num">+28%</td><td class="num">1.3%</td><td class="num">11%</td></tr><tr><td>BASKETHANDLE</td><td class="num">26</td><td class="num">+47%</td><td class="num">5.6%</td><td class="num">19%</td></tr><tr><td>EGGSHAPED</td><td class="num">26</td><td class="num">+37%</td><td class="num">8.1%</td><td class="num">42%</td></tr><tr><td>SEMIELLIPTICAL</td><td class="num">21</td><td class="num">+82%</td><td class="num">10.7%</td><td class="num">53%</td></tr><tr><td>CATENARY</td><td class="num">21</td><td class="num">+97%</td><td class="num">15.0%</td><td class="num">60%</td></tr><tr><td>GOTHIC</td><td class="num">21</td><td class="num">+202%</td><td class="num">14.4%</td><td class="num">65%</td></tr><tr><td>SEMICIRCULAR</td><td class="num">21</td><td class="num">+72%</td><td class="num">17.7%</td><td class="num">71%</td></tr></tbody></table></div>
-            <p>Two notes on reading that table. The <code>2% depth</code> column is a local slope, so it is sensitive to where the table&#x27;s own nodes fall: <code>y/D = 0.02</code> is <em>exactly</em> a node of circular&#x27;s 51-point table, and the slope jumps from −34% just below it to +22% just above, which is why that cell carries two numbers. Every other row sits mid-interval and is a single value. The last two columns are dense sweeps and are not node-sensitive.</p>
-            <p>The pattern is not random: of the eight shapes here, the four worst are exactly the four that ship no area table at all. Those four carry only a 21-point width table plus 51-point depth-of-area and section-factor tables, and their area is recovered by inverting the depth-of-area table (<a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/src/engine/hydraulics/XSectKernels.hpp"><code>XSectKernels.hpp</code></a>) — a second, independently digitized description of the same pipe, which is exactly why it need not agree with the first. Circular — the best-resourced shape, and the one most networks are mostly made of — is by far the best behaved. (The pattern is suggestive rather than a law: <code>HORIZ_ELLIPSE</code>, which is not in the table above and <em>does</em> ship a 26-point area table, computes to a comparable ~12% median.)</p>
-            <blockquote><p>Why this is a correctness problem, not just a precision one. The Saint-Venant equations are not agnostic about geometry — they are <em>derived</em> assuming a real cross-section. Continuity is ∂A/∂t + ∂Q/∂x = q, and writing it in the depth form every solver actually uses requires the chain rule step ∂A/∂t = T·∂y/∂t — which is valid only if T = dA/dy. Give the solver a T that is not the derivative of its A and the discrete system is no longer a discretization of the shallow-water equations for any pipe. It is a discretization of an inconsistent system.</p><p>This is not abstract. Dynamic wave uses top width to convert net inflow into head change at a node (<code>surfArea = (w1 + wM)·length/4</code>, <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/src/engine/hydraulics/DynamicWave.cpp"><code>DynamicWave.cpp</code></a>) and area to report the volume stored in the conduit (<code>links.volume = area_mid · length · barrels</code>). Those are precisely the two tables that disagree. No physical cross-section has gothic&#x27;s tabulated area <em>and</em> its tabulated width — so the pipe the momentum equation sees and the pipe the continuity equation sees are different objects.</p><p>Exact geometry does not merely reduce this error, it removes its cause. Area and width stop being two digitizations and become two boundary integrals of one and the same outline, on which T = dA/dy holds identically. What the solver evaluates is a compiled approximation of that outline, so the identity survives to the fit tolerance rather than to the last bit: measured on a compiled 4 ft circle, |dA/dy − T|/T has a median of 1×10⁻⁸ and a worst case of 1.5×10⁻⁷. The circular tables it replaces, measured the same way over the same depth window, sit at 0.6% median and 22% worst — six orders of magnitude apart, and circular is the <em>best</em> of the shapes.</p></blockquote>
-            <blockquote><p>Dig deeper. The constants themselves: <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/src/engine/hydraulics/xsect_tables.hpp"><code>xsect_tables.hpp</code></a>. The inherited-defect register, including this one as LD-1: <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/docs/dev/legacy_defects.md"><code>docs/dev/legacy_defects.md</code></a>. Reproduce the table above by resampling both descriptions — the area table where one exists, the inverted depth-of-area table where it does not — scaling by each shape&#x27;s <code>aFull</code>/<code>wMax</code> from <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/src/legacy/engine/xsect.c"><code>xsect.c</code></a>, differentiating the area, and comparing to the width table.</p></blockquote>
-            <h3>Only finite volume converts a geometry error into a mass error</h3>
-            <p>The same geometry error sits in both solvers. Only one of them has an instrument that detects it.</p>
-            <ul><li>Dynamic wave <em>consults</em> geometry. It asks for an area at a depth and uses the answer. The error perturbs that timestep and leaves no trace in any mass balance.</li><li>Finite volume <em>embeds</em> geometry in its conservation statement. Cell state is flow area; depth is recovered by inverting the same geometry every substep. A geometry inconsistency becomes a mass error — and mass errors show up on the continuity line.</li></ul>
-            <div class="table-scroll"><table><thead><tr><th></th><th class="num">LEGACY</th><th class="num">EXACT</th><th></th></tr></thead><tbody><tr><td>FV, 2 h window</td><td class="num">−2.253%</td><td class="num">−0.134%</td><td>~17× better</td></tr><tr><td>FV, filling window</td><td class="num">−4.453%</td><td class="num">−0.022%</td><td>~200× better</td></tr><tr><td>DYNWAVE</td><td class="num">−0.073%</td><td class="num">+0.085%</td><td>no meaningful change</td></tr></tbody></table></div>
-            <p>Read this the right way round. FV&#x27;s large continuity error under LEGACY is not evidence that FV is worse — it is evidence that FV can see something DYNWAVE cannot. The dynamic-wave row looks clean not because its geometry is accurate, but because it has no mechanism that converts geometry error into mass error. The figure at the top of this piece is what that same error looks like when you go and measure it directly instead of trusting the diagnostic.</p>
-            <p>The reason is worth stating plainly, because it is structural rather than incidental: DYNWAVE&#x27;s continuity check balances volumes that are themselves computed from the geometry in question. Stored conduit volume is <code>area × length</code>, read from the same area table that drives the routing. A geometry error therefore shifts both sides of the ledger together and the balance still closes. The check confirms the bookkeeping is self-consistent; it was never an instrument for asking whether the geometry is right. FV, by contrast, must invert its geometry every substep to recover depth from the conserved area — so an inconsistency has nowhere to hide.</p>
-            <blockquote><p>For the numerically inclined. The requirement FV imposes is stated in <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/src/engine/hydraulics/fv/FvKernels.hpp"><code>FvKernels.hpp</code></a>: the composition <code>depthOfArea ∘ areaOfDepth</code> must be <em>the identity</em>, not merely accurate, or cells at equal free surface but different bed elevation reconstruct different surfaces and lake-at-rest fails. Two independently digitized tables cannot satisfy that. One boundary can, by construction.</p></blockquote>
-            <h3>One exactly integrated boundary replaces the tables</h3>
-            <p>Draw the pipe&#x27;s real boundary as straight segments and circular arcs. Compute its hydraulics from that boundary once at load time via Green&#x27;s theorem — a closed-form contour integral, so at any depth the area, perimeter and top width are <em>exact</em>, with no depth table and no linear interpolation anywhere. Then compress those exact functions into a piecewise polynomial the solver evaluates in a short chain of multiply-adds.</p>
-            <p>The property that matters is that every quantity now comes from one object. Area, top width, perimeter, hydraulic radius and section factor are five quantities computed from a single outline rather than five separately digitized tables, so they cannot describe different pipes — T = dA/dy holds identically. The compiled polynomials inherit the identity to about 10⁻⁸ relative, six orders tighter than the tables, rather than the exact zero the underlying geometry has.</p>
-            <blockquote><p>The mathematical core, for those who want it. The area-versus-depth curve kinks where the surface crosses a corner and picks up a square-root branch point where it goes tangent to a curved wall. Split the depth range at those <em>critical heights</em> and each piece is analytic — where polynomial approximation converges geometrically (Trefethen, <em>Approximation Theory and Approximation Practice</em>, Chs. 3 and 8). The critical heights are the critical values of the height function on the section&#x27;s <em>boundary</em> — Morse theory in the textbook sense where the wall is smooth (Milnor, <em>Morse Theory</em>), with corners and flat crowns contributing critical heights of their own; the height has no critical points in the interior, and the piecewise structure is a Reeb graph on the depth axis (Edelsbrunner &amp; Harer, <em>Computational Topology</em>, Ch. VI). A per-piece change of variable removes the branch points. Implementation and convergence argument: <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/docs/dev/cheb_section.md"><code>docs/dev/cheb_section.md</code></a>, <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/src/engine/hydraulics/ChebSection.hpp"><code>ChebSection.hpp</code></a>, <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/src/engine/hydraulics/XSectBoundary.hpp"><code>XSectBoundary.hpp</code></a>.</p></blockquote>
-            <h3>Arbitrary and time-varying sections become expressible</h3>
-            <h4>POLYGON takes an explicit boundary of lines and arcs</h4>
-            <p><code>POLYGON</code> takes an explicit boundary of lines and arcs — asymmetric, benched, filleted, surveyed. It is evaluated exactly, and a bench&#x27;s top-width jump is <em>represented</em> rather than smoothed away.</p>
-            <p>Worth being precise about what &quot;open channel&quot; means here, because it is not what you might assume. The outline you supply is always a closed chain — it has to be, since the exact area and perimeter come from a boundary integral around it, and a self-intersecting or dangling chain is rejected with an error. A separate flag in <code>[XSECTIONS]</code> (<code>Link POLYGON Scale Open 0 0 Barrels Bcurve</code>) then declares whether the <em>top</em> of that outline is a wall or a water surface. Set it open and the top edge drops out of the wetted perimeter, conveyance stays single-valued, and water rising past the drawn section extends it with vertical walls rather than pressurizing through a Preissmann slot. So you draw a closed shape and tell the engine whether its lid is concrete or air.</p>
-            <p>This matters because the existing escape hatches are narrower than they look. <code>IRREGULAR</code> is open-channel only, so it cannot close over a box culvert. <code>CUSTOM</code> is closed but symmetric — a width-versus-depth curve says how wide the water is, not where the walls are, so it cannot express a one-sided deformation, and friction is then computed against an assumed shape. Both are resampled into fixed 51-point interpolated tables, reintroducing exactly the error described above: the <code>CUSTOM</code> table carries about 41% area error below 5% of full depth.</p>
-            <blockquote><p>Dig deeper. <code>[XSECTIONS]</code> and <code>[CURVES] XPOLYGON</code> syntax with a worked four-arc circle: <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/docs/manuals/user/manual/AppendixD.md"><code>AppendixD.md</code></a>. Boundary construction and validation: <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/src/engine/hydraulics/XSectBoundary.cpp"><code>XSectBoundary.cpp</code></a>.</p></blockquote>
-            <h4>A conduit&#x27;s section can be replaced between routing steps</h4>
-            <p><code>swmm_link_set_polygon()</code> replaces a conduit&#x27;s cross-section between routing steps, and the solver reconciles the water already in the cells. This is the piece that makes sediment, relining and progressive narrowing modellable as processes rather than as separate scenarios.</p>
-            <p>The caller states which physical event it is, and there is deliberately no default, because the two cases are opposites:</p>
-            <div class="table-scroll"><table><thead><tr><th>Policy</th><th>Physics</th><th>What happens to the water</th></tr></thead><tbody><tr><td><code>CONSERVE_DEPTH</code></td><td>material intrudes — sediment, a liner</td><td>surface stays put; displaced volume leaves the conduit</td></tr><tr><td><code>CONSERVE_VOLUME</code></td><td>material is removed — scour, cleaning</td><td>same water, larger section, surface drops</td></tr></tbody></table></div>
-            <p>One counter-intuitive detail worth knowing: a sediment bed is not simply a smaller pipe. A flat bed in a round invert is <em>wider</em> at the water line than the invert it buried, so a silted conduit can hold <em>more</em> water at a given depth above the bed. The engine tracks bed level separately and preserves free surface elevation, not depth — without that, adding sediment reads as adding capacity.</p>
-            <p>Mid-run changes currently require the FV solver; the legacy solvers accept a new section before a run starts but not during one.</p>
-            <blockquote><p>Dig deeper. Policy semantics and the displaced-volume contract: <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/src/engine/hydraulics/fv/INetworkSolver.hpp"><code>INetworkSolver.hpp</code></a>. C API: <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/include/openswmm/engine/openswmm_links.h"><code>swmm_link_set_polygon</code></a>.</p></blockquote>
-            <h3>EXACT costs about 1.6× on this network, and part of that is a build flag</h3>
-            <div class="table-scroll"><table><thead><tr><th>Solver</th><th class="num">LEGACY</th><th class="num">EXACT</th><th class="num">ratio</th></tr></thead><tbody><tr><td>DYNWAVE, Bellinge 48 h</td><td class="num">40.0 s</td><td class="num">63.1 s</td><td class="num">~1.58×</td></tr><tr><td>FV, Bellinge 2 h</td><td class="num">319.9 s</td><td class="num">536.2 s</td><td class="num">~1.68×</td></tr></tbody></table></div>
-            <p>Those are whole-run wall times for one binary on one machine, and part of the gap is not geometry at all. The engine is built with <code>-ffp-contract=off</code>, which forbids the compiler from folding <code>a×b + c</code> into a single fused multiply-add. The flag is there to enforce the legacy bit-parity contract: with fusion allowed, the same expression rounds differently depending on which call site it was inlined into, which was enough to break several exact-equality tests against EPA SWMM 5.2.4 (<a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/src/engine/CMakeLists.txt"><code>src/engine/CMakeLists.txt</code></a>).</p>
-            <p>That flag does not fall equally on the two modes. Evaluating a Chebyshev series is almost nothing but alternating multiplies and adds — exactly the pattern fusion exists to accelerate — whereas a table lookup is mostly a bounds check, an index and one interpolation. So the compiled path is structurally the more exposed of the two, and some share of the ratios above is the price of reproducibility rather than the price of geometry. We have not measured that share. Doing it credibly means building the engine both ways and interleaving the runs; this machine has shown up to 18% run-to-run spread on this benchmark, so an uncontrolled before-and-after would not settle it. Treat the 1.58× and 1.68× as what they are — the cost of the shipped build — and the split between &quot;geometry&quot; and &quot;reproducibility&quot; as open.</p>
-            <blockquote><p>Why we are not telling you to just switch fusion on. Two reasons, and the second is the one that surprised us. <code>LEGACY</code> mode lives in the same engine target — it <em>is</em> the v6 engine reproducing EPA&#x27;s numbers — so enabling fusion globally would strip the parity guarantee from LEGACY runs in that build, and scoping it to the compiled-geometry translation units alone leaks through header inlining. And FV is not the free case it appears to be: FV sits outside the parity contract by design, but it is an explicit substepping scheme in which any bit-level change compounds, and the engine&#x27;s own build notes record a contraction change moving ~26% of FV output values and the continuity error from −2.989% to −3.124%. Being outside the parity contract means those differences are not <em>guaranteed</em> to be zero; it does not mean they are negligible.</p></blockquote>
-            <p>Per shape the picture varies in both directions. Gothic is 5.6× faster compiled, because its legacy path has no area table and must reconstruct one. Circular is the worst case at ~1.15× slower — and it is computing a fourth quantity for that price. Both are per-call microbenchmarks from an earlier build, not extracted from the whole-run times above.</p>
-            <p>A caution on generalising from Bellinge. Of its 1031 cross-sections, 953 are circular and the other 78 are shapes <code>EXACT</code> does not compile at all. So the entire cost <em>and</em> the entire benefit above are the same 953 pipes. We confirmed this directly: restricting <code>EXACT</code> to every shape except circular produces output byte-for-byte identical to LEGACY. Bellinge cannot tell you what exact geometry is worth on the shapes it helps most, because it contains none of them.</p>
-            <p>That points at a third mode we have not built — call it <code>SPEED</code> — which would compile a boundary whenever doing so is <em>faster</em>, regardless of accuracy. The dispatch is already per link, so this is a policy, not new plumbing. It would match <code>EXACT</code> on gothic-family shapes (faster <em>and</em> more accurate, no trade) and diverge on circular, leaving it on the table. Honest caveat: only circular and gothic have <em>measured</em> per-shape runtimes; the nine other shapes <code>EXACT</code> compiles are inferred from structure, not timed.</p>
-            <h3>What this does not show</h3>
-            <ul><li>No validation against measurement. Everything here is measured against exact geometry, the tables&#x27; internal contradictions, or the model&#x27;s own mass balance — never against observed flow or level. The defensible claim is <em>&quot;the geometry is demonstrably more correct,&quot;</em> not <em>&quot;the model is more accurate.&quot;</em></li><li>The DYNWAVE differences above are not an error bar. They measure how far the answer moves between two geometry representations. Since <code>EXACT</code> is demonstrably closer to true geometry, that spread is a reasonable estimate of what LEGACY carries — but it is a difference, not a validated uncertainty.</li><li>The differences are in the hydrograph, not in the peak. Peak flows and peak depths are essentially unchanged on this network. Anyone whose interest is peak magnitude should read the result as <em>&quot;geometry error was not distorting your peaks here&quot;</em>, not as a warning about them.</li><li>&quot;Exact&quot; is qualified for most shapes. Circular and <code>POLYGON</code> are genuinely exact. The other tabulated shapes are reconstructed from <em>their own</em> 21–26-point width tables, so <code>EXACT</code> gives them internal consistency, not new information. Gothic results will move noticeably.</li><li>One network, one machine, dry weather. Bellinge is mostly circular. Wet weather, surcharged conditions and other shape mixes are untested.</li></ul>
-            <h3>The correctness claim is settled; the predictive claim is not</h3>
-            <p>We set out to let SWMM represent pipes it could not draw. We found that the shapes it <em>can</em> draw are described by tables that disagree with each other, in one case by more than the quantity they describe — which means the governing equations have been integrating a cross-section that does not exist.</p>
-            <p>Two things follow, and they are different claims. The correctness claim is settled and needs no field data: exact geometry makes T = dA/dy true by construction, so the solver is finally solving its own equations for a real pipe. The predictive claim is not settled — whether that produces better forecasts depends on calibration absorbing the old bias, and we have not tested it against observations.</p>
-            <p>The result worth carrying is the one in between: the model&#x27;s standard quality check did not notice either way. Continuity stayed at ~0.08% while a third of the meaningful conduits saw their flow record diverge by more than a quarter of their own peak at some point in the run — even though the peaks themselves barely moved. Whatever else exact geometry is worth, it has made visible a source of uncertainty that has been in every dynamic-wave run for half a century with no diagnostic pointed at it.</p>
-            <p><em><code>XSECT_GEOMETRY EXACT</code> is opt-in and alpha; <code>LEGACY</code> is the default and its output is byte-for-byte unchanged. Full technical detail is in the <code>feature/xsect-geometry</code> → <code>swmm6_rel</code> pull request (39 commits). The legacy solver in <code>src/legacy/</code> is unmodified.</em></p>
-            <p><em>Reproducing the top figure: run Bellinge twice under DYNWAVE changing only <code>XSECT_GEOMETRY</code>, then compare the two <code>.out</code> files with <a href="https://github.com/HydroCouple/openswmm.engine/blob/7ff727be74f0f85661b0b8fc09a32401964c0f36/scripts/compare_results.py"><code>scripts/compare_results.py</code></a>&#x27;s reader, over every reporting period rather than a subsample, restricted to link indices below the conduit count. Figures 2 and the shape table come directly from the shipped constants, independently of the engine build.</em></p>
-          </div>
-        </article>
 
         <!-- ─────────── ARTICLE ─────────── -->
         <article id="conservative-hydraulic-routing">
@@ -157,7 +72,7 @@
             <div class="article-meta">
               <span>Caleb Buahin</span>
               <span>·</span>
-              <span>August 2026</span>
+              <span>08-16-2026</span>
               <a class="src-link" href="https://www.linkedin.com/pulse/new-conservative-hydraulic-routing-alternative-swmms-dynamic-buahin-bovgc/">Originally published on LinkedIn →</a>
             </div>
           </div>
@@ -225,7 +140,7 @@
             <div class="article-meta">
               <span>Caleb Buahin</span>
               <span>·</span>
-              <span>June 2026</span>
+              <span>06-23-2026</span>
               <a class="src-link" href="https://www.linkedin.com/pulse/how-open-source-swmm6-being-tested-validated-caleb-buahin-kuq8c/">Originally published on LinkedIn →</a>
             </div>
           </div>
@@ -292,84 +207,13 @@
         </article>
 
         <!-- ─────────── ARTICLE ─────────── -->
-        <article id="dynamic-preissmann-slot">
-          <div class="article-head">
-            <h2>A Dynamic Preissmann Slot for Open-Source SWMM2D</h2>
-            <div class="article-meta">
-              <span>Corinne Wiesner-Friedman</span>
-              <span>·</span>
-              <span>June 2026</span>
-              <a class="src-link" href="https://www.linkedin.com/pulse/dynamic-preissmann-slot-open-source-swmm2d-caleb-buahin-rc8we/">Originally published on LinkedIn →</a>
-            </div>
-          </div>
-          <div class="article-body">
-            <figure><img src="img/articles/dynamic-preissmann-slot/fig1.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 1" loading="lazy"></figure>
-             <figure><img src="img/articles/dynamic-preissmann-slot/fig2.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 2" loading="lazy"></figure>
-             <h3></h3>
-             <h3>Overview</h3>
-             <p>OpenSWMM 6.0 adds a third option for handling surcharge in the dynamic-wave solver: a <strong>Dynamic Preissmann Slot (DPS)</strong>, based on Sharior, Hodges &amp; Vasconcelos (2023). Alongside the legacy EXTRAN and fixed SLOT methods, DPS lets the slot geometry — and the resulting pressure-wave celerity — evolve with the actual surcharge state of each conduit.</p>
-             <p>In plain terms: instead of forcing every surcharge event through one rigid virtual opening, DPS gives each conduit a little transition room when it first goes pressurized.</p>
-             <p>Enable it with one line in [OPTIONS]:</p>
-             <p>The default remains EXTRAN. DPS pairs naturally with the new semi-implicit node-continuity formulation:</p>
-             <p>This note covers what the method does, the new [OPTIONS] keywords, where it sits in the solver, and how it interacts with the rest of the 6.0 dynamic-wave changes.</p>
-             <h3>What the Solver Already Does: Fixed-Slot Surcharge</h3>
-             <p>Before describing DPS it is important to distinguish it from the surcharge handling the solver already provides. The standard Preissmann slot adds a narrow vertical slot above the pipe crown so the Saint-Venant equations can keep stepping through pressurized flow. In SWMM's fixed-SLOT implementation that slot is on the order of 1% of the pipe diameter — a single value that fixes the pressure-wave celerity</p>
-             <p>for every surcharged conduit, throughout the simulation, regardless of how the surcharge actually develops.</p>
-             <p>The legacy EXTRAN method takes the opposite approach: it caps the depth at the crown and switches the node-continuity update into a separate surcharged formulation. Both are well-established and conserve mass; both can produce visible artifacts at the open-channel / pressurized boundary in fast-transient cases.</p>
-             <p>DPS is a separate, additive layer that runs on top of the same conduit-level routing, replacing only the slot geometry while it is active.</p>
-             <h3>The Problem: One Celerity for Every Surcharge</h3>
-             <p>The fixed slot fixes the pressure-wave celerity once, at problem-setup time, for every conduit. In that sense it is a one-size-fits-all setting. That single number has to be small enough to keep the routing timestep reasonable, but large enough to not dampen real transients. In networks where surcharge develops gradually in some conduits and as a sharp shock in others, the same slot width over-stiffens the slow events and under-resolves the fast ones.</p>
-             <p>EXTRAN avoids this by handing the extra head off to the node, but the resulting node-level discontinuity at the crown is the same kind of behavior that forces Anderson acceleration to fall back to standard Picard for surcharged nodes. Either way, the surcharge transition is where most of the dynamic-wave artifacts originate.</p>
-             <h3>The Method: A Slot That Tracks the Transition</h3>
-             <p>DPS treats the slot as a <em>state</em> rather than a fixed geometry. When a conduit first surcharges, the effective slot widens to absorb the transition, then relaxes back toward a target width as the pressurized regime stabilizes. The wave celerity does the same: starting soft, settling to the user's target value.</p>
-             <p>If the equations feel abstract, the picture is simpler: DPS acts a bit like a shock absorber for the open-channel-to-pressure transition. It opens up when the transition is abrupt, then settles back once the pressurized regime has formed.</p>
-             <h3>Notation</h3>
-             <p>The state is carried by a dimensionless <strong>Preissmann number</strong> P̂. At surcharge onset, P̂ is initialized from the conduit's full-flow gravity-wave celerity (Eq. 23 of the original paper):</p>
-             <figure><img src="img/articles/dynamic-preissmann-slot/fig3.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 3" loading="lazy"></figure>
-             <p>It then relaxes back toward 1 on a user-controlled time scale <strong>r</strong> (Eq. 22):</p>
-             <figure><img src="img/articles/dynamic-preissmann-slot/fig4.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 4" loading="lazy"></figure>
-             <p>Within the conduit, DPS updates the surcharge area and head increments each step (Eqs. 14 and 19):</p>
-             <figure><img src="img/articles/dynamic-preissmann-slot/fig5.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 5" loading="lazy"></figure>
-             <p><br/></p>
-             <p>Read as: when the conduit is over-full, the slot picks up the extra area; the surcharge head it implies is set by the target celerity, scaled down by the current Preissmann number.</p>
-             <p>Or, more intuitively: the solver gives the pipe a temporary cushion during the hardest part of the transition, then gradually removes that cushion as the flow settles down.</p>
-             <p>The provisional P^<em>P</em>^ values are then averaged across each node's incident conduits, so a single pipe never carries an isolated transition state when its neighbors are at a different point in the cycle.</p>
-             <p>The figure shows the cycle as four stages. Before surcharge, the conduit behaves like an ordinary free-surface link. At surcharge onset, the virtual slot opens wider to soften the transition. During relaxation, that slot contracts as P̂ decays toward 1. In the settled pressurized regime, the slot returns to its target state. Put another way, DPS gives the solver a short transition ramp instead of making it step straight off a curb. DPS_DECAY_TIME controls how quickly the middle stages collapse back to that long-time target.</p>
-             <h3>Implementation Notes</h3>
-             <p>A few details that may matter when interpreting results.</p>
-             <p><strong>The slot update is evolved head-first, matching SWMM's finite-difference link-node solver per the suggestion by</strong><a href="https://www.linkedin.com/in/sazzad-sharior/">Sazzad Sharior, PhD</a> <strong>.</strong> The original DPS paper is written in finite-volume form, where segment area is the conserved variable. SWMM's dynamic-wave solver instead carries node depth as the prognostic variable so each Picard iteration computes the dynamic slot top width T_s = (g · A_full / c_pT²) · P̂², reads hs_iter = max(depth_mid − y_full, 0) from the latest node-depth solve, and accumulates As += T_s · (hs_iter − hs_prev_iter). Past contributions to As are frozen — future P̂ decay only changes T_s for future increments — which is the operational form of the conservation property the original method was designed for. T_s also feeds the link's contribution to node surface area, so the slot is genuinely coupled into the depth update rather than acting as a passive diagnostic. See applyDPSGeometry in src/engine/hydraulics/DynamicWave.cpp.</p>
-             <p><strong>Hydraulic radius is held at the full-flow value while the slot is active.</strong> The slot contributes to continuity and wave propagation but not to wall friction, so Manning losses stay physical.</p>
-             <p><strong>Depressurization is hysteretic.</strong> If the surcharge head would dip below zero while residual slot area remains, the head is clamped to zero rather than allowed to flip sign. When the slot area fully drains, both the slot area and head reset.</p>
-             <p><strong>Per-node smoothing of P̂.</strong> Provisional Preissmann numbers are averaged element → face → element across each node's links, with a floor of P̂ ≥ 1. This keeps the transition state coherent across tightly-coupled conduits.</p>
-             <p><strong>Internal unit handling.</strong> DPS_CELERITY is entered in m/s for consistency with the source paper and is converted to ft/s internally (factor 3.28084). DPS_ALPHA is clamped to a minimum of 2 and DPS_DECAY_TIME to 0.001 s to keep the closed-form update stable.</p>
-             <p><strong>Scope is limited to closed conduits.</strong> Open-channel shapes are initialized with a neutral DPS state (P̂₀ = 1) and non-conduit links — pumps, orifices, weirs, outlets — do not participate in the slot calculations.</p>
-             <p><strong>The DPS state is observable.</strong> Slot area, surcharge head, and Preissmann number are exposed in the operator snapshot buffers, so the transition can be inspected through the engine's introspection layer rather than treated as hidden internal state.</p>
-             <h3>Where DPS Sits in the Solver</h3>
-             <p>DPS is not a side calculation bolted onto the solver. It is inserted directly into the dynamic-wave loop at a few specific points.</p>
-             <p><strong>Geometry override.</strong> After the standard cross-section kernels run, DPS rewrites midpoint area and effective width for any closed conduit that is above full depth. The shape-based geometry runs first; DPS overwrites it for surcharged conduits only.</p>
-             <p><strong>Post-Picard state update.</strong> Once the current nonlinear solve is complete, DPS advances the surcharge onset time, the decayed Preissmann number, the slot area, and the surcharge head. The provisional Preissmann numbers are then smoothed across incident conduits at each node.</p>
-             <p><strong>No separate timestep path.</strong> Adaptive routing still uses the existing CFL machinery. DPS changes the conduit geometry and therefore the midpoint hydraulic state that feeds the standard link-based CFL calculation, but it does not introduce a parallel timestep rule.</p>
-             <h3>Interaction with Anderson Acceleration</h3>
-             <p>DPS rewrites effective conduit geometry inside the routing step while surcharge is active, which makes the fixed-point map non-smooth in those regions. The Anderson acceleration safeguards added in the same release recognize this: nodes connected to a conduit with active slot area are skipped by the Anderson layer and fall back to standard Picard for that iteration.</p>
-             <p>In practice this means DPS and Anderson acceleration coexist cleanly. Anderson keeps accelerating the smooth, free-surface part of the network; DPS handles the transition at the surcharged conduits; the two never fight for the same nodes.</p>
-             <h3>How to Enable</h3>
-             <figure><img src="img/articles/dynamic-preissmann-slot/fig6.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 6" loading="lazy"></figure>
-             <p>The defaults reproduce the configurations used in the Sharior et al. test cases. The DPS keywords are only written to the input file when SURCHARGE_METHOD is DYNAMIC_SLOT.</p>
-             <h3>References</h3>
-             <ul><li>Sharior, S., Hodges, B. R., and Vasconcelos, J. G. (2023). <em>A Generalized, Dynamic, and Transient-Storage Form of the Preissmann Slot.</em> Journal of Hydraulic Engineering, 149(11), 04023046.</li><li>OpenSWMM 6.0 source: src/engine/hydraulics/DynamicWave.cpp, src/engine/core/SimulationOptions.hpp, tests/unit/engine/test_dynamic_preissmann_slot.cpp.</li></ul>
-             <h3></h3>
-             <p><br/></p>
-          </div>
-        </article>
-
-        <!-- ─────────── ARTICLE ─────────── -->
         <article id="rdii-reimagined">
           <div class="article-head">
             <h2>Reimagining the RDII Implementation in Open-Source SWMM (SWMM2D)</h2>
             <div class="article-meta">
               <span>Caleb Buahin</span>
               <span>·</span>
-              <span>May 2026</span>
+              <span>05-25-2026</span>
               <a class="src-link" href="https://www.linkedin.com/pulse/reimagining-rdii-implementation-open-source-swmm-swmm2d-caleb-buahin-txlfe/">Originally published on LinkedIn →</a>
             </div>
           </div>
@@ -442,61 +286,13 @@
         </article>
 
         <!-- ─────────── ARTICLE ─────────── -->
-        <article id="semi-implicit-node-continuity">
-          <div class="article-head">
-            <h2>New Optional Semi-Implicit Node Continuity Formulation for SWMM</h2>
-            <div class="article-meta">
-              <span>Caleb Buahin</span>
-              <span>·</span>
-              <span>May 2026</span>
-              <a class="src-link" href="https://www.linkedin.com/pulse/new-optional-semi-implicit-node-continuity-swmm-caleb-buahin-xu0je/">Originally published on LinkedIn →</a>
-            </div>
-          </div>
-          <div class="article-body">
-            <p>If you've ever run a dynamic wave simulation and watched a node oscillate wildly right as a pipe fills up, you've met the problem this post is about.</p>
-             <h3>The Legacy Approach and Its Weak Spot</h3>
-             <p>SWMM's classic dynamic wave solver updates node depth using one of two formulas, depending on whether the node is currently in surcharge or not.</p>
-             <p><strong>Free-surface (non-surcharged):</strong></p>
-             <p>Read as: the change in depth equals the net volume change divided by the node's surface area. Simple and intuitive — more water in means the level rises in proportion to how wide the node is.</p>
-             <p><strong>Surcharged:</strong></p>
-             <p>Read as: when the pipe is completely full and there is no free surface, depth change is driven instead by how sensitive the connected flows are to a change in head (∂Q/∂H). Surface area is no longer the right denominator — head-dependent flow response is.</p>
-             <p>Both formulas are physically reasonable in their own regime. The trouble is the <em>switch between them</em>. Every timestep the solver has to decide which branch to take based on whether the node depth has crossed the crown elevation. Near that threshold a node can flip back and forth between branches on consecutive iterations, producing the head oscillations that make modelers reach for smaller timesteps or manual damping.</p>
-             <h3>A Single Equation for Both Regimes</h3>
-             <p>The semi-implicit formulation starts from the same governing equation — conservation of volume at each node:</p>
-             <p>Read as: surface area times the rate of head rise equals the net inflow. Nothing new there — this is just the continuity equation written for a node.</p>
-             <p>Instead of solving this with a simple forward difference (explicit), we apply a <strong>Crank–Nicolson (trapezoidal) rule</strong> — averaging the net flow across the old and new timestep so that the future state is partly accounted for within the same step:</p>
-             <p>Read as: the head change is proportional to the average of the net inflow at the start and end of the timestep, not just the start.</p>
-             <p>We don't know Q_net(new) yet, so we approximate it by assuming flow changes linearly with head — a first-order Taylor expansion around the current estimate:</p>
-             <p>Read as: the new net flow equals the current net flow plus a correction term that scales with how much the head changes and how sensitive the flows are to head.</p>
-             <p>Substituting that approximation in and solving for ΔH gives the unified depth-update:</p>
-             <p>Read as: depth change equals net volume change divided by a blended denominator that contains both surface area and flow sensitivity. One equation, no branching.</p>
-             <h3>Why This Works Across Both Regimes</h3>
-             <p>The denominator — [ A − (Δt/2) · ∂Q/∂H ] — does the heavy lifting, and its behavior changes naturally with flow state.</p>
-             <p><strong>Free-surface flow:</strong> A is large (wide open water surface) and the flow-sensitivity term is small by comparison. The denominator is dominated by A, and the equation reduces to ΔH = ΔV / A — identical to the legacy free-surface branch.</p>
-             <p><strong>Surcharged flow:</strong> A shrinks to a small minimum (no open water surface) and the ∂Q/∂H term takes over. The update naturally shifts toward the surcharged behaviour, matching the legacy result — but without a discrete switch.</p>
-             <p><strong>In the transition zone:</strong> both terms contribute simultaneously. The denominator interpolates smoothly between the two regimes, which is what eliminates the oscillation at the crown depth boundary.</p>
-             <h3>How to Enable It</h3>
-             <p>One line in the [OPTIONS] section of your .inp file:</p>
-             <p>Or in the SWMM2D 6.0.0 GUI:</p>
-             <figure><img src="img/articles/semi-implicit-node-continuity/fig1.jpg" alt="New Optional Semi-Implicit Node Continuity Formulation for SWMM — figure 1" loading="lazy"></figure>
-             <p><br/></p>
-             <p>The default remains EXPLICIT so existing models run unchanged. For most models it is worth pairing with Anderson acceleration as well:</p>
-             <p>More on Anderson acceleration in the next post.</p>
-             <h3>When It Makes the Most Difference</h3>
-             <p>The improvement is most visible in models where pipes regularly transition between free-surface and pressurized flow — combined sewer trunk mains, outlet structures on detention basins, and any network where rapid rainfall produces filling and draining events within the same simulation hour.</p>
-             <p>If your current model requires a very short routing step mainly to suppress oscillations near crown depth, SEMI_IMPLICIT is the first thing to try.</p>
-             <p><em>SWMM2D Engine is open-source. Benchmarking coming soon. Feedback and comparisons welcome in the comments.</em></p>
-          </div>
-        </article>
-
-        <!-- ─────────── ARTICLE ─────────── -->
         <article id="swmm2d-alpha-release">
           <div class="article-head">
             <h2>Open-Source SWMM 6.0.0 (SWMM2D) — Alpha Release Announcement</h2>
             <div class="article-meta">
               <span>Caleb Buahin</span>
               <span>·</span>
-              <span>May 2026</span>
+              <span>05-05-2026</span>
               <a class="src-link" href="https://www.linkedin.com/pulse/open-source-swmm-600-swmm2d-alpha-release-caleb-buahin-bgule/">Originally published on LinkedIn →</a>
             </div>
           </div>
@@ -540,6 +336,126 @@
              <p><em>This document will be updated as the alpha program progresses. Last updated: May 2026.</em></p>
           </div>
         </article>
+
+        <!-- ─────────── ARTICLE ─────────── -->
+        <article id="dynamic-preissmann-slot">
+          <div class="article-head">
+            <h2>A Dynamic Preissmann Slot for Open-Source SWMM2D</h2>
+            <div class="article-meta">
+              <span>Corinne Wiesner-Friedman</span>
+              <span>·</span>
+              <span>04-24-2026</span>
+              <a class="src-link" href="https://www.linkedin.com/pulse/dynamic-preissmann-slot-open-source-swmm2d-caleb-buahin-rc8we/">Originally published on LinkedIn →</a>
+            </div>
+          </div>
+          <div class="article-body">
+            <figure><img src="img/articles/dynamic-preissmann-slot/fig1.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 1" loading="lazy"></figure>
+             <figure><img src="img/articles/dynamic-preissmann-slot/fig2.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 2" loading="lazy"></figure>
+             <h3></h3>
+             <h3>Overview</h3>
+             <p>OpenSWMM 6.0 adds a third option for handling surcharge in the dynamic-wave solver: a <strong>Dynamic Preissmann Slot (DPS)</strong>, based on Sharior, Hodges &amp; Vasconcelos (2023). Alongside the legacy EXTRAN and fixed SLOT methods, DPS lets the slot geometry — and the resulting pressure-wave celerity — evolve with the actual surcharge state of each conduit.</p>
+             <p>In plain terms: instead of forcing every surcharge event through one rigid virtual opening, DPS gives each conduit a little transition room when it first goes pressurized.</p>
+             <p>Enable it with one line in [OPTIONS]:</p>
+             <p>The default remains EXTRAN. DPS pairs naturally with the new semi-implicit node-continuity formulation:</p>
+             <p>This note covers what the method does, the new [OPTIONS] keywords, where it sits in the solver, and how it interacts with the rest of the 6.0 dynamic-wave changes.</p>
+             <h3>What the Solver Already Does: Fixed-Slot Surcharge</h3>
+             <p>Before describing DPS it is important to distinguish it from the surcharge handling the solver already provides. The standard Preissmann slot adds a narrow vertical slot above the pipe crown so the Saint-Venant equations can keep stepping through pressurized flow. In SWMM's fixed-SLOT implementation that slot is on the order of 1% of the pipe diameter — a single value that fixes the pressure-wave celerity</p>
+             <p>for every surcharged conduit, throughout the simulation, regardless of how the surcharge actually develops.</p>
+             <p>The legacy EXTRAN method takes the opposite approach: it caps the depth at the crown and switches the node-continuity update into a separate surcharged formulation. Both are well-established and conserve mass; both can produce visible artifacts at the open-channel / pressurized boundary in fast-transient cases.</p>
+             <p>DPS is a separate, additive layer that runs on top of the same conduit-level routing, replacing only the slot geometry while it is active.</p>
+             <h3>The Problem: One Celerity for Every Surcharge</h3>
+             <p>The fixed slot fixes the pressure-wave celerity once, at problem-setup time, for every conduit. In that sense it is a one-size-fits-all setting. That single number has to be small enough to keep the routing timestep reasonable, but large enough to not dampen real transients. In networks where surcharge develops gradually in some conduits and as a sharp shock in others, the same slot width over-stiffens the slow events and under-resolves the fast ones.</p>
+             <p>EXTRAN avoids this by handing the extra head off to the node, but the resulting node-level discontinuity at the crown is the same kind of behavior that forces Anderson acceleration to fall back to standard Picard for surcharged nodes. Either way, the surcharge transition is where most of the dynamic-wave artifacts originate.</p>
+             <h3>The Method: A Slot That Tracks the Transition</h3>
+             <p>DPS treats the slot as a <em>state</em> rather than a fixed geometry. When a conduit first surcharges, the effective slot widens to absorb the transition, then relaxes back toward a target width as the pressurized regime stabilizes. The wave celerity does the same: starting soft, settling to the user's target value.</p>
+             <p>If the equations feel abstract, the picture is simpler: DPS acts a bit like a shock absorber for the open-channel-to-pressure transition. It opens up when the transition is abrupt, then settles back once the pressurized regime has formed.</p>
+             <h3>Notation</h3>
+             <p>The state is carried by a dimensionless <strong>Preissmann number</strong> P̂. At surcharge onset, P̂ is initialized from the conduit's full-flow gravity-wave celerity (Eq. 23 of the original paper):</p>
+             <figure><img src="img/articles/dynamic-preissmann-slot/fig3.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 3" loading="lazy"></figure>
+             <p>It then relaxes back toward 1 on a user-controlled time scale <strong>r</strong> (Eq. 22):</p>
+             <figure><img src="img/articles/dynamic-preissmann-slot/fig4.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 4" loading="lazy"></figure>
+             <p>Within the conduit, DPS updates the surcharge area and head increments each step (Eqs. 14 and 19):</p>
+             <figure><img src="img/articles/dynamic-preissmann-slot/fig5.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 5" loading="lazy"></figure>
+             <p><br/></p>
+             <p>Read as: when the conduit is over-full, the slot picks up the extra area; the surcharge head it implies is set by the target celerity, scaled down by the current Preissmann number.</p>
+             <p>Or, more intuitively: the solver gives the pipe a temporary cushion during the hardest part of the transition, then gradually removes that cushion as the flow settles down.</p>
+             <p>The provisional P^<em>P</em>^ values are then averaged across each node's incident conduits, so a single pipe never carries an isolated transition state when its neighbors are at a different point in the cycle.</p>
+             <p>The figure shows the cycle as four stages. Before surcharge, the conduit behaves like an ordinary free-surface link. At surcharge onset, the virtual slot opens wider to soften the transition. During relaxation, that slot contracts as P̂ decays toward 1. In the settled pressurized regime, the slot returns to its target state. Put another way, DPS gives the solver a short transition ramp instead of making it step straight off a curb. DPS_DECAY_TIME controls how quickly the middle stages collapse back to that long-time target.</p>
+             <h3>Implementation Notes</h3>
+             <p>A few details that may matter when interpreting results.</p>
+             <p><strong>The slot update is evolved head-first, matching SWMM's finite-difference link-node solver per the suggestion by</strong><a href="https://www.linkedin.com/in/sazzad-sharior/">Sazzad Sharior, PhD</a> <strong>.</strong> The original DPS paper is written in finite-volume form, where segment area is the conserved variable. SWMM's dynamic-wave solver instead carries node depth as the prognostic variable so each Picard iteration computes the dynamic slot top width T_s = (g · A_full / c_pT²) · P̂², reads hs_iter = max(depth_mid − y_full, 0) from the latest node-depth solve, and accumulates As += T_s · (hs_iter − hs_prev_iter). Past contributions to As are frozen — future P̂ decay only changes T_s for future increments — which is the operational form of the conservation property the original method was designed for. T_s also feeds the link's contribution to node surface area, so the slot is genuinely coupled into the depth update rather than acting as a passive diagnostic. See applyDPSGeometry in src/engine/hydraulics/DynamicWave.cpp.</p>
+             <p><strong>Hydraulic radius is held at the full-flow value while the slot is active.</strong> The slot contributes to continuity and wave propagation but not to wall friction, so Manning losses stay physical.</p>
+             <p><strong>Depressurization is hysteretic.</strong> If the surcharge head would dip below zero while residual slot area remains, the head is clamped to zero rather than allowed to flip sign. When the slot area fully drains, both the slot area and head reset.</p>
+             <p><strong>Per-node smoothing of P̂.</strong> Provisional Preissmann numbers are averaged element → face → element across each node's links, with a floor of P̂ ≥ 1. This keeps the transition state coherent across tightly-coupled conduits.</p>
+             <p><strong>Internal unit handling.</strong> DPS_CELERITY is entered in m/s for consistency with the source paper and is converted to ft/s internally (factor 3.28084). DPS_ALPHA is clamped to a minimum of 2 and DPS_DECAY_TIME to 0.001 s to keep the closed-form update stable.</p>
+             <p><strong>Scope is limited to closed conduits.</strong> Open-channel shapes are initialized with a neutral DPS state (P̂₀ = 1) and non-conduit links — pumps, orifices, weirs, outlets — do not participate in the slot calculations.</p>
+             <p><strong>The DPS state is observable.</strong> Slot area, surcharge head, and Preissmann number are exposed in the operator snapshot buffers, so the transition can be inspected through the engine's introspection layer rather than treated as hidden internal state.</p>
+             <h3>Where DPS Sits in the Solver</h3>
+             <p>DPS is not a side calculation bolted onto the solver. It is inserted directly into the dynamic-wave loop at a few specific points.</p>
+             <p><strong>Geometry override.</strong> After the standard cross-section kernels run, DPS rewrites midpoint area and effective width for any closed conduit that is above full depth. The shape-based geometry runs first; DPS overwrites it for surcharged conduits only.</p>
+             <p><strong>Post-Picard state update.</strong> Once the current nonlinear solve is complete, DPS advances the surcharge onset time, the decayed Preissmann number, the slot area, and the surcharge head. The provisional Preissmann numbers are then smoothed across incident conduits at each node.</p>
+             <p><strong>No separate timestep path.</strong> Adaptive routing still uses the existing CFL machinery. DPS changes the conduit geometry and therefore the midpoint hydraulic state that feeds the standard link-based CFL calculation, but it does not introduce a parallel timestep rule.</p>
+             <h3>Interaction with Anderson Acceleration</h3>
+             <p>DPS rewrites effective conduit geometry inside the routing step while surcharge is active, which makes the fixed-point map non-smooth in those regions. The Anderson acceleration safeguards added in the same release recognize this: nodes connected to a conduit with active slot area are skipped by the Anderson layer and fall back to standard Picard for that iteration.</p>
+             <p>In practice this means DPS and Anderson acceleration coexist cleanly. Anderson keeps accelerating the smooth, free-surface part of the network; DPS handles the transition at the surcharged conduits; the two never fight for the same nodes.</p>
+             <h3>How to Enable</h3>
+             <figure><img src="img/articles/dynamic-preissmann-slot/fig6.jpg" alt="A Dynamic Preissmann Slot for Open-Source SWMM2D — figure 6" loading="lazy"></figure>
+             <p>The defaults reproduce the configurations used in the Sharior et al. test cases. The DPS keywords are only written to the input file when SURCHARGE_METHOD is DYNAMIC_SLOT.</p>
+             <h3>References</h3>
+             <ul><li>Sharior, S., Hodges, B. R., and Vasconcelos, J. G. (2023). <em>A Generalized, Dynamic, and Transient-Storage Form of the Preissmann Slot.</em> Journal of Hydraulic Engineering, 149(11), 04023046.</li><li>OpenSWMM 6.0 source: src/engine/hydraulics/DynamicWave.cpp, src/engine/core/SimulationOptions.hpp, tests/unit/engine/test_dynamic_preissmann_slot.cpp.</li></ul>
+             <h3></h3>
+             <p><br/></p>
+          </div>
+        </article>
+
+        <!-- ─────────── ARTICLE ─────────── -->
+        <article id="semi-implicit-node-continuity">
+          <div class="article-head">
+            <h2>New Optional Semi-Implicit Node Continuity Formulation for SWMM</h2>
+            <div class="article-meta">
+              <span>Caleb Buahin</span>
+              <span>·</span>
+              <span>04-23-2026</span>
+              <a class="src-link" href="https://www.linkedin.com/pulse/new-optional-semi-implicit-node-continuity-swmm-caleb-buahin-xu0je/">Originally published on LinkedIn →</a>
+            </div>
+          </div>
+          <div class="article-body">
+            <p>If you've ever run a dynamic wave simulation and watched a node oscillate wildly right as a pipe fills up, you've met the problem this post is about.</p>
+             <h3>The Legacy Approach and Its Weak Spot</h3>
+             <p>SWMM's classic dynamic wave solver updates node depth using one of two formulas, depending on whether the node is currently in surcharge or not.</p>
+             <p><strong>Free-surface (non-surcharged):</strong></p>
+             <p>Read as: the change in depth equals the net volume change divided by the node's surface area. Simple and intuitive — more water in means the level rises in proportion to how wide the node is.</p>
+             <p><strong>Surcharged:</strong></p>
+             <p>Read as: when the pipe is completely full and there is no free surface, depth change is driven instead by how sensitive the connected flows are to a change in head (∂Q/∂H). Surface area is no longer the right denominator — head-dependent flow response is.</p>
+             <p>Both formulas are physically reasonable in their own regime. The trouble is the <em>switch between them</em>. Every timestep the solver has to decide which branch to take based on whether the node depth has crossed the crown elevation. Near that threshold a node can flip back and forth between branches on consecutive iterations, producing the head oscillations that make modelers reach for smaller timesteps or manual damping.</p>
+             <h3>A Single Equation for Both Regimes</h3>
+             <p>The semi-implicit formulation starts from the same governing equation — conservation of volume at each node:</p>
+             <p>Read as: surface area times the rate of head rise equals the net inflow. Nothing new there — this is just the continuity equation written for a node.</p>
+             <p>Instead of solving this with a simple forward difference (explicit), we apply a <strong>Crank–Nicolson (trapezoidal) rule</strong> — averaging the net flow across the old and new timestep so that the future state is partly accounted for within the same step:</p>
+             <p>Read as: the head change is proportional to the average of the net inflow at the start and end of the timestep, not just the start.</p>
+             <p>We don't know Q_net(new) yet, so we approximate it by assuming flow changes linearly with head — a first-order Taylor expansion around the current estimate:</p>
+             <p>Read as: the new net flow equals the current net flow plus a correction term that scales with how much the head changes and how sensitive the flows are to head.</p>
+             <p>Substituting that approximation in and solving for ΔH gives the unified depth-update:</p>
+             <p>Read as: depth change equals net volume change divided by a blended denominator that contains both surface area and flow sensitivity. One equation, no branching.</p>
+             <h3>Why This Works Across Both Regimes</h3>
+             <p>The denominator — [ A − (Δt/2) · ∂Q/∂H ] — does the heavy lifting, and its behavior changes naturally with flow state.</p>
+             <p><strong>Free-surface flow:</strong> A is large (wide open water surface) and the flow-sensitivity term is small by comparison. The denominator is dominated by A, and the equation reduces to ΔH = ΔV / A — identical to the legacy free-surface branch.</p>
+             <p><strong>Surcharged flow:</strong> A shrinks to a small minimum (no open water surface) and the ∂Q/∂H term takes over. The update naturally shifts toward the surcharged behaviour, matching the legacy result — but without a discrete switch.</p>
+             <p><strong>In the transition zone:</strong> both terms contribute simultaneously. The denominator interpolates smoothly between the two regimes, which is what eliminates the oscillation at the crown depth boundary.</p>
+             <h3>How to Enable It</h3>
+             <p>One line in the [OPTIONS] section of your .inp file:</p>
+             <p>Or in the SWMM2D 6.0.0 GUI:</p>
+             <figure><img src="img/articles/semi-implicit-node-continuity/fig1.jpg" alt="New Optional Semi-Implicit Node Continuity Formulation for SWMM — figure 1" loading="lazy"></figure>
+             <p><br/></p>
+             <p>The default remains EXPLICIT so existing models run unchanged. For most models it is worth pairing with Anderson acceleration as well:</p>
+             <p>More on Anderson acceleration in the next post.</p>
+             <h3>When It Makes the Most Difference</h3>
+             <p>The improvement is most visible in models where pipes regularly transition between free-surface and pressurized flow — combined sewer trunk mains, outlet structures on detention basins, and any network where rapid rainfall produces filling and draining events within the same simulation hour.</p>
+             <p>If your current model requires a very short routing step mainly to suppress oscillations near crown depth, SEMI_IMPLICIT is the first thing to try.</p>
+             <p><em>SWMM2D Engine is open-source. Benchmarking coming soon. Feedback and comparisons welcome in the comments.</em></p>
+          </div>
+        </article>
+
         <!-- ─────────── COMMENTS ─────────── -->
         <!--
           Powered by giscus (https://giscus.app) using GitHub Discussions.
