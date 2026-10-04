@@ -9,8 +9,9 @@
   <link href="img/hydrocouple.png" rel="icon">
   <link href="css/fonts.css" rel="stylesheet">
   <link href="css/site.css" rel="stylesheet">
+  <link href="css/ecosystem.css" rel="stylesheet">
 </head>
-<body>
+<body class="ecosystem-page">
 
 <nav class="nav">
   <div class="nav-inner">
@@ -57,14 +58,16 @@
       formulations, rebuilt on a modern architecture and validated against published benchmark suites, preserving the SWMM legacy under rigorous QA/QC while opening it to the future.
     </p>
 
-    <div class="grid cols-3">
+    <div class="grid cols-3 ecosystem-panels" id="engine-tools">
       <div class="card flagship">
         <span class="badge flagship-badge">Flagship · Available</span>
         <h3>openswmm.engine</h3>
-        <p>Next-generation computational engine. C++20, reentrant API, data-oriented core,
-           plugin-based I/O, GeoPackage-native storage, Python bindings on PyPI, and coupled
-           1D/2D hydraulics with portable GPU backends.</p>
-        <p class="mt-2">
+        <p>Hydrology, water quality and coupled 1D/2D hydraulics with Python access,
+           GeoPackage I/O and portable GPU backends.</p>
+        <p class="mt-2" id="engine-wasm"><strong>WebAssembly (Wasm).</strong>
+           <a href="https://github.com/HydroCouple/openswmm.engine.wasm/tree/dev">openswmm.engine.wasm</a>
+           brings JavaScript/TypeScript simulation, controls and results to browsers and Node.js.</p>
+        <p class="ecosystem-panel-links">
           <a href="https://github.com/HydroCouple/openswmm.engine">Source →</a> ·
           <a href="https://pypi.org/project/openswmm">PyPI →</a> ·
           <a href="https://www.hydrocouple.org/openswmm.engine/">Docs →</a> ·
@@ -74,40 +77,50 @@
       <div class="card">
         <span class="badge available">Available</span>
         <h3>openswmm.gui</h3>
-        <p>A modern desktop application for building, running, and interrogating models, bringing the v6 engine to practicing engineers with contemporary UX.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.gui">Source →</a> ·
+        <p>SWMMVis brings model building, simulation and results into a GIS-based desktop
+           workspace. Edit networks and properties on a map, manage spatial layers, and inspect
+           time series and coupled 1D/2D flood results against terrain and basemaps.</p>
+        <p class="ecosystem-panel-links"><a href="https://github.com/HydroCouple/openswmm.gui">Source →</a> ·
            <a href="https://www.hydrocouple.org/openswmm.gui/">Docs →</a></p>
       </div>
       <div class="card">
         <span class="badge available">Available</span>
         <h3>openswmm.mcp</h3>
-        <p>Model Context Protocol server exposing the engine to AI agents: model building,
-           editing, simulation control, results analysis, calibration, and optimization, with over 500 tools for LLM-driven workflows.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.mcp">Source →</a> ·
+        <p>Model Context Protocol access lets AI assistants build and edit models, run
+           simulations, query results and apply controls. Catalog-based tools expose engine
+           capabilities, while reusable workflows support capacity assessment, calibration
+           and operational optimization.</p>
+        <p class="ecosystem-panel-links"><a href="https://github.com/HydroCouple/openswmm.mcp">Source →</a> ·
            <a href="https://www.hydrocouple.org/openswmm.mcp/">Docs →</a></p>
       </div>
-    </div>
-
-    <div class="grid cols-3 mt-2">
       <div class="card">
         <span class="badge available">Available</span>
         <h3>openswmm.gymnasium</h3>
-        <p>Real-time control environments over the engine for smart stormwater operations, built on standard Gymnasium APIs.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.gymnasium">Source →</a> ·
+        <p>Gymnasium environments connect reinforcement learning to stormwater design
+           and operation. Train and compare policies for gates, pumps and storage, with
+           configurable observations, actions and rewards. Bundled scenarios support real-time
+           control, capital improvement planning and joint design–operation studies.</p>
+        <p class="ecosystem-panel-links"><a href="https://github.com/HydroCouple/openswmm.gymnasium">Source →</a> ·
            <a href="https://www.hydrocouple.org/openswmm.gymnasium/">Docs →</a></p>
       </div>
       <div class="card">
-        <h3>What's new in the v6 engine</h3>
-        <p>Two-zone groundwater with runtime API access · physics-based RDII recovery ·
-           runtime climate forcing and per-subcatchment PET · consistent snow/rain partitioning ·
-           Anderson-accelerated dynamic wave convergence.</p>
+        <span class="badge standard">Engine capabilities</span>
+        <h3>What's new in v6</h3>
+        <p>Updated groundwater, wet-weather inflow and routing formulations support
+           connected catchment studies. Features include two-zone groundwater, physics-based
+           rainfall-derived infiltration and inflow (RDII) recovery, runtime climate and
+           evapotranspiration forcing, consistent rain–snow partitioning and accelerated
+           dynamic-wave convergence.</p>
+        <p class="ecosystem-panel-links"><a href="https://www.hydrocouple.org/openswmm.engine/">Engine documentation →</a></p>
       </div>
       <div class="card">
+        <span class="badge standard">Verification &amp; validation</span>
         <h3>Engineered for trust</h3>
-        <p>A dedicated benchmarking platform with 1,396 models and exact-solution verification ·
-           continuous integration on every platform · CodeQL and OpenSSF Scorecard · legacy EPA
-           solver preserved unmodified for side-by-side comparison.</p>
-        <p class="mt-2"><a href="#benchmarks">See the benchmarking effort →</a></p>
+        <p>An open benchmarking platform compares engines with analytical solutions,
+           published test cases and reference solvers. Automated checks track stability,
+           mass balance, numerical accuracy and performance. Continuous integration and
+           security analysis support transparent verification and reproducible regression testing.</p>
+        <p class="ecosystem-panel-links"><a href="#benchmarks">See the benchmarking effort →</a></p>
       </div>
     </div>
   </div>
