@@ -26,6 +26,7 @@ MATH = []
 
 def fmt(t):
     t = html.escape(t)
+    t = t.replace('ₘ', '<sub>m</sub>').replace('ₛ', '<sub>s</sub>')  # portable mobile-store subscript
     t = re.sub(r'`([^`]+)`', lambda m: '<code>' + m.group(1) + '</code>', t)
     t = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', t)
     t = re.sub(r'(?<!\*)\*([^*]+)\*(?!\*)', r'<em>\1</em>', t)
