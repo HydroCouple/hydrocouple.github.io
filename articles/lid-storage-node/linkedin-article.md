@@ -115,6 +115,10 @@ The new **spatially explicit groundwater model** extends that perspective below 
 
 Future articles will explore that connection: distributed recharge and changing water tables, surface-water–groundwater feedbacks, and how those pathways alter the combined benefits and constraints of LID placement and active control. **The question is becoming what the distributed system delivers to the receiving water, over time.**
 
+## Acknowledgments
+
+I thank Dr. Rob Traver for discussions that helped refine the ideas behind the LID Storage node implementation and for his support of its development and implementation.
+
 ## Acknowledgment of AI assistance
 
 OpenAI Codex assisted with drafting and editing this article and developing the scripts used to create its figures and GIF animations. The numerical results come from the documented SWMM simulations. Caleb Buahin is responsible for the technical interpretation and final content.
