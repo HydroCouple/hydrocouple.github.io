@@ -7,7 +7,8 @@ GIFs, static posters and SVG sources live in `../../img/articles/lid-storage-nod
 The LinkedIn article is an identical export of `article.md`; `build.py` keeps
 its Markdown and HTML preview synchronized. The companion post is a separate
 announcement draft. The standalone
-`tutorial.html` documents the same six models in `models/`; `validation.html`
+`tutorial.html` documents the six chain models plus the supplementary
+`models/lid_resaturation.inp` reversal/recession test; `validation.html`
 and `validation.md` record the solver checks and interpretation limits.
 
 The reproducible example generation and figure scripts, sampled CSVs and
