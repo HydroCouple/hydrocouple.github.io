@@ -1,0 +1,21 @@
+{
+  "scope": "Finite-time comparison with equilibrium constraints; no exact transient reference or qualified pass tolerance",
+  "metrics": [
+    {
+      "probe": "2",
+      "scope": "End of high-stage hold",
+      "time_s": 39600.0,
+      "reference_level_m": 10.35,
+      "computed_level_m": 10.351717262365252,
+      "signed_residual_mm": 1.717262365252381
+    },
+    {
+      "probe": "2",
+      "scope": "End of canonical retention run",
+      "time_s": 72000.0,
+      "reference_level_m": 10.25,
+      "computed_level_m": 10.254156719360386,
+      "signed_residual_mm": 4.156719360386418
+    }
+  ]
+}

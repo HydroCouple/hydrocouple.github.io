@@ -1,0 +1,81 @@
+{
+  "suite": "uk_2d",
+  "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4+output-freshness-fix",
+  "timestamp": "2026-10-22T14:06:34",
+  "cells": [
+    {
+      "case": "uk-ea-2013-t01",
+      "solver": "swmm2d-own-baseline",
+      "reference_class": "blessed_baseline",
+      "status": "checked",
+      "verdict": "BASELINE-PASS",
+      "max_absolute_change": 0.0
+    },
+    {
+      "case": "uk-ea-2013-t01",
+      "solver": "swmm2d-cpu-full-swe-rk2",
+      "reference_class": "self_consistency",
+      "verdict": "PASS",
+      "continuity_err": -3.3229251340282485e-13,
+      "checks": {
+        "nonnegative_depth": true,
+        "continuity": true
+      },
+      "wall_s": 23.82063254097011,
+      "observed_status": "not_applicable",
+      "regression_status": "checked"
+    },
+    {
+      "case": "uk-ea-2013-t03",
+      "solver": "swmm2d-own-baseline",
+      "reference_class": "blessed_baseline",
+      "status": "checked",
+      "verdict": "BASELINE-PASS",
+      "max_absolute_change": 0.0
+    },
+    {
+      "case": "uk-ea-2013-t03",
+      "solver": "swmm2d-cpu-full-swe-rk2",
+      "reference_class": "self_consistency",
+      "verdict": "PASS",
+      "continuity_err": 1.3885415119663871e-13,
+      "checks": {
+        "nonnegative_depth": true,
+        "continuity": true,
+        "independent_volume": true
+      },
+      "wall_s": 1.6856745419790968,
+      "observed_status": "not_applicable",
+      "regression_status": "checked"
+    },
+    {
+      "case": "required-coverage",
+      "solver": "coverage",
+      "reference_class": "self_consistency",
+      "verdict": "PASS",
+      "missing_cases": [],
+      "missing_regressions": [],
+      "missing_observed": []
+    }
+  ],
+  "interpretation": "PASS denotes numerical checks only. Observed fit is report-only. Baseline agreement is change control.",
+  "coverage": {
+    "requested": 2,
+    "executed": 2,
+    "observed_compared": 0,
+    "regression_checked": 2,
+    "complete": true,
+    "required_missing": [],
+    "observed_validation_complete": false,
+    "qualification_note": "Fit to a visible digitized subset is exploratory; original data and scientific qualification remain pending"
+  },
+  "requested_cases": [
+    "1",
+    "3"
+  ],
+  "source_gaps": {
+    "6a": "Original measured series missing",
+    "8a": "Authoritative input dataset missing",
+    "8b": "Authoritative input dataset missing"
+  }
+}

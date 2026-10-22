@@ -1,0 +1,13 @@
+{
+  "recorded_utc": "2026-10-22",
+  "processor": "Apple M1 Max",
+  "model": "MacBookPro18,2",
+  "physical_cores": 10,
+  "logical_cores": 10,
+  "memory_bytes": 34359738368,
+  "memory_gib": 32,
+  "solver_threads": 1,
+  "clock_frequency": "Not recorded; dynamic CPU frequency, no fixed-clock assumption",
+  "runtime_scope": "Local wall times include I/O and may include other assessment/report/test activity. They are operational records, not isolated performance benchmarks or comparisons with other engines.",
+  "minimum_recommended_hardware": "Not qualified"
+}

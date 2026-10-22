@@ -1,0 +1,58 @@
+[
+  {
+    "id": "1",
+    "x": 235200.0,
+    "y": 832400.0,
+    "face": 1447,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "2",
+    "x": 236700.0,
+    "y": 833800.0,
+    "face": 2220,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "3",
+    "x": 237800.0,
+    "y": 835200.0,
+    "face": 2862,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "4",
+    "x": 239400.0,
+    "y": 838000.0,
+    "face": 4072,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "5",
+    "x": 243300.0,
+    "y": 840300.0,
+    "face": 5952,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "6",
+    "x": 235700.0,
+    "y": 832500.0,
+    "face": 1518,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "7",
+    "x": 237700.0,
+    "y": 835500.0,
+    "face": 3002,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  }
+]

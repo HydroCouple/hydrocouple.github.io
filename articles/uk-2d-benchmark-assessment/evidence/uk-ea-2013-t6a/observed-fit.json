@@ -1,0 +1,62 @@
+{
+  "status": "compared",
+  "kind": "digitized_observed",
+  "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+  "metrics": [
+    {
+      "probe": "G2",
+      "quantity": "level_m",
+      "n": 39,
+      "covered_duration_s": 7.024704618689579,
+      "bias": -0.052999854814400935,
+      "mae": 0.052999854814400935,
+      "rmse": 0.0572925858963837,
+      "max_absolute_residual": 0.08418040310955197,
+      "gate": "report"
+    },
+    {
+      "probe": "G2",
+      "quantity": "speed_mps",
+      "n": 141,
+      "covered_duration_s": 17.91621911922664,
+      "bias": 0.595271309055082,
+      "mae": 0.6725642843729018,
+      "rmse": 0.820253859479774,
+      "max_absolute_residual": 1.4093238565900876,
+      "gate": "report"
+    },
+    {
+      "probe": "G4",
+      "quantity": "level_m",
+      "n": 41,
+      "covered_duration_s": 13.469387755102037,
+      "bias": -0.009843383227697464,
+      "mae": 0.016544066308304593,
+      "rmse": 0.019395782225997672,
+      "max_absolute_residual": 0.046785603437199466,
+      "gate": "report"
+    },
+    {
+      "probe": "G4",
+      "quantity": "speed_mps",
+      "n": 117,
+      "covered_duration_s": 23.00751879699248,
+      "bias": 0.05311003099323499,
+      "mae": 0.19508741756686931,
+      "rmse": 0.2201245671656313,
+      "max_absolute_residual": 0.58999053735144,
+      "gate": "report"
+    },
+    {
+      "probe": "G5",
+      "quantity": "level_m",
+      "n": 108,
+      "covered_duration_s": 18.8829215896885,
+      "bias": -0.016893313545102068,
+      "mae": 0.018247463677423446,
+      "rmse": 0.02105853163455691,
+      "max_absolute_residual": 0.04901224029667918,
+      "gate": "report"
+    }
+  ]
+}

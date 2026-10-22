@@ -1,0 +1,130 @@
+[
+  {
+    "id": "1",
+    "x": 250.0,
+    "y": 250.0,
+    "face": 1212,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "2",
+    "x": 250.0,
+    "y": 750.0,
+    "face": 3712,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "3",
+    "x": 250.0,
+    "y": 1250.0,
+    "face": 6212,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "4",
+    "x": 250.0,
+    "y": 1750.0,
+    "face": 8712,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "5",
+    "x": 750.0,
+    "y": 250.0,
+    "face": 1237,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "6",
+    "x": 750.0,
+    "y": 750.0,
+    "face": 3737,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "7",
+    "x": 750.0,
+    "y": 1250.0,
+    "face": 6237,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "8",
+    "x": 750.0,
+    "y": 1750.0,
+    "face": 8737,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "9",
+    "x": 1250.0,
+    "y": 250.0,
+    "face": 1262,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "10",
+    "x": 1250.0,
+    "y": 750.0,
+    "face": 3762,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "11",
+    "x": 1250.0,
+    "y": 1250.0,
+    "face": 6262,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "12",
+    "x": 1250.0,
+    "y": 1750.0,
+    "face": 8762,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "13",
+    "x": 1750.0,
+    "y": 250.0,
+    "face": 1287,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "14",
+    "x": 1750.0,
+    "y": 750.0,
+    "face": 3787,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "15",
+    "x": 1750.0,
+    "y": 1250.0,
+    "face": 6287,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "16",
+    "x": 1750.0,
+    "y": 1750.0,
+    "face": 8787,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  }
+]

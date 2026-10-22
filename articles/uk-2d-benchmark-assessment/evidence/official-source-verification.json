@@ -1,0 +1,36 @@
+{
+  "retrieved_utc": "2026-10-22",
+  "url": "https://assets.publishing.service.gov.uk/media/6033a9bbd3bf7f72182e99ca/Benchmarking_Model_Data.zip",
+  "files": [
+    {
+      "path": "/Users/calebbuahin/Downloads/UKBenchmarking/Benchmarking_Model_Data_official_2026-10-22.zip",
+      "sha256": "388c2789570e5975fe909033e34bedbe5d7bde5e6d7f9b7d7c1eaf04e58bc732",
+      "bytes": 52456734,
+      "members": [
+        "Test1_dataset_2010.zip",
+        "Test2_dataset_2010.zip",
+        "Test3_dataset_2010.zip",
+        "Test4_dataset_2010.zip",
+        "Test5_dataset_2010.zip",
+        "Test6_dataset_2010.zip",
+        "Test7_dataset_2010.zip",
+        "XS info Tests_5&6.zip"
+      ]
+    },
+    {
+      "path": "/Users/calebbuahin/Downloads/UKBenchmarking/Benchmarking_Model_Data.zip",
+      "sha256": "388c2789570e5975fe909033e34bedbe5d7bde5e6d7f9b7d7c1eaf04e58bc732",
+      "bytes": 52456734,
+      "members": [
+        "Test1_dataset_2010.zip",
+        "Test2_dataset_2010.zip",
+        "Test3_dataset_2010.zip",
+        "Test4_dataset_2010.zip",
+        "Test5_dataset_2010.zip",
+        "Test6_dataset_2010.zip",
+        "Test7_dataset_2010.zip",
+        "XS info Tests_5&6.zip"
+      ]
+    }
+  ]
+}

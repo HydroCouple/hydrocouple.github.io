@@ -1,0 +1,24 @@
+{
+  "checks": {
+    "nonnegative_depth": true,
+    "continuity": true,
+    "independent_volume": true
+  },
+  "continuity_err": 1.511356949597444e-12,
+  "volume_residual_m3": -0.026383984135463834,
+  "initial_volume_m3": 0.0,
+  "final_volume_m3": 284999.97361601586,
+  "prescribed_inflow_m3": 285000.0,
+  "wall_s": 1375.3203029579017,
+  "peak_scope": "maxima over saved output times",
+  "clock_rounding_max_s": 0.00100031029433012,
+  "deviations": [],
+  "observed": {
+    "status": "not_applicable",
+    "metrics": []
+  },
+  "regression": {
+    "status": "unavailable",
+    "reason": "No reviewed baseline"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4",
+  "engine_checkout_context": "0ff03ce1-dirty",
+  "benchmark_sha": "ad6bb3a-dirty",
+  "binaries": {
+    "/private/tmp/uk-2d-engine-0ff03ce1ba06/build/src/cli/openswmm": "ace881e1dc46b9240d25be1e3ba2d4a4e6b0b58a2d3aae903dc0f8e3a054d58e",
+    "/private/tmp/uk-2d-engine-0ff03ce1ba06/build/src/engine/libopenswmm.engine.6.0.0.dylib": "8da3dc64b156566dc4730e89ee7646f6f88a39621d3d994a984e063dcd214445"
+  },
+  "model_sha256": "7ca31bb09a1ef38dff55cdab77115603ef4b4de6a45ae3c63caf9ee37bfa996a",
+  "probes_sha256": "40132f14324f661f30a3cec42b88599e1cf3353c1f3e7db2d70f449043975bc9",
+  "source_hashes": {
+    "Benchmarking_Model_Data.zip!/Test4_dataset_2010.zip!/Test4 dataset 2010/Test4BC.csv": "c640e05f6bf9c2d1a9c3ce85ca4e10f72a3559ea2c818b7e106ba69bd07cc4a1",
+    "Benchmarking_Model_Data.zip!/Test4_dataset_2010.zip!/Test4 dataset 2010/Test4output.csv": "77fb98ecea8712f3d2d2aad76f0fd522c94077c8d5a0492255fdbb8dd960b327"
+  },
+  "analysis_sha256": "e4ef7a069dd68989c1c2bc8d0dc711be0ab8002b5a6f84a66763e240906e1e86",
+  "reference_hashes": {},
+  "build_provenance": {
+    "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4",
+    "source": "/tmp/uk-2d-engine-0ff03ce1ba06/source",
+    "build": "/tmp/uk-2d-engine-0ff03ce1ba06/build",
+    "scope": "Clean git archive; excludes working-tree modifications",
+    "executable": "/tmp/uk-2d-engine-0ff03ce1ba06/build/src/cli/openswmm",
+    "binaries": {
+      "/private/tmp/uk-2d-engine-0ff03ce1ba06/build/src/cli/openswmm": "ace881e1dc46b9240d25be1e3ba2d4a4e6b0b58a2d3aae903dc0f8e3a054d58e",
+      "/private/tmp/uk-2d-engine-0ff03ce1ba06/build/src/engine/libopenswmm.engine.6.0.0.dylib": "8da3dc64b156566dc4730e89ee7646f6f88a39621d3d994a984e063dcd214445"
+    },
+    "cmake_cache_sha256": "e8fc9627cd9aacde0736c1ff6f0e19bda834f8ed86b0b21fcc073e410f02b524",
+    "compiler": "AppleClang, Release -O3 -DNDEBUG",
+    "backend": "CPU",
+    "features": {
+      "2d": true,
+      "2d_hdf5_output": true,
+      "gpu_plugin": false,
+      "geopackage": false,
+      "model_hdf5_io": false
+    },
+    "input_source_manifest_sha256": "67cf188282917a9e3edeac5c37c1bad55f658b0b745eef8f984d8b8e1cfb2858"
+  },
+  "case_sha256": "f7a86c4dc896ea092ff4bcd259e503033ce45978279028b83bec16fe3f4b6b5f",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "threads": 1,
+  "requested": {
+    "backend": "CPU",
+    "momentum": "FULL_SWE",
+    "reconstruction_order": 2,
+    "lts_tiers": 1,
+    "cfl": 0.4
+  },
+  "case": "uk-ea-2013-t04",
+  "created": "2026-10-22T17:36:39.397681+00:00",
+  "reproducibility_note": "Clean archived source build; full identity in build_provenance.",
+  "process": {
+    "ok": false,
+    "launched": true,
+    "returncode": -9,
+    "stdout": "",
+    "wall": 1200.0209713750519,
+    "stderr": "timeout after 1200.0s"
+  }
+}

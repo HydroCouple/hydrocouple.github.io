@@ -1,0 +1,7 @@
+# Preserve the byte identities recorded in the UK assessment's evidence bundle.
+articles/uk-2d-benchmark-assessment/** -text
+img/articles/uk-2d-benchmark-assessment/** -text
+articles/uk-2d-benchmark-assessment/**/*.csv whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# These diagnostic files retain exact engine output and patch context.
+articles/uk-2d-benchmark-assessment/evidence/engine/*.log whitespace=-blank-at-eof
+articles/uk-2d-benchmark-assessment/evidence/engine/*.patch whitespace=-blank-at-eol,-blank-at-eof
