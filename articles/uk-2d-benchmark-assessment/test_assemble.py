@@ -8,6 +8,17 @@ from unittest.mock import patch
 
 
 class EvidenceAssemblyTest(unittest.TestCase):
+    def test_incomplete_river_sweep_cannot_publish_complete_article(self):
+        path=Path(__file__).with_name('assemble.py')
+        spec=importlib.util.spec_from_file_location('uk_article_assemble',path)
+        assembly=importlib.util.module_from_spec(spec);spec.loader.exec_module(assembly)
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);source=root/'source';source.mkdir()
+            (source/'scores.json').write_text(json.dumps(dict(coverage=dict(executed=0),cells=[])))
+            with patch.object(assembly,'HERE',root/'article'):
+                with self.assertRaisesRegex(ValueError,'requires all ten'):
+                    assembly.river_supplement(source,root/'images')
+
     def test_skipped_case_files_are_not_copied(self):
         path=Path(__file__).with_name('assemble.py')
         spec=importlib.util.spec_from_file_location('uk_article_assemble',path)

@@ -1,0 +1,27 @@
+{
+  "checks": {
+    "finite_depth": true,
+    "continuity": true
+  },
+  "continuity_pct": -8.64921629484648e-12,
+  "reference_fit": {
+    "status": "compared",
+    "kind": "analytic",
+    "metrics": [
+      {
+        "quantity": "level_m",
+        "n": 99,
+        "bias_m": -0.04955131698303871,
+        "rmse_m": 0.054446339034264,
+        "linf_m": 0.10133777856508996
+      }
+    ],
+    "scope": "Dimensional reference errors are reported, not a calibrated accuracy gate. See case deviations for wall/friction and tabulation differences."
+  },
+  "regression": {
+    "status": "unavailable",
+    "verdict": "UNAVAILABLE",
+    "reason": "No explicitly reviewed numerical baseline"
+  },
+  "wall_s": 3.822601499967277
+}

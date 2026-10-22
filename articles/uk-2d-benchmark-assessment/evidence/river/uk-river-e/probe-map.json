@@ -1,0 +1,34 @@
+[
+  {
+    "id": "C0",
+    "x": 0.0,
+    "y": 500.0,
+    "face": 0,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "C25000",
+    "x": 25000.0,
+    "y": 500.0,
+    "face": 49,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "C50000",
+    "x": 50000.0,
+    "y": 500.0,
+    "face": 99,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "C75000",
+    "x": 75000.0,
+    "y": 500.0,
+    "face": 149,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  }
+]

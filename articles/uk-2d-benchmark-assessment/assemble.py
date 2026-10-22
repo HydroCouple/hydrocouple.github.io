@@ -41,7 +41,83 @@ def copy_evidence(source,destination,image_root):
         else:shutil.copy2(file,target)
 
 
-def assemble(results,regression,analytical):
+def river_supplement(source,image_root):
+    """Publish only evidence that belongs to the finalized river sweep."""
+    source=Path(source);scores=json.loads((source/'scores.json').read_text(encoding='utf-8'))
+    if not scores.get('coverage'):raise ValueError('River sweep has not finalized coverage')
+    destination=HERE/'evidence/river';destination.mkdir(parents=True,exist_ok=True)
+    completed={c['case'] for c in scores['cells'] if c['solver']=='swmm2d-cpu-full-swe-rk2' and c.get('checks') and c['verdict']=='PASS'}
+    expected={'uk-river-'+k for k in ['a1','a2','a3','a4','a5','e','f-mean','f-high','l','l-fine']}
+    if expected-completed:raise ValueError('River article requires all ten source-derived executions; missing '+','.join(sorted(expected-completed)))
+    replacements={}
+    for case in sorted(completed):
+        key=case.removeprefix('uk-river-')
+        suffix='gauges' if key.startswith('l') else 'profile' if key.startswith('a') else 'profiles' if key.startswith('f-') else 'histories'
+        for figure in source.glob(f'figures/{key}-{suffix}.png'):
+            name='river-'+figure.name;shutil.copy2(figure,image_root/name)
+            replacements[figure.relative_to(source).as_posix()]='../../../../img/articles/'+SLUG+'/'+name
+    # Case-level evidence and independent tables stay with their executed manifests.
+    for file in sorted(source.rglob('*')):
+        if not file.is_file():continue
+        rel=file.relative_to(source)
+        if rel.parts[0].startswith('uk-river-') and rel.parts[0] not in completed:continue
+        if file.suffix not in ['.csv','.json','.inp','.md','.html']:continue
+        if file.name in ['probes.csv'] or any(p.startswith('.') for p in rel.parts):continue
+        target=destination/rel;target.parent.mkdir(parents=True,exist_ok=True)
+        if file.suffix in ['.md','.html'] or file.name=='report-output-register.csv':
+            text=file.read_text(encoding='utf-8')
+            for old,new in replacements.items():text=text.replace(old,new)
+            target.write_text(text,encoding='utf-8')
+        else:shutil.copy2(file,target)
+    # The unavailable bridge still has real measured targets; include those separately.
+    bridge=BENCH/'corpus/uk-ea-river/uk-river-j/reference'
+    for file in bridge.glob('*'):
+        target=destination/'bridge-targets'/file.name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(file,target)
+    rows=[]
+    if {'uk-river-l','uk-river-l-fine'}<=completed:
+        coarse=json.loads((source/'uk-river-l/metrics.json').read_text())['reference_fit']['metrics']
+        fine=json.loads((source/'uk-river-l-fine/metrics.json').read_text())['reference_fit']['metrics']
+        for a,b in zip(coarse,fine):rows.append(f'| {a["probe"]} | {1000*a["rmse_m"]:.2f} | {1000*b["rmse_m"]:.2f} |')
+    figures=[]
+    for key in ['l','a1','f-mean']:
+        if 'uk-river-'+key not in completed:continue
+        suffix='gauges' if key=='l' else 'profile' if key=='a1' else 'profiles'
+        matches=sorted(source.glob(f'figures/{key}-{suffix}.png'))
+        if matches:figures.append(f'![River Test {key.upper()}: SWMM2D and independent reference](../../img/articles/{SLUG}/river-{matches[0].name})')
+    repeat=''
+    if (source/'regression-repeat.json').exists():
+        records=json.loads((source/'regression-repeat.json').read_text(encoding='utf-8'))['cases']
+        if len(records)!=10 or any(r['verdict']!='BASELINE-PASS' for r in records):raise ValueError('Incomplete river regression repeat')
+        maximum=max(r['maximum_absolute_change'] for r in records)
+        repeat=f'All ten executable configurations also passed a separate repeat against their reviewed numerical anchors. The maximum absolute change in saved probe quantities was {maximum:.6g}. This is local numerical repeatability; cross-platform tolerance qualification and physical validation remain separate. The [repeat identity records](evidence/river/regression-repeat.json) bind the inputs, analysis, references and executed binaries.\n\n'
+    return '''## Additional river benchmarks and recovered measurements
+
+Additional resources identify an earlier Environment Agency river benchmark collection, W5-105, separate from the numbered 2D scenarios above. A separately retrieved official test specification supplies the analytical water-level tables for Test A and the laboratory measurement tables for Test L. The latter are original tabulated observations, rather than values digitized from a chart. The source result-PDF filenames for Tests K and L are swapped; cover titles and report identifiers establish their identity.
+
+The new dedicated `uk_river` suite runs SWMM2D reproductions of five one-hour Test A profiles, the full four-hour Ippen scenario, two full 30-hour monoclinal-wave roughness variants, and Test L at two mesh spacings. It remains excluded from engine-to-engine parity. Numerical PASS denotes complete output and conservation checks, while analytical and measured residuals are reported separately.
+
+Test L represents the physical 19.3 m constricted laboratory channel, with fitted 45-degree taper walls. All four source gauges have 251 tabulated measurements from 0 to 10 seconds at 0.04-second intervals. The fit uses 250 measurements per gauge after the first saved output, without fitting a time shift. The physical gate opened over approximately 0.2 seconds; these runs release it instantaneously. This physical-channel setup differs from the historical result report's extended reservoir and delayed analytical initialization.
+
+| Gauge | 0.05 m mesh RMSE (mm) | 0.025 m mesh RMSE (mm) |
+|---|---:|---:|
+'''+chr(10).join(rows)+'''
+
+Refinement does not uniformly improve agreement: it improves S4 and slightly worsens S1–S3. This two-grid result does not establish convergence or successful validation. Gate opening, measurement sampling and other representation effects need further investigation. Instrument uncertainty is not supplied; the table rounds water levels to 0.001 m.
+
+'''+chr(10).join(figures)+'''
+
+The five Test A comparisons retain the published analytical elevations and source bed geometry. Their residuals include SWMM2D's bed-friction treatment versus the source 1D finite-width hydraulic-radius treatment. The monoclinal cases likewise compare the report's constant-Manning variants against the source-declared analytical profile translated at its prescribed wave speed; the analytical wave uses constant Chézy resistance. These model-form differences prevent treating the errors as isolated numerical discretization errors.
+
+Test J's four measured bridge-afflux targets are preserved, but a faithful bridge plus paired no-bridge model remains pending. Test E completes its numerical scenario, while its published analytical reference remains unqualified: the source report identifies a sine/cosine phase conflict, and its linear-friction formula leaves a representative velocity unspecified. No fitted phase, friction value or surrogate bridge loss is used to manufacture a comparison.
+
+'''+repeat+'''The [river technical report](evidence/river/report.html), [scores and coverage](evidence/river/scores.json), and [output register](evidence/river/report-output-register.csv) retain the results, reference tables, identities and pending counterparts. These added references do not resolve the numbered 2D Test 6A measurement gap or Test 8A/8B inputs. The supplement is partial and does not claim reproduction of every panel in the earlier river reports.
+
+Source: Crowder and colleagues, Environment Agency [W5-105/TR1 test specifications](https://assets.publishing.service.gov.uk/media/602ac6a2d3bf7f031e1bdcea/_Benchmarking_of_Hydraulic_River_Modelling_Software_Packages_-_Test_Specifications.pdf), Appendices A and C, and the corresponding W5-105/TR2 result reports. Only analytical or measured reference series appear in the new comparisons.
+
+'''
+
+
+def assemble(results,regression,analytical,river=None):
     scores=json.loads((results/'scores.json').read_text(encoding='utf-8'))
     if not scores.get('coverage'):raise ValueError('Sweep has not finalized coverage')
     image_root=SITE/'img/articles'/SLUG;image_root.mkdir(parents=True,exist_ok=True)
@@ -191,6 +267,8 @@ Néelz, S. and Pender, G. (2013). [Benchmarking the latest generation of 2D hydr
 
 Soares-Frazão and Zech (2002), isolated-building IMPACT experiment, as cited in SC120002/R. The source charts identify the recovered points as UCL measurements. Their original machine-readable records remain an acquisition priority.
 '''
+    if river is not None:
+        article=article.replace('## Scope of the present findings',river_supplement(river,image_root)+'## Scope of the present findings')
     (HERE/'article.md').write_text(article,encoding='utf-8')
     return HERE/'article.md'
 
@@ -199,4 +277,5 @@ if __name__=='__main__':
     ap.add_argument('--results',type=Path,default=BENCH/'results/uk_2d/assessment-2026-10-22')
     ap.add_argument('--regression',type=Path,default=BENCH/'results/uk_2d/assessment-regression-repeat-2026-10-22')
     ap.add_argument('--analytical',type=Path,default=BENCH/'results/uk_2d/assessment-analytical-2026-10-22')
-    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical))
+    ap.add_argument('--river',type=Path,help='Finalized W5-105 river supplement output directory')
+    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river))

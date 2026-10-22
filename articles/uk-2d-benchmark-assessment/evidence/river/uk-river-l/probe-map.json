@@ -1,0 +1,34 @@
+[
+  {
+    "id": "S1",
+    "x": 5.1,
+    "y": 0.0,
+    "face": 1645,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "S2",
+    "x": 12.2,
+    "y": 0.0,
+    "face": 1787,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "S3",
+    "x": 14.9,
+    "y": 0.0,
+    "face": 1841,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "S4",
+    "x": 16.6,
+    "y": 0.0,
+    "face": 1875,
+    "boundary_tie": true,
+    "operator": "containing_face_constant_lowest_index_tie"
+  }
+]

@@ -1,0 +1,115 @@
+{
+  "scope": "Separate complete repeated executions against explicitly reviewed numerical anchors; not a reference-accuracy verdict.",
+  "cases": [
+    {
+      "case": "uk-river-a1",
+      "verdict": "BASELINE-PASS",
+      "maximum_absolute_change": 0.0,
+      "model_sha256": "7fcedd65a9014ca519e9eeebfd24877fe4754ff18f4e7a0be2772a4c63759fec",
+      "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+      "assessment_manifest_sha256": "d0e24ff1d12e72eff1aef8651df5a07ad5b092a53df6f1fc8431018259471f85",
+      "repeat_manifest_sha256": "856c50e3cd313fc5f920e8f8c63f063d9c33eb4194da6e9671ea562b8850b0c1",
+      "assessment_data_sha256": "bd37e5dfc202c0fb54764aec435360fef1e63bc674e64c2486c5f2f34c7b1930",
+      "repeat_data_sha256": "bd37e5dfc202c0fb54764aec435360fef1e63bc674e64c2486c5f2f34c7b1930"
+    },
+    {
+      "case": "uk-river-a2",
+      "verdict": "BASELINE-PASS",
+      "maximum_absolute_change": 0.0,
+      "model_sha256": "d3a9672d9ec4583dad5f3ee39365479f899f2ff63f65d708f059475413c44f21",
+      "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+      "assessment_manifest_sha256": "eb9c9a45ca70dbba84b695f6a9b9de326aadec88b11ff2c137efa58c9df3018b",
+      "repeat_manifest_sha256": "f71c7ad7d70241c4f3a605d8cd49d748c1663c74f9bf82ee841b5101ad17eeb3",
+      "assessment_data_sha256": "2223992b0cedeb66317b3bac841d1f563cfa449518c158b7229b60ded86a7d08",
+      "repeat_data_sha256": "2223992b0cedeb66317b3bac841d1f563cfa449518c158b7229b60ded86a7d08"
+    },
+    {
+      "case": "uk-river-a3",
+      "verdict": "BASELINE-PASS",
+      "maximum_absolute_change": 0.0,
+      "model_sha256": "ab3896bf40fa8b4887633958a05c34b489c32b4337a3584cf122035bae83f14f",
+      "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+      "assessment_manifest_sha256": "8752121d664cbe40e288c84b3833536ba291ae879d3324ff778bc7c3f50fb9d6",
+      "repeat_manifest_sha256": "9481010d796d4a4c0112d77bf82cc345516e9d845cfc990765d4d73cd0ddb20a",
+      "assessment_data_sha256": "c3c0f0c0fde256fa4650d584ab45a0d4d046f9b3ad17cd4bfcbab41e2d28f7bb",
+      "repeat_data_sha256": "c3c0f0c0fde256fa4650d584ab45a0d4d046f9b3ad17cd4bfcbab41e2d28f7bb"
+    },
+    {
+      "case": "uk-river-a4",
+      "verdict": "BASELINE-PASS",
+      "maximum_absolute_change": 0.0,
+      "model_sha256": "a9e33257d5ad87483d6bec2dd0dddfea00dd8112a8cd9b0cd36c4b56d937e5ea",
+      "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+      "assessment_manifest_sha256": "f46eec2de6dfa3a1c05c1c232c34c5b259826d872347d08224ef3c249a0cedc4",
+      "repeat_manifest_sha256": "571669c6c7a80b1786ce7786c05ebbb9b196ac7f8af62cf6ef2c5c214e75482e",
+      "assessment_data_sha256": "d2ca2db84b4dbd2a0a77774fdaccdfe93b264f9fe0b55c540024344a1b5b0015",
+      "repeat_data_sha256": "d2ca2db84b4dbd2a0a77774fdaccdfe93b264f9fe0b55c540024344a1b5b0015"
+    },
+    {
+      "case": "uk-river-a5",
+      "verdict": "BASELINE-PASS",
+      "maximum_absolute_change": 0.0,
+      "model_sha256": "7601ef523b3e2c71f9666869cd41c7e8e5e0af62cc9252e2de4a50855bd6b6cd",
+      "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+      "assessment_manifest_sha256": "01f5fb5d06d7ee6e797b12357dec1e46843320e7a2022f42f6eb84376b6ba5c5",
+      "repeat_manifest_sha256": "7ea03f93195c0945f216e6724ac6af4df9f9305d696ecdd27cadd79664ea2997",
+      "assessment_data_sha256": "660b42ce01b9efe8e457ec5cc7bc8bc57d7c552331754196c1f7ad42d09f0a49",
+      "repeat_data_sha256": "660b42ce01b9efe8e457ec5cc7bc8bc57d7c552331754196c1f7ad42d09f0a49"
+    },
+    {
+      "case": "uk-river-e",
+      "verdict": "BASELINE-PASS",
+      "maximum_absolute_change": 0.0,
+      "model_sha256": "5e01616c433844922dc94d3f719de646ece442cb40b92697ef0913e76ce1468c",
+      "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+      "assessment_manifest_sha256": "9dc155dfcee7b0c856de99863c35b57ede3908a3fa74c0faa1c4aaa86b3c21b4",
+      "repeat_manifest_sha256": "814b2b96db5a44be745b77af564cb82c33fe467da53c3ae69a885dac8345d776",
+      "assessment_data_sha256": "efb3584f5f817995b4bde7d1f328119aac76030f7bc8a27851dd3aa2f9e9a0de",
+      "repeat_data_sha256": "efb3584f5f817995b4bde7d1f328119aac76030f7bc8a27851dd3aa2f9e9a0de"
+    },
+    {
+      "case": "uk-river-f-mean",
+      "verdict": "BASELINE-PASS",
+      "maximum_absolute_change": 0.0,
+      "model_sha256": "ce30396efb9ab7ed94c47f8c1649fff95db1d06d8fe697e14a2866df04b96bca",
+      "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+      "assessment_manifest_sha256": "eb3f30ce49075713d5d4731607131286963e9558d45a573c5e9f2020a248a12d",
+      "repeat_manifest_sha256": "fc76aa33aa743a000c698b7bb032c8ce0db3ab818ff73cfb1f43ddfe61351e7f",
+      "assessment_data_sha256": "f55f02ad8e1140c5b5eeb78e74387ede2e5087df291dce208e41730652081239",
+      "repeat_data_sha256": "f55f02ad8e1140c5b5eeb78e74387ede2e5087df291dce208e41730652081239"
+    },
+    {
+      "case": "uk-river-f-high",
+      "verdict": "BASELINE-PASS",
+      "maximum_absolute_change": 0.0,
+      "model_sha256": "111a9df29f48d2174f7e02405242c8e5d3a0e3f4909f001b07b0d1b0a33e3f9e",
+      "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+      "assessment_manifest_sha256": "e10867b44589e96a4bbac2c76bdb4bed370043041e147fee741857de21085b82",
+      "repeat_manifest_sha256": "1e75e5b19719754df5fd4f4576c6f9c8801d69241a690d23480f68ba06810ef4",
+      "assessment_data_sha256": "cde7980543be204f9e98aeb43b065eaa5783d9da025272b2d0761d03f37e7213",
+      "repeat_data_sha256": "cde7980543be204f9e98aeb43b065eaa5783d9da025272b2d0761d03f37e7213"
+    },
+    {
+      "case": "uk-river-l",
+      "verdict": "BASELINE-PASS",
+      "maximum_absolute_change": 0.0,
+      "model_sha256": "9914a486923eb6f1cf1083ddd0b0d4dccf3932f714332fa355ba5017c151f046",
+      "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+      "assessment_manifest_sha256": "4f3bbc6d0dd858f6d1198f1516d093b813a7e979292cb34cec9af3c9c60f789e",
+      "repeat_manifest_sha256": "8c853223f077762edd09bdcbc753118ba05bf0591a476bab1ac8c25750c54b26",
+      "assessment_data_sha256": "d36797accd2ebc1aceeb7925848e29ff93d8ad5a0f569a74a27c930d01f72a28",
+      "repeat_data_sha256": "d36797accd2ebc1aceeb7925848e29ff93d8ad5a0f569a74a27c930d01f72a28"
+    },
+    {
+      "case": "uk-river-l-fine",
+      "verdict": "BASELINE-PASS",
+      "maximum_absolute_change": 0.0,
+      "model_sha256": "b5b6161f15db85685edb78384a8fa8202f767f919b2f4384f084d120658308a4",
+      "analysis_sha256": "6b54de7847e51d1b9d89c9a6e62de582e162f944288b3bc07286809570b41d08",
+      "assessment_manifest_sha256": "26a105eb03b05e4b6154da26af352e79e2b54612dc34dad3c0763d5f773c7ac7",
+      "repeat_manifest_sha256": "18bd36502440abe0392b6b864b8085614d1e40b48250b3687425e86f3b5e1e68",
+      "assessment_data_sha256": "9d69e0ed930e404150c4a9b13574adb4013c52b98dcb36458017b637319629b3",
+      "repeat_data_sha256": "9d69e0ed930e404150c4a9b13574adb4013c52b98dcb36458017b637319629b3"
+    }
+  ]
+}

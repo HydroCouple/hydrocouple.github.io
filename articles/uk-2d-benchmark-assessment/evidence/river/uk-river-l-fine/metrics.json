@@ -1,0 +1,54 @@
+{
+  "checks": {
+    "finite_depth": true,
+    "continuity": true
+  },
+  "continuity_pct": 2.3373486256225526e-11,
+  "reference_fit": {
+    "status": "compared",
+    "kind": "observed",
+    "metrics": [
+      {
+        "probe": "S1",
+        "n": 250,
+        "bias_m": -0.01019390351237099,
+        "rmse_m": 0.01564596606483307,
+        "linf_m": 0.03000479889908199,
+        "covered_duration_s": 9.96
+      },
+      {
+        "probe": "S2",
+        "n": 250,
+        "bias_m": 0.00632061364823014,
+        "rmse_m": 0.017201938851625357,
+        "linf_m": 0.08456048265831256,
+        "covered_duration_s": 9.96
+      },
+      {
+        "probe": "S3",
+        "n": 250,
+        "bias_m": 0.00735046491729155,
+        "rmse_m": 0.01747566873803073,
+        "linf_m": 0.048999999999999995,
+        "covered_duration_s": 9.96
+      },
+      {
+        "probe": "S4",
+        "n": 250,
+        "bias_m": 0.0021680900315148703,
+        "rmse_m": 0.003884498830098224,
+        "linf_m": 0.010625090111378773,
+        "covered_duration_s": 9.96
+      }
+    ],
+    "time_shift_s": 0,
+    "source_samples_per_probe": 251,
+    "scope": "All source observations after the first required output; no visibility selection or fitted time shift. Rounding +/-0.0005 m; instrument uncertainty unknown."
+  },
+  "regression": {
+    "status": "unavailable",
+    "verdict": "UNAVAILABLE",
+    "reason": "No explicitly reviewed numerical baseline"
+  },
+  "wall_s": 68.09252108400688
+}
