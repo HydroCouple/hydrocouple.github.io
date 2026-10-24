@@ -2,6 +2,8 @@
 
 This is the initial results article, with a portable technical evidence bundle. It compares SWMM2D only with analytical constraints and a conservative digitized subset of published UCL measurements. The article explicitly reports the material G2 discrepancy and incomplete scientific qualification. Source/terrain acquisition rights remain recorded as unverified; new plots are authored from the executed models. Original report artwork and competitor traces are not copied.
 
+The 24 October assessment replaces Test 6A/6B with the GUI's constrained TIN and restores the drawing's side-bank slopes. The other five executed UK tests retain their 22 October identities and still require mesh correction. The source and assembly histories preserve the superseded Cartesian Test 6 records. Test 6B follows the user's choice to scale elevations by 20 per the written specification; the supplied DEM's conflicting elevation array is retained as a documented source issue.
+
 ## Rebuild locally
 
 From the benchmark repository, after the dated assessment, analytical and regression-repeat runs have completed:

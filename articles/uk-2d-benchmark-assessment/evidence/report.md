@@ -13,11 +13,11 @@ Coverage: 7/10 requested scenarios executed; 1 compared with observations; 0 che
 | uk-ea-2013-t03 | PASS | 1.39e-13 | unavailable | not applicable | 0.69 |
 | uk-ea-2013-t04 | PASS | 1.51e-12 | unavailable | not applicable | 1375.32 |
 | uk-ea-2013-t05 | PASS | -4.53e-13 | unavailable | not applicable | 162.04 |
-| uk-ea-2013-t6a | PASS | -3.42e-11 | unavailable | compared | 314.63 |
-| uk-ea-2013-t6b | PASS | 6.36e-11 | unavailable | not applicable | 454.94 |
 | uk-ea-2013-t07 | UNAVAILABLE | — | unavailable | unavailable | — |
 | uk-ea-2013-t8a | UNAVAILABLE | — | unavailable | unavailable | — |
 | uk-ea-2013-t8b | UNAVAILABLE | — | unavailable | unavailable | — |
+| uk-ea-2013-t6a | PASS | -2.67e-12 | unavailable | compared | 746.59 |
+| uk-ea-2013-t6b | PASS | 5.04e-13 | unavailable | not applicable | 1858.89 |
 
 ## Execution exclusions and failures
 
@@ -27,7 +27,7 @@ Coverage: 7/10 requested scenarios executed; 1 compared with observations; 0 che
 | uk-ea-2013-t8a | UNAVAILABLE | Original inputs missing |
 | uk-ea-2013-t8b | UNAVAILABLE | Original inputs missing |
 
-[Assessment assembly history](assessment-history.json). Test 4 replaced an initial budget exclusion with a separate complete canonical run. The earlier timeout evidence is preserved; no incomplete run is scored as a pass.
+[Assessment assembly history](assessment-history.json). This assessment retains the original run identities and identifies later complete replacement executions. Earlier evidence is preserved; incomplete runs are not scored as passes.
 
 
 ## Hardware and runtime scope
@@ -60,18 +60,20 @@ These two 60-second stationary lakes use the same CPU FULL_SWE second-order prof
 
 These are separate executions against initially reviewed SWMM2D baselines. Agreement is change control, not experimental validation. Cross-platform tolerance qualification remains outstanding.
 
-The main cohort’s own-regression column records baseline availability at execution time. Initial anchors were reviewed afterwards; the independent repeated executions below establish the two actual repeat checks.
+The main cohort’s own-regression column records baseline availability at execution time. Initial anchors were reviewed afterwards; the independent repeated executions below establish the actual repeat checks.
 
 | Case | Own baseline verdict | Maximum absolute probe change |
 |---|---|---:|
 | uk-ea-2013-t01 | BASELINE-PASS | 0 |
 | uk-ea-2013-t03 | BASELINE-PASS | 0 |
+| uk-ea-2013-t6a | BASELINE-PASS | 0 |
+| uk-ea-2013-t6b | BASELINE-PASS | 0 |
 
 [Full repeated-run evidence](regression/report.html).
 
 ## Test 1: Disconnected water body
 
-Historical spacing 10 m; 700 Cartesian quads; duration 72000 s; saved interval 60 s.
+Nominal spacing 10 m; 700 Cartesian quads; duration 72000 s; saved interval 60 s.
 
 Final volume 10127.1381 m³; independent volume residual None m³.
 
@@ -131,7 +133,7 @@ Own baseline: unavailable. Observed fit: not_applicable.
 
 ## Test 2: Filling floodplain depressions
 
-Historical spacing 20 m; 10,000 Cartesian quads; duration 172800 s; saved interval 300 s.
+Nominal spacing 20 m; 10,000 Cartesian quads; duration 172800 s; saved interval 300 s.
 
 Final volume 97200 m³; independent volume residual 2.9336370062083006e-06 m³.
 
@@ -192,7 +194,7 @@ Own baseline: unavailable. Observed fit: not_applicable.
 
 ## Test 3: Momentum over an obstruction
 
-Historical spacing 5 m; 1,200 Cartesian quads; duration 900 s; saved interval 2 s.
+Nominal spacing 5 m; 1,200 Cartesian quads; duration 900 s; saved interval 2 s.
 
 Final volume 1310.00002 m³; independent volume residual 1.647043768571166e-05 m³.
 
@@ -247,7 +249,7 @@ Own baseline: unavailable. Observed fit: not_applicable.
 
 ## Test 4: Flood propagation
 
-Historical spacing 5 m; 80,000 Cartesian quads; duration 18000 s; saved interval 20 s.
+Nominal spacing 5 m; 80,000 Cartesian quads; duration 18000 s; saved interval 20 s.
 
 Final volume 284999.974 m³; independent volume residual -0.026383984135463834 m³.
 
@@ -292,15 +294,15 @@ The first frame preserves the original UK time units and axis limits; the compan
 
 These are instantaneous saved fields; peak maps above have a different time basis.
 
-![Test 4 depth and speed at 1800 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-snapshot-1800s.png)
+![Test 4 saved fields at 1800 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-snapshot-1800s.png)
 
-![Test 4 depth and speed at 3600 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-snapshot-3600s.png)
+![Test 4 saved fields at 3600 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-snapshot-3600s.png)
 
-![Test 4 depth and speed at 7200 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-snapshot-7200s.png)
+![Test 4 saved fields at 7200 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-snapshot-7200s.png)
 
-![Test 4 depth and speed at 10800 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-snapshot-10800s.png)
+![Test 4 saved fields at 10800 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-snapshot-10800s.png)
 
-![Test 4 depth and speed at 14400 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-snapshot-14400s.png)
+![Test 4 saved fields at 14400 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-snapshot-14400s.png)
 
 ![Test 4 represented geometry and probes](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t04-setup.png)
 
@@ -320,7 +322,7 @@ Own baseline: unavailable. Observed fit: not_applicable.
 
 ## Test 5: Valley flooding
 
-Historical spacing 50 m; 7,643 Cartesian quads; duration 108000 s; saved interval 60 s.
+Nominal spacing 50 m; 7,643 Cartesian quads; duration 108000 s; saved interval 60 s.
 
 Final volume 9450000 m³; independent volume residual 0.0007043108344078064 m³.
 
@@ -396,24 +398,29 @@ Own baseline: unavailable. Observed fit: not_applicable.
 
 ## Test 6A: Laboratory dam break
 
-Historical spacing 0.1 m; 36,411 Cartesian quads; duration 120 s; saved interval 0.1 s.
+Nominal spacing 0.1 m; 61,642 constrained Delaunay triangles; duration 120 s; saved interval 0.1 s.
 
-Final volume 17.147 m³; independent volume residual 0.0 m³.
+Final volume 16.618 m³; independent volume residual -7.105427357601002e-15 m³.
 
 Maximum calendar-clock rounding to the authored output grid: 0.00100031 s.
 
-Geometry/setup qualifications: Raster cells with sampled height >= 1 m excluded as impermeable walls/building; retained flume bed set to 0 m. Nominal Cartesian stair-step barrier representation; must assess geometry sensitivity before measured validation. Original measured time series not supplied; numerical diagnostics only.
+Geometry/setup qualifications: GUI constrained Delaunay triangles follow the dimensioned flume, dam abutments, 1 m opening and 0.8 by 0.4 m building rotated 64 degrees (all lengths scaled by 20 for 6B). Figure (a) defines exact straight wall geometry and 0.34 m wide / 0.155 m high side-bank slopes; pixelated DEM barrier transitions are not fitted. This is a drawing-based geometric reconstruction, not a vertexwise reproduction of the supplied DEM. Bank toes and X=0 depth discontinuity are internal mesh constraints, not walls. All exposed edges are explicit reflective WALL boundaries. Initial conditions are uniform water depths, as specified, including over the bank slopes; no fitted time shift or roughness calibration. Original measured series missing; recovered isolated UCL markers provide exploratory 6A comparison only.
+
+GUI mesh: 31,890 vertices; minimum angle 30.000°; edge lengths 0.056782–0.15573 m; 2,138 explicit wall edges. The requested spacing is nominal, not a bound on every edge. The bank toes and release interface remain internal. [Source, generator and constraint audit](uk-ea-2013-t6a/mesh-provenance.json).
+
+Initialization follows the local depth values stated in Appendix A.6.3, including over the side-bank slopes. The main report summary also uses the term water level. A flat water-surface initialization would be a different configuration; that sensitivity has not been tested here. The initial-condition interpretation remains explicit rather than being fitted to the measurements.
+
 ### Exploratory comparison with digitized UCL markers
 
 Only visible isolated laboratory diamonds were recovered. Overlapped/occluded markers and G6 were omitted. These statistics describe a visibility-selected, pixel-binned subset, primarily before 30 s. They do not estimate fit to the complete original experiment. Instrument uncertainty is unknown; per-axis digitization uncertainty is conservatively one pixel. The engine reports flux-reconstructed RT0 cell speed. Original instrument and averaging metadata are still needed to confirm the measurement operator.
 
 | Gauge | Quantity | Samples | Covered time (s) | Bias | MAE | RMSE | Maximum absolute residual |
 |---|---|---:|---:|---:|---:|---:|---:|
-| G2 | level_m | 39 | 7.025 | -0.0529999 | 0.0529999 | 0.0572926 | 0.0841804 |
-| G2 | speed_mps | 141 | 17.916 | 0.595271 | 0.672564 | 0.820254 | 1.40932 |
-| G4 | level_m | 41 | 13.469 | -0.00984338 | 0.0165441 | 0.0193958 | 0.0467856 |
-| G4 | speed_mps | 117 | 23.008 | 0.05311 | 0.195087 | 0.220125 | 0.589991 |
-| G5 | level_m | 108 | 18.883 | -0.0168933 | 0.0182475 | 0.0210585 | 0.0490122 |
+| G2 | level_m | 39 | 7.025 | -0.0509083 | 0.0509083 | 0.0559745 | 0.0844187 |
+| G2 | speed_mps | 141 | 17.916 | 0.603401 | 0.663335 | 0.818786 | 1.39759 |
+| G4 | level_m | 41 | 13.469 | 0.0108824 | 0.0197091 | 0.0241411 | 0.0573151 |
+| G4 | speed_mps | 117 | 23.008 | -0.142819 | 0.217449 | 0.329799 | 0.999074 |
+| G5 | level_m | 108 | 18.883 | -0.00918188 | 0.0144398 | 0.0177375 | 0.0421504 |
 [Recovered reference samples](uk-ea-2013-t6a/reference/observations.csv) · [Digitization audit](uk-ea-2013-t6a/reference/digitization-audit.json)
 
 Values are dimensional: metres for levels, metres per second for speed. Observed fit remains report-only.
@@ -430,7 +437,7 @@ Values are dimensional: metres for levels, metres per second for speed. Observed
 | Requested reconstruction/tiering/CFL | Order 2 / one tier / 0.4 |
 | Wet/dry and movement thresholds | 0.0001 m |
 | Manning n | 0.01 |
-| Nominal mesh / active cells | 0.1 m / 36411 |
+| Nominal mesh / active cells | 0.1 m / 61642 |
 | End time / probe output interval | 120 s / 0.1 s |
 
 ![Test 6A Water-surface elevation (m) histories](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-level_m.png)
@@ -451,6 +458,14 @@ The first frame preserves the original UK time units and axis limits; the compan
 
 Figures 4.25–4.26 are reproduced with the recoverable digitized measurement subset only; G6 and the original full records remain unavailable.
 
+![Test 6A GUI mesh and wall/internal constraints, near-field detail](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-constrained-mesh.png)
+
+![Test 6A drawing versus supplied DEM cross-section](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-source-bed-audit.png)
+
+At this one unobstructed source cross-section the largest sampled bed difference is 0.0176358 m. This quantifies the source interpretation locally, not a global DEM error bound. The geometry was not adjusted to improve the measured fit.
+
+![Test 6A: Output-sampled peak water elevation (m)](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-max_level.png)
+
 ![Test 6A: Output-sampled peak depth (m)](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-max_depth.png)
 
 ![Test 6A: Output-sampled peak speed (m/s)](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-max_speed.png)
@@ -461,25 +476,25 @@ Figures 4.25–4.26 are reproduced with the recoverable digitized measurement su
 
 These are instantaneous saved fields; peak maps above have a different time basis.
 
-![Test 6A depth and speed at 1 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-1s.png)
+![Test 6A saved fields at 1 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-1s.png)
 
-![Test 6A depth and speed at 2 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-2s.png)
+![Test 6A saved fields at 2 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-2s.png)
 
-![Test 6A depth and speed at 3 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-3s.png)
+![Test 6A saved fields at 3 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-3s.png)
 
-![Test 6A depth and speed at 4 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-4s.png)
+![Test 6A saved fields at 4 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-4s.png)
 
-![Test 6A depth and speed at 5 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-5s.png)
+![Test 6A saved fields at 5 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-5s.png)
 
-![Test 6A depth and speed at 10 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-10s.png)
+![Test 6A saved fields at 10 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-10s.png)
 
-![Test 6A depth and speed at 15 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-15s.png)
+![Test 6A saved fields at 15 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-15s.png)
 
-![Test 6A depth and speed at 20 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-20s.png)
+![Test 6A saved fields at 20 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-20s.png)
 
-![Test 6A depth and speed at 25 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-25s.png)
+![Test 6A saved fields at 25 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-25s.png)
 
-![Test 6A depth and speed at 30 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-30s.png)
+![Test 6A saved fields at 30 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-snapshot-30s.png)
 
 ![Test 6A represented geometry and probes](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-setup.png)
 
@@ -491,13 +506,20 @@ Own baseline: unavailable. Observed fit: compared.
 
 ## Test 6B: Scaled dam break
 
-Historical spacing 2 m; 36,411 Cartesian quads; duration 1800 s; saved interval 1 s.
+Nominal spacing 2 m; 61,642 constrained Delaunay triangles; duration 1800 s; saved interval 1 s.
 
-Final volume 137176 m³; independent volume residual 5.820766091346741e-11 m³.
+Final volume 132944 m³; independent volume residual -1.6880221664905548e-09 m³.
 
 Maximum calendar-clock rounding to the authored output grid: 0.00100031 s.
 
-Geometry/setup qualifications: Raster cells with sampled height >= 1 m excluded as impermeable walls/building; retained flume bed set to 0 m. Nominal Cartesian stair-step barrier representation; must assess geometry sensitivity before measured validation. Original measured time series not supplied; numerical diagnostics only.
+Geometry/setup qualifications: GUI constrained Delaunay triangles follow the dimensioned flume, dam abutments, 1 m opening and 0.8 by 0.4 m building rotated 64 degrees (all lengths scaled by 20 for 6B). Figure (a) defines exact straight wall geometry and 0.34 m wide / 0.155 m high side-bank slopes; pixelated DEM barrier transitions are not fitted. This is a drawing-based geometric reconstruction, not a vertexwise reproduction of the supplied DEM. Bank toes and X=0 depth discontinuity are internal mesh constraints, not walls. All exposed edges are explicit reflective WALL boundaries. Initial conditions are uniform water depths, as specified, including over the bank slopes; no fitted time shift or roughness calibration. Original measured series missing; recovered isolated UCL markers provide exploratory 6A comparison only.
+
+GUI mesh: 31,890 vertices; minimum angle 30.000°; edge lengths 1.1356–3.1147 m; 2,138 explicit wall edges. The requested spacing is nominal, not a bound on every edge. The bank toes and release interface remain internal. [Source, generator and constraint audit](uk-ea-2013-t6b/mesh-provenance.json).
+
+Initialization follows the local depth values stated in Appendix A.6.3, including over the side-bank slopes. The main report summary also uses the term water level. A flat water-surface initialization would be a different configuration; that sensitivity has not been tested here. The initial-condition interpretation remains explicit rather than being fitted to the measurements.
+
+The 6B elevation interpretation is **specification**, with side banks 3.1 m high. The supplied 6A/6B DEM elevation arrays are identical, although the written specification scales all physical dimensions by 20. The user selected the written-specification scaling for this assessment. [Source-scale audit and decision](uk-ea-2013-t6b/source-scale-audit.json).
+
 ### Configuration counterpart to UK Table 4.8
 
 | Setting | Value |
@@ -508,7 +530,7 @@ Geometry/setup qualifications: Raster cells with sampled height >= 1 m excluded 
 | Requested reconstruction/tiering/CFL | Order 2 / one tier / 0.4 |
 | Wet/dry and movement thresholds | 0.0001 m |
 | Manning n | 0.05 |
-| Nominal mesh / active cells | 2.0 m / 36411 |
+| Nominal mesh / active cells | 2.0 m / 61642 |
 | End time / probe output interval | 1800 s / 1.0 s |
 
 ![Test 6B Water-surface elevation (m) histories](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-level_m.png)
@@ -527,6 +549,14 @@ The first frame preserves the original UK time units and axis limits; the compan
 
 The first frame preserves the original UK time units and axis limits; the companion retains the complete ordinate range of these traces. Full-duration histories appear above.
 
+![Test 6B GUI mesh and wall/internal constraints, near-field detail](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-constrained-mesh.png)
+
+![Test 6B drawing versus supplied DEM cross-section](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-source-bed-audit.png)
+
+At this one unobstructed source cross-section the largest sampled bed difference is 2.96262 m. This quantifies the source interpretation locally, not a global DEM error bound. The geometry was not adjusted to improve the measured fit.
+
+![Test 6B: Output-sampled peak water elevation (m)](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-max_level.png)
+
 ![Test 6B: Output-sampled peak depth (m)](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-max_depth.png)
 
 ![Test 6B: Output-sampled peak speed (m/s)](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-max_speed.png)
@@ -537,21 +567,21 @@ The first frame preserves the original UK time units and axis limits; the compan
 
 These are instantaneous saved fields; peak maps above have a different time basis.
 
-![Test 6B depth and speed at 60 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-60s.png)
+![Test 6B saved fields at 60 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-60s.png)
 
-![Test 6B depth and speed at 120 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-120s.png)
+![Test 6B saved fields at 120 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-120s.png)
 
-![Test 6B depth and speed at 180 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-180s.png)
+![Test 6B saved fields at 180 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-180s.png)
 
-![Test 6B depth and speed at 240 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-240s.png)
+![Test 6B saved fields at 240 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-240s.png)
 
-![Test 6B depth and speed at 300 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-300s.png)
+![Test 6B saved fields at 300 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-300s.png)
 
-![Test 6B depth and speed at 600 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-600s.png)
+![Test 6B saved fields at 600 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-600s.png)
 
-![Test 6B depth and speed at 900 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-900s.png)
+![Test 6B saved fields at 900 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-900s.png)
 
-![Test 6B depth and speed at 1200 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-1200s.png)
+![Test 6B saved fields at 1200 s](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-snapshot-1200s.png)
 
 ![Test 6B represented geometry and probes](../../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6b-setup.png)
 

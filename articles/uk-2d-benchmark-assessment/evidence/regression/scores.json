@@ -49,29 +49,66 @@
       "regression_status": "checked"
     },
     {
-      "case": "required-coverage",
-      "solver": "coverage",
+      "case": "uk-ea-2013-t6a",
+      "solver": "swmm2d-own-baseline",
+      "reference_class": "blessed_baseline",
+      "status": "checked",
+      "verdict": "BASELINE-PASS",
+      "max_absolute_change": 0.0
+    },
+    {
+      "case": "uk-ea-2013-t6a",
+      "solver": "swmm2d-cpu-full-swe-rk2",
       "reference_class": "self_consistency",
       "verdict": "PASS",
-      "missing_cases": [],
-      "missing_regressions": [],
-      "missing_observed": []
+      "continuity_err": -2.672338487483904e-12,
+      "checks": {
+        "nonnegative_depth": true,
+        "continuity": true,
+        "independent_volume": true
+      },
+      "wall_s": 1049.2178047500056,
+      "observed_status": "compared",
+      "regression_status": "checked"
+    },
+    {
+      "case": "uk-ea-2013-t6b",
+      "solver": "swmm2d-cpu-full-swe-rk2",
+      "reference_class": "self_consistency",
+      "verdict": "PASS",
+      "continuity_err": 5.035113284577512e-13,
+      "checks": {
+        "nonnegative_depth": true,
+        "continuity": true,
+        "independent_volume": true
+      },
+      "wall_s": 1788.9342554589966,
+      "observed_status": "not_applicable",
+      "regression_status": "checked"
+    },
+    {
+      "case": "uk-ea-2013-t6b",
+      "solver": "swmm2d-own-baseline",
+      "reference_class": "blessed_baseline",
+      "status": "checked",
+      "verdict": "BASELINE-PASS",
+      "max_absolute_change": 0.0
     }
   ],
   "interpretation": "PASS denotes numerical checks only. Observed fit is report-only. Baseline agreement is change control.",
   "coverage": {
-    "requested": 2,
-    "executed": 2,
-    "observed_compared": 0,
-    "regression_checked": 2,
+    "requested": 4,
+    "executed": 4,
+    "regression_checked": 4,
     "complete": true,
-    "required_missing": [],
-    "observed_validation_complete": false,
-    "qualification_note": "Fit to a visible digitized subset is exploratory; original data and scientific qualification remain pending"
+    "observed_compared": 1,
+    "required_missing": []
   },
   "requested_cases": [
-    "1",
-    "3"
+    "uk-ea-2013-t01",
+    "uk-ea-2013-t03",
+    "uk-ea-2013-t6a",
+    "uk-ea-2013-t6b"
   ],
   "source_gaps": {
     "6a": "Original measured series missing",

@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-24",
+  "repository_tests": {
+    "passed": 291,
+    "failed": 0,
+    "native_output_freshness_test_enabled": true,
+    "engine_executable": "results/uk_2d/output-freshness-fix/bin/openswmm"
+  },
+  "website_assembly_unit_tests": {
+    "passed": 2,
+    "failed": 0
+  },
+  "full_duration_repeats": {
+    "6a": {
+      "verdict": "BASELINE-PASS",
+      "max_absolute_probe_change": 0.0
+    },
+    "6b": {
+      "verdict": "BASELINE-PASS",
+      "max_absolute_probe_change": 0.0,
+      "comparison_timing": "Saved-data comparison after first-anchor review; original unavailable-baseline state retained"
+    }
+  },
+  "geometry_generation": "GUI kernel; no refinement cap, complete boundary/internal constraint coverage, positive triangle areas, bank and initial-interface constraints audited",
+  "website_checks": {
+    "other_article_blocks_unchanged": 8,
+    "checked_local_links": 366,
+    "missing_links": []
+  },
+  "browser_visual_review": "Blocked by the in-app browser file-URL protocol policy. No bypass attempted. Generated HTML/link checks and direct inspection of authored PNG figures completed."
+}

@@ -46,19 +46,30 @@ These reference levels constrain equilibrium. They do not provide an exact hydro
 
 UK Test 6A represents a dam-break wave interacting with an isolated building. The specification requests 0.1 m spacing, a 120-second simulation, Manning roughness of 0.01, water-level output at six gauges, and velocity output where measurements exist.
 
+The Test 6 results below use the corrected GUI-generated constrained Delaunay mesh from 24 October 2026: 31,890 vertices and 61,642 triangles. The mesh follows the flume, dam abutments, 1 m opening and rotated building. It also restores the sloping side-bank strips from the dimensioned source drawing. The opening and bank toes remain internal edges; all 2,138 exposed edges are reflective walls. The minimum triangle angle is 30.0°, with actual edge lengths 0.0568–0.1557 m, so 0.1 m describes the nominal target.
+
+The active area is 354 m² and the initial volume is 16.618 m³. This is a drawing-based geometric reconstruction, not a vertexwise reproduction of the pixelated DEM. The [mesh and constraint audit](evidence/uk-ea-2013-t6a/mesh-provenance.json) records the exact geometry and generator source identity. Drawing-versus-DEM interpretation and mesh sensitivity remain to be qualified. Because the correction includes boundaries and bank elevations, any result change cannot be attributed to triangle shape alone.
+
+![Corrected Test 6A GUI mesh: red walls, blue internal constraints and source gauges.](../../img/articles/uk-2d-benchmark-assessment/uk-ea-2013-t6a-constrained-mesh.png)
+
+The earlier Cartesian, flat-bed Test 6 results are superseded. Their [metrics](evidence/history/cartesian-uk-ea-2013-t6a/metrics.json) and [input](evidence/history/cartesian-uk-ea-2013-t6a/model.inp) remain historical records. The [assessment history](evidence/assessment-history.json) identifies the new Test 6 executions and the unchanged earlier runs of Tests 1–5. Those remaining configurations still need their own domain, boundary and breakline mesh corrections.
+
+For Test 6B, elevations are multiplied by 20 in accordance with the written specification and the explicit choice made for this assessment. The supplied 6B DEM scales XY but retains the 6A elevation matrix, so its side-bank heights conflict with that instruction. The [source-scale audit](evidence/uk-ea-2013-t6b/source-scale-audit.json) documents this discrepancy. The represented 6B bank height is 3.1 m; initial depths remain the prescribed 8 m upstream and 0.4 m downstream, with Manning roughness 0.05.
+
+
 The supplied archive contains the terrain and gauge coordinates but no original measured time series. To obtain an initial comparison, a conservative algorithm recovered only the distinctive isolated magenta diamond markers labelled as UCL measurements in Figures 4.25 and 4.26. It excluded the legend, continuous curves, and ambiguous or overlapping markers.
 
 This recovered 611 markers, grouped into 446 samples by horizontal pixel column, across five gauge/quantity series. Most lie within the first 30 seconds. No reliable G6 markers survived recovery. The extracted points are a visibility-selected subset: the statistics below describe agreement with that subset and must not be generalized to the complete experiment.
 
 | Gauge | Quantity | Samples | Covered time (s) | Bias | RMSE |
 |---|---|---:|---:|---:|---:|
-| G2 | Level (m) | 39 | 7.02 | -0.053 | 0.05729 |
-| G2 | Speed (m/s) | 141 | 17.92 | 0.5953 | 0.8203 |
-| G4 | Level (m) | 41 | 13.47 | -0.009843 | 0.0194 |
-| G4 | Speed (m/s) | 117 | 23.01 | 0.05311 | 0.2201 |
-| G5 | Level (m) | 108 | 18.88 | -0.01689 | 0.02106 |
+| G2 | Level (m) | 39 | 7.02 | -0.05091 | 0.05597 |
+| G2 | Speed (m/s) | 141 | 17.92 | 0.6034 | 0.8188 |
+| G4 | Level (m) | 41 | 13.47 | 0.01088 | 0.02414 |
+| G4 | Speed (m/s) | 117 | 23.01 | -0.1428 | 0.3298 |
+| G5 | Level (m) | 108 | 18.88 | -0.009182 | 0.01774 |
 
-Agreement varies substantially by gauge. In particular, the G2 subset shows material level and speed discrepancies; this assessment does not establish successful laboratory validation. Geometry, sampling and numerical-resolution effects require investigation with the original measurement records.
+The mesh correction has not resolved the G2 mismatch: level RMSE is 0.056 m and speed RMSE is 0.819 m/s against the recovered subset. This assessment does not establish successful laboratory validation. Geometry, sampling and numerical-resolution effects require investigation with the original measurement records.
 
 Bias and RMSE use the dimensional units shown in the quantity column. Predictions are sampled at the recovered observation times; intervals separated by more than one second are treated as gaps. No time shift is fitted to improve agreement.
 
@@ -79,11 +90,11 @@ The requested coverage at this stage is shown below. PASS denotes successful num
 | 3 | PASS | not applicable |
 | 4 | PASS | not applicable |
 | 5 | PASS | not applicable |
-| 6A | PASS | compared |
-| 6B | PASS | not applicable |
 | 7 | UNAVAILABLE | unavailable |
 | 8A | UNAVAILABLE | unavailable |
 | 8B | UNAVAILABLE | unavailable |
+| 6A | PASS | compared |
+| 6B | PASS | not applicable |
 
 For example, the independently integrated inflow volumes are 97,200 m³ for Test 2, 1,310 m³ for Test 3, 285,000 m³ for Test 4 and 9,450,000 m³ for Test 5. Agreement with these budgets tests input application and water conservation. It does not determine the correct spatial flow field.
 
@@ -97,7 +108,9 @@ Test 6B is treated as a separate numerical scenario. Its geometry is enlarged fr
 
 The cases run in a dedicated suite in HydroCouple’s benchmark repository. Checks distinguish analytical equilibrium, measured goodness of fit, numerical consistency and change from an approved SWMM2D baseline.
 
-The two complete fast cases, Tests 1 and 3, have initial numerical baselines and a separate repeated-run check. Both reproduced their saved probe values without a numerical change in this local repeat. This is initial regression evidence; cross-platform tolerance qualification remains outstanding. The [regression report](evidence/regression/report.html) records the checks and baseline scope.
+Tests 1 and 3, and the corrected Test 6A/6B inputs, have reviewed numerical baselines and separate full-duration repeated executions. These local repeats reproduced their saved probe values within the recorded tolerances. This is initial regression evidence; cross-platform tolerance qualification remains outstanding. The [regression report](evidence/regression/report.html) records the checks and baseline scope.
+
+The corrected 6B repeat completed before its first-run anchor was reviewed. Its saved outputs were compared after that review; the [comparison record](evidence/regression/uk-ea-2013-t6b/post-run-baseline-comparison.json) preserves the sequence and the original unavailable-baseline qualification state.
 
 The assessment uses an isolated build of base revision `0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4` plus a [documented output-cache correction](evidence/engine/output-freshness.patch). The laboratory run exposed a defect that held reported velocities on a 30-second diagnostic cadence despite more frequent output. Refreshing that derived cache when output is prepared corrected the reporting path; a small end-to-end test fails before the correction and passes afterwards. The solver advance was unchanged, and the comparisons shown here use the corrected output. Run manifests preserve binary, source, model, reference and analysis identities. Geometry, boundary treatment, sampling and output cadence are recorded so that a changed result can be investigated. Baselines require an explicit review record and are not automatically overwritten after a failure.
 

@@ -1,0 +1,48 @@
+{
+  "checks": {
+    "nonnegative_depth": true,
+    "continuity": true,
+    "independent_volume": true
+  },
+  "continuity_err": 5.035113284577512e-13,
+  "volume_residual_m3": -1.6880221664905548e-09,
+  "initial_volume_m3": 132944.00000000175,
+  "final_volume_m3": 132944.00000000006,
+  "prescribed_inflow_m3": 0.0,
+  "wall_s": 1788.9342554589966,
+  "peak_scope": "maxima over saved output times",
+  "clock_rounding_max_s": 0.0010003140196204185,
+  "deviations": [
+    "GUI constrained Delaunay triangles follow the dimensioned flume, dam abutments, 1 m opening and 0.8 by 0.4 m building rotated 64 degrees (all lengths scaled by 20 for 6B).",
+    "Figure (a) defines exact straight wall geometry and 0.34 m wide / 0.155 m high side-bank slopes; pixelated DEM barrier transitions are not fitted. This is a drawing-based geometric reconstruction, not a vertexwise reproduction of the supplied DEM.",
+    "Bank toes and X=0 depth discontinuity are internal mesh constraints, not walls. All exposed edges are explicit reflective WALL boundaries.",
+    "Initial conditions are uniform water depths, as specified, including over the bank slopes; no fitted time shift or roughness calibration.",
+    "Original measured series missing; recovered isolated UCL markers provide exploratory 6A comparison only."
+  ],
+  "observed": {
+    "status": "not_applicable",
+    "metrics": []
+  },
+  "regression": {
+    "status": "checked",
+    "verdict": "BASELINE-PASS",
+    "max_absolute_change": 0.0,
+    "review": {
+      "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4+output-freshness-fix",
+      "model_sha256": "cee692cb474b8dc49ef4eaa95e2b78d50b1112799a024097dc831c285e253fed",
+      "probes_sha256": "b6a91ad194fa0deb268923dee7ee77613db3b6145164edcd248ddc4bfee4f02b",
+      "analysis_sha256": "e4ef7a069dd68989c1c2bc8d0dc711be0ab8002b5a6f84a66763e240906e1e86",
+      "reviewer": "Codex: Test 6 constrained geometry review 2026-10-24",
+      "reason": "User explicitly selected full 20-fold XYZ scaling per written specification despite unchanged DEM elevations. GUI TIN constraints, scaled area/volume and complete 1800 s numerical checks reviewed. This is a local regression anchor only; no measured full-scale accuracy or dynamic similarity implied.",
+      "date": "2026-10-24T19:55:56.633442+00:00",
+      "binary_sha256": {
+        "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/libopenswmm.engine.6.0.0.dylib": "94fd5c6211fb5f2fe25d8c143e57705877934991bc38a3f58e432eccaee902a3",
+        "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/openswmm": "ace881e1dc46b9240d25be1e3ba2d4a4e6b0b58a2d3aae903dc0f8e3a054d58e"
+      },
+      "atol": 1e-06,
+      "rtol": 1e-05,
+      "data_sha256": "18efe2e6c1bcc75d906dfb3e8c1608f90a5745558ed67ec81959ce2aa03d8ea3",
+      "qualification": "Initial local numerical regression anchor; no observed accuracy or cross-platform qualification implied"
+    }
+  }
+}

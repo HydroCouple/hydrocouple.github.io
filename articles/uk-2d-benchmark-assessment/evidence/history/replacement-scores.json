@@ -1,0 +1,66 @@
+{
+  "suite": "uk_2d",
+  "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4+output-freshness-fix",
+  "timestamp": "2026-10-24T14:52:47",
+  "cells": [
+    {
+      "case": "uk-ea-2013-t6a",
+      "solver": "swmm2d-cpu-full-swe-rk2",
+      "reference_class": "self_consistency",
+      "verdict": "PASS",
+      "continuity_err": -2.672338487483904e-12,
+      "checks": {
+        "nonnegative_depth": true,
+        "continuity": true,
+        "independent_volume": true
+      },
+      "wall_s": 746.5876592079876,
+      "observed_status": "compared",
+      "regression_status": "unavailable"
+    },
+    {
+      "case": "uk-ea-2013-t6b",
+      "solver": "swmm2d-cpu-full-swe-rk2",
+      "reference_class": "self_consistency",
+      "verdict": "PASS",
+      "continuity_err": 5.035113284577512e-13,
+      "checks": {
+        "nonnegative_depth": true,
+        "continuity": true,
+        "independent_volume": true
+      },
+      "wall_s": 1858.8943073339906,
+      "observed_status": "not_applicable",
+      "regression_status": "unavailable"
+    },
+    {
+      "case": "required-coverage",
+      "solver": "coverage",
+      "reference_class": "self_consistency",
+      "verdict": "PASS",
+      "missing_cases": [],
+      "missing_regressions": [],
+      "missing_observed": []
+    }
+  ],
+  "interpretation": "PASS denotes numerical checks only. Observed fit is report-only. Baseline agreement is change control.",
+  "coverage": {
+    "requested": 2,
+    "executed": 2,
+    "observed_compared": 1,
+    "regression_checked": 0,
+    "complete": true,
+    "required_missing": [],
+    "observed_validation_complete": false,
+    "qualification_note": "Fit to a visible digitized subset is exploratory; original data and scientific qualification remain pending"
+  },
+  "requested_cases": [
+    "6a",
+    "6b"
+  ],
+  "source_gaps": {
+    "6a": "Original measured series missing",
+    "8a": "Authoritative input dataset missing",
+    "8b": "Authoritative input dataset missing"
+  }
+}

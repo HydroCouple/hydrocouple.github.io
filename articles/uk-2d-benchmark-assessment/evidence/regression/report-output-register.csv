@@ -22,14 +22,14 @@ Figure 4.20,5,69,Peak level and speed centreline profiles 0-2 km,pending,
 Figure 4.21,5,70,Peak level and speed centreline profiles 2-5 km,pending,
 Figure 4.22,5,71,Peak level and speed centreline profiles 5-10 km,pending,
 Figure 4.23,5,72,Peak level and speed centreline profiles 10-15 km,pending,
-Figure 4.24,6a,78,"Laboratory domain, gate, block and gauges",pending,
-Figure 4.25,6a,80,"Water levels G2/G4/G5/G6, first 60 s; multipage figure",pending,
-Figure 4.26,6a,81,"Speeds G2/G4, first 60 s",pending,
-Figure 4.27,6b,86,Water levels G2/G4/G5/G6; multipage figure,pending,
-Figure 4.28,6b,87,Speeds G2/G4,pending,
-Figure 4.29,6b,88,"Peak-level plan, jump and section positions",pending,
-Figure 4.30,6b,89,Peak level and speed section 1,pending,
-Figure 4.31,6b,90,Peak level and speed section 2,pending,
+Figure 4.24,6a,78,"Laboratory domain, gate, block and gauges",diagnostic quantity generated; final layout pending,../../../../img/articles/uk-2d-benchmark-assessment/regression-uk-ea-2013-t6a-setup.png
+Figure 4.25,6a,80,"Water levels G2/G4/G5/G6, first 60 s; multipage figure",digitized subset compared; original records/G6 incomplete; original axes and full-range frames available,../../../../img/articles/uk-2d-benchmark-assessment/regression-uk-ea-2013-t6a-uk-4-25.png
+Figure 4.26,6a,81,"Speeds G2/G4, first 60 s",digitized subset compared; original records/G6 incomplete; original axes and full-range frames available,../../../../img/articles/uk-2d-benchmark-assessment/regression-uk-ea-2013-t6a-uk-4-26.png
+Figure 4.27,6b,86,Water levels G2/G4/G5/G6; multipage figure,"source gauges/sections, units and axes matched; full-range companion retained; diagnostic only",../../../../img/articles/uk-2d-benchmark-assessment/regression-uk-ea-2013-t6b-uk-4-27.png
+Figure 4.28,6b,87,Speeds G2/G4,"source gauges/sections, units and axes matched; full-range companion retained; diagnostic only",../../../../img/articles/uk-2d-benchmark-assessment/regression-uk-ea-2013-t6b-uk-4-28.png
+Figure 4.29,6b,88,"Peak-level plan, jump and section positions",diagnostic quantity generated; final layout pending,../../../../img/articles/uk-2d-benchmark-assessment/regression-uk-ea-2013-t6b-setup.png
+Figure 4.30,6b,89,Peak level and speed section 1,"source gauges/sections, units and axes matched; full-range companion retained; diagnostic only",../../../../img/articles/uk-2d-benchmark-assessment/regression-uk-ea-2013-t6b-uk-4-30.png
+Figure 4.31,6b,90,Peak level and speed section 2,"source gauges/sections, units and axes matched; full-range companion retained; diagnostic only",../../../../img/articles/uk-2d-benchmark-assessment/regression-uk-ea-2013-t6b-uk-4-31.png
 Figure 4.32,7,95,River levels M015/M025/M035/M045; multipage figure,pending,
 Figure 4.33,7,96,River speeds M025/M035,pending,
 Figure 4.34,7,98,Floodplain 1 level histories; multipage figure,pending,
@@ -53,8 +53,8 @@ Table 4.3,2,43,Settings,pending,
 Table 4.4,3,49,Settings,diagnostic quantity generated; final layout pending,
 Table 4.5,4,59,Settings,pending,
 Table 4.6,5,75,Settings,pending,
-Table 4.7,6a,83,Settings,pending,
-Table 4.8,6b,91,Settings,pending,
+Table 4.7,6a,83,Settings,diagnostic quantity generated; final layout pending,
+Table 4.8,6b,91,Settings,diagnostic quantity generated; final layout pending,
 Table 4.9,7,107,Settings,pending,
 Table 4.10,8a,116,Settings,pending,
 Table 4.11,8b,120,Total manhole discharge volume,pending,

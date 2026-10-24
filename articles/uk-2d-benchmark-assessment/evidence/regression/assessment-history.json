@@ -1,0 +1,9 @@
+{
+  "original": "results/uk_2d/assessment-regression-repeat-2026-10-22",
+  "replacement": "results/uk_2d/tin-regression-repeat-2026-10-24",
+  "replaced_cases": [
+    "uk-ea-2013-t6a",
+    "uk-ea-2013-t6b"
+  ],
+  "scope": "Existing Test 1/3 repeats plus separate full-duration corrected Test 6 repeats; original manifests retained."
+}

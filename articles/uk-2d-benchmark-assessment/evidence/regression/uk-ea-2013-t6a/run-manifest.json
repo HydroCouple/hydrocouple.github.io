@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4+output-freshness-fix",
+  "engine_checkout_context": "49fb98f9-dirty",
+  "benchmark_sha": "8559d0d-dirty",
+  "binaries": {
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/libopenswmm.engine.6.0.0.dylib": "94fd5c6211fb5f2fe25d8c143e57705877934991bc38a3f58e432eccaee902a3",
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/openswmm": "ace881e1dc46b9240d25be1e3ba2d4a4e6b0b58a2d3aae903dc0f8e3a054d58e"
+  },
+  "model_sha256": "df34c584ed3989df4b4f017a63941df182962a6610237feb1e64576f77f87027",
+  "probes_sha256": "38c986144f62b64c8099529acc93b509a5d184abe1e3f2b2f5f31fafea683448",
+  "source_hashes": {
+    "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6ADEM.asc": "69a0722f0620663423cf8ff52c4c48779d697b9a7a48929cee99fa7fcf4ad864",
+    "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/EA2DTest6 - May2010.pdf": "1492ff8fb525339010c8de63c471f2bfb539b86a8164cc74835f0c867fd313ca",
+    "Benchmarking_Model_Data.zip!/Test6_dataset_2010.zip!/Test6 dataset 2010/Test6Aoutput.csv": "78123efa0ea4aee66c8469a6e02bb8546175fa5c02b498de1b98bf35d4c5498b"
+  },
+  "analysis_sha256": "e4ef7a069dd68989c1c2bc8d0dc711be0ab8002b5a6f84a66763e240906e1e86",
+  "reference_hashes": {
+    "digitization-audit.json": "72f2710540496bba3692f267c182929afc58141a9ba1f0b689fc3d70b0b77bdd",
+    "observations.csv": "0bd2928bea92c21444bbe671d9a3a2a9e1cbf09df4b476875909813998c5f532",
+    "observations.json": "9dc5f65739bf14c74503a5a969e70965f8ccb07ca9d9376fedbafa693f4682e1"
+  },
+  "build_provenance": {
+    "engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4+output-freshness-fix",
+    "source": "/tmp/uk-2d-engine-0ff03ce1ba06/source",
+    "build": "/tmp/uk-2d-engine-0ff03ce1ba06/build",
+    "scope": "Clean committed source plus the documented derived-velocity output refresh patch; solver advance is unchanged",
+    "base_engine_sha": "0ff03ce1ba06f23bd0ffe7077f9886ca04d4cea4",
+    "executable": "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/openswmm",
+    "binaries": {
+      "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/libopenswmm.engine.6.0.0.dylib": "94fd5c6211fb5f2fe25d8c143e57705877934991bc38a3f58e432eccaee902a3",
+      "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/bin/openswmm": "ace881e1dc46b9240d25be1e3ba2d4a4e6b0b58a2d3aae903dc0f8e3a054d58e"
+    },
+    "patch_sha256": "2b56e7a16b09369e3a3e68d8febf51d0e42e8a3fbfda8240d747c8906d1b3704",
+    "patch_file": "output-freshness.patch",
+    "compile_command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DOPENSWMM_GPU_BUILD_CONTRACT=\\\"ecdeaa1783f4ab0492c8573d79cd90d3f71edd6e32d0562e963c51a2f1d14462-Release\\\" -DOPENSWMM_HAS_2D=1 -DOPENSWMM_HAS_2D_HDF5_OUTPUT=1 -DSWMM_OS_MACOS -DSWMM_USE_OPENMP -Dopenswmm_engine_EXPORTS -I/tmp/uk-2d-engine-0ff03ce1ba06/source/include -I/tmp/uk-2d-engine-0ff03ce1ba06/source/include/openswmm/engine -I/tmp/uk-2d-engine-0ff03ce1ba06/source/include/openswmm/plugin_sdk -I/tmp/uk-2d-engine-0ff03ce1ba06/build/src/engine -I/tmp/uk-2d-engine-0ff03ce1ba06/source/src/engine -I/tmp/uk-2d-engine-0ff03ce1ba06/build/include -isystem /opt/homebrew/opt/libomp/include -isystem /Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine/build/hotstart-format/vcpkg_installed/arm64-osx/include -O3 -DNDEBUG -std=c++20 -flto=thin -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -fPIC -fvisibility=default -mcpu=native -Xpreprocessor -fopenmp -MD -MT src/engine/CMakeFiles/openswmm_engine.dir/2d/SurfaceRouter2D.cpp.o -MF src/engine/CMakeFiles/openswmm_engine.dir/2d/SurfaceRouter2D.cpp.o.d -o src/engine/CMakeFiles/openswmm_engine.dir/2d/SurfaceRouter2D.cpp.o -c /tmp/uk-2d-engine-0ff03ce1ba06/source/src/engine/2d/SurfaceRouter2D.cpp",
+    "base_source_archive": "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/output-freshness-fix/base-source.tar.gz",
+    "base_source_archive_sha256": "0bd1f2765b2fd08273f1eff6fad72c0c9d15c3289ab0569489c24d6bd427edf2"
+  },
+  "case_sha256": "9361b59eaa4a27cd1ec7f936eebe7b8b8bde9c8483435e71f5a4b1abbd5b24b8",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "threads": 1,
+  "requested": {
+    "backend": "CPU",
+    "momentum": "FULL_SWE",
+    "reconstruction_order": 2,
+    "lts_tiers": 1,
+    "cfl": 0.4
+  },
+  "case": "uk-ea-2013-t6a",
+  "created": "2026-10-24T19:25:11.745612+00:00",
+  "reproducibility_note": "Clean archived source build; full identity in build_provenance.",
+  "process": {
+    "ok": true,
+    "launched": true,
+    "returncode": 0,
+    "stdout": "\n... OpenSWMM Engine 6.0.0-alpha.4\n... Input: /Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/tin-regression-repeat-6a-2026-10-24/uk-ea-2013-t6a/model.inp\n... Report: /Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/tin-regression-repeat-6a-2026-10-24/uk-ea-2013-t6a/model.rpt\n... Output: /Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/tin-regression-repeat-6a-2026-10-24/uk-ea-2013-t6a/model.out\n\n... 1000 steps, elapsed = 0.0012 days\n... 1200 steps completed.\n... OpenSWMM Engine completed in 1049.00 seconds.\n\n",
+    "wall": 1049.2178047500056,
+    "stderr": ""
+  }
+}

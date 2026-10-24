@@ -4,18 +4,20 @@
     "continuity": true,
     "independent_volume": true
   },
-  "continuity_err": 6.358559797542942e-11,
-  "volume_residual_m3": 5.820766091346741e-11,
-  "initial_volume_m3": 137176.0,
-  "final_volume_m3": 137176.00000000006,
+  "continuity_err": 5.035113284577512e-13,
+  "volume_residual_m3": -1.6880221664905548e-09,
+  "initial_volume_m3": 132944.00000000175,
+  "final_volume_m3": 132944.00000000006,
   "prescribed_inflow_m3": 0.0,
-  "wall_s": 454.9417620410677,
+  "wall_s": 1858.8943073339906,
   "peak_scope": "maxima over saved output times",
   "clock_rounding_max_s": 0.0010003140196204185,
   "deviations": [
-    "Raster cells with sampled height >= 1 m excluded as impermeable walls/building; retained flume bed set to 0 m.",
-    "Nominal Cartesian stair-step barrier representation; must assess geometry sensitivity before measured validation.",
-    "Original measured time series not supplied; numerical diagnostics only."
+    "GUI constrained Delaunay triangles follow the dimensioned flume, dam abutments, 1 m opening and 0.8 by 0.4 m building rotated 64 degrees (all lengths scaled by 20 for 6B).",
+    "Figure (a) defines exact straight wall geometry and 0.34 m wide / 0.155 m high side-bank slopes; pixelated DEM barrier transitions are not fitted. This is a drawing-based geometric reconstruction, not a vertexwise reproduction of the supplied DEM.",
+    "Bank toes and X=0 depth discontinuity are internal mesh constraints, not walls. All exposed edges are explicit reflective WALL boundaries.",
+    "Initial conditions are uniform water depths, as specified, including over the bank slopes; no fitted time shift or roughness calibration.",
+    "Original measured series missing; recovered isolated UCL markers provide exploratory 6A comparison only."
   ],
   "observed": {
     "status": "not_applicable",
