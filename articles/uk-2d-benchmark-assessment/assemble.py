@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import hashlib
+import importlib.util
 from pathlib import Path
 import shutil
 import numpy as np
@@ -117,7 +119,103 @@ Source: Crowder and colleagues, Environment Agency [W5-105/TR1 test specificatio
 '''
 
 
-def assemble(results,regression,analytical,river=None):
+def wall_supplement(source,image_root):
+    """Publish a finalized planned wall study without partial or stale cases."""
+    source=Path(source)
+    plan=json.loads((source/'assessment-plan.json').read_text(encoding='utf-8'))
+    cw=plan['cw'];expected=set()
+    for phase in plan['phases']:
+        for location in phase['locations']:
+            expected.add(f"{phase['test']}-cs{phase['cs']:g}-{location}-cw{cw:g}")
+    if not expected:raise ValueError('Wall study plan has no cases')
+    completed={};identities=[];reference_ids=[];pinned_hashes=None
+    for name in expected:
+        work=source/name
+        if not (work/'metrics.json').exists():
+            raise ValueError('Wall article requires every planned case; missing '+name)
+        metric=json.loads((work/'metrics.json').read_text(encoding='utf-8'))
+        manifest=json.loads((work/'manifest.json').read_text(encoding='utf-8'))
+        if metric.get('returncode')!=0 or not metric.get('checks') or not all(metric['checks'].values()):
+            raise ValueError('Wall article requires passing numerical checks: '+name)
+        if hashlib.sha256((work/'model.inp').read_bytes()).hexdigest()!=manifest['input_sha256']:
+            raise ValueError('Wall executed input hash mismatch: '+name)
+        if hashlib.sha256((work/'probe-locations.csv').read_bytes()).hexdigest()!=manifest['probe_sha256']:
+            raise ValueError('Wall executed probe identity mismatch: '+name)
+        if manifest['uk_test']=='6a' and metric['observed']['status']!='compared':
+            raise ValueError('Wall laboratory comparison missing: '+name)
+        if manifest['uk_test']=='6a':
+            reference=hashlib.sha256((work/'reference/observations.csv').read_bytes()).hexdigest()
+            if reference!=manifest['observations_sha256']:
+                raise ValueError('Wall measured reference identity mismatch: '+name)
+            reference_ids.append(reference)
+        if pinned_hashes is None:
+            provenance=json.loads((source/'build-provenance.json').read_text(encoding='utf-8'))
+            pinned_hashes=set(provenance['binaries'].values())
+        if len(manifest.get('binaries',{}))<2 or not set(manifest['binaries'].values())<=pinned_hashes:
+            raise ValueError('Wall executed binary identity mismatch: '+name)
+        identities.append(manifest['binaries'])
+        completed[name]=metric
+    if any(identity!=identities[0] for identity in identities):
+        raise ValueError('Wall cases require identical executed CLI/library identities')
+    if len(set(reference_ids))!=1:
+        raise ValueError('Wall cases require the same measured subset')
+    report_identity=json.loads((source/'report-provenance.json').read_text(encoding='utf-8'))
+    if set(report_identity['cases'])!=expected:
+        raise ValueError('Wall report does not cover the finalized case set')
+    if hashlib.sha256((source/'figure-display-specs.json').read_bytes()).hexdigest()!=report_identity['display_specs_sha256']:
+        raise ValueError('Wall report axis specification identity mismatch')
+    for name in expected:
+        if report_identity['cases'][name]!=json.loads((source/name/'manifest.json').read_text())['input_sha256']:
+            raise ValueError('Wall report input identity mismatch: '+name)
+    summary=json.loads((source/'summary.json').read_text(encoding='utf-8'))
+    if {row['case']:row for row in summary}!=completed:
+        raise ValueError('Wall summary is not finalized against the executed metrics')
+    interpretation=json.loads((source/'interpretation.json').read_text(encoding='utf-8'))
+    if not interpretation.get('finding') or not interpretation.get('qualification'):
+        raise ValueError('Wall study interpretation has not been finalized')
+    destination=HERE/'evidence/wall-sensitivity'
+    if destination.exists():shutil.rmtree(destination)
+    destination.mkdir(parents=True)
+    for name in ['report.md','summary.json','assessment-plan.json','build-provenance.json','interpretation.json','report-provenance.json','merge-provenance.json','paired-comparisons.json','implementation-verification.json','figure-display-specs.json']:
+        shutil.copy2(source/name,destination/name)
+    for preflight in source.glob('preflight-clock-*/verification.json'):
+        target=destination/preflight.parent.name;target.mkdir()
+        shutil.copy2(preflight,target/preflight.name)
+    for name in sorted(completed):
+        work=source/name;target=destination/name;target.mkdir()
+        for filename in ['metrics.json','manifest.json','model.inp','case.json','canonical-case.json','probes.csv','probe-locations.csv','probe-map.json','volume.csv','process.log']:
+            shutil.copy2(work/filename,target/filename)
+        if (work/'reference').exists():
+            (target/'reference').mkdir()
+            for ref in (work/'reference').iterdir():
+                if ref.suffix in ['.csv','.json']:shutil.copy2(ref,target/'reference'/ref.name)
+    report=(destination/'report.md').read_text(encoding='utf-8')
+    for figure in source.glob('6*-cs*-*.png'):
+        name='wall-'+figure.name;shutil.copy2(figure,image_root/name)
+        report=report.replace(']('+figure.name+')','](../../../../img/articles/'+SLUG+'/'+name+')')
+    (destination/'report.md').write_text(report,encoding='utf-8')
+    spec=importlib.util.spec_from_file_location('wall_evidence_renderer',BENCH/'suites/uk_2d/render.py')
+    renderer=importlib.util.module_from_spec(spec);spec.loader.exec_module(renderer)
+    (destination/'report.html').write_text(renderer.render(report),encoding='utf-8')
+    coverage_control=any('-all-' in name for name in expected)
+    coverage=(' A further Test 6A control applies the same coefficient to every exterior wall to assess wall coverage.' if coverage_control else '')
+    featured='6a-cs0-uk-4-26.png' if coverage_control else '6a-cs0.1-uk-4-26.png'
+    figure=(f'![Test 6A wall-friction controls against recovered UCL markers, using UK Figure 4.26 gauge panels and axes.](../../img/articles/{SLUG}/wall-{featured})\n\n'
+            if (source/featured).exists() else '')
+    return f"""## Selective wall friction and Smagorinsky mixing
+
+The 25 October follow-up executes {len(completed)} full-duration Test 6 configurations. Tangential wall drag is assigned separately to the throat and obstruction, with prescribed dimensionless Cw={cw:g}; this is a diagnostic sensitivity value, not a measured material property.{coverage} Bed roughness, initial conditions and constrained geometry remain fixed. Coriolis is off. The earlier assessment’s speed used the edge-flux reconstruction; all configurations in this follow-up use accepted cell q/h, so wall effects are evaluated within its paired runs.
+
+{interpretation['finding']}
+
+{interpretation['qualification']}
+
+{figure}The [wall-friction technical report](evidence/wall-sensitivity/report.html) reproduces the gauge panels and axis limits of UK Figures 4.25–4.28, with full-range companions. It retains the executed inputs, measured-subset errors, water balances, wall-energy accounting and exact binary identities. Laboratory comparison uses the recovered UCL markers only; Test 6B remains a numerical scenario. Native report-grid checks verify 0.1 s and 1 s output before the long runs.
+
+"""
+
+
+def assemble(results,regression,analytical,river=None,wall=None):
     scores=json.loads((results/'scores.json').read_text(encoding='utf-8'))
     if not scores.get('coverage'):raise ValueError('Sweep has not finalized coverage')
     image_root=SITE/'img/articles'/SLUG;image_root.mkdir(parents=True,exist_ok=True)
@@ -300,6 +398,8 @@ Soares-Frazão and Zech (2002), isolated-building IMPACT experiment, as cited in
 '''
     if river is not None:
         article=article.replace('## Scope of the present findings',river_supplement(river,image_root)+'## Scope of the present findings')
+    if wall is not None:
+        article=article.replace('## The remaining UK scenarios',wall_supplement(wall,image_root)+'## The remaining UK scenarios')
     (HERE/'article.md').write_text(article,encoding='utf-8')
     return HERE/'article.md'
 
@@ -309,4 +409,5 @@ if __name__=='__main__':
     ap.add_argument('--regression',type=Path,default=BENCH/'results/uk_2d/assessment-regression-repeat-2026-10-24')
     ap.add_argument('--analytical',type=Path,default=BENCH/'results/uk_2d/assessment-analytical-2026-10-22')
     ap.add_argument('--river',type=Path,help='Finalized W5-105 river supplement output directory')
-    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river))
+    ap.add_argument('--wall',type=Path,help='Finalized Test 6 wall-friction sensitivity directory')
+    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall))

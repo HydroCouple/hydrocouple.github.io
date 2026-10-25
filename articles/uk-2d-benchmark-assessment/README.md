@@ -26,3 +26,21 @@ model and Test E's analytical-reference qualification remain pending.
 The technical report is `evidence/report.html`; independent repeat evidence is under `evidence/regression/`, and the exact equilibrium checks under `evidence/analytical/`. Engine source identity, output-correction patch and before/after integration-test proof are under `evidence/engine/`. Binary identities are preserved, but executable binaries and raw source PDFs are not embedded in the website.
 
 The methods-only planning draft stays local under the ignored `drafts/` directory. All ten historical scenarios remain in coverage. Test 7 coupling, missing Test 8 inputs, original laboratory records, sensitivity studies and final source-panel qualification remain outstanding. No external publication or push is performed by these builders.
+
+
+To include the finalized 25 October selective-wall-friction follow-up, pass
+`--wall results/uk_2d/wall-assessment-2026-10-25` to `assemble.py`.
+All planned cases, passing numerical checks, executed-input hashes and a
+finalized `interpretation.json` are required. The supplement preserves the
+same velocity operator across its own controls and treatments and keeps the
+historical baseline evidence separate. Executables and HDF5 files are not
+copied into the website bundle.
+
+Rebuild the current article with both supplements retained:
+
+```bash
+.venv/bin/python ../hydrocouple.github.io/articles/uk-2d-benchmark-assessment/assemble.py \
+  --river results/uk_river/assessment-final-2026-10-22 \
+  --wall results/uk_2d/wall-assessment-2026-10-25
+.venv/bin/python ../hydrocouple.github.io/articles/uk-2d-benchmark-assessment/build.py
+```
