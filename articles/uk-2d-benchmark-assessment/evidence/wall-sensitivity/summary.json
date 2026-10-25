@@ -1,0 +1,588 @@
+[
+  {
+    "case": "6a-cs0-all-cw0.01",
+    "returncode": 0,
+    "wall_s": 707.5713622500189,
+    "checks": {
+      "nonnegative_depth": true,
+      "continuity": true,
+      "independent_volume": true
+    },
+    "continuity_err": -3.591622927178367e-12,
+    "volume_residual_m3": 2.4868995751603507e-14,
+    "initial_volume_m3": 16.617999999999995,
+    "final_volume_m3": 16.61800000000002,
+    "prescribed_inflow_m3": 0.0,
+    "observed": {
+      "status": "compared",
+      "kind": "digitized_observed",
+      "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+      "metrics": [
+        {
+          "probe": "G2",
+          "quantity": "level_m",
+          "n": 39,
+          "covered_duration_s": 7.024704618689579,
+          "bias": -0.051842288334172586,
+          "mae": 0.051842288334172586,
+          "rmse": 0.056692223110483934,
+          "max_absolute_residual": 0.08540096841401158,
+          "gate": "report"
+        },
+        {
+          "probe": "G2",
+          "quantity": "speed_mps",
+          "n": 141,
+          "covered_duration_s": 17.91621911922664,
+          "bias": 0.6088592229533543,
+          "mae": 0.6659111889595674,
+          "rmse": 0.8185140703886625,
+          "max_absolute_residual": 1.4061445822312066,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "level_m",
+          "n": 41,
+          "covered_duration_s": 13.469387755102037,
+          "bias": 0.011500360314158362,
+          "mae": 0.01858316104938967,
+          "rmse": 0.023360316051037992,
+          "max_absolute_residual": 0.05631278141496593,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "speed_mps",
+          "n": 117,
+          "covered_duration_s": 23.00751879699248,
+          "bias": -0.14920950620191226,
+          "mae": 0.2172534784311959,
+          "rmse": 0.3270585523655094,
+          "max_absolute_residual": 0.9699773043575282,
+          "gate": "report"
+        },
+        {
+          "probe": "G5",
+          "quantity": "level_m",
+          "n": 108,
+          "covered_duration_s": 18.8829215896885,
+          "bias": -0.010023226599677984,
+          "mae": 0.015226996395334685,
+          "rmse": 0.01786622443932414,
+          "max_absolute_residual": 0.03852323448674967,
+          "gate": "report"
+        }
+      ]
+    },
+    "wall_energy_removed_over_rho_m5_s2": 0.08976303799831564
+  },
+  {
+    "case": "6a-cs0-both-cw0.01",
+    "returncode": 0,
+    "wall_s": 827.2264164579974,
+    "checks": {
+      "nonnegative_depth": true,
+      "continuity": true,
+      "independent_volume": true
+    },
+    "continuity_err": -2.4371727005853205e-12,
+    "volume_residual_m3": 2.4868995751603507e-14,
+    "initial_volume_m3": 16.617999999999995,
+    "final_volume_m3": 16.61800000000002,
+    "prescribed_inflow_m3": 0.0,
+    "observed": {
+      "status": "compared",
+      "kind": "digitized_observed",
+      "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+      "metrics": [
+        {
+          "probe": "G2",
+          "quantity": "level_m",
+          "n": 39,
+          "covered_duration_s": 7.024704618689579,
+          "bias": -0.0518976911980373,
+          "mae": 0.0518976911980373,
+          "rmse": 0.056736866874371815,
+          "max_absolute_residual": 0.08544681747574707,
+          "gate": "report"
+        },
+        {
+          "probe": "G2",
+          "quantity": "speed_mps",
+          "n": 141,
+          "covered_duration_s": 17.91621911922664,
+          "bias": 0.6094609047216514,
+          "mae": 0.666368986544806,
+          "rmse": 0.8191146404948675,
+          "max_absolute_residual": 1.4105225214715285,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "level_m",
+          "n": 41,
+          "covered_duration_s": 13.469387755102037,
+          "bias": 0.011837254414958328,
+          "mae": 0.018556806829654972,
+          "rmse": 0.02342431640242105,
+          "max_absolute_residual": 0.056608009351785005,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "speed_mps",
+          "n": 117,
+          "covered_duration_s": 23.00751879699248,
+          "bias": -0.1518653656439013,
+          "mae": 0.21312239906465427,
+          "rmse": 0.325721638498741,
+          "max_absolute_residual": 0.9724794852829167,
+          "gate": "report"
+        },
+        {
+          "probe": "G5",
+          "quantity": "level_m",
+          "n": 108,
+          "covered_duration_s": 18.8829215896885,
+          "bias": -0.009735203132457359,
+          "mae": 0.014973324398085668,
+          "rmse": 0.01768577809730321,
+          "max_absolute_residual": 0.03941574017740739,
+          "gate": "report"
+        }
+      ]
+    },
+    "wall_energy_removed_over_rho_m5_s2": 0.07561912906970472
+  },
+  {
+    "case": "6a-cs0-none-cw0.01",
+    "returncode": 0,
+    "wall_s": 699.2936973750184,
+    "checks": {
+      "nonnegative_depth": true,
+      "continuity": true,
+      "independent_volume": true
+    },
+    "continuity_err": -2.5226875321848058e-12,
+    "volume_residual_m3": -1.4210854715202004e-14,
+    "initial_volume_m3": 16.617999999999995,
+    "final_volume_m3": 16.61799999999998,
+    "prescribed_inflow_m3": 0.0,
+    "observed": {
+      "status": "compared",
+      "kind": "digitized_observed",
+      "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+      "metrics": [
+        {
+          "probe": "G2",
+          "quantity": "level_m",
+          "n": 39,
+          "covered_duration_s": 7.024704618689579,
+          "bias": -0.05085356375248317,
+          "mae": 0.05085356375248317,
+          "rmse": 0.05589899940489391,
+          "max_absolute_residual": 0.08424883850548015,
+          "gate": "report"
+        },
+        {
+          "probe": "G2",
+          "quantity": "speed_mps",
+          "n": 141,
+          "covered_duration_s": 17.91621911922664,
+          "bias": 0.6112085556221493,
+          "mae": 0.6681291471530609,
+          "rmse": 0.8219758121378004,
+          "max_absolute_residual": 1.4127396845263909,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "level_m",
+          "n": 41,
+          "covered_duration_s": 13.469387755102037,
+          "bias": 0.011625104374296126,
+          "mae": 0.018896484751874623,
+          "rmse": 0.023848583622252038,
+          "max_absolute_residual": 0.057306929777633187,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "speed_mps",
+          "n": 117,
+          "covered_duration_s": 23.00751879699248,
+          "bias": -0.14671554323480734,
+          "mae": 0.21366319113253632,
+          "rmse": 0.3259477590379669,
+          "max_absolute_residual": 0.9783212044823457,
+          "gate": "report"
+        },
+        {
+          "probe": "G5",
+          "quantity": "level_m",
+          "n": 108,
+          "covered_duration_s": 18.8829215896885,
+          "bias": -0.008268781622619837,
+          "mae": 0.013519528680025341,
+          "rmse": 0.016981641025766516,
+          "max_absolute_residual": 0.04212729907079405,
+          "gate": "report"
+        }
+      ]
+    },
+    "wall_energy_removed_over_rho_m5_s2": 0.0
+  },
+  {
+    "case": "6a-cs0-obstruction-cw0.01",
+    "returncode": 0,
+    "wall_s": 813.5300688330026,
+    "checks": {
+      "nonnegative_depth": true,
+      "continuity": true,
+      "independent_volume": true
+    },
+    "continuity_err": -2.4585514084851915e-12,
+    "volume_residual_m3": -1.4210854715202004e-14,
+    "initial_volume_m3": 16.617999999999995,
+    "final_volume_m3": 16.61799999999998,
+    "prescribed_inflow_m3": 0.0,
+    "observed": {
+      "status": "compared",
+      "kind": "digitized_observed",
+      "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+      "metrics": [
+        {
+          "probe": "G2",
+          "quantity": "level_m",
+          "n": 39,
+          "covered_duration_s": 7.024704618689579,
+          "bias": -0.05076570346231588,
+          "mae": 0.05076570346231588,
+          "rmse": 0.0558136152845449,
+          "max_absolute_residual": 0.08462202117669554,
+          "gate": "report"
+        },
+        {
+          "probe": "G2",
+          "quantity": "speed_mps",
+          "n": 141,
+          "covered_duration_s": 17.91621911922664,
+          "bias": 0.6133223758895746,
+          "mae": 0.6702428276765082,
+          "rmse": 0.8244763478331805,
+          "max_absolute_residual": 1.4122028971376044,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "level_m",
+          "n": 41,
+          "covered_duration_s": 13.469387755102037,
+          "bias": 0.010630073066460558,
+          "mae": 0.019140381243142168,
+          "rmse": 0.023338156582575088,
+          "max_absolute_residual": 0.056160711568014415,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "speed_mps",
+          "n": 117,
+          "covered_duration_s": 23.00751879699248,
+          "bias": -0.11327005580582149,
+          "mae": 0.21488679908721536,
+          "rmse": 0.31997722099940296,
+          "max_absolute_residual": 0.9654606517979166,
+          "gate": "report"
+        },
+        {
+          "probe": "G5",
+          "quantity": "level_m",
+          "n": 108,
+          "covered_duration_s": 18.8829215896885,
+          "bias": -0.009363124097594737,
+          "mae": 0.014858365801883124,
+          "rmse": 0.01780603249408808,
+          "max_absolute_residual": 0.048305643406986454,
+          "gate": "report"
+        }
+      ]
+    },
+    "wall_energy_removed_over_rho_m5_s2": 0.015735963263199662
+  },
+  {
+    "case": "6a-cs0-throat-cw0.01",
+    "returncode": 0,
+    "wall_s": 695.6161599580082,
+    "checks": {
+      "nonnegative_depth": true,
+      "continuity": true,
+      "independent_volume": true
+    },
+    "continuity_err": -3.2495636007804273e-12,
+    "volume_residual_m3": -3.552713678800501e-15,
+    "initial_volume_m3": 16.617999999999995,
+    "final_volume_m3": 16.61799999999999,
+    "prescribed_inflow_m3": 0.0,
+    "observed": {
+      "status": "compared",
+      "kind": "digitized_observed",
+      "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+      "metrics": [
+        {
+          "probe": "G2",
+          "quantity": "level_m",
+          "n": 39,
+          "covered_duration_s": 7.024704618689579,
+          "bias": -0.051942877498841626,
+          "mae": 0.051942877498841626,
+          "rmse": 0.056784834504041176,
+          "max_absolute_residual": 0.08535391287774372,
+          "gate": "report"
+        },
+        {
+          "probe": "G2",
+          "quantity": "speed_mps",
+          "n": 141,
+          "covered_duration_s": 17.91621911922664,
+          "bias": 0.6098442975326199,
+          "mae": 0.666758069521402,
+          "rmse": 0.8194204692606755,
+          "max_absolute_residual": 1.4069742552015052,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "level_m",
+          "n": 41,
+          "covered_duration_s": 13.469387755102037,
+          "bias": 0.01117488383104217,
+          "mae": 0.01905788435971365,
+          "rmse": 0.023844308100810292,
+          "max_absolute_residual": 0.057121236393986446,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "speed_mps",
+          "n": 117,
+          "covered_duration_s": 23.00751879699248,
+          "bias": -0.12910715734708017,
+          "mae": 0.22413857195676412,
+          "rmse": 0.33360877405337225,
+          "max_absolute_residual": 0.9693819491624261,
+          "gate": "report"
+        },
+        {
+          "probe": "G5",
+          "quantity": "level_m",
+          "n": 108,
+          "covered_duration_s": 18.8829215896885,
+          "bias": -0.00891311446432763,
+          "mae": 0.01446866659629384,
+          "rmse": 0.018332294127785257,
+          "max_absolute_residual": 0.04406626653838435,
+          "gate": "report"
+        }
+      ]
+    },
+    "wall_energy_removed_over_rho_m5_s2": 0.060935097324797564
+  },
+  {
+    "case": "6a-cs0.1-both-cw0.01",
+    "returncode": 0,
+    "wall_s": 3070.2916090830113,
+    "checks": {
+      "nonnegative_depth": true,
+      "continuity": true,
+      "independent_volume": true
+    },
+    "continuity_err": -2.8006107348831315e-12,
+    "volume_residual_m3": 3.552713678800501e-15,
+    "initial_volume_m3": 16.617999999999995,
+    "final_volume_m3": 16.618,
+    "prescribed_inflow_m3": 0.0,
+    "observed": {
+      "status": "compared",
+      "kind": "digitized_observed",
+      "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+      "metrics": [
+        {
+          "probe": "G2",
+          "quantity": "level_m",
+          "n": 39,
+          "covered_duration_s": 7.024704618689579,
+          "bias": -0.051578224038955574,
+          "mae": 0.051578224038955574,
+          "rmse": 0.05646573224113517,
+          "max_absolute_residual": 0.08540026238709733,
+          "gate": "report"
+        },
+        {
+          "probe": "G2",
+          "quantity": "speed_mps",
+          "n": 141,
+          "covered_duration_s": 17.91621911922664,
+          "bias": 0.6078138466889744,
+          "mae": 0.6647836278175635,
+          "rmse": 0.8175765442672338,
+          "max_absolute_residual": 1.4098397742283089,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "level_m",
+          "n": 41,
+          "covered_duration_s": 13.469387755102037,
+          "bias": 0.011220002984838806,
+          "mae": 0.01762502284506668,
+          "rmse": 0.02230063212391608,
+          "max_absolute_residual": 0.05508354644737934,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "speed_mps",
+          "n": 117,
+          "covered_duration_s": 23.00751879699248,
+          "bias": -0.1449097841483118,
+          "mae": 0.21243110834893017,
+          "rmse": 0.3243540424647942,
+          "max_absolute_residual": 0.9626650889943559,
+          "gate": "report"
+        },
+        {
+          "probe": "G5",
+          "quantity": "level_m",
+          "n": 108,
+          "covered_duration_s": 18.8829215896885,
+          "bias": -0.006679393610671896,
+          "mae": 0.013046507257740253,
+          "rmse": 0.01593319208417253,
+          "max_absolute_residual": 0.04215256479090538,
+          "gate": "report"
+        }
+      ]
+    },
+    "wall_energy_removed_over_rho_m5_s2": 0.07335417153922047
+  },
+  {
+    "case": "6a-cs0.1-none-cw0.01",
+    "returncode": 0,
+    "wall_s": 3095.935243374988,
+    "checks": {
+      "nonnegative_depth": true,
+      "continuity": true,
+      "independent_volume": true
+    },
+    "continuity_err": -1.9668411267881532e-12,
+    "volume_residual_m3": 1.4210854715202004e-14,
+    "initial_volume_m3": 16.617999999999995,
+    "final_volume_m3": 16.61800000000001,
+    "prescribed_inflow_m3": 0.0,
+    "observed": {
+      "status": "compared",
+      "kind": "digitized_observed",
+      "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+      "metrics": [
+        {
+          "probe": "G2",
+          "quantity": "level_m",
+          "n": 39,
+          "covered_duration_s": 7.024704618689579,
+          "bias": -0.051755967979219414,
+          "mae": 0.051755967979219414,
+          "rmse": 0.056804990521798715,
+          "max_absolute_residual": 0.08513739620626225,
+          "gate": "report"
+        },
+        {
+          "probe": "G2",
+          "quantity": "speed_mps",
+          "n": 141,
+          "covered_duration_s": 17.91621911922664,
+          "bias": 0.6116229846137439,
+          "mae": 0.668301924878582,
+          "rmse": 0.8219251970323116,
+          "max_absolute_residual": 1.4103338904283909,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "level_m",
+          "n": 41,
+          "covered_duration_s": 13.469387755102037,
+          "bias": 0.010652375049209777,
+          "mae": 0.018785586725885157,
+          "rmse": 0.023137499188071998,
+          "max_absolute_residual": 0.05525290326252566,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "speed_mps",
+          "n": 117,
+          "covered_duration_s": 23.00751879699248,
+          "bias": -0.143524894214526,
+          "mae": 0.21999730721248983,
+          "rmse": 0.327883421165823,
+          "max_absolute_residual": 0.9683920217567761,
+          "gate": "report"
+        },
+        {
+          "probe": "G5",
+          "quantity": "level_m",
+          "n": 108,
+          "covered_duration_s": 18.8829215896885,
+          "bias": -0.0059300619648599276,
+          "mae": 0.012890013719523741,
+          "rmse": 0.016054962809588978,
+          "max_absolute_residual": 0.04229272686935195,
+          "gate": "report"
+        }
+      ]
+    },
+    "wall_energy_removed_over_rho_m5_s2": 0.0
+  },
+  {
+    "case": "6b-cs0.1-both-cw0.01",
+    "returncode": 0,
+    "wall_s": 8025.443714832974,
+    "checks": {
+      "nonnegative_depth": true,
+      "continuity": true,
+      "independent_volume": true
+    },
+    "continuity_err": 9.632390631365673e-13,
+    "volume_residual_m3": -1.7462298274040222e-09,
+    "initial_volume_m3": 132944.00000000175,
+    "final_volume_m3": 132944.0,
+    "prescribed_inflow_m3": 0.0,
+    "observed": {
+      "status": "not_applicable",
+      "metrics": []
+    },
+    "wall_energy_removed_over_rho_m5_s2": 8003.014927647767
+  },
+  {
+    "case": "6b-cs0.1-none-cw0.01",
+    "returncode": 0,
+    "wall_s": 8101.169976083009,
+    "checks": {
+      "nonnegative_depth": true,
+      "continuity": true,
+      "independent_volume": true
+    },
+    "continuity_err": 1.094589844473372e-12,
+    "volume_residual_m3": -1.6880221664905548e-09,
+    "initial_volume_m3": 132944.00000000175,
+    "final_volume_m3": 132944.00000000006,
+    "prescribed_inflow_m3": 0.0,
+    "observed": {
+      "status": "not_applicable",
+      "metrics": []
+    },
+    "wall_energy_removed_over_rho_m5_s2": 0.0
+  }
+]

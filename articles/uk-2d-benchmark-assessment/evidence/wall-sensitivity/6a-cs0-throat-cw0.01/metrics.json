@@ -1,0 +1,78 @@
+{
+  "case": "6a-cs0-throat-cw0.01",
+  "returncode": 0,
+  "wall_s": 695.6161599580082,
+  "checks": {
+    "nonnegative_depth": true,
+    "continuity": true,
+    "independent_volume": true
+  },
+  "continuity_err": -3.2495636007804273e-12,
+  "volume_residual_m3": -3.552713678800501e-15,
+  "initial_volume_m3": 16.617999999999995,
+  "final_volume_m3": 16.61799999999999,
+  "prescribed_inflow_m3": 0.0,
+  "observed": {
+    "status": "compared",
+    "kind": "digitized_observed",
+    "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+    "metrics": [
+      {
+        "probe": "G2",
+        "quantity": "level_m",
+        "n": 39,
+        "covered_duration_s": 7.024704618689579,
+        "bias": -0.051942877498841626,
+        "mae": 0.051942877498841626,
+        "rmse": 0.056784834504041176,
+        "max_absolute_residual": 0.08535391287774372,
+        "gate": "report"
+      },
+      {
+        "probe": "G2",
+        "quantity": "speed_mps",
+        "n": 141,
+        "covered_duration_s": 17.91621911922664,
+        "bias": 0.6098442975326199,
+        "mae": 0.666758069521402,
+        "rmse": 0.8194204692606755,
+        "max_absolute_residual": 1.4069742552015052,
+        "gate": "report"
+      },
+      {
+        "probe": "G4",
+        "quantity": "level_m",
+        "n": 41,
+        "covered_duration_s": 13.469387755102037,
+        "bias": 0.01117488383104217,
+        "mae": 0.01905788435971365,
+        "rmse": 0.023844308100810292,
+        "max_absolute_residual": 0.057121236393986446,
+        "gate": "report"
+      },
+      {
+        "probe": "G4",
+        "quantity": "speed_mps",
+        "n": 117,
+        "covered_duration_s": 23.00751879699248,
+        "bias": -0.12910715734708017,
+        "mae": 0.22413857195676412,
+        "rmse": 0.33360877405337225,
+        "max_absolute_residual": 0.9693819491624261,
+        "gate": "report"
+      },
+      {
+        "probe": "G5",
+        "quantity": "level_m",
+        "n": 108,
+        "covered_duration_s": 18.8829215896885,
+        "bias": -0.00891311446432763,
+        "mae": 0.01446866659629384,
+        "rmse": 0.018332294127785257,
+        "max_absolute_residual": 0.04406626653838435,
+        "gate": "report"
+      }
+    ]
+  },
+  "wall_energy_removed_over_rho_m5_s2": 0.060935097324797564
+}
