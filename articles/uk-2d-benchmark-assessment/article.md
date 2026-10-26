@@ -91,6 +91,18 @@ The coefficients were declared diagnostic values, not measured or fitted wall ro
 
 The [wall-friction technical report](evidence/wall-sensitivity/report.html) reproduces the gauge panels and axis limits of UK Figures 4.25–4.28, with full-range companions. It retains the executed inputs, measured-subset errors, water balances, wall-energy accounting and exact binary identities. Laboratory comparison uses the recovered UCL markers only; Test 6B remains a numerical scenario. Native report-grid checks verify 0.1 s and 1 s output before the long runs.
 
+## Investigating the G2 hydraulic jump
+
+The follow-up isolates initial water-surface interpretation, timestep size and local mesh refinement in three full-duration Test 6A controls. All retain the same pinned solver, free-slip walls, Cs=0 and measured subset. The jump is assessed through its local depth/speed histories and a sampled critical-front trajectory, rather than water balance alone.
+
+None of the three controls reproduces the measured secondary transition at G2. Speed RMSE is 0.821976 m/s in the original control, 0.809128 m/s with uniform initial water level, 0.822782 m/s with CFL 0.2 and 0.836779 m/s with local refinement. G2 level RMSE remains between 0.0550 and 0.0562 m. At 20 s, G2 remains strongly supercritical in all four runs; the sampled critical transition lies near x=2.78–3.15 m, downstream of G2 at x=2.65 m. Local refinement moves that front farther downstream. The sixteen analytical jump/reflection cases pass, supporting the basic shock and pressure response without establishing the correct two-dimensional front position.
+
+One local refinement and one smaller-CFL control do not establish spatial or temporal convergence. The finer mesh also has a naturally smaller stable timestep. Comparisons retain the drawing-based geometry, prescribed roughness and visibility-selected digitized UCL subset; original full measurements and independent digitization review remain unavailable. Changes at G4 and G5 are appreciable and mixed, so improving one quantity does not select a better configuration. The canonical inputs and reviewed regression anchors remain unchanged.
+
+![Test 6A diagnostic controls against recovered UCL markers, using UK Figure 4.26 panels and axes.](../../img/articles/uk-2d-benchmark-assessment/jump-g2-controls-uk-4-26.png)
+
+The [G2 technical report](evidence/g2-jump-sensitivity/report.html) includes the one-factor comparisons, local flow maps, exact inputs, and sixteen analytical jump/reflection regression checks. The canonical UK inputs and reviewed anchors remain unchanged.
+
 ## The remaining UK scenarios
 
 The requested coverage at this stage is shown below. PASS denotes successful numerical checks, including complete duration, nonnegative finite depths and the declared conservation checks. It is not a score of observed accuracy. Errors and unavailable cases remain part of the record.

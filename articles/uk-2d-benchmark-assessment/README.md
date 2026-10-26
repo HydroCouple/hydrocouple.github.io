@@ -13,6 +13,14 @@ From the benchmark repository, after the dated assessment, analytical and regres
 .venv/bin/python ../hydrocouple.github.io/articles/uk-2d-benchmark-assessment/build.py
 ```
 
+The finalized G2 diagnostic controls can also be included with
+`--g2 results/uk_2d/g2-jump-assessment-2026-10-25`. Retain both `--river` and
+`--wall` when adding it. All three one-factor controls, the archived control,
+identical binary/reference identities, complete 120-second histories, figure
+hashes, sixteen passing analytical regression cases and a reviewed
+interpretation are required before the new evidence directory is replaced.
+The article retains the earlier experiments as separate dated evidence.
+
 To include the newly executed, separate W5-105 river supplement, pass
 `--river results/uk_river/assessment-final-2026-10-22` to `assemble.py`.
 This requires all ten executable configurations to have finalized outputs.

@@ -215,7 +215,115 @@ The 25 October follow-up executes {len(completed)} full-duration Test 6 configur
 """
 
 
-def assemble(results,regression,analytical,river=None,wall=None):
+def g2_supplement(source,image_root):
+    """Require complete one-factor controls before exposing the jump diagnosis."""
+    source=Path(source)
+    plan=json.loads((source/'assessment-plan.json').read_text())
+    expected={'control'}|{row['name'] for row in plan['variants']}
+    if expected!={'control','uniform-level','cfl02','local005'}:
+        raise ValueError('G2 supplement requires the three declared diagnostic controls')
+    if any(not (source/name/'metrics.json').exists() for name in expected):
+        raise ValueError('G2 supplement requires every planned full-duration control')
+    identities=[];references=[];completed={}
+    for name in sorted(expected):
+        work=source/name;metric=json.loads((work/'metrics.json').read_text());manifest=json.loads((work/'manifest.json').read_text())
+        if hashlib.sha256((work/'model.inp').read_bytes()).hexdigest()!=manifest['input_sha256']:
+            raise ValueError('G2 executed input hash mismatch: '+name)
+        if metric['returncode']!=0 or not metric['checks'] or not all(metric['checks'].values()):
+            raise ValueError('G2 numerical checks incomplete: '+name)
+        if metric['observed']['status']!='compared':raise ValueError('G2 measured comparison missing: '+name)
+        probe=hashlib.sha256((work/'probe-locations.csv').read_bytes()).hexdigest()
+        reference=hashlib.sha256((work/'reference/observations.csv').read_bytes()).hexdigest()
+        if probe!=manifest['probe_sha256'] or reference!=manifest['observations_sha256']:
+            raise ValueError('G2 probe or measured reference identity mismatch: '+name)
+        rows=list(csv.DictReader((work/'probes.csv').open()))
+        if len(rows)!=7200 or float(rows[-1]['time_s'])!=120:
+            raise ValueError('G2 output duration incomplete: '+name)
+        identities.append(manifest['binaries']);references.append(reference);completed[name]=(metric,manifest)
+    if any(value!=identities[0] for value in identities) or len(identities[0])<2 or len(set(references))!=1:
+        raise ValueError('G2 controls require identical binary and measured-reference identities')
+    factors=json.loads((source/'factor-audit.json').read_text())
+    if factors['status']!='PASS' or any(factors['cases'][name]['input_sha256']!=completed[name][1]['input_sha256'] for name in expected-{'control'}):
+        raise ValueError('G2 controlled-factor audit does not match the executed inputs')
+    summary=json.loads((source/'summary.json').read_text())
+    if {r['variant']:r['metrics'] for r in summary}!={name:value[0] for name,value in completed.items()}:
+        raise ValueError('G2 summary differs from executed records')
+    provenance=json.loads((source/'report-provenance.json').read_text())
+    if set(provenance['figures'])!=set(provenance['figure_sha256']):
+        raise ValueError('G2 report figure register is incomplete')
+    if provenance['cases']!={name:value[1]['input_sha256'] for name,value in completed.items()}:
+        raise ValueError('G2 report input identity mismatch')
+    if hashlib.sha256((source/'figure-display-specs.json').read_bytes()).hexdigest()!=provenance['display_specs_sha256']:
+        raise ValueError('G2 report axis specification identity mismatch')
+    for name,value in provenance['figure_sha256'].items():
+        if hashlib.sha256((source/name).read_bytes()).hexdigest()!=value:raise ValueError('G2 figure identity mismatch: '+name)
+    native=json.loads((source/'regression-jumps-committed/scores.json').read_text())
+    if len(native['cells'])!=16 or any(row['verdict']!='PASS' for row in native['cells']):
+        raise ValueError('G2 analytical jump regression is incomplete')
+    native_plan=json.loads((source/'regression-jumps-committed/plan.json').read_text())
+    if native_plan['binaries']!=identities[0]:raise ValueError('G2 jump regression binary identity mismatch')
+    for relative,key in [('suite.py','suite_sha256'),('references.py','reference_sha256')]:
+        if hashlib.sha256((BENCH/'suites/analytical/hydraulic_jumps'/relative).read_bytes()).hexdigest()!=native_plan[key]:
+            raise ValueError('G2 jump regression source identity mismatch: '+relative)
+    native_cases=list((source/'regression-jumps-committed').glob('*-order*'))
+    if {work.name for work in native_cases}!={cell['case'] for cell in native['cells']}:
+        raise ValueError('G2 analytical case register is incomplete')
+    for work in native_cases:
+        manifest=json.loads((work/'manifest.json').read_text())
+        if manifest['binaries']!=identities[0] or hashlib.sha256((work/'model.inp').read_bytes()).hexdigest()!=manifest['input_sha256']:
+            raise ValueError('G2 analytical case identity mismatch: '+work.name)
+    interpretation=json.loads((source/'interpretation.json').read_text())
+    if not interpretation.get('finding') or not interpretation.get('qualification'):
+        raise ValueError('G2 interpretation is not finalized')
+    for filename,key in [('interpretation.json','interpretation_sha256'),('report.html','report_sha256')]:
+        if hashlib.sha256((source/filename).read_bytes()).hexdigest()!=provenance.get(key):
+            raise ValueError('G2 reviewed report identity mismatch: '+filename)
+    destination=HERE/'evidence/g2-jump-sensitivity'
+    if destination.exists():shutil.rmtree(destination)
+    destination.mkdir(parents=True)
+    for name in ['assessment-plan.json','summary.json','factor-audit.json','paired-comparisons.json','report-provenance.json','figure-display-specs.json','front-positions.csv','G2-sampled-states.json','interpretation.json','analytical-build-provenance.json']:
+        shutil.copy2(source/name,destination/name)
+    for name in completed:
+        work=source/name;target=destination/name;target.mkdir()
+        for filename in ['model.inp','case.json','manifest.json','metrics.json','probes.csv','probe-locations.csv','probe-map.json','volume.csv','process.log']:
+            shutil.copy2(work/filename,target/filename)
+        if (work/'mesh-provenance.json').exists():shutil.copy2(work/'mesh-provenance.json',target/'mesh-provenance.json')
+        shutil.copytree(work/'reference',target/'reference')
+    for relative in ['closed-window-jumps/plan.json','closed-window-jumps/summary.json','closed-window-jumps/rotation-comparisons.json',
+                     'analytical-jumps/plan.json','analytical-jumps/summary.json','rejected-analytical-fixture-clock/rejection.json',
+                     'local-mesh/mesh-request.json','local-mesh/mesh-provenance.json','coarse-mesh-equivalence/mesh-provenance.json',
+                     'regression-jumps-committed/scores.json','regression-jumps-committed/plan.json','regression-jumps-committed/report.md']:
+        target=destination/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source/relative,target)
+    for work in native_cases:
+        target=destination/'regression-jumps-committed'/work.name;target.mkdir()
+        for filename in ['manifest.json','reference.json','metrics.json']:shutil.copy2(work/filename,target/filename)
+    scripts=destination/'verification-source';scripts.mkdir()
+    for filename in ['run_controls.py','prepare_mesh.py','audit_factors.py','check_jumps.py','check_closed_jumps.py','summarize_controls.py']:
+        shutil.copy2(BENCH/'tests/verification/g2-diagnosis-2026-10-25'/filename,scripts/filename)
+    for filename in ['suite.py','references.py','README.md']:
+        (scripts/'regression').mkdir(exist_ok=True)
+        shutil.copy2(BENCH/'suites/analytical/hydraulic_jumps'/filename,scripts/'regression'/filename)
+    report=(source/'report.html').read_text()
+    for filename in provenance['figures']:
+        name='jump-'+filename;shutil.copy2(source/filename,image_root/name)
+        report=report.replace('src="'+filename+'"','src="../../../../img/articles/'+SLUG+'/'+name+'"')
+    (destination/'report.html').write_text(report)
+    return f'''## Investigating the G2 hydraulic jump
+
+The follow-up isolates initial water-surface interpretation, timestep size and local mesh refinement in three full-duration Test 6A controls. All retain the same pinned solver, free-slip walls, Cs=0 and measured subset. The jump is assessed through its local depth/speed histories and a sampled critical-front trajectory, rather than water balance alone.
+
+{interpretation['finding']}
+
+{interpretation['qualification']}
+
+![Test 6A diagnostic controls against recovered UCL markers, using UK Figure 4.26 panels and axes.](../../img/articles/{SLUG}/jump-g2-controls-uk-4-26.png)
+
+The [G2 technical report](evidence/g2-jump-sensitivity/report.html) includes the one-factor comparisons, local flow maps, exact inputs, and sixteen analytical jump/reflection regression checks. The canonical UK inputs and reviewed anchors remain unchanged.
+
+'''
+
+
+def assemble(results,regression,analytical,river=None,wall=None,g2_study=None):
     scores=json.loads((results/'scores.json').read_text(encoding='utf-8'))
     if not scores.get('coverage'):raise ValueError('Sweep has not finalized coverage')
     image_root=SITE/'img/articles'/SLUG;image_root.mkdir(parents=True,exist_ok=True)
@@ -400,6 +508,8 @@ Soares-Frazão and Zech (2002), isolated-building IMPACT experiment, as cited in
         article=article.replace('## Scope of the present findings',river_supplement(river,image_root)+'## Scope of the present findings')
     if wall is not None:
         article=article.replace('## The remaining UK scenarios',wall_supplement(wall,image_root)+'## The remaining UK scenarios')
+    if g2_study is not None:
+        article=article.replace('## The remaining UK scenarios',g2_supplement(g2_study,image_root)+'## The remaining UK scenarios')
     (HERE/'article.md').write_text(article,encoding='utf-8')
     return HERE/'article.md'
 
@@ -410,4 +520,5 @@ if __name__=='__main__':
     ap.add_argument('--analytical',type=Path,default=BENCH/'results/uk_2d/assessment-analytical-2026-10-22')
     ap.add_argument('--river',type=Path,help='Finalized W5-105 river supplement output directory')
     ap.add_argument('--wall',type=Path,help='Finalized Test 6 wall-friction sensitivity directory')
-    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall))
+    ap.add_argument('--g2',type=Path,help='Finalized Test 6A jump diagnostic controls')
+    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2))

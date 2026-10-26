@@ -1,0 +1,50 @@
+[
+  {
+    "id": "G1",
+    "x": 2.65,
+    "y": 1.15,
+    "face": 20928,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "G2",
+    "x": 2.65,
+    "y": -0.6,
+    "face": 12144,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "G3",
+    "x": 4.0,
+    "y": 1.15,
+    "face": 20461,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "G4",
+    "x": 4.0,
+    "y": -0.8,
+    "face": 72311,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "G5",
+    "x": 5.2,
+    "y": 0.3,
+    "face": 16882,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  },
+  {
+    "id": "G6",
+    "x": -1.87,
+    "y": 1.1,
+    "face": 60656,
+    "boundary_tie": false,
+    "operator": "containing_face_constant_lowest_index_tie"
+  }
+]

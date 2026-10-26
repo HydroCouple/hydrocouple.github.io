@@ -1,0 +1,44 @@
+{
+  "created": "Before closed-window execution; original stage-boundary failures retained separately",
+  "reference": "Same independently derived compressive jump/reflected-bore states; closed walls outside the analytical window. At0.5s the outer-wall waves cannot reach the window. The reflection wall atx=0 is part of the wall case reference.",
+  "window": {
+    "x_min": -0.5,
+    "x_max": 0.5,
+    "y_centre": 0.9,
+    "y_half_width": 0.1,
+    "time_s": 0.5
+  },
+  "duration_s": 1,
+  "report_step_s": 0.1,
+  "gravity_m_s2": 9.80665,
+  "dx_m": 0.025,
+  "dy_m": 0.05,
+  "angles_deg": [
+    0,
+    64
+  ],
+  "orders": [
+    1,
+    2
+  ],
+  "kinds": [
+    "stationary",
+    "moving-upstream",
+    "oblique",
+    "wall"
+  ],
+  "criteria": {
+    "window_depth_l1": 0.05,
+    "window_normal_velocity_l1": 0.08,
+    "window_transverse_velocity_l1": 0.05,
+    "shock_position_cells": 3,
+    "closed_volume_relative": 1e-10,
+    "momentum_jump_relative": 0.03
+  },
+  "binaries": {
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/pinned-clock/bin/openswmm": "dfed00230923d1e664b23c4a2724742b93fb5c958787f4d45a519472c7392e34",
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/pinned-clock/engine/libopenswmm.engine.6.0.0.dylib": "d849b8688aeb39be8c3a3d5f836b851a466e754367799cf1b9b96c6330dbf042"
+  },
+  "driver_sha256": "bed07e7f01f6e11a755cf9fe31d55d7c60927e368ac23686579d24be9b2b4634",
+  "reference_driver_sha256": "6c96fc8102abb52ae4e9686e5f4961e19bb925980005f8fa1b304c5cf7b1d9b1"
+}

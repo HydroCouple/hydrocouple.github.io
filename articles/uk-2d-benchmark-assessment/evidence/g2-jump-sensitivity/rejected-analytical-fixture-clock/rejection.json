@@ -1,0 +1,7 @@
+{
+  "reason": "Analytical fixture requested 0.1s output with 1s global routing. Only one0.1s field was saved rather than ten fields through1s. These records cannot be assessed against the1s analytical state.",
+  "disposition": "Rejected fixture; no solver verdict or scientific conclusion",
+  "at_utc": "2026-10-26T00:11:44.544900+00:00",
+  "correction": "Use matching0.1s global routing/output schedule and reject incomplete timestamps before scoring.",
+  "criteria_review": "Pointwise zero transverse velocity is not a consistent accuracy criterion for a finite-resolution triangular shock. Use5% integrated transverse-velocity error; retain1e-6 for rotation covariance, a separate exact symmetry check."
+}

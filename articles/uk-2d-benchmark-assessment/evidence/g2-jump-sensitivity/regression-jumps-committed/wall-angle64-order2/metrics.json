@@ -1,0 +1,19 @@
+{
+  "checks": {
+    "finite": true,
+    "nonnegative_depth": true,
+    "window_depth_l1": true,
+    "window_normal_velocity_l1": true,
+    "window_transverse_velocity_l1": true,
+    "shock_position": true,
+    "closed_volume": true,
+    "momentum_jump": true
+  },
+  "window_depth_l1": 0.047846938353491776,
+  "window_normal_velocity_l1": 0.0302874175714374,
+  "window_transverse_velocity_l1": 0.0017416129785560086,
+  "shock_position_m": -0.20889589265546235,
+  "expected_shock_position_m": -0.2098993521255767,
+  "closed_volume_relative_error": 1.1102230246251569e-14,
+  "momentum_jump_relative_residual": 0.00926725068612844
+}

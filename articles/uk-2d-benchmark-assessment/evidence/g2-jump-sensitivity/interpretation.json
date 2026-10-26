@@ -1,0 +1,10 @@
+{
+  "finding": "None of the three controls reproduces the measured secondary transition at G2. Speed RMSE is 0.821976 m/s in the original control, 0.809128 m/s with uniform initial water level, 0.822782 m/s with CFL 0.2 and 0.836779 m/s with local refinement. G2 level RMSE remains between 0.0550 and 0.0562 m. At 20 s, G2 remains strongly supercritical in all four runs; the sampled critical transition lies near x=2.78\u20133.15 m, downstream of G2 at x=2.65 m. Local refinement moves that front farther downstream. The sixteen analytical jump/reflection cases pass, supporting the basic shock and pressure response without establishing the correct two-dimensional front position.",
+  "qualification": "One local refinement and one smaller-CFL control do not establish spatial or temporal convergence. The finer mesh also has a naturally smaller stable timestep. Comparisons retain the drawing-based geometry, prescribed roughness and visibility-selected digitized UCL subset; original full measurements and independent digitization review remain unavailable. Changes at G4 and G5 are appreciable and mixed, so improving one quantity does not select a better configuration. The canonical inputs and reviewed regression anchors remain unchanged.",
+  "next_checks": "Extend the refinement study across the reservoir and gate as well as the building; qualify the drawing-versus-DEM obstacle and bank interpretation independently; audit the momentum balance around the two-dimensional jump before adding or calibrating more forces.",
+  "cases": 4,
+  "new_executions": 3,
+  "all_numerical_checks_pass": true,
+  "native_jump_regression_passed": 16,
+  "max_absolute_volume_residual_m3": 8.171241461241152e-14
+}

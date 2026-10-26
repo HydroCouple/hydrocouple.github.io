@@ -8,6 +8,37 @@ from unittest.mock import patch
 
 
 class EvidenceAssemblyTest(unittest.TestCase):
+    def test_pending_g2_control_preserves_existing_evidence(self):
+        path=Path(__file__).with_name('assemble.py')
+        spec=importlib.util.spec_from_file_location('uk_g2_article_guard',path)
+        assembly=importlib.util.module_from_spec(spec);spec.loader.exec_module(assembly)
+        root=Path(__file__).parent/'qa/g2-incomplete';source=root/'source';source.mkdir(parents=True,exist_ok=True)
+        plan=dict(variants=[dict(name=n) for n in ['uniform-level','cfl02','local005']])
+        (source/'assessment-plan.json').write_text(json.dumps(plan))
+        destination=root/'article/evidence/g2-jump-sensitivity';destination.mkdir(parents=True,exist_ok=True)
+        (destination/'preserved.txt').write_text('previous reviewed evidence')
+        with patch.object(assembly,'HERE',root/'article'):
+            with self.assertRaisesRegex(ValueError,'every planned full-duration'):
+                assembly.g2_supplement(source,root/'images')
+        self.assertEqual((destination/'preserved.txt').read_text(),'previous reviewed evidence')
+
+    def test_g2_changed_input_is_rejected_before_copying(self):
+        path=Path(__file__).with_name('assemble.py')
+        spec=importlib.util.spec_from_file_location('uk_g2_article_identity',path)
+        assembly=importlib.util.module_from_spec(spec);spec.loader.exec_module(assembly)
+        root=Path(__file__).parent/'qa/g2-input-hash';source=root/'source';source.mkdir(parents=True,exist_ok=True)
+        plan=dict(variants=[dict(name=n) for n in ['uniform-level','cfl02','local005']])
+        (source/'assessment-plan.json').write_text(json.dumps(plan))
+        for name in ['control','uniform-level','cfl02','local005']:
+            work=source/name;work.mkdir(exist_ok=True)
+            (work/'metrics.json').write_text(json.dumps(dict(returncode=0,checks=dict(water=True))))
+            (work/'manifest.json').write_text(json.dumps(dict(input_sha256='mismatch')))
+            (work/'model.inp').write_text('changed fixture')
+        with patch.object(assembly,'HERE',root/'article'):
+            with self.assertRaisesRegex(ValueError,'executed input hash mismatch'):
+                assembly.g2_supplement(source,root/'images')
+        self.assertFalse((root/'article/evidence/g2-jump-sensitivity').exists())
+
     def test_incomplete_river_sweep_cannot_publish_complete_article(self):
         path=Path(__file__).with_name('assemble.py')
         spec=importlib.util.spec_from_file_location('uk_article_assemble',path)

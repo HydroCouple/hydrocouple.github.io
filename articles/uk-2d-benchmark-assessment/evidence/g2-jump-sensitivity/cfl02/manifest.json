@@ -1,0 +1,17 @@
+{
+  "case": "cfl02",
+  "change": "CFL_NUMBER only: 0.4 to 0.2",
+  "control_directory": "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/6a-cs0-none-cw0.01",
+  "control_input_sha256": "c38591ae477530eab20b3f4c27af0ac90d6c13f7af8808fb356881297c6d3fbb",
+  "input_sha256": "4be0aa1a7754d5f0766e1d90dc7af4f6a184b701a329b9ad0202cb4e2cbe3ad9",
+  "probe_sha256": "38c986144f62b64c8099529acc93b509a5d184abe1e3f2b2f5f31fafea683448",
+  "observations_sha256": "0bd2928bea92c21444bbe671d9a3a2a9e1cbf09df4b476875909813998c5f532",
+  "binaries": {
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/pinned-clock/bin/openswmm": "dfed00230923d1e664b23c4a2724742b93fb5c958787f4d45a519472c7392e34",
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/pinned-clock/engine/libopenswmm.engine.6.0.0.dylib": "d849b8688aeb39be8c3a3d5f836b851a466e754367799cf1b9b96c6330dbf042"
+  },
+  "analysis_sha256": "e4ef7a069dd68989c1c2bc8d0dc711be0ab8002b5a6f84a66763e240906e1e86",
+  "driver_sha256": "a875d1453fd996cd4a6399338b4b4a18f044b94d48343b52249a37ff1451a582",
+  "mesh_audit": null,
+  "created_utc": "2026-10-26T00:06:13.681849+00:00"
+}

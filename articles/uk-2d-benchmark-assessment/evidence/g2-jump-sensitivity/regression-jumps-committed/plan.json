@@ -1,0 +1,44 @@
+{
+  "gravity_m_s2": 9.80665,
+  "initial_depth_m": 0.03,
+  "initial_velocity_m_s": 1.7,
+  "dx_m": 0.025,
+  "dy_m": 0.05,
+  "simulated_duration_s": 1,
+  "assessment_time_s": 0.5,
+  "window": {
+    "xmin": -0.5,
+    "xmax": 0.5,
+    "y_centre": 0.9,
+    "y_half_width": 0.1
+  },
+  "kinds": [
+    "stationary",
+    "moving-upstream",
+    "oblique",
+    "wall"
+  ],
+  "angles_deg": [
+    0,
+    64
+  ],
+  "orders": [
+    1,
+    2
+  ],
+  "criteria": {
+    "depth_relative_l1": 0.05,
+    "normal_velocity_relative_l1": 0.08,
+    "transverse_velocity_relative_l1": 0.05,
+    "shock_position_cells": 3,
+    "closed_volume_relative": 1e-10,
+    "momentum_jump_relative": 0.03
+  },
+  "reference": "Compressive Rankine-Hugoniot solution; zero post-bore velocity for wall reflection. Outer-wall disturbances cannot reach the assessed window by0.5s.",
+  "binaries": {
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/pinned-clock/bin/openswmm": "dfed00230923d1e664b23c4a2724742b93fb5c958787f4d45a519472c7392e34",
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/pinned-clock/engine/libopenswmm.engine.6.0.0.dylib": "d849b8688aeb39be8c3a3d5f836b851a466e754367799cf1b9b96c6330dbf042"
+  },
+  "suite_sha256": "d3a585caf29780bd8f9e3bb1ecee60e1ce75e94e8e5a39d44c40ef88bc0f11fb",
+  "reference_sha256": "37b099c362ee437a531bf1a2aa778ef824fbdc7c1ce8e7f44c0528cb4977b64f"
+}

@@ -1,0 +1,322 @@
+[
+  {
+    "case": "stationary-angle0-order1",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.006509086012668701,
+    "normal_velocity_l1": 0.024305943008969884,
+    "transverse_velocity_l1": 0.0021288852553691512,
+    "shock_position_m": -0.0026651784400570835,
+    "expected_shock_position_m": 0.0,
+    "volume_relative_error": 0.005036459221779453,
+    "momentum_jump_relative_residual": 0.00010914166869271136
+  },
+  {
+    "case": "stationary-angle0-order2",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": false,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.029070534386786678,
+    "normal_velocity_l1": 0.0804174685497513,
+    "transverse_velocity_l1": 0.001417525976113191,
+    "shock_position_m": -0.0008728806602462651,
+    "expected_shock_position_m": 0.0,
+    "volume_relative_error": 0.02809324858857481,
+    "momentum_jump_relative_residual": 0.002793225334203916
+  },
+  {
+    "case": "stationary-angle64-order1",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.006520700841435439,
+    "normal_velocity_l1": 0.024367874282737064,
+    "transverse_velocity_l1": 0.0021402990319152847,
+    "shock_position_m": -0.002665192630099133,
+    "expected_shock_position_m": 0.0,
+    "volume_relative_error": 0.005048013193434345,
+    "momentum_jump_relative_residual": 0.00010911692046377069
+  },
+  {
+    "case": "stationary-angle64-order2",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.027717808179413855,
+    "normal_velocity_l1": 0.07645578586835822,
+    "transverse_velocity_l1": 0.0020725801135594397,
+    "shock_position_m": -0.000902853348538301,
+    "expected_shock_position_m": 0.0,
+    "volume_relative_error": 0.026787764321952297,
+    "momentum_jump_relative_residual": 0.0014389878560468502
+  },
+  {
+    "case": "moving-upstream-angle0-order1",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.005223499541410204,
+    "normal_velocity_l1": 0.02734143510632362,
+    "transverse_velocity_l1": 0.001684222393492585,
+    "shock_position_m": -0.30287618812954437,
+    "expected_shock_position_m": -0.3,
+    "volume_relative_error": 0.0038662626329970832,
+    "momentum_jump_relative_residual": 2.8455232822632797e-05
+  },
+  {
+    "case": "moving-upstream-angle0-order2",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.021527365790257744,
+    "normal_velocity_l1": 0.07083112904301254,
+    "transverse_velocity_l1": 0.0017769602823561165,
+    "shock_position_m": -0.30150326954477774,
+    "expected_shock_position_m": -0.3,
+    "volume_relative_error": 0.020018133464851182,
+    "momentum_jump_relative_residual": 0.005116914320539212
+  },
+  {
+    "case": "moving-upstream-angle64-order1",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.005227996138209997,
+    "normal_velocity_l1": 0.02744785066598801,
+    "transverse_velocity_l1": 0.0016889390597500922,
+    "shock_position_m": -0.30287594875986057,
+    "expected_shock_position_m": -0.3,
+    "volume_relative_error": 0.0038678239103786226,
+    "momentum_jump_relative_residual": 2.4039673328135538e-05
+  },
+  {
+    "case": "moving-upstream-angle64-order2",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.020714701728384955,
+    "normal_velocity_l1": 0.06904324342412028,
+    "transverse_velocity_l1": 0.001869468269498184,
+    "shock_position_m": -0.30130392423966473,
+    "expected_shock_position_m": -0.3,
+    "volume_relative_error": 0.019338677017992884,
+    "momentum_jump_relative_residual": 0.005116202026281435
+  },
+  {
+    "case": "oblique-angle0-order1",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": false
+    },
+    "depth_l1": 0.0022913725460520997,
+    "normal_velocity_l1": 0.005582672209663564,
+    "transverse_velocity_l1": 0.003897389445772746,
+    "shock_position_m": -0.01878383872445753,
+    "expected_shock_position_m": 0.0,
+    "volume_relative_error": 0.001802552192284754,
+    "momentum_jump_relative_residual": 0.040026093600726266
+  },
+  {
+    "case": "oblique-angle0-order2",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": false
+    },
+    "depth_l1": 0.0024934599990216783,
+    "normal_velocity_l1": 0.0054081851983042405,
+    "transverse_velocity_l1": 0.004421897705826881,
+    "shock_position_m": -0.018339561469917064,
+    "expected_shock_position_m": 0.0,
+    "volume_relative_error": 0.001680342442324169,
+    "momentum_jump_relative_residual": 0.040923030062735614
+  },
+  {
+    "case": "oblique-angle64-order1",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": false
+    },
+    "depth_l1": 0.0022913723498212604,
+    "normal_velocity_l1": 0.005582647097125801,
+    "transverse_velocity_l1": 0.00389739695281028,
+    "shock_position_m": -0.01878381746591769,
+    "expected_shock_position_m": 0.0,
+    "volume_relative_error": 0.0018025483159603921,
+    "momentum_jump_relative_residual": 0.04002588347607676
+  },
+  {
+    "case": "oblique-angle64-order2",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": false
+    },
+    "depth_l1": 0.003470866318540225,
+    "normal_velocity_l1": 0.007013023519589564,
+    "transverse_velocity_l1": 0.0065077666172786985,
+    "shock_position_m": -0.02036069580273512,
+    "expected_shock_position_m": 0.0,
+    "volume_relative_error": 0.00130782073373514,
+    "momentum_jump_relative_residual": 0.0762499209444499
+  },
+  {
+    "case": "wall-angle0-order1",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.027493888124410802,
+    "normal_velocity_l1": 0.041595424351004724,
+    "transverse_velocity_l1": 0.005426815499882361,
+    "shock_position_m": -0.4218368226730337,
+    "expected_shock_position_m": -0.4197987042511534,
+    "volume_relative_error": 0.031194783789021834,
+    "momentum_jump_relative_residual": 5.4592094970784595e-05
+  },
+  {
+    "case": "wall-angle0-order2",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": false,
+      "normal_velocity_l1": false,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.12985673456096217,
+    "normal_velocity_l1": 0.1414225193334559,
+    "transverse_velocity_l1": 0.0040127990986542576,
+    "shock_position_m": -0.4226910225105157,
+    "expected_shock_position_m": -0.4197987042511534,
+    "volume_relative_error": 0.17448016704665978,
+    "momentum_jump_relative_residual": 0.0007471734390946468
+  },
+  {
+    "case": "wall-angle64-order1",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": true,
+      "normal_velocity_l1": true,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.02756865247575882,
+    "normal_velocity_l1": 0.04176553755196238,
+    "transverse_velocity_l1": 0.0054677238059222056,
+    "shock_position_m": -0.42183822922105657,
+    "expected_shock_position_m": -0.4197987042511534,
+    "volume_relative_error": 0.031306947856080854,
+    "momentum_jump_relative_residual": 5.5486587823537184e-05
+  },
+  {
+    "case": "wall-angle64-order2",
+    "checks": {
+      "finite": true,
+      "positive_depth": true,
+      "depth_l1": false,
+      "normal_velocity_l1": false,
+      "shock_position": true,
+      "tangential_velocity_l1": true,
+      "analytical_boundary_volume": false,
+      "momentum_jump": true
+    },
+    "depth_l1": 0.122317162200649,
+    "normal_velocity_l1": 0.13377385232876898,
+    "transverse_velocity_l1": 0.005599366986130994,
+    "shock_position_m": -0.4223483542629347,
+    "expected_shock_position_m": -0.4197987042511534,
+    "volume_relative_error": 0.1661197013865221,
+    "momentum_jump_relative_residual": 0.0009612667897250028
+  }
+]

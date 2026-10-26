@@ -1,0 +1,36 @@
+{
+  "gravity_m_s2": 9.80665,
+  "h1_m": 0.03,
+  "u1_m_s": 1.7,
+  "dx_m": 0.025,
+  "duration_s": 1.0,
+  "angles_deg": [
+    0,
+    64
+  ],
+  "orders": [
+    1,
+    2
+  ],
+  "kinds": [
+    "stationary",
+    "moving-upstream",
+    "oblique",
+    "wall"
+  ],
+  "criteria": {
+    "depth_l1": 0.05,
+    "normal_velocity_l1": 0.08,
+    "shock_position_cells": 3,
+    "tangential_velocity_l1": 0.05,
+    "boundary_volume_relative": 1e-05,
+    "momentum_jump_relative": 0.03
+  },
+  "reference": "Mass and momentum Rankine-Hugoniot equations with the compressive hydraulic-jump root; wall-reflected bore uses zero post-bore velocity. No reference hydraulic software or fitted values.",
+  "binaries": {
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/pinned-clock/bin/openswmm": "dfed00230923d1e664b23c4a2724742b93fb5c958787f4d45a519472c7392e34",
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/wall-assessment-2026-10-25/pinned-clock/engine/libopenswmm.engine.6.0.0.dylib": "d849b8688aeb39be8c3a3d5f836b851a466e754367799cf1b9b96c6330dbf042"
+  },
+  "driver_sha256": "6c96fc8102abb52ae4e9686e5f4961e19bb925980005f8fa1b304c5cf7b1d9b1",
+  "fixture_review": "Prior incomplete-clock fixture rejected before any solver verdict; see rejected-analytical-fixture-clock/rejection.json. Transverse accuracy is an integrated5% criterion; exact rotation covariance is assessed separately."
+}
