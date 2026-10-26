@@ -5,7 +5,7 @@
 Codex
 October 22, 2026
 
-Updated October 26, 2026: native reconstruction qualification, the Test 6A reassessment and the subsequent partially wet bank/wall audit are included below.
+Updated October 26, 2026: native reconstruction qualification, the Test 6A reassessment and the subsequent bank/wall and targeted bank-resolution/momentum audits are included below.
 
 The first implementation of the UK Environment Agency benchmark collection now provides executable SWMM2D models for Tests 1–5, 6A and 6B. This article presents the evidence available from that work: exact equilibrium checks, a limited comparison with published laboratory measurements, and numerical diagnostics from the historical scenarios.
 
@@ -131,7 +131,17 @@ The next audit completes 108 independent lake/release cases, 24 geometric-ridge 
 
 In the completed Test 6A result at 20 seconds, exact planar storage at the saved heads differs by 0.162% in the wet cells near G2; the gate-wall hydrostatic pressure integral differs from midpoint quadrature by 0.568%. Earlier sampled differences are larger: 3.139% for G2-neighborhood storage at 1 second and 7.178% for gate pressure initially. Building-wall edges have constant bed elevation and no such pressure quadrature difference. These are geometry diagnostics, not the solver's net momentum balance or evidence that the G2 discrepancy is resolved.
 
-The [partially wet bank and wall audit](evidence/g2-partial-wet/report.html) retains every failed physical gate, complete matrices, exact integration formulas, source identities and reproducible native tests. The next implementation must make storage, wetted interior/wall fluxes and bed pressure consistent before another Test 6 comparison. No new UK run, fitted coefficient, canonical input change or regression-anchor promotion is made in this audit.
+The [partially wet bank and wall audit](evidence/g2-partial-wet/report.html) retains every failed physical gate, complete matrices, exact integration formulas, source identities and reproducible native tests. That audit withheld promotion of a VFR-based full-SWE treatment. Subsequent Test 6 diagnosis can continue using the established FLAT/MEAN configuration; the ridge control alone does not establish the cause of G2. No new UK run, fitted coefficient, canonical input change or regression-anchor promotion is made in this audit.
+
+## Targeted bank refinement and the corrected momentum balance
+
+Targeted bank refinement does not resolve the G2 discrepancy. At bank targets 0.05 m and 0.025 m, G2 level RMSE is 0.05566 and 0.05528 m, versus 0.05552 m on the corrected original mesh; speed RMSE is 0.8368 and 0.8431 m/s, versus 0.8385 m/s. At 20 s the fitted depth-gradient front lies at x = 2.913 and 2.894 m, versus 2.862 m on the original mesh, while G2 is at x = 2.650 m. All three sampled fronts separate supercritical from subcritical normal flow, but G2 remains upstream of the deeper, slower state. The earlier broad refinement moves the fitted front farther downstream to x = 3.162 m. These meshes do not demonstrate convergence.
+
+The two 30-second diagnostics refine the sloping banks to 0.05 m and 0.025 m targets while retaining the drawing geometry, FLAT/MEAN settings and physical coefficients. The earlier broad refinement is included for context. Exact cross-section curves, all five available measured-subset errors, UK report panels and local front-normal diagnostics are retained.
+
+The original-mesh corrected solution has no unaccounted momentum term at the precision of this audit. In the G2 control volume, mean x-force per density over 15–25 s is +0.02305 m⁴/s² from numerical face flux, −0.01357 m⁴/s² from reflective-wall reaction and −0.01537 m⁴/s² from Manning friction, producing the computed momentum rate of −0.00589 m⁴/s². Both wet/dry momentum-reset terms are exactly zero in that region. The closure check verifies the accounting; it does not prove that the represented geometry, force laws or resulting jump location reproduce the laboratory experiment.
+
+The [bank-resolution and momentum report](evidence/g2-bank-momentum/report.html) includes the complete field-equivalence checks, control-volume receipts, reproducible scripts and executed inputs. These diagnostics do not establish mesh convergence or laboratory validation, and no regression anchors are promoted.
 
 ## The remaining UK scenarios
 

@@ -25,6 +25,8 @@ def renderer():
         mod.SRCLINK=('articles/'+SLUG+'/evidence/g2-reconstruction/report.html','Read the latest reconstruction qualification →')
     if (HERE/'evidence/g2-partial-wet/publication-manifest.json').is_file():
         mod.SRCLINK=('articles/'+SLUG+'/evidence/g2-partial-wet/report.html','Read the latest bank and wall audit →')
+    if (HERE/'evidence/g2-bank-momentum/publication-manifest.json').is_file():
+        mod.SRCLINK=('articles/'+SLUG+'/evidence/g2-bank-momentum/report.html','Read the latest bank-resolution and momentum audit →')
     mod.ANIMATION_SUPPORT=''
     return mod
 

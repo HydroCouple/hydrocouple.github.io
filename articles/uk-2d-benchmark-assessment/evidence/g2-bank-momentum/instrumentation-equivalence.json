@@ -1,0 +1,21 @@
+{
+  "bit_identical": true,
+  "fields": {
+    "Mesh2_face_depth": {
+      "frames": 300,
+      "changed_values": 0,
+      "max_absolute_difference": 0.0
+    },
+    "Mesh2_face_vx": {
+      "frames": 300,
+      "changed_values": 0,
+      "max_absolute_difference": 0.0
+    },
+    "Mesh2_face_vy": {
+      "frames": 300,
+      "changed_values": 0,
+      "max_absolute_difference": 0.0
+    }
+  },
+  "status": "PASS"
+}

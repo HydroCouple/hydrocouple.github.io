@@ -1,0 +1,7 @@
+{
+  "input_sha256": "ba36122c46fa28825445b2b10ad3a4220b315bd65d24c07fa7000f50d49e42ba",
+  "executable_sha256": "a4d8a9f9b5d2cfdf5341edc3962f20548fa6d5d1afdc58246e3abe9a95209e71",
+  "library_sha256": "4321313431c80e9f5545f23876091b6b1692cf098d187de7b67fb9dc623ca190",
+  "audit_enabled": true,
+  "duration_s": 30
+}

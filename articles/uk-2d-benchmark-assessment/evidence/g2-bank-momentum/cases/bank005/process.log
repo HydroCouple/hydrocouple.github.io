@@ -1,0 +1,11 @@
+
+... OpenSWMM Engine 6.0.0-alpha.4
+... Input: /Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/g2-bank-momentum-2026-10-26/bank005/model.inp
+... Report: /Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/g2-bank-momentum-2026-10-26/bank005/model.rpt
+... Output: /Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/g2-bank-momentum-2026-10-26/bank005/model.out
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] Smagorinsky: 0 mixing substeps, 0 retries, last diffusion bound inf s.
+
+... 300 steps completed.
+... OpenSWMM Engine completed in 532.00 seconds.
+
