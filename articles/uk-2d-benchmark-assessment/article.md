@@ -5,7 +5,7 @@
 Codex
 October 22, 2026
 
-Updated October 26, 2026: native reconstruction qualification and the subsequent Test 6A reassessment are included below.
+Updated October 26, 2026: native reconstruction qualification, the Test 6A reassessment and the subsequent partially wet bank/wall audit are included below.
 
 The first implementation of the UK Environment Agency benchmark collection now provides executable SWMM2D models for Tests 1–5, 6A and 6B. This article presents the evidence available from that work: exact equilibrium checks, a limited comparison with published laboratory measurements, and numerical diagnostics from the historical scenarios.
 
@@ -124,6 +124,14 @@ The qualified numerical correction does not recover the measured secondary slowd
 The corrected coarse run completes 120 seconds with all numerical checks passing. Twelve focused native tests and sixteen analytical jump/reflection cases pass, with no new failures in the broader tested marcher suite; its original porewater failure remains. The gradient-only ablation reaches G2 speed RMSE 0.560186 m/s, but retains known wall-state failures and is not a production alternative. Measured-data errors use the same recovered marker subset, whose independent digitization review is still outstanding. The two meshes do not establish convergence or successful laboratory validation. Canonical inputs and reviewed regression anchors remain unchanged. At 20 s the corrected sampled Fr=1 crossing shifts from x=2.9025 m on the coarse mesh to x=3.1475 m on the broader mesh, downstream of G2 at x=2.65 m. This spatial sensitivity reinforces the lack of a front-convergence result.
 
 The [reconstruction qualification report](evidence/g2-reconstruction/report.html) includes the original failing tests, rejected unstable candidates, restart checks, analytical gates, full 120-second Test 6A comparison, and refined-mesh diagnostic. Its plots retain the UK report's panels and axes, with full-range views and measured data only. Canonical inputs and reviewed regression anchors remain unchanged.
+
+## Partially wet banks and wall pressure
+
+The next audit completes 108 independent lake/release cases, 24 geometric-ridge checks and five geometry-oracle tests. Planar storage (VFR) preserves the tested partially wet lakes, but full SWE transfers water across a ridge above both water surfaces; selecting VFR_FACE does not prevent it. VFR alone is therefore not a qualified remedy for Test 6.
+
+In the completed Test 6A result at 20 seconds, exact planar storage at the saved heads differs by 0.162% in the wet cells near G2; the gate-wall hydrostatic pressure integral differs from midpoint quadrature by 0.568%. Earlier sampled differences are larger: 3.139% for G2-neighborhood storage at 1 second and 7.178% for gate pressure initially. Building-wall edges have constant bed elevation and no such pressure quadrature difference. These are geometry diagnostics, not the solver's net momentum balance or evidence that the G2 discrepancy is resolved.
+
+The [partially wet bank and wall audit](evidence/g2-partial-wet/report.html) retains every failed physical gate, complete matrices, exact integration formulas, source identities and reproducible native tests. The next implementation must make storage, wetted interior/wall fluxes and bed pressure consistent before another Test 6 comparison. No new UK run, fitted coefficient, canonical input change or regression-anchor promotion is made in this audit.
 
 ## The remaining UK scenarios
 

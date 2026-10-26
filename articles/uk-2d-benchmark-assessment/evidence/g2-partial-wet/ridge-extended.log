@@ -1,0 +1,24 @@
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).
+[openswmm 2D] optional momentum physics: f=0 s^-1, Smagorinsky=ON Cs=0, filter=sqrt(cell area), CPU global stepping.
+[openswmm 2D] MOMENTUM_EQUATION FULL_SWE: CFL_NUMBER 0.7 reduced to 0.5 (positivity bound of the Godunov update).

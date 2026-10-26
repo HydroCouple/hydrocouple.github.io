@@ -77,3 +77,5 @@ Rebuild the current article with both supplements retained:
   --wall results/uk_2d/wall-assessment-2026-10-25
 .venv/bin/python ../hydrocouple.github.io/articles/uk-2d-benchmark-assessment/build.py
 ```
+
+The 26 October partially wet bank/wall audit is included with `--partial-wet <benchmark-results>/g2-partial-wet-2026-10-26`. Its sealed diagnostic package deliberately retains failed dry-crest gates; completion does not mean solver qualification. `test_partial_wet.py` checks integrity, matrix completeness and truthful failure reporting. Preserve every preceding supplement when rebuilding the article.

@@ -323,7 +323,7 @@ The [G2 technical report](evidence/g2-jump-sensitivity/report.html) includes the
 '''
 
 
-def assemble(results,regression,analytical,river=None,wall=None,g2_study=None,geometry_momentum=None,reconstruction=None):
+def assemble(results,regression,analytical,river=None,wall=None,g2_study=None,geometry_momentum=None,reconstruction=None,partial_wet=None):
     scores=json.loads((results/'scores.json').read_text(encoding='utf-8'))
     if not scores.get('coverage'):raise ValueError('Sweep has not finalized coverage')
     image_root=SITE/'img/articles'/SLUG;image_root.mkdir(parents=True,exist_ok=True)
@@ -521,6 +521,12 @@ Soares-Frazão and Zech (2002), isolated-building IMPACT experiment, as cited in
         module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         article=article.replace('## The remaining UK scenarios',module.supplement(reconstruction,HERE,image_root,SLUG)+'## The remaining UK scenarios')
         article=article.replace('October 22, 2026', 'October 22, 2026\n\nUpdated October 26, 2026: native reconstruction qualification and the subsequent Test 6A reassessment are included below.', 1)
+    if partial_wet is not None:
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('partial_wet_evidence',HERE/'partial_wet.py')
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        article=article.replace('## The remaining UK scenarios',module.supplement(partial_wet,HERE)+'## The remaining UK scenarios')
+        article=article.replace('native reconstruction qualification and the subsequent Test 6A reassessment are included below.', 'native reconstruction qualification, the Test 6A reassessment and the subsequent partially wet bank/wall audit are included below.', 1)
     (HERE/'article.md').write_text(article,encoding='utf-8')
     return HERE/'article.md'
 
@@ -534,4 +540,5 @@ if __name__=='__main__':
     ap.add_argument('--g2',type=Path,help='Finalized Test 6A jump diagnostic controls')
     ap.add_argument('--geometry-momentum',type=Path,help='Completed Test 6A effective geometry and momentum diagnostic audit')
     ap.add_argument('--reconstruction',type=Path,help='Completed Test 6A native reconstruction qualification and reassessment')
-    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2,args.geometry_momentum,args.reconstruction))
+    ap.add_argument('--partial-wet',type=Path,help='Completed partially wet bank/wall audit, retaining failed physical gates')
+    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2,args.geometry_momentum,args.reconstruction,args.partial_wet))
