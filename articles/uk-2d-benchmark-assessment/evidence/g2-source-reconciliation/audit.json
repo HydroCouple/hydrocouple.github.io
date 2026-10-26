@@ -1,0 +1,217 @@
+{
+  "state": "COMPLETE",
+  "sources": {
+    "/Users/calebbuahin/Downloads/UKBenchmarking/Benchmarking_Model_Data/Test6 dataset 2010/EA2DTest6 - May2010.pdf": "1492ff8fb525339010c8de63c471f2bfb539b86a8164cc74835f0c867fd313ca",
+    "/Users/calebbuahin/Downloads/UKBenchmarking/_SC120002_Benchmarking_2D_hydraulic_models_Report.pdf": "e2c03b52f28c9f85cd11f6509b40d190bf16d18e8ff69c59c4b965e776f95dea",
+    "/Users/calebbuahin/Downloads/UKBenchmarking/Benchmarking_Model_Data/Test6 dataset 2010/Test6Aoutput.csv": "78123efa0ea4aee66c8469a6e02bb8546175fa5c02b498de1b98bf35d4c5498b",
+    "/Users/calebbuahin/Downloads/UKBenchmarking/Benchmarking_Model_Data/Test6 dataset 2010/Test6ADEM.asc": "69a0722f0620663423cf8ff52c4c48779d697b9a7a48929cee99fa7fcf4ad864",
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/g2-reconstruction-2026-10-25/clean-combined/model.inp": "ba36122c46fa28825445b2b10ad3a4220b315bd65d24c07fa7000f50d49e42ba",
+    "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/g2-reconstruction-2026-10-25/clean-combined/reference/observations.csv": "0bd2928bea92c21444bbe671d9a3a2a9e1cbf09df4b476875909813998c5f532"
+  },
+  "geometry": {
+    "status": "PASS",
+    "input_sha256": "ba36122c46fa28825445b2b10ad3a4220b315bd65d24c07fa7000f50d49e42ba",
+    "gauges": [
+      [
+        "G1",
+        2.65,
+        1.15
+      ],
+      [
+        "G2",
+        2.65,
+        -0.6
+      ],
+      [
+        "G3",
+        4.0,
+        1.15
+      ],
+      [
+        "G4",
+        4.0,
+        -0.8
+      ],
+      [
+        "G5",
+        5.2,
+        0.3
+      ],
+      [
+        "G6",
+        -1.87,
+        1.1
+      ]
+    ],
+    "gate_width_m": 1.0,
+    "gate_internal": true,
+    "gate_bed_m": 0.0,
+    "report_step_s": 0.1,
+    "building_corners_m": [
+      [
+        3.44,
+        -0.05
+      ],
+      [
+        3.799517618519667,
+        -0.22534845871563097
+      ],
+      [
+        4.150214535950929,
+        0.4936867783237026
+      ],
+      [
+        3.790696917431262,
+        0.6690352370393335
+      ]
+    ],
+    "building_area_m2": 0.32,
+    "long_side_angle_from_x_deg": 64.0,
+    "bank_rise_m": 0.155,
+    "bank_run_m": 0.34,
+    "area_m2": 353.9999999999999,
+    "initial_volume_m3": 16.618000000000013,
+    "dem_blocked_pixel_area_m2": {
+      "0.02": 0.4150000000000001,
+      "0.4": 0.4050000000000001,
+      "9.99": 0.25500000000000006
+    },
+    "note": "Pass means consistency with UK specification, not independent confirmation of laboratory construction."
+  },
+  "markers": {
+    "status": "PASS",
+    "axis_conversion": "All historical binned times and values reproduce independently within 1e-12.",
+    "series": [
+      {
+        "probe": "G2",
+        "quantity": "level_m",
+        "original_pixels": 56,
+        "strict_pixels": 15,
+        "original_bins": 39,
+        "strict_bins": 11,
+        "attached_candidates": 41,
+        "one_pixel_time_s": 0.0644468313641246,
+        "one_pixel_value": 0.0002452316076294278
+      },
+      {
+        "probe": "G4",
+        "quantity": "level_m",
+        "original_pixels": 72,
+        "strict_pixels": 17,
+        "original_bins": 41,
+        "strict_bins": 9,
+        "attached_candidates": 55,
+        "one_pixel_time_s": 0.0644468313641246,
+        "one_pixel_value": 0.00021798365122615803
+      },
+      {
+        "probe": "G5",
+        "quantity": "level_m",
+        "original_pixels": 175,
+        "strict_pixels": 30,
+        "original_bins": 108,
+        "strict_bins": 24,
+        "attached_candidates": 145,
+        "one_pixel_time_s": 0.0644468313641246,
+        "one_pixel_value": 0.0001907356948228883
+      },
+      {
+        "probe": "G6",
+        "quantity": "level_m",
+        "original_pixels": 0,
+        "strict_pixels": 0,
+        "original_bins": 0,
+        "strict_bins": 0,
+        "attached_candidates": 0,
+        "one_pixel_time_s": 0.0644468313641246,
+        "one_pixel_value": 0.0005722070844686648
+      },
+      {
+        "probe": "G2",
+        "quantity": "speed_mps",
+        "original_pixels": 171,
+        "strict_pixels": 138,
+        "original_bins": 141,
+        "strict_bins": 117,
+        "attached_candidates": 33,
+        "one_pixel_time_s": 0.0644468313641246,
+        "one_pixel_value": 0.0034059945504087193
+      },
+      {
+        "probe": "G4",
+        "quantity": "speed_mps",
+        "original_pixels": 137,
+        "strict_pixels": 107,
+        "original_bins": 117,
+        "strict_bins": 94,
+        "attached_candidates": 30,
+        "one_pixel_time_s": 0.0644468313641246,
+        "one_pixel_value": 0.0027247956403269754
+      }
+    ],
+    "strict_comparison": {
+      "status": "compared",
+      "kind": "digitized_observed",
+      "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+      "metrics": [
+        {
+          "probe": "G2",
+          "quantity": "level_m",
+          "n": 11,
+          "covered_duration_s": 2.5134264232008583,
+          "bias": -0.04035504120800882,
+          "mae": 0.04035504120800882,
+          "rmse": 0.04439762196635831,
+          "max_absolute_residual": 0.08214237318867075,
+          "gate": "report"
+        },
+        {
+          "probe": "G2",
+          "quantity": "speed_mps",
+          "n": 117,
+          "covered_duration_s": 15.209452201933404,
+          "bias": 0.7377273250328206,
+          "mae": 0.7948849892477347,
+          "rmse": 0.9132425737448688,
+          "max_absolute_residual": 1.4390101257866112,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "level_m",
+          "n": 9,
+          "covered_duration_s": 0.9667024704618696,
+          "bias": 0.010763339976167699,
+          "mae": 0.016308034430749276,
+          "rmse": 0.018814584049926947,
+          "max_absolute_residual": 0.03647951842550648,
+          "gate": "report"
+        },
+        {
+          "probe": "G4",
+          "quantity": "speed_mps",
+          "n": 94,
+          "covered_duration_s": 20.36519871106337,
+          "bias": -0.09361569311970047,
+          "mae": 0.19679603241024704,
+          "rmse": 0.27097880483606274,
+          "max_absolute_residual": 0.8779966086728813,
+          "gate": "report"
+        },
+        {
+          "probe": "G5",
+          "quantity": "level_m",
+          "n": 24,
+          "covered_duration_s": 4.83351235230934,
+          "bias": -0.0012813971756339213,
+          "mae": 0.02236380456198368,
+          "rmse": 0.026058713559347083,
+          "max_absolute_residual": 0.04870473216384086,
+          "gate": "report"
+        }
+      ]
+    },
+    "limitation": "Connectivity rejects touching valid measurements as well as possible same-colour curve connections. Rejected does not mean false. Sparse subsets have different time coverage and their RMSEs cannot be ranked as solver changes."
+  },
+  "qualification": "Source and observation audit only; no new simulation, source-backed solver correction or baseline promotion."
+}

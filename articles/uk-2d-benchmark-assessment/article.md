@@ -59,7 +59,7 @@ The earlier Cartesian, flat-bed Test 6 results are superseded. Their [metrics](e
 For Test 6B, elevations are multiplied by 20 in accordance with the written specification and the explicit choice made for this assessment. The supplied 6B DEM scales XY but retains the 6A elevation matrix, so its side-bank heights conflict with that instruction. The [source-scale audit](evidence/uk-ea-2013-t6b/source-scale-audit.json) documents this discrepancy. The represented 6B bank height is 3.1 m; initial depths remain the prescribed 8 m upstream and 0.4 m downstream, with Manning roughness 0.05.
 
 
-The supplied archive contains the terrain and gauge coordinates but no original measured time series. To obtain an initial comparison, a conservative algorithm recovered only the distinctive isolated magenta diamond markers labelled as UCL measurements in Figures 4.25 and 4.26. It excluded the legend, continuous curves, and ambiguous or overlapping markers.
+The supplied archive contains the terrain and gauge coordinates but no original measured time series. The initial comparison used a local 5×5 magenta diamond-pattern detector on Figures 4.25 and 4.26, excluding the legend. A subsequent connectivity audit found that this rule did not guarantee global isolation from other magenta graphics; some candidates touch neighbouring measurements or same-colour curves. The source-audit supplement distinguishes a stricter disconnected subset. Historical comparisons remain provisional and retain their original reference identities.
 
 This recovered 611 markers, grouped into 446 samples by horizontal pixel column, across five gauge/quantity series. Most lie within the first 30 seconds. No reliable G6 markers survived recovery. The extracted points are a visibility-selected subset: the statistics below describe agreement with that subset and must not be generalized to the complete experiment.
 
@@ -142,6 +142,14 @@ The two 30-second diagnostics refine the sloping banks to 0.05 m and 0.025 m tar
 The original-mesh corrected solution has no unaccounted momentum term at the precision of this audit. In the G2 control volume, mean x-force per density over 15–25 s is +0.02305 m⁴/s² from numerical face flux, −0.01357 m⁴/s² from reflective-wall reaction and −0.01537 m⁴/s² from Manning friction, producing the computed momentum rate of −0.00589 m⁴/s². Both wet/dry momentum-reset terms are exactly zero in that region. The closure check verifies the accounting; it does not prove that the represented geometry, force laws or resulting jump location reproduce the laboratory experiment.
 
 The [bank-resolution and momentum report](evidence/g2-bank-momentum/report.html) includes the complete field-equivalence checks, control-volume receipts, reproducible scripts and executed inputs. These diagnostics do not establish mesh convergence or laboratory validation, and no regression anchors are promoted.
+
+## Source geometry and observation audit
+
+The executed geometry, all six gauge coordinates and 0.1-second output interval agree with the UK specification. The source drawing explicitly includes sloping banks in the reservoir and channel, a rectangular 1 m throat, and a 0.8 × 0.4 m building oriented 64° from x. No missing gate sill or specified finite opening schedule was found. An earlier IMPACT transcription has conflicting building-position and initial-depth values, but its original could not be authenticated; those values have not been substituted into the UK benchmark.
+
+The observation review corrects an earlier overstatement: the historical 5×5 diamond-pattern detector did not guarantee that each candidate was disconnected from other magenta graphics. A new independent connected-component algorithm retains 15 disconnected G2 level markers and 138 speed markers. These still show the missing depth rise and slowdown. Historical pixel-to-time/value conversions reproduce within 10⁻¹²; this is an algorithmic cross-check by the same assistant, not a second-person or instrument validation.
+
+The [source reconciliation report](evidence/g2-source-reconciliation/report.html) records every candidate’s connectivity, stricter-subset coverage and metrics, source decisions and unresolved acquisition needs. The stricter subset is retained only as an audit artifact. No new simulation, canonical-reference replacement or regression-anchor promotion follows from this audit.
 
 ## The remaining UK scenarios
 

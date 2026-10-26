@@ -323,7 +323,7 @@ The [G2 technical report](evidence/g2-jump-sensitivity/report.html) includes the
 '''
 
 
-def assemble(results,regression,analytical,river=None,wall=None,g2_study=None,geometry_momentum=None,reconstruction=None,partial_wet=None,bank_momentum=None):
+def assemble(results,regression,analytical,river=None,wall=None,g2_study=None,geometry_momentum=None,reconstruction=None,partial_wet=None,bank_momentum=None,source_reconciliation=None):
     scores=json.loads((results/'scores.json').read_text(encoding='utf-8'))
     if not scores.get('coverage'):raise ValueError('Sweep has not finalized coverage')
     image_root=SITE/'img/articles'/SLUG;image_root.mkdir(parents=True,exist_ok=True)
@@ -446,7 +446,7 @@ UK Test 6A represents a dam-break wave interacting with an isolated building. Th
 
 {mesh_note}
 
-The supplied archive contains the terrain and gauge coordinates but no original measured time series. To obtain an initial comparison, a conservative algorithm recovered only the distinctive isolated magenta diamond markers labelled as UCL measurements in Figures 4.25 and 4.26. It excluded the legend, continuous curves, and ambiguous or overlapping markers.
+The supplied archive contains the terrain and gauge coordinates but no original measured time series. The initial comparison used a local 5×5 magenta diamond-pattern detector on Figures 4.25 and 4.26, excluding the legend. A subsequent connectivity audit found that this rule did not guarantee global isolation from other magenta graphics; some candidates touch neighbouring measurements or same-colour curves. The source-audit supplement distinguishes a stricter disconnected subset. Historical comparisons remain provisional and retain their original reference identities.
 
 This recovered 611 markers, grouped into 446 samples by horizontal pixel column, across five gauge/quantity series. Most lie within the first 30 seconds. No reliable G6 markers survived recovery. The extracted points are a visibility-selected subset: the statistics below describe agreement with that subset and must not be generalized to the complete experiment.
 
@@ -533,6 +533,11 @@ Soares-Frazão and Zech (2002), isolated-building IMPACT experiment, as cited in
         module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         article=article.replace('## The remaining UK scenarios',module.supplement(bank_momentum,HERE)+'## The remaining UK scenarios')
         article=article.replace('the subsequent partially wet bank/wall audit are included below.', 'the subsequent bank/wall and targeted bank-resolution/momentum audits are included below.', 1)
+    if source_reconciliation is not None:
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('source_reconciliation_evidence',HERE/'source_reconciliation.py')
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        article=article.replace('## The remaining UK scenarios',module.supplement(source_reconciliation,HERE)+'## The remaining UK scenarios')
     (HERE/'article.md').write_text(article,encoding='utf-8')
     return HERE/'article.md'
 
@@ -548,4 +553,5 @@ if __name__=='__main__':
     ap.add_argument('--reconstruction',type=Path,help='Completed Test 6A native reconstruction qualification and reassessment')
     ap.add_argument('--partial-wet',type=Path,help='Completed partially wet bank/wall audit, retaining failed physical gates')
     ap.add_argument('--bank-momentum',type=Path,help='Completed targeted bank-resolution and corrected momentum audit')
-    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2,args.geometry_momentum,args.reconstruction,args.partial_wet,args.bank_momentum))
+    ap.add_argument('--source-reconciliation',type=Path,help='Completed source geometry and observation connectivity audit')
+    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2,args.geometry_momentum,args.reconstruction,args.partial_wet,args.bank_momentum,args.source_reconciliation))

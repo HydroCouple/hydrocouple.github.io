@@ -31,7 +31,8 @@ checkout:
   --geometry-momentum results/uk_2d/g2-geometry-momentum-2026-10-25 \
   --reconstruction results/uk_2d/g2-reconstruction-2026-10-25 \
   --partial-wet results/uk_2d/g2-partial-wet-2026-10-26 \
-  --bank-momentum results/uk_2d/g2-bank-momentum-2026-10-26
+  --bank-momentum results/uk_2d/g2-bank-momentum-2026-10-26 \
+  --source-reconciliation results/uk_2d/g2-source-reconciliation-2026-10-26
 .venv/bin/python ../hydrocouple.github.io/articles/uk-2d-benchmark-assessment/build.py
 ```
 
@@ -83,3 +84,5 @@ Rebuild the current article with both supplements retained:
 The 26 October partially wet bank/wall audit is included with `--partial-wet <benchmark-results>/g2-partial-wet-2026-10-26`. Its sealed diagnostic package deliberately retains failed dry-crest gates; completion does not mean solver qualification. `test_partial_wet.py` checks integrity, matrix completeness and truthful failure reporting. Preserve every preceding supplement when rebuilding the article.
 
 The targeted bank-resolution and corrected momentum follow-up uses `--bank-momentum`. Its publication gate requires four completed 30-second histories, matching fixed physics and measured subsets, the same corrected solver, bit-identical instrumented fields and passing momentum accounting. The diagnostic does not promote regression anchors or claim mesh convergence. `test_bank_momentum.py` rejects incomplete, altered or inconsistent evidence before any destination files are replaced.
+
+The source reconciliation supplement checks drawing dimensions, gauge positions and extraction connectivity. It corrects the earlier claim that all diamond-pattern candidates were globally isolated. Strict-subset observations stay separate from the historical references; original source-version and instrument metadata remain unresolved. Its plots contain only recovered measurements and our own control.

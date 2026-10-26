@@ -1,0 +1,20 @@
+{
+  "state": "COMPLETE",
+  "scope": "Source reconciliation with unresolved original records; no new hydraulic run.",
+  "files": {
+    "report.html": "683e7e5049ca1165f0c8ebf3480f8394f1200f43212b6b61a83773e55b7d5395",
+    "audit.json": "2f4a911e07b480c2d85b970179e1c32e23a7692d243bbfd97803f5c4b18a8af3",
+    "source-review.json": "f095cd1fd141bb80e94465157ccf2067080be3385291f81af410f583de73df1e",
+    "marker-connectivity.csv": "ce90c137318842c4f8b626fa9d2498d05842f238556a69608ba9f918ce0a5c0a",
+    "strict-marker-pixels.json": "67ae6a98a51ec5b55df32d8cb589e6623cb8aa42ea7edb5fda8d7f9eafe45765",
+    "strict-reference/observations.csv": "86ab10dd7d0547b1c103427feeb36e1b3c84ae71c36a48f550923da41a5347a5",
+    "strict-reference/observations.json": "7bbbf72d719b221b16a3da771a601570da8823de14ee1dd496d2777445bcb393",
+    "strict-comparison.json": "46637fe84d9f05beaa0f96825c66efdee8aa5851bb86295fb31e6f6fc9040d56",
+    "marker-tests.log": "b7a8a606e961ef0d5f6d7651737cc9e5e5b791493ad487fc1c2b64e7ac61411d",
+    "source-geometry.png": "12d51d3de31edcb5d4517e644dab8dc6a902a8865f1544b0eb7d8cc50f9d5933",
+    "g2-marker-audit.png": "10b0aa16abdda96df341e7941e48413e4fc4749819bcdadf661a85d07cea2946",
+    "source/audit.py": "4cbed17f22218ea1c41ee09545e176f995196db1549a9b05e560888adbb7585e",
+    "source/test_markers.py": "c70b5b792ede8d66079c7d18fc3c5112517fab63b0469e89cbff9eee9754b244",
+    "source/report.py": "a3d69eb01488b6631157424dc17fde2a2c098c0d76050408b8eab97bdf8e55b1"
+  }
+}
