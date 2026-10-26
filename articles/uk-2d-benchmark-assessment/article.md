@@ -5,6 +5,8 @@
 Codex
 October 22, 2026
 
+Updated October 26, 2026: native reconstruction qualification and the subsequent Test 6A reassessment are included below.
+
 The first implementation of the UK Environment Agency benchmark collection now provides executable SWMM2D models for Tests 1–5, 6A and 6B. This article presents the evidence available from that work: exact equilibrium checks, a limited comparison with published laboratory measurements, and numerical diagnostics from the historical scenarios.
 
 The assessment is still partial. Original laboratory time series, the urban Test 8 inputs, a faithful Test 7 river/floodplain implementation, and spatial and temporal sensitivity studies remain outstanding. A completed simulation or an unchanged regression result does not establish experimental validation.
@@ -112,6 +114,16 @@ The missing G2 slowdown is strongly sensitive to spatial reconstruction. With th
 These controls do not establish a correct replacement method or spatial convergence. Disabling reconstruction increases numerical diffusion. Refinement reduces the reconstruction-disabled G2 speed RMSE from 0.2860 to 0.2388 m/s, but increases its level RMSE from 0.01347 to 0.03496 m; other gauges also change. Agreement at one instant or gauge is insufficient to select a default. The geometry/normals and accepted-momentum accounting checks pass, while drawing-versus-DEM differences remain documented. All new hydraulic runs are 30 s diagnostics, with the same provisional recovered measurement subset. Canonical inputs, solver defaults and reviewed regression anchors are preserved.
 
 The [geometry and momentum technical report](evidence/g2-geometry-momentum/report.html) contains the geometry overlays, accepted momentum receipts, bit-identical instrumentation checks, reconstruction comparison and broader reservoir/gate/building refinement. New runs are 30-second diagnostics; the canonical benchmark and reviewed anchors remain unchanged.
+
+## Qualifying the reconstruction and wall-state correction
+
+Native irregular-mesh tests exposed errors in linear reconstruction and wall-stage consistency. The correction uses conditioned linear fits, bounds reconstructed velocity at cell vertices, and evaluates reflecting walls from the same beginning-stage state as interior faces. It adds no calibrated friction or turbulence coefficient.
+
+The qualified numerical correction does not recover the measured secondary slowdown and accompanying depth rise at G2. On the coarse mesh, G2 level RMSE changes from 0.055899 to 0.055521 m and speed RMSE from 0.821976 to 0.838475 m/s. On the broader 0.05 m mesh, corrected G2 errors remain 0.055512 m and 0.825630 m/s. G4 speed improves on both meshes, while level errors are mixed. Correcting the demonstrated consistency failures therefore does not identify the physical cause of the G2 mismatch.
+
+The corrected coarse run completes 120 seconds with all numerical checks passing. Twelve focused native tests and sixteen analytical jump/reflection cases pass, with no new failures in the broader tested marcher suite; its original porewater failure remains. The gradient-only ablation reaches G2 speed RMSE 0.560186 m/s, but retains known wall-state failures and is not a production alternative. Measured-data errors use the same recovered marker subset, whose independent digitization review is still outstanding. The two meshes do not establish convergence or successful laboratory validation. Canonical inputs and reviewed regression anchors remain unchanged. At 20 s the corrected sampled Fr=1 crossing shifts from x=2.9025 m on the coarse mesh to x=3.1475 m on the broader mesh, downstream of G2 at x=2.65 m. This spatial sensitivity reinforces the lack of a front-convergence result.
+
+The [reconstruction qualification report](evidence/g2-reconstruction/report.html) includes the original failing tests, rejected unstable candidates, restart checks, analytical gates, full 120-second Test 6A comparison, and refined-mesh diagnostic. Its plots retain the UK report's panels and axes, with full-range views and measured data only. Canonical inputs and reviewed regression anchors remain unchanged.
 
 ## The remaining UK scenarios
 

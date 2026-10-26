@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "vertices": 141,
+  "triangles": 234,
+  "exact_coordinates_and_elevations": true,
+  "exact_connectivity": true,
+  "source_input_sha256": "c38591ae477530eab20b3f4c27af0ac90d6c13f7af8808fb356881297c6d3fbb",
+  "fixture_sha256": "09201e8fa0bf228c1f5b0371c551c0a86edb36634aadd7d4ce86cd9e25bc4ae2",
+  "limitation": "The crop introduces artificial exterior walls; it is a bounded-energy numerical counterexample, not the laboratory domain."
+}

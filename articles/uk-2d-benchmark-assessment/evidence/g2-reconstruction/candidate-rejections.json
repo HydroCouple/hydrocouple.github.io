@@ -1,0 +1,236 @@
+{
+  "status": "ARCHIVED_REJECTIONS",
+  "hydraulic_controls": {
+    "gradient-only": {
+      "manifest.json": {
+        "variant": "gradient-only",
+        "input_sha256": "ba36122c46fa28825445b2b10ad3a4220b315bd65d24c07fa7000f50d49e42ba",
+        "control_input_sha256": "c38591ae477530eab20b3f4c27af0ac90d6c13f7af8808fb356881297c6d3fbb",
+        "executable_sha256": "80dc7b803a6df40bfc6238c1e0c56d16de93b7f2164402914ee5d3bfc0f20288",
+        "library_sha256": "5dd65d7e702fe9b6ee99637e95b00f0df4c06b5b9e9af988cfe20e3bf117fac3",
+        "environment": {
+          "OPENSWMM_G2_LEGACY_WALL": "1"
+        },
+        "driver_sha256": "b217076ed03355580f18efec335b746ce08198ee59049c8eee9d159f4bc4df63",
+        "source": {
+          "original_solver_sha256": "d537b9ab07d2b66581a857a3ea7f56b37467911742ef85a15b7605abd3da309b",
+          "candidate_solver_sha256": "d5d878e5f3e220b9b4b3d0f7601f5effc336d7fbc362fe43555e3ee27521f56f",
+          "diagnostic_switches": [
+            "OPENSWMM_G2_LEGACY_GRADIENT",
+            "OPENSWMM_G2_LEGACY_WALL"
+          ],
+          "qualification": "Isolated experimental source only. Legacy switches enable one-factor attribution; no product options or defaults changed."
+        },
+        "duration_s": 30
+      },
+      "status.json": {
+        "state": "FAILED",
+        "error": "AssertionError()"
+      },
+      "rejection.json": {
+        "reason": "Candidate advances only 0.1 s before timestep collapse. Stopped before qualification; partial output is not a result.",
+        "action": "Trace controlling cell and wet/dry reconstruction; preserve canonical solver and anchors."
+      }
+    },
+    "combined": {
+      "manifest.json": {
+        "variant": "combined",
+        "input_sha256": "ba36122c46fa28825445b2b10ad3a4220b315bd65d24c07fa7000f50d49e42ba",
+        "control_input_sha256": "c38591ae477530eab20b3f4c27af0ac90d6c13f7af8808fb356881297c6d3fbb",
+        "executable_sha256": "80dc7b803a6df40bfc6238c1e0c56d16de93b7f2164402914ee5d3bfc0f20288",
+        "library_sha256": "5dd65d7e702fe9b6ee99637e95b00f0df4c06b5b9e9af988cfe20e3bf117fac3",
+        "environment": {},
+        "driver_sha256": "b217076ed03355580f18efec335b746ce08198ee59049c8eee9d159f4bc4df63",
+        "source": {
+          "original_solver_sha256": "d537b9ab07d2b66581a857a3ea7f56b37467911742ef85a15b7605abd3da309b",
+          "candidate_solver_sha256": "d5d878e5f3e220b9b4b3d0f7601f5effc336d7fbc362fe43555e3ee27521f56f",
+          "diagnostic_switches": [
+            "OPENSWMM_G2_LEGACY_GRADIENT",
+            "OPENSWMM_G2_LEGACY_WALL"
+          ],
+          "qualification": "Isolated experimental source only. Legacy switches enable one-factor attribution; no product options or defaults changed."
+        },
+        "duration_s": 30
+      },
+      "status.json": {
+        "state": "FAILED",
+        "error": "AssertionError()"
+      },
+      "rejection.json": {
+        "reason": "Candidate advances only 0.1 s before timestep collapse. Stopped before qualification; partial output is not a result.",
+        "action": "Trace controlling cell and wet/dry reconstruction; preserve canonical solver and anchors."
+      }
+    },
+    "trace-gradient-only": {
+      "status.json": {
+        "state": "DIAGNOSTIC",
+        "pid": 27406,
+        "reason": "Trace controlling timestep; abort after bounded steps. Not a qualified run."
+      }
+    },
+    "stability-cfl02": {
+      "status.json": {
+        "state": "DIAGNOSTIC",
+        "pid": 40411,
+        "cfl": 0.2,
+        "duration_s": 1,
+        "purpose": "Independent temporal stability check, no measured-data selection"
+      }
+    },
+    "stability-cfl01": {
+      "status.json": {
+        "state": "DIAGNOSTIC",
+        "pid": 40412,
+        "cfl": 0.1,
+        "duration_s": 1,
+        "purpose": "Independent temporal stability check, no measured-data selection"
+      }
+    },
+    "stability-fixed-bed": {
+      "manifest.json": {
+        "executable_sha256": "cf831af7586e5f2447c8de3ad0a776d88d6d6c38b4ea882725c1340467222927",
+        "library_sha256": "c90fb6c84ac75e2f0180c1fc2d2e928687ff78e252b6e9c7a0ed7d192c8e3fbe",
+        "flags": {
+          "OPENSWMM_G2_FIXED_FACE_BED": "1"
+        },
+        "input_sha256": "0a3f3174533b5cd6200d13a03bb24ed3db564d56a2a788aa66ced49522b8a1bd",
+        "purpose": "Numerical stability only, no observed comparison"
+      },
+      "result.json": {
+        "name": "fixed-bed",
+        "returncode": 0,
+        "completed": false,
+        "frames": 1,
+        "finite": true,
+        "minimum_depth": 0.0074684591701090625,
+        "max_speed": 2.06107947703016,
+        "max_energy_ratio": 0.9996401521902991,
+        "max_volume_relative_error": 4.27574157997411e-16
+      }
+    },
+    "stability-fixed-bed-surface-source": {
+      "manifest.json": {
+        "executable_sha256": "cf831af7586e5f2447c8de3ad0a776d88d6d6c38b4ea882725c1340467222927",
+        "library_sha256": "c90fb6c84ac75e2f0180c1fc2d2e928687ff78e252b6e9c7a0ed7d192c8e3fbe",
+        "flags": {
+          "OPENSWMM_G2_FIXED_FACE_BED": "1",
+          "OPENSWMM_G2_ETA_SOURCE": "1"
+        },
+        "input_sha256": "0a3f3174533b5cd6200d13a03bb24ed3db564d56a2a788aa66ced49522b8a1bd",
+        "purpose": "Numerical stability only, no observed comparison"
+      },
+      "result.json": {
+        "name": "fixed-bed-surface-source",
+        "returncode": 0,
+        "completed": false,
+        "frames": 1,
+        "finite": true,
+        "minimum_depth": 0.007476139289452323,
+        "max_speed": 2.0605614940847916,
+        "max_energy_ratio": 0.9996400040179374,
+        "max_volume_relative_error": 1.2827224739922332e-15
+      }
+    },
+    "stability-no-velocity-slope": {
+      "manifest.json": {
+        "executable_sha256": "cf831af7586e5f2447c8de3ad0a776d88d6d6c38b4ea882725c1340467222927",
+        "library_sha256": "c90fb6c84ac75e2f0180c1fc2d2e928687ff78e252b6e9c7a0ed7d192c8e3fbe",
+        "flags": {
+          "OPENSWMM_G2_ZERO_VELOCITY_SLOPES": "1"
+        },
+        "input_sha256": "0a3f3174533b5cd6200d13a03bb24ed3db564d56a2a788aa66ced49522b8a1bd",
+        "purpose": "Numerical stability only, no observed comparison"
+      },
+      "result.json": {
+        "name": "no-velocity-slope",
+        "returncode": 0,
+        "completed": true,
+        "frames": 10,
+        "finite": true,
+        "minimum_depth": 0.0002449062104995527,
+        "max_speed": 2.0077697012787374,
+        "max_energy_ratio": 0.9988154452514145,
+        "max_volume_relative_error": 4.489528658972816e-15
+      }
+    }
+  },
+  "native_counterexamples": {
+    "corner-controls/derived-bed": {
+      "tests": 1,
+      "failures": 1,
+      "properties": [
+        {
+          "name": "CroppedTinBankCornerDoesNotGenerateRunawayEnergy"
+        }
+      ]
+    },
+    "corner-controls/no-velocity-slope": {
+      "tests": 1,
+      "failures": 0,
+      "properties": [
+        {
+          "name": "CroppedTinBankCornerDoesNotGenerateRunawayEnergy"
+        }
+      ]
+    },
+    "corner-controls/fixed-bed-surface-source": {
+      "tests": 1,
+      "failures": 1,
+      "properties": [
+        {
+          "name": "CroppedTinBankCornerDoesNotGenerateRunawayEnergy"
+        }
+      ]
+    },
+    "corner-controls/fixed-bed": {
+      "tests": 1,
+      "failures": 1,
+      "properties": [
+        {
+          "name": "CroppedTinBankCornerDoesNotGenerateRunawayEnergy"
+        }
+      ]
+    },
+    "momentum-corner-controls/conserved-momentum": {
+      "tests": 2,
+      "failures": 1,
+      "properties": [
+        {
+          "name": "ClosedBankReleaseDoesNotGenerateRunawayEnergy"
+        },
+        {
+          "name": "CroppedTinBankCornerDoesNotGenerateRunawayEnergy"
+        }
+      ]
+    },
+    "momentum-corner-controls/coupled-velocity": {
+      "tests": 2,
+      "failures": 1,
+      "properties": [
+        {
+          "name": "ClosedBankReleaseDoesNotGenerateRunawayEnergy"
+        },
+        {
+          "name": "CroppedTinBankCornerDoesNotGenerateRunawayEnergy"
+        }
+      ]
+    }
+  },
+  "wall_only_analytical_rejections": [
+    {
+      "case": "wall-angle0-order2",
+      "verdict": "FAIL",
+      "checks": {
+        "finite": true,
+        "nonnegative_depth": true,
+        "window_depth_l1": false,
+        "window_normal_velocity_l1": true,
+        "window_transverse_velocity_l1": true,
+        "shock_position": true,
+        "closed_volume": true,
+        "momentum_jump": true
+      }
+    }
+  ],
+  "rule": "Incomplete and failed trials are not accepted hydraulic comparisons. Final production method excludes their diagnostic switches and altered kernel formulas."
+}

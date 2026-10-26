@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "reviewed_utc": "2026-10-26T04:41:09.518551+00:00",
+  "figures": [
+    "reconstruction-uk-4-25-full-range.png",
+    "reconstruction-uk-4-25.png",
+    "reconstruction-uk-4-26-full-range.png",
+    "reconstruction-uk-4-26.png",
+    "reconstruction-depth-20s.png",
+    "reconstruction-front-position.png"
+  ],
+  "figure_sha256": {
+    "reconstruction-uk-4-25-full-range.png": "842ab6009b36f8249a10da0c9ca118ebbe14b0c090717f7f94fcdb7a5e20b999",
+    "reconstruction-uk-4-25.png": "b73f32e5f430a6db1ea38212670f4151c739ed0328cbdfa1c987e825fd26bb9b",
+    "reconstruction-uk-4-26-full-range.png": "ac7288e85c014ac005787bc172525e43e7bfc0824bb3602ddf1079aec44a4fc4",
+    "reconstruction-uk-4-26.png": "f667a610c03b37465f33351e93129d8111178cabd8ecd9fe6027480434e48c49",
+    "reconstruction-depth-20s.png": "3623fef5e33ee6011735319201b6b28a4b9e5bba354a060a601f9fe40d9f7c62",
+    "reconstruction-front-position.png": "90dd21f06c02e4dcafc6486e910aed956fa4e50bf7c531c3aee9ca548bbd58eb"
+  },
+  "checks": [
+    "All six final scientific figures visually inspected",
+    "UK 4.25/4.26 panels and declared axes retained; separate full-range views",
+    "Only recovered measured markers and same-engine numerical controls plotted",
+    "G6 measurement unavailability explicit",
+    "All curves have explicit run duration and method; shortened legends remain inside canvas",
+    "Spatial panels identify the 20-second frame separately from the 30-second run duration",
+    "Common depth color range and marked G2; no claimed observed spatial front",
+    "Front diagnostic labelled as cell-constant Fr crossing, not shock tracking",
+    "Native qualification and remaining physical mismatch reported separately"
+  ]
+}

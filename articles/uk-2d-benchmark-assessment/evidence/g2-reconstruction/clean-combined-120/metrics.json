@@ -1,0 +1,76 @@
+{
+  "returncode": 0,
+  "wall_s": 1253.997901499999,
+  "checks": {
+    "nonnegative_depth": true,
+    "continuity": true,
+    "independent_volume": true
+  },
+  "continuity_err": -2.1592494978869944e-12,
+  "volume_residual_m3": 2.842170943040401e-14,
+  "initial_volume_m3": 16.617999999999995,
+  "final_volume_m3": 16.618000000000023,
+  "prescribed_inflow_m3": 0.0,
+  "observed": {
+    "status": "compared",
+    "kind": "digitized_observed",
+    "source": "UCL measurement diamonds only, EA SC120002/R Figures 4.25 and 4.26",
+    "metrics": [
+      {
+        "probe": "G2",
+        "quantity": "level_m",
+        "n": 39,
+        "covered_duration_s": 7.024704618689579,
+        "bias": -0.050322910634740266,
+        "mae": 0.050322910634740266,
+        "rmse": 0.055521089292034385,
+        "max_absolute_residual": 0.0837942260363167,
+        "gate": "report"
+      },
+      {
+        "probe": "G2",
+        "quantity": "speed_mps",
+        "n": 141,
+        "covered_duration_s": 17.91621911922664,
+        "bias": 0.6249262564135251,
+        "mae": 0.6822500439777269,
+        "rmse": 0.8384746616985841,
+        "max_absolute_residual": 1.4390101257866112,
+        "gate": "report"
+      },
+      {
+        "probe": "G4",
+        "quantity": "level_m",
+        "n": 41,
+        "covered_duration_s": 13.469387755102037,
+        "bias": 0.009015242898865397,
+        "mae": 0.016995575437314475,
+        "rmse": 0.02018914410510496,
+        "max_absolute_residual": 0.05014354079376583,
+        "gate": "report"
+      },
+      {
+        "probe": "G4",
+        "quantity": "speed_mps",
+        "n": 117,
+        "covered_duration_s": 23.00751879699248,
+        "bias": -0.07282167642804101,
+        "mae": 0.18649968874386091,
+        "rmse": 0.25750784597479304,
+        "max_absolute_residual": 0.8779966086728813,
+        "gate": "report"
+      },
+      {
+        "probe": "G5",
+        "quantity": "level_m",
+        "n": 108,
+        "covered_duration_s": 18.8829215896885,
+        "bias": -0.009392869633588485,
+        "mae": 0.016942367258111487,
+        "rmse": 0.02022041620366584,
+        "max_absolute_residual": 0.04870473216384083,
+        "gate": "report"
+      }
+    ]
+  }
+}

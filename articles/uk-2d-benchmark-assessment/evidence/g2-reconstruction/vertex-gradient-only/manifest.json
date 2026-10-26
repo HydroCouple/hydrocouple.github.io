@@ -1,0 +1,17 @@
+{
+  "variant": "vertex-gradient-only",
+  "input_sha256": "ba36122c46fa28825445b2b10ad3a4220b315bd65d24c07fa7000f50d49e42ba",
+  "control_input_sha256": "c38591ae477530eab20b3f4c27af0ac90d6c13f7af8808fb356881297c6d3fbb",
+  "executable_sha256": "cf831af7586e5f2447c8de3ad0a776d88d6d6c38b4ea882725c1340467222927",
+  "library_sha256": "5770770c0640f467134d55a1402e00f75c1bb94f7c14cda6d7d66fe1e390e43f",
+  "environment": {
+    "OPENSWMM_G2_VERTEX_VELOCITY_LIMITER": "1",
+    "OPENSWMM_G2_LEGACY_WALL": "1"
+  },
+  "driver_sha256": "ea84a9be382d33cc921e953ab791d414e466112c083c7e955d9be858fc4189d6",
+  "source": {
+    "solver_sha256": "d2e12e1ac77fa18e83497083d54a915f21514948ccd60e35d2586fab951fadda",
+    "base_revision": "50e146750bc723dfeacdb903909d49465f8031b0"
+  },
+  "duration_s": 30
+}

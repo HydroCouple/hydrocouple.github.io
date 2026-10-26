@@ -13,6 +13,31 @@ From the benchmark repository, after the dated assessment, analytical and regres
 .venv/bin/python ../hydrocouple.github.io/articles/uk-2d-benchmark-assessment/build.py
 ```
 
+The reconstruction follow-up uses engine commit `336ca729`, with native and
+analytical qualification recorded separately from measured-data agreement.
+`reconstruction.py` verifies the sealed package, completed output durations,
+identical same-mesh input files and identical recovered measurement subsets
+before replacing its evidence directory. Raw fields and executable libraries
+remain local.
+
+To rebuild with every completed supplement retained, run from the benchmarks
+checkout:
+
+```bash
+.venv/bin/python ../hydrocouple.github.io/articles/uk-2d-benchmark-assessment/assemble.py \
+  --river results/uk_river/assessment-final-2026-10-22 \
+  --wall results/uk_2d/wall-assessment-2026-10-25 \
+  --g2 results/uk_2d/g2-jump-assessment-2026-10-25 \
+  --geometry-momentum results/uk_2d/g2-geometry-momentum-2026-10-25 \
+  --reconstruction results/uk_2d/g2-reconstruction-2026-10-25
+.venv/bin/python ../hydrocouple.github.io/articles/uk-2d-benchmark-assessment/build.py
+```
+
+The benchmark verification directory includes `reproduce.py` for replaying a
+published corrected deck into a new results directory using a supplied solver
+and library directory. It checks full output duration before interpreting
+metrics and leaves canonical inputs and reviewed anchors unchanged.
+
 The finalized G2 diagnostic controls can also be included with
 `--g2 results/uk_2d/g2-jump-assessment-2026-10-25`. Retain both `--river` and
 `--wall` when adding it. All three one-factor controls, the archived control,

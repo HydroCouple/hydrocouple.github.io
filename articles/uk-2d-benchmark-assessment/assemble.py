@@ -323,7 +323,7 @@ The [G2 technical report](evidence/g2-jump-sensitivity/report.html) includes the
 '''
 
 
-def assemble(results,regression,analytical,river=None,wall=None,g2_study=None,geometry_momentum=None):
+def assemble(results,regression,analytical,river=None,wall=None,g2_study=None,geometry_momentum=None,reconstruction=None):
     scores=json.loads((results/'scores.json').read_text(encoding='utf-8'))
     if not scores.get('coverage'):raise ValueError('Sweep has not finalized coverage')
     image_root=SITE/'img/articles'/SLUG;image_root.mkdir(parents=True,exist_ok=True)
@@ -515,6 +515,12 @@ Soares-Frazão and Zech (2002), isolated-building IMPACT experiment, as cited in
         spec=importlib.util.spec_from_file_location('geometry_momentum_evidence',HERE/'geometry_momentum.py')
         module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         article=article.replace('## The remaining UK scenarios',module.supplement(geometry_momentum,HERE,image_root,SLUG)+'## The remaining UK scenarios')
+    if reconstruction is not None:
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('reconstruction_evidence',HERE/'reconstruction.py')
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        article=article.replace('## The remaining UK scenarios',module.supplement(reconstruction,HERE,image_root,SLUG)+'## The remaining UK scenarios')
+        article=article.replace('October 22, 2026', 'October 22, 2026\n\nUpdated October 26, 2026: native reconstruction qualification and the subsequent Test 6A reassessment are included below.', 1)
     (HERE/'article.md').write_text(article,encoding='utf-8')
     return HERE/'article.md'
 
@@ -527,4 +533,5 @@ if __name__=='__main__':
     ap.add_argument('--wall',type=Path,help='Finalized Test 6 wall-friction sensitivity directory')
     ap.add_argument('--g2',type=Path,help='Finalized Test 6A jump diagnostic controls')
     ap.add_argument('--geometry-momentum',type=Path,help='Completed Test 6A effective geometry and momentum diagnostic audit')
-    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2,args.geometry_momentum))
+    ap.add_argument('--reconstruction',type=Path,help='Completed Test 6A native reconstruction qualification and reassessment')
+    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2,args.geometry_momentum,args.reconstruction))

@@ -1,0 +1,48 @@
+{
+  "engine_commit": "336ca72982fca99305586f05113b43c6ed1600b8",
+  "frozen_source_revision": "50e146750bc723dfeacdb903909d49465f8031b0",
+  "committed_solver_matches_frozen_candidate": true,
+  "pins": {
+    "pinned-v1": {
+      "executable_sha256": "80dc7b803a6df40bfc6238c1e0c56d16de93b7f2164402914ee5d3bfc0f20288",
+      "library_sha256": "5dd65d7e702fe9b6ee99637e95b00f0df4c06b5b9e9af988cfe20e3bf117fac3"
+    },
+    "pinned-v2": {
+      "executable_sha256": "cf831af7586e5f2447c8de3ad0a776d88d6d6c38b4ea882725c1340467222927",
+      "library_sha256": "11b70485aaac9c8e739ea91a271f1ea96bb5ca93c9614ee660bb75c66871ed2b",
+      "solver_source_sha256": "a26231f9d11e685fdf6401bac8eb98b5b31e0fa45ea589e48173a708b69c75a4"
+    },
+    "pinned-vertex": {
+      "executable_sha256": "cf831af7586e5f2447c8de3ad0a776d88d6d6c38b4ea882725c1340467222927",
+      "library_sha256": "f6ca2460327b4cbbe4234771aa61e8fa9a4b4ec9cc8615ffd011886029154da5",
+      "solver_source_sha256": "e7d2b69afa93b9cfbe1a01c94ab5ea9ceb4c965ce1b92cb0ddd2a82babdd0dee"
+    },
+    "pinned-vertex-init": {
+      "executable_sha256": "cf831af7586e5f2447c8de3ad0a776d88d6d6c38b4ea882725c1340467222927",
+      "library_sha256": "5770770c0640f467134d55a1402e00f75c1bb94f7c14cda6d7d66fe1e390e43f",
+      "solver_source_sha256": "d2e12e1ac77fa18e83497083d54a915f21514948ccd60e35d2586fab951fadda"
+    },
+    "pinned-clean": {
+      "executable_sha256": "cf831af7586e5f2447c8de3ad0a776d88d6d6c38b4ea882725c1340467222927",
+      "library_sha256": "3cfc7aa091be45e1261052bab12cb0d1a57085c4563594d4537624fc479c0dad",
+      "solver_source_sha256": "c8124296eb21b358590493aa016ebccd4cafd2d3abdff38e522e169db88a9271"
+    },
+    "pinned-integration": {
+      "executable_sha256": "e4ea8c5fa2eaba40ebc1173ed8286b9d676c5f5da46106f58f0f8d9fa4411aff",
+      "library_sha256": "442aa4f7de3445dde1001fdb841f9c7c049984863614bfd35afbb7bff6741212",
+      "solver_source_sha256": "477d0a5e83506cf0cd88f5df0aea10e24bd9b7a45f9e2754576438baea4bc946"
+    }
+  },
+  "note": "Generated engine_sha labels in regression scores inherit checkout metadata; exact binaries and saved source identities here are authoritative. Earlier variant.json files inherited prototype metadata; final qualification uses these immutable execution images.",
+  "protected_editable_input_sha256": "d40e3cb0b2c3123764bf6b54a4f10c53b2e388fff702890fe32eed07b948bd10",
+  "registered_unit": {
+    "tests": 12,
+    "failures": 0,
+    "build_profile": "Current-source integration with OPENSWMM_BUILD_UNIT_TESTS=ON; normal project CMake/CTest registration"
+  },
+  "same_mesh_input_identity": {
+    "coarse_120_identical": true,
+    "coarse_30_identical": true,
+    "broad_30_identical": true
+  }
+}

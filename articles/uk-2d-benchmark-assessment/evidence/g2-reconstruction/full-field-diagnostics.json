@@ -1,0 +1,10 @@
+{
+  "frames": 1200,
+  "minimum_depth_m": 2.4711400578696206e-08,
+  "maximum_speed_mps": 2.903257537732107,
+  "initial_volume_m3": 16.61800000000006,
+  "maximum_volume_error_m3": 1.1723955140041653e-13,
+  "maximum_relative_volume_error": 7.054973606957282e-15,
+  "maximum_discrete_energy_ratio": 0.9991277276591493,
+  "scope": "Independent diagnostics on saved fields; energy is not an additional fitted acceptance criterion."
+}

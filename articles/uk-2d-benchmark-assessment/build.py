@@ -21,6 +21,8 @@ def renderer():
     finally:sys.dont_write_bytecode=previous
     mod.SLUG=SLUG;mod.ROOT=str(ROOT);mod.AUTHORS=['Codex'];mod.DATE='10-22-2026'
     mod.SRCLINK=('articles/'+SLUG+'/evidence/report.html','Read the technical evidence report →')
+    if (HERE/'evidence/g2-reconstruction/publication-manifest.json').is_file():
+        mod.SRCLINK=('articles/'+SLUG+'/evidence/g2-reconstruction/report.html','Read the latest reconstruction qualification →')
     mod.ANIMATION_SUPPORT=''
     return mod
 

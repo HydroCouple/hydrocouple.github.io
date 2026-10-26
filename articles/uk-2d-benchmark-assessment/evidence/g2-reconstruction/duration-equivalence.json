@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "prefix_s": 30,
+  "full_duration_s": 120,
+  "fields": {
+    "Mesh2_face_depth": {
+      "max_absolute_difference": 0.0,
+      "changed_values": 0
+    },
+    "Mesh2_face_vx": {
+      "max_absolute_difference": 0.0,
+      "changed_values": 0
+    },
+    "Mesh2_face_vy": {
+      "max_absolute_difference": 0.0,
+      "changed_values": 0
+    }
+  }
+}
