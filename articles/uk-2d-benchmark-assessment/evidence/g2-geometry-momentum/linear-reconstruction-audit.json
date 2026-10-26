@@ -1,0 +1,91 @@
+{
+  "source_solver_sha256": "d537b9ab07d2b66581a857a3ea7f56b37467911742ef85a15b7605abd3da309b",
+  "status": "COMPLETED",
+  "definition": "For analytic scalar fields w=x and w=y, exact gradient matrix is identity. Errors are Frobenius norms, dimensionless.",
+  "scope": "Offline reproduction of frozen fully-wet arithmetic Green-Gauss face samples and BJ scalar limiter on actual TIN geometry. No boundary or shoreline cells are scored. This identifies linear-consistency limitations, not proof of the G2 cause or qualification of a replacement reconstruction.",
+  "meshes": {
+    "control": {
+      "constant_gradient_max_abs": 4.017191737209472e-15,
+      "zones": {
+        "fully_interior_flat": {
+          "cells": 45852,
+          "unlimited_gradient_identity_error": {
+            "median": 0.0005084356606671239,
+            "p95": 0.22341161681975832,
+            "maximum": 1.5172394331993264
+          },
+          "limited_gradient_identity_error": {
+            "median": 0.0005084356606671239,
+            "p95": 0.22341161681975832,
+            "maximum": 1.5634719199489093
+          },
+          "fraction_unlimited_error_above_1_percent": 0.3333551426328186
+        },
+        "building_reach_interior_flat": {
+          "cells": 1117,
+          "unlimited_gradient_identity_error": {
+            "median": 0.00349902909586205,
+            "p95": 0.24359706105595574,
+            "maximum": 0.7488350635477409
+          },
+          "limited_gradient_identity_error": {
+            "median": 0.00349902909586205,
+            "p95": 0.24359706105595574,
+            "maximum": 0.7488350635477409
+          },
+          "fraction_unlimited_error_above_1_percent": 0.38137869292748433
+        }
+      },
+      "G2_cell_unlimited_gradient_matrix": [
+        [
+          0.9999565180762771,
+          2.1143417114370706e-05
+        ],
+        [
+          -1.962212562256949e-05,
+          1.000005962302247
+        ]
+      ],
+      "G2_cell_neighbours": [
+        20676,
+        20678,
+        22282
+      ]
+    },
+    "broad": {
+      "constant_gradient_max_abs": 6.665772131904577e-15,
+      "zones": {
+        "fully_interior_flat": {
+          "cells": 69486,
+          "unlimited_gradient_identity_error": {
+            "median": 0.00011571570700423574,
+            "p95": 0.244842520654808,
+            "maximum": 1.563471919941265
+          },
+          "limited_gradient_identity_error": {
+            "median": 0.00011571570700423574,
+            "p95": 0.244842520654808,
+            "maximum": 1.563471919941265
+          },
+          "fraction_unlimited_error_above_1_percent": 0.2954695909967475
+        },
+        "building_reach_interior_flat": {
+          "cells": 4296,
+          "unlimited_gradient_identity_error": {
+            "median": 0.0005473517986886305,
+            "p95": 0.254488440324369,
+            "maximum": 0.7760464043231176
+          },
+          "limited_gradient_identity_error": {
+            "median": 0.0005473517986886305,
+            "p95": 0.254488440324369,
+            "maximum": 0.7760464043231176
+          },
+          "fraction_unlimited_error_above_1_percent": 0.2921322160148976
+        }
+      },
+      "G2_cell_unlimited_gradient_matrix": null,
+      "G2_cell_neighbours": null
+    }
+  }
+}

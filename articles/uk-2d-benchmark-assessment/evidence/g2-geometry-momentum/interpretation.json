@@ -1,0 +1,10 @@
+{
+  "finding": "The missing G2 slowdown is strongly sensitive to spatial reconstruction. With the same coarse mesh, geometry, Manning n and RK2, disabling MUSCL changes the 20 s G2 state from 0.0271 m depth and 1.639 m/s speed to 0.1136 m and 0.444 m/s; native first order closely agrees. The broader reconstruction-disabled mesh retains the deeper, slower state at 20 s (0.1086 m, 0.501 m/s). Broad refinement with MUSCL enabled leaves the large G2 discrepancy: speed RMSE is 0.8304 m/s, versus 0.8220 m/s on the original mesh. This makes spatial reconstruction and its interaction with the irregular mesh and reflective walls the strongest next engineering lead.",
+  "qualification": "These controls do not establish a correct replacement method or spatial convergence. Disabling reconstruction increases numerical diffusion. Refinement reduces the reconstruction-disabled G2 speed RMSE from 0.2860 to 0.2388 m/s, but increases its level RMSE from 0.01347 to 0.03496 m; other gauges also change. Agreement at one instant or gauge is insufficient to select a default. The geometry/normals and accepted-momentum accounting checks pass, while drawing-versus-DEM differences remain documented. All new hydraulic runs are 30 s diagnostics, with the same provisional recovered measurement subset. Canonical inputs, solver defaults and reviewed regression anchors are preserved.",
+  "next_priorities": [
+    "Add native constant/linear reconstruction patch tests on irregular TINs; the offline formula audit is not a native test and does not by itself prove the G2 cause.",
+    "Audit linear-exact interior reconstruction, limiter consistency and reflective-wall face states at the same RK stage, retaining positivity and wet/dry safeguards.",
+    "Qualify any correction against the existing analytical jump/reflection cases and additional irregular-mesh controls before repeating Test 6A at 30 s and the full 120 s, assessing every available gauge."
+  ],
+  "promotion": "None: no fit-driven roughness, geometry, time, default or baseline change."
+}

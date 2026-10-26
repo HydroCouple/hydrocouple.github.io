@@ -1,0 +1,41 @@
+{
+  "created_utc": "2026-10-26T02:09:46.123154+00:00",
+  "figures": [
+    "geometry-building-dem-and-normals.png",
+    "geometry-gate-and-bank-sections.png",
+    "linear-reconstruction-patch.png",
+    "audit-uk-4-25-full-range.png",
+    "audit-uk-4-25.png",
+    "audit-uk-4-26-full-range.png",
+    "audit-uk-4-26.png",
+    "audit-local-depth-20s.png",
+    "audit-front-position.png",
+    "momentum-balance.png"
+  ],
+  "figure_sha256": {
+    "geometry-building-dem-and-normals.png": "e28509c9f7430054cb379732bab231f899e67060d72f1272e875bda96d4c565f",
+    "geometry-gate-and-bank-sections.png": "4a9c1e4c23069d83fc2a56097c60d8249918fb681e361659ac0b97def1f1410f",
+    "linear-reconstruction-patch.png": "c1e191e9c5f3265caba02b4b458620381cf4b4db9ec96fb6e9184c3aec484c42",
+    "audit-uk-4-25-full-range.png": "cf1192a8ca24a7020c36560c6254acf952dad3d7d569dba8261b92f67676d200",
+    "audit-uk-4-25.png": "5218cd4e38e364de93100fe21dde34d5738c13ba9eeecff26aa1896468ed4609",
+    "audit-uk-4-26-full-range.png": "6892880335606797bdef9b4726b84c336bb950f85036f528c8ab48b1f2344282",
+    "audit-uk-4-26.png": "f24a512cf64ae03f5a887ce7f0a5a52175b67b19bf92c7c036adcf567b0d8481",
+    "audit-local-depth-20s.png": "1592e591b5895b3f2db9dfa7faf50e21298766ab8a84392d1e42ead0d8ea8909",
+    "audit-front-position.png": "d85bac0b2fc1393be6af1de5c31cc3e64e514d3beeea6909b6a97722bc69b8b8",
+    "momentum-balance.png": "0d02541b13ea19bbb9eb982dafb8ef60aeb4ec53ce96fab556b26ea8bdd94b33"
+  },
+  "cases": {
+    "frozen30": "ba36122c46fa28825445b2b10ad3a4220b315bd65d24c07fa7000f50d49e42ba",
+    "order1-30": "e98c01be85e0c8606bf44ac0e3428218c847014eebe052262dbbb5692c40f3ed",
+    "muscl-off-30": "ba36122c46fa28825445b2b10ad3a4220b315bd65d24c07fa7000f50d49e42ba",
+    "broad005-30": "adc9704128545765d7343595d8deffa28764d492b369f31b58a20bf0e8fff5fc",
+    "broad005-muscloff-30": "adc9704128545765d7343595d8deffa28764d492b369f31b58a20bf0e8fff5fc",
+    "previous-local": "48e7a9be035b852d535211e6e296a5ce1a97869b38d1ea529ca046eef3427218"
+  },
+  "geometry_sha256": "9a3651c7ba21155c875977981c2e9ab38b82384525874ff280a098601fc43b96",
+  "momentum_sha256": "c3bfddafde87959fecfe1b435942cddcf3e006dfe8ff8a2ac490fc9c4c18867a",
+  "equivalence_sha256": "f6f8b4d9be296c46f5d334ada71da74a67a8a054036ff9d131301dae23b7e843",
+  "interpretation_sha256": "34df941ab9ae23ed9b6c2037a331bfec66ef446ae0c16cd4d9e5e28201bdba24",
+  "report_sha256": "f243ab3e93bc58da247d6b5e47fd79aca490116113cb367ca847740ebf8c20e7",
+  "script_sha256": "b63aea8a61749f94f897a5dbab26a032479144c09c91c6b8b14ddc90be127a7d"
+}

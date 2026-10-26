@@ -1,0 +1,8 @@
+{
+  "source": "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine/tests/verification/wall_friction_2026-10-24/commit-check-source",
+  "original_solver_sha256": "d537b9ab07d2b66581a857a3ea7f56b37467911742ef85a15b7605abd3da309b",
+  "audit_solver_sha256": "60ae2c3523f1e1639360dcefdf2a3c140c8067cd2133291f3434516666fbefd9",
+  "source_copy": "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine/tests/verification/g2_geometry_momentum_2026-10-25/audit-source",
+  "qualification": "Diagnostic receipts only; no scientific interpretation before enabled/disabled and frozen equivalence checks.",
+  "amendment": "Explicit final RK2 dry-momentum reset receipt; physical equations unchanged. V1 missing-receipt record retained."
+}

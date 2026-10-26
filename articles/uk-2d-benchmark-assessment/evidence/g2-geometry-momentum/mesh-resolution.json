@@ -1,0 +1,53 @@
+{
+  "control": {
+    "reservoir": {
+      "cells": 4308,
+      "median_edge_m": 0.12195951487690908,
+      "p95_edge_m": 0.1256216167855038
+    },
+    "throat": {
+      "cells": 210,
+      "median_edge_m": 0.09602137186547159,
+      "p95_edge_m": 0.13050232029124223
+    },
+    "building": {
+      "cells": 1325,
+      "median_edge_m": 0.12198593734763616,
+      "p95_edge_m": 0.12305416405692869
+    }
+  },
+  "previous-local": {
+    "reservoir": {
+      "cells": 5857,
+      "median_edge_m": 0.1021669709763352,
+      "p95_edge_m": 0.1227826577074818
+    },
+    "throat": {
+      "cells": 686,
+      "median_edge_m": 0.054028870303470033,
+      "p95_edge_m": 0.06375016763146721
+    },
+    "building": {
+      "cells": 5064,
+      "median_edge_m": 0.06099983597707285,
+      "p95_edge_m": 0.06192344902971679
+    }
+  },
+  "broad": {
+    "reservoir": {
+      "cells": 15977,
+      "median_edge_m": 0.06099999658167116,
+      "p95_edge_m": 0.06152341526750346
+    },
+    "throat": {
+      "cells": 686,
+      "median_edge_m": 0.0540288702851737,
+      "p95_edge_m": 0.06375017964821374
+    },
+    "building": {
+      "cells": 5064,
+      "median_edge_m": 0.06099984460336952,
+      "p95_edge_m": 0.06192344902966458
+    }
+  }
+}

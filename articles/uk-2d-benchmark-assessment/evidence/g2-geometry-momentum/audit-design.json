@@ -1,0 +1,58 @@
+{
+  "created_utc": "2026-10-26T01:15:58.294748+00:00",
+  "ordered_priorities": [
+    "Independent effective geometry and actual solver normals audit",
+    "Control-volume momentum accounting with frozen-source instrumentation and non-perturbation check",
+    "First/second-order same-mesh comparison, then broader refined mesh diagnostics"
+  ],
+  "frozen_solver": "50e146750bc723dfeacdb903909d49465f8031b0",
+  "control": "results/uk_2d/wall-assessment-2026-10-25/6a-cs0-none-cw0.01",
+  "fixed": {
+    "manning_n": 0.01,
+    "cs": 0,
+    "coriolis": "OFF",
+    "wall_drag": 0,
+    "initial_condition": "Original uniform depth; variants explicitly declared only if audit establishes a reason"
+  },
+  "diagnostic_duration_s": 30,
+  "qualification_duration_s": 120,
+  "rule": "No fitted geometry, roughness or timing changes. Preserve working corpus inputs and reviewed anchors. Instrumentation may not be interpreted until equivalence against the frozen solver is checked.",
+  "momentum_receipts": {
+    "control_volumes": [
+      "Whole fluid mesh",
+      "Building reach centroid x=[1.5,4.5], all y",
+      "G2/jump centroid x=[2.2,3.5], y=[-1.3,1.3]",
+      "G2 containing cell19081"
+    ],
+    "terms": [
+      "Total numerical interior flux (pressure, advective transport, dissipation)",
+      "Hydrostatic bed correction",
+      "Wall reaction",
+      "Manning impulse",
+      "Euler dry-momentum reset"
+    ],
+    "integrator": "Both RK2 Euler stages weighted 1/2; accepted state compared independently with saved fields. Any RK final reset or other residual is reported, not silently assigned."
+  },
+  "instrumentation_equivalence_acceptance": "All saved depths and velocities bit-identical for frozen short vs archived long, audit-disabled vs frozen, enabled vs disabled, before interpreting receipts.",
+  "phase3_declared_cases": [
+    {
+      "name": "order1-30",
+      "change": "RECONSTRUCTION_ORDER 2 to 1; native option changes spatial reconstruction and RK2 to Euler, hence combined method-order sensitivity."
+    },
+    {
+      "name": "muscl-off-30",
+      "change": "Disable spatial MUSCL reconstruction via existing environment switch; retain RK2 and identical mesh/input except 30 s duration."
+    },
+    {
+      "name": "broad005-30",
+      "change": "Drawing/terrain unchanged; .05 m target over full reservoir, throat, gate and building to x=8 with 2 m graded transition, .1 m background."
+    }
+  ],
+  "adaptive_followup": {
+    "declared_utc": "2026-10-26T01:48:48.641425+00:00",
+    "name": "broad005-muscloff-30",
+    "trigger": "Coarse MUSCL-off with unchanged RK2 closely reproduces native order-1 G2 depth/speed and reduces measured errors.",
+    "change": "Same already-prepared broad mesh/input and RK2 as broad005-30; only existing MUSCL_OFF switch enabled.",
+    "purpose": "Test refinement response of reconstruction-disabled solution; do not select by recovered-marker fit or claim convergence from two resolutions."
+  }
+}

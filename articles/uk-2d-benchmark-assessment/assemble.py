@@ -323,7 +323,7 @@ The [G2 technical report](evidence/g2-jump-sensitivity/report.html) includes the
 '''
 
 
-def assemble(results,regression,analytical,river=None,wall=None,g2_study=None):
+def assemble(results,regression,analytical,river=None,wall=None,g2_study=None,geometry_momentum=None):
     scores=json.loads((results/'scores.json').read_text(encoding='utf-8'))
     if not scores.get('coverage'):raise ValueError('Sweep has not finalized coverage')
     image_root=SITE/'img/articles'/SLUG;image_root.mkdir(parents=True,exist_ok=True)
@@ -510,6 +510,11 @@ Soares-Frazão and Zech (2002), isolated-building IMPACT experiment, as cited in
         article=article.replace('## The remaining UK scenarios',wall_supplement(wall,image_root)+'## The remaining UK scenarios')
     if g2_study is not None:
         article=article.replace('## The remaining UK scenarios',g2_supplement(g2_study,image_root)+'## The remaining UK scenarios')
+    if geometry_momentum is not None:
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('geometry_momentum_evidence',HERE/'geometry_momentum.py')
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        article=article.replace('## The remaining UK scenarios',module.supplement(geometry_momentum,HERE,image_root,SLUG)+'## The remaining UK scenarios')
     (HERE/'article.md').write_text(article,encoding='utf-8')
     return HERE/'article.md'
 
@@ -521,4 +526,5 @@ if __name__=='__main__':
     ap.add_argument('--river',type=Path,help='Finalized W5-105 river supplement output directory')
     ap.add_argument('--wall',type=Path,help='Finalized Test 6 wall-friction sensitivity directory')
     ap.add_argument('--g2',type=Path,help='Finalized Test 6A jump diagnostic controls')
-    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2))
+    ap.add_argument('--geometry-momentum',type=Path,help='Completed Test 6A effective geometry and momentum diagnostic audit')
+    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2,args.geometry_momentum))
