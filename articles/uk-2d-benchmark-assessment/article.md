@@ -5,7 +5,7 @@
 Codex
 October 22, 2026
 
-Updated October 26, 2026: native reconstruction qualification, the Test 6A reassessment and the subsequent bank/wall and targeted bank-resolution/momentum audits are included below.
+Updated October 27, 2026: native reconstruction qualification, the Test 6A reassessment and the subsequent bank/wall and targeted bank-resolution/momentum audits are included below.
 
 The first implementation of the UK Environment Agency benchmark collection now provides executable SWMM2D models for Tests 1–5, 6A and 6B. This article presents the evidence available from that work: exact equilibrium checks, a limited comparison with published laboratory measurements, and numerical diagnostics from the historical scenarios.
 
@@ -150,6 +150,14 @@ The executed geometry, all six gauge coordinates and 0.1-second output interval 
 The observation review corrects an earlier overstatement: the historical 5×5 diamond-pattern detector did not guarantee that each candidate was disconnected from other magenta graphics. A new independent connected-component algorithm retains 15 disconnected G2 level markers and 138 speed markers. These still show the missing depth rise and slowdown. Historical pixel-to-time/value conversions reproduce within 10⁻¹²; this is an algorithmic cross-check by the same assistant, not a second-person or instrument validation.
 
 The [source reconciliation report](evidence/g2-source-reconciliation/report.html) records every candidate’s connectivity, stricter-subset coverage and metrics, source decisions and unresolved acquisition needs. The stricter subset is retained only as an audit artifact. No new simulation, canonical-reference replacement or regression-anchor promotion follows from this audit.
+
+## First order and MUSCL on the corrected engine
+
+The corrected-engine repeats confirm that first order and MUSCL-off/RK2 recover the secondary slowdown and depth rise at G2 much better on the coarse mesh. The controlled ablations identify velocity reconstruction as the stronger sensitivity: retaining surface/depth reconstruction but removing velocity slopes gives G2 level/speed RMSE of 0.02337 m and 0.2565 m/s; retaining velocity reconstruction alone gives 0.05394 m and 0.8069 m/s. Shared velocity limiting passes the native accuracy checks and produces a brief slowdown around 20–22 s, but flow accelerates again by 23–24 s. Its speed RMSE is 0.7286 m/s and it does not sustain the observed depth rise. These results localize a numerical sensitivity; they do not prove that the extra first-order diffusion is physically correct.
+
+Continue development around velocity reconstruction and limiting, using independently specified oblique/reflected hydraulic jumps and rotation-equivalence tests to assess a multidimensional or characteristic limiter and any general shock sensor. Preserve admissible smooth linear fields, still-water balance, positivity, conservation and bank-release stability before returning to every available Test 6 gauge and a declared mesh sequence. Existing first order remains useful as a labelled sensitivity. A shared velocity limiter alone is insufficient, and the slope-removal ablations deliberately sacrifice formal accuracy. No experimental control is promoted to a production option or a new default.
+
+The [corrected-engine MUSCL report](evidence/g2-muscl/report.html) retains the coarse/broad paired controls, qualified limiter experiments, all available gauge comparisons, original UK reporting panels, front histories and both recovered-marker subsets. Every new comparison covers 30 seconds. Diagnostic completion does not establish convergence or replace canonical regression anchors.
 
 ## The remaining UK scenarios
 

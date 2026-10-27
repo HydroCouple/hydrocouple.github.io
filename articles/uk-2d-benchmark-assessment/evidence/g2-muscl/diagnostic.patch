@@ -1,0 +1,36 @@
+--- a/src/engine/2d/solver/ExplicitInertialSolver.cpp
++++ b/src/engine/2d/solver/ExplicitInertialSolver.cpp
+@@ -2740,6 +2740,15 @@
+ // Bound velocity at both face midpoints and cell vertices. Thin cells,
+ // ill-conditioned stencils and shoreline velocity retain first-order fallback.
+ void ExplicitInertialSolver::computeLimitedGradientsSwe() {
++    // Isolated diagnostics only: no production option or default change.
++    static const std::string experiment = [] {
++        const char* value = std::getenv("OPENSWMM_G2_RECONSTRUCTION");
++        const std::string mode = value ? value : "baseline";
++        if (mode != "baseline" && mode != "surface-only" && mode != "velocity-only" &&
++            mode != "common-velocity" && mode != "common-all")
++            throw std::invalid_argument("Unknown isolated G2 reconstruction experiment.");
++        return mode;
++    }();
+     const auto n = state_->depth.size();
+     const auto& ed = edges_;
+     const double dry = opts_->dry_depth;
+@@ -2856,6 +2865,17 @@
+             phi[0] *= positive;
+             phi[3] *= positive;
+         }
++        if (experiment == "common-velocity")
++            phi[1] = phi[2] = std::min(phi[1], phi[2]);
++        if (experiment == "common-all") {
++            const double common = std::min({phi[0], phi[1], phi[2], phi[3]});
++            for (double& value : phi)
++                value = common;
++        }
++        if (experiment == "surface-only")
++            phi[1] = phi[2] = 0;
++        if (experiment == "velocity-only")
++            phi[0] = phi[3] = 0;
+         gex_[i] = phi[0] * gx[0];
+         gey_[i] = phi[0] * gy[0];
+         gex_[n + i] = phi[3] * gx[3];

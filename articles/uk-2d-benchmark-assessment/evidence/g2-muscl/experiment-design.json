@@ -1,0 +1,20 @@
+{
+  "base_revision": "50e146750bc723dfeacdb903909d49465f8031b0",
+  "corrected_revision": "336ca72982fca99305586f05113b43c6ed1600b8",
+  "original_solver_sha256": "c8124296eb21b358590493aa016ebccd4cafd2d3abdff38e522e169db88a9271",
+  "experimental_solver_sha256": "dfbfb9f8eae2c13b7c6ee4e4370f9684c7c85612b35d070f43f7d74f65ec4305",
+  "source_archive_sha256": "257caa30854ffc6d8b16a25efdc69a28e9fc489e3649f5bc4bbfec4e8504568c",
+  "controls": [
+    "baseline",
+    "surface-only",
+    "velocity-only",
+    "common-velocity",
+    "common-all"
+  ],
+  "qualification": "All native and analytical outcomes retained. Common-factor candidates require all 12 native and 16 analytical checks. Deliberate slope-removal controls are diagnostic only; any safety or analytical failure excludes their Test 6 run.",
+  "scope": "Changes limited to final scalar/velocity slope factors, used by both interior and reflective wall faces. No physical coefficient changes.",
+  "binary_sha256": {
+    "pinned-experiments/bin/openswmm": "66412262eb001cafe210e670c55df97e086f8d68c75c02a1132390155dc22e69",
+    "pinned-experiments/engine/libopenswmm.engine.6.0.0.dylib": "78868cd7f473c7992b0ccfc95e521b27612368caf8047368a10a66212f99ac8f"
+  }
+}

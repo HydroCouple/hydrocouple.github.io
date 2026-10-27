@@ -1,0 +1,9 @@
+{
+  "state": "COMPLETE",
+  "checks": {
+    "nonnegative_depth": true,
+    "continuity": true,
+    "independent_volume": true
+  },
+  "wall_s": 340.4726260000025
+}

@@ -1,0 +1,13 @@
+{
+  "input_sha256": "6f4b898714899c606b47cf8d3fef7501a0a429f3be86f3bf93da3ffc781a354c",
+  "control_input_sha256": "adc9704128545765d7343595d8deffa28764d492b369f31b58a20bf0e8fff5fc",
+  "executable": "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/g2-reconstruction-2026-10-25/pinned-clean/bin/openswmm",
+  "library": "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine.benchmarks/results/uk_2d/g2-reconstruction-2026-10-25/pinned-clean/engine/libopenswmm.engine.6.0.0.dylib",
+  "executable_sha256": "cf831af7586e5f2447c8de3ad0a776d88d6d6c38b4ea882725c1340467222927",
+  "library_sha256": "3cfc7aa091be45e1261052bab12cb0d1a57085c4563594d4537624fc479c0dad",
+  "driver_sha256": "9ebbb936e7301327d2e03f8d514641f14dcb3d5e7ee42203ea47133f2a9fbee6",
+  "environment": {},
+  "duration_s": 30,
+  "observations_sha256": "0bd2928bea92c21444bbe671d9a3a2a9e1cbf09df4b476875909813998c5f532",
+  "scope": "Corrected 336ca729 solver snapshot; fixed physics; historical visible-marker subset."
+}

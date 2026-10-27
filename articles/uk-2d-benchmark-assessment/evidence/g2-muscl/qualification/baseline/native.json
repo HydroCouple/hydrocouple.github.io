@@ -1,0 +1,148 @@
+{
+  "tests": 12,
+  "failures": 0,
+  "disabled": 0,
+  "errors": 0,
+  "timestamp": "2026-10-27T05:57:07Z",
+  "time": "0.025s",
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "SweReconstruction",
+      "tests": 12,
+      "failures": 0,
+      "disabled": 0,
+      "errors": 0,
+      "timestamp": "2026-10-27T05:57:07Z",
+      "time": "0.025s",
+      "testsuite": [
+        {
+          "name": "ConstantFieldsOnIrregularRotatedTin",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 190,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0.001s",
+          "classname": "SweReconstruction"
+        },
+        {
+          "name": "AdmissibleLinearFieldsAreExactOnIrregularTin",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 199,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0s",
+          "classname": "SweReconstruction"
+        },
+        {
+          "name": "TangentialLinearSurfaceAtReflectingWall",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 239,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0s",
+          "classname": "SweReconstruction"
+        },
+        {
+          "name": "WallPressureUsesBeginningEulerDepth",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 267,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0s",
+          "classname": "SweReconstruction"
+        },
+        {
+          "name": "ReconstructedDepthStaysNonnegativeAtWetDryInterface",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 296,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0s",
+          "classname": "SweReconstruction"
+        },
+        {
+          "name": "SlopingLakeRemainsStillOnIrregularRotatedTin",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 320,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0.004s",
+          "classname": "SweReconstruction"
+        },
+        {
+          "name": "WallPressureUsesReconstructedBeginningState",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 354,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0s",
+          "classname": "SweReconstruction"
+        },
+        {
+          "name": "ThreadCountDoesNotChangeReconstruction",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 365,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0s",
+          "classname": "SweReconstruction"
+        },
+        {
+          "name": "UnrepresentablePressureIsRefusedBeforeAnyFaceBooking",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 376,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0s",
+          "classname": "SweReconstruction"
+        },
+        {
+          "name": "ClosedBankReleaseDoesNotGenerateRunawayEnergy",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 387,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0.006s",
+          "classname": "SweReconstruction",
+          "reached_s": "0.500000",
+          "maximum_energy_ratio": "1.000001",
+          "maximum_speed_mps": "0.337614"
+        },
+        {
+          "name": "CroppedTinBankCornerDoesNotGenerateRunawayEnergy",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 422,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0.011s",
+          "classname": "SweReconstruction",
+          "reached_s": "0.500000",
+          "maximum_energy_ratio": "1.001473",
+          "maximum_speed_mps": "1.450236"
+        },
+        {
+          "name": "ReconstructedVelocityHasNoVertexOvershoot",
+          "file": "\/Users\/calebbuahin\/Documents\/Projects\/cbuahin_github\/openswmm.engine\/tests\/verification\/g2_muscl_2026-10-27\/source\/tests\/unit\/engine\/test_2d_swe_reconstruction.cpp",
+          "line": 468,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-10-27T05:57:07Z",
+          "time": "0s",
+          "classname": "SweReconstruction"
+        }
+      ]
+    }
+  ]
+}

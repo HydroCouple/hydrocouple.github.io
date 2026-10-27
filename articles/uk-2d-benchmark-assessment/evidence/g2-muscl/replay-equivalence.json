@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "fields": {
+    "time": {
+      "changed_values": 0,
+      "maximum_absolute_difference": 0.0
+    },
+    "Mesh2_face_depth": {
+      "changed_values": 0,
+      "maximum_absolute_difference": 0.0
+    },
+    "Mesh2_face_vx": {
+      "changed_values": 0,
+      "maximum_absolute_difference": 0.0
+    },
+    "Mesh2_face_vy": {
+      "changed_values": 0,
+      "maximum_absolute_difference": 0.0
+    }
+  },
+  "comparison": "Diagnostic baseline branch versus frozen corrected control, all ten saved frames."
+}

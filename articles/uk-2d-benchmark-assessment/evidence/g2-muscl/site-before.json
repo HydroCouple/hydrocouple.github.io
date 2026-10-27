@@ -1,0 +1,32 @@
+{
+  "other_articles": {
+    "lid-storage-node": "3955c28809fe5ea7fc5482001199004fb9c8c53634dc8acc2f1314bf242926de",
+    "exact-cross-section-geometry": "6729bc6ca4dcff5d5a634ae93fcf9b6ee0355771c31b942734bb29dac3e6ccb3",
+    "conservative-hydraulic-routing": "7b0e33084cdb6653adee40da93141bd000b7dedb7e5f3c3e74053620f91e7f2e",
+    "testing-and-validation": "191e2b5130a8457c5c9eab202a351fd49b7a50efca19555710a7e52658b08491",
+    "rdii-reimagined": "fefd102579803ee1d7daca41312cfa39c2b2892089d0eb7d88809324d91473cb",
+    "swmm2d-alpha-release": "2ff9dfdabd4490289f38af297d4d2cb8d98fe1621f81d2eb17581cfb29243143",
+    "dynamic-preissmann-slot": "9a2d79dd8de783716ff957dab14c76db31261261ed4e4e1763b93bb00d9e3c12",
+    "semi-implicit-node-continuity": "12b713bd75d278ebda0f700e2a4d68534b907b3a749725ae811251f96adcfb0d"
+  },
+  "headings": [
+    "## What is being assessed",
+    "## Analytical equilibrium preservation",
+    "## Pond filling and retention",
+    "## A limited laboratory comparison",
+    "## Selective wall friction and Smagorinsky mixing",
+    "## Investigating the G2 hydraulic jump",
+    "## Auditing effective geometry and momentum at G2",
+    "## Qualifying the reconstruction and wall-state correction",
+    "## Partially wet banks and wall pressure",
+    "## Targeted bank refinement and the corrected momentum balance",
+    "## Source geometry and observation audit",
+    "## The remaining UK scenarios",
+    "## Retaining the evidence as the engine changes",
+    "## Additional river benchmarks and recovered measurements",
+    "## Scope of the present findings",
+    "## References"
+  ],
+  "index_sha256": "0a478f80b7f9697a2ab2c0f03f2ebde706bf785e93bcbb42a68d142e8ca373d0",
+  "protected_input_sha256": "d40e3cb0b2c3123764bf6b54a4f10c53b2e388fff702890fe32eed07b948bd10"
+}

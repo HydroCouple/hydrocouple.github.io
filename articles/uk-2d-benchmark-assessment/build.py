@@ -29,6 +29,8 @@ def renderer():
         mod.SRCLINK=('articles/'+SLUG+'/evidence/g2-bank-momentum/report.html','Read the latest bank-resolution and momentum audit →')
     if (HERE/'evidence/g2-source-reconciliation/publication-manifest.json').is_file():
         mod.SRCLINK=('articles/'+SLUG+'/evidence/g2-source-reconciliation/report.html','Read the latest source and observation audit →')
+    if (HERE/'evidence/g2-muscl/publication-manifest.json').is_file():
+        mod.SRCLINK=('articles/'+SLUG+'/evidence/g2-muscl/report.html','Read the corrected-engine MUSCL assessment →')
     mod.ANIMATION_SUPPORT=''
     return mod
 

@@ -1,0 +1,104 @@
+{
+  "modes": [
+    {
+      "mode": "baseline",
+      "executable_sha256": "66412262eb001cafe210e670c55df97e086f8d68c75c02a1132390155dc22e69",
+      "library_sha256": "78868cd7f473c7992b0ccfc95e521b27612368caf8047368a10a66212f99ac8f",
+      "native_sha256": "fde51b91ca2c4c4eb723a7bdc5f6105d942f4724b5d6f8573552f2897b3b8254",
+      "environment": {
+        "OPENSWMM_G2_RECONSTRUCTION": "baseline"
+      },
+      "native_tests": 12,
+      "native_failures": [],
+      "native_returncode": 0,
+      "analytical_returncode": 0,
+      "analytical_cases": 16,
+      "analytical_passed": 16,
+      "qualified_for_diagnostic": true,
+      "full_native_accuracy_pass": true,
+      "note": "All native checks required."
+    },
+    {
+      "mode": "surface-only",
+      "executable_sha256": "66412262eb001cafe210e670c55df97e086f8d68c75c02a1132390155dc22e69",
+      "library_sha256": "78868cd7f473c7992b0ccfc95e521b27612368caf8047368a10a66212f99ac8f",
+      "native_sha256": "fde51b91ca2c4c4eb723a7bdc5f6105d942f4724b5d6f8573552f2897b3b8254",
+      "environment": {
+        "OPENSWMM_G2_RECONSTRUCTION": "surface-only"
+      },
+      "native_tests": 12,
+      "native_failures": [
+        "AdmissibleLinearFieldsAreExactOnIrregularTin",
+        "TangentialLinearSurfaceAtReflectingWall"
+      ],
+      "native_returncode": 1,
+      "analytical_returncode": 0,
+      "analytical_cases": 16,
+      "analytical_passed": 16,
+      "qualified_for_diagnostic": true,
+      "full_native_accuracy_pass": false,
+      "note": "Slope-removal ablations cannot qualify as production second-order methods."
+    },
+    {
+      "mode": "velocity-only",
+      "executable_sha256": "66412262eb001cafe210e670c55df97e086f8d68c75c02a1132390155dc22e69",
+      "library_sha256": "78868cd7f473c7992b0ccfc95e521b27612368caf8047368a10a66212f99ac8f",
+      "native_sha256": "fde51b91ca2c4c4eb723a7bdc5f6105d942f4724b5d6f8573552f2897b3b8254",
+      "environment": {
+        "OPENSWMM_G2_RECONSTRUCTION": "velocity-only"
+      },
+      "native_tests": 12,
+      "native_failures": [
+        "AdmissibleLinearFieldsAreExactOnIrregularTin",
+        "TangentialLinearSurfaceAtReflectingWall",
+        "WallPressureUsesReconstructedBeginningState"
+      ],
+      "native_returncode": 1,
+      "analytical_returncode": 0,
+      "analytical_cases": 16,
+      "analytical_passed": 16,
+      "qualified_for_diagnostic": true,
+      "full_native_accuracy_pass": false,
+      "note": "Slope-removal ablations cannot qualify as production second-order methods."
+    },
+    {
+      "mode": "common-velocity",
+      "executable_sha256": "66412262eb001cafe210e670c55df97e086f8d68c75c02a1132390155dc22e69",
+      "library_sha256": "78868cd7f473c7992b0ccfc95e521b27612368caf8047368a10a66212f99ac8f",
+      "native_sha256": "fde51b91ca2c4c4eb723a7bdc5f6105d942f4724b5d6f8573552f2897b3b8254",
+      "environment": {
+        "OPENSWMM_G2_RECONSTRUCTION": "common-velocity"
+      },
+      "native_tests": 12,
+      "native_failures": [],
+      "native_returncode": 0,
+      "analytical_returncode": 0,
+      "analytical_cases": 16,
+      "analytical_passed": 16,
+      "qualified_for_diagnostic": true,
+      "full_native_accuracy_pass": true,
+      "note": "All native checks required."
+    },
+    {
+      "mode": "common-all",
+      "executable_sha256": "66412262eb001cafe210e670c55df97e086f8d68c75c02a1132390155dc22e69",
+      "library_sha256": "78868cd7f473c7992b0ccfc95e521b27612368caf8047368a10a66212f99ac8f",
+      "native_sha256": "fde51b91ca2c4c4eb723a7bdc5f6105d942f4724b5d6f8573552f2897b3b8254",
+      "environment": {
+        "OPENSWMM_G2_RECONSTRUCTION": "common-all"
+      },
+      "native_tests": 12,
+      "native_failures": [
+        "AdmissibleLinearFieldsAreExactOnIrregularTin"
+      ],
+      "native_returncode": 1,
+      "analytical_returncode": 0,
+      "analytical_cases": 16,
+      "analytical_passed": 16,
+      "qualified_for_diagnostic": false,
+      "full_native_accuracy_pass": false,
+      "note": "All native checks required."
+    }
+  ],
+  "baseline_cpu_returncode": 0
+}

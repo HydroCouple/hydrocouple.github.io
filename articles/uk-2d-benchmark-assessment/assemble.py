@@ -323,7 +323,7 @@ The [G2 technical report](evidence/g2-jump-sensitivity/report.html) includes the
 '''
 
 
-def assemble(results,regression,analytical,river=None,wall=None,g2_study=None,geometry_momentum=None,reconstruction=None,partial_wet=None,bank_momentum=None,source_reconciliation=None):
+def assemble(results,regression,analytical,river=None,wall=None,g2_study=None,geometry_momentum=None,reconstruction=None,partial_wet=None,bank_momentum=None,source_reconciliation=None,muscl=None):
     scores=json.loads((results/'scores.json').read_text(encoding='utf-8'))
     if not scores.get('coverage'):raise ValueError('Sweep has not finalized coverage')
     image_root=SITE/'img/articles'/SLUG;image_root.mkdir(parents=True,exist_ok=True)
@@ -538,6 +538,12 @@ Soares-Frazão and Zech (2002), isolated-building IMPACT experiment, as cited in
         spec=importlib.util.spec_from_file_location('source_reconciliation_evidence',HERE/'source_reconciliation.py')
         module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         article=article.replace('## The remaining UK scenarios',module.supplement(source_reconciliation,HERE)+'## The remaining UK scenarios')
+    if muscl is not None:
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('muscl_evidence',HERE/'muscl.py')
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        article=article.replace('## The remaining UK scenarios',module.supplement(muscl,HERE)+'## The remaining UK scenarios')
+        article=article.replace('Updated October 26, 2026:', 'Updated October 27, 2026:', 1)
     (HERE/'article.md').write_text(article,encoding='utf-8')
     return HERE/'article.md'
 
@@ -554,4 +560,5 @@ if __name__=='__main__':
     ap.add_argument('--partial-wet',type=Path,help='Completed partially wet bank/wall audit, retaining failed physical gates')
     ap.add_argument('--bank-momentum',type=Path,help='Completed targeted bank-resolution and corrected momentum audit')
     ap.add_argument('--source-reconciliation',type=Path,help='Completed source geometry and observation connectivity audit')
-    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2,args.geometry_momentum,args.reconstruction,args.partial_wet,args.bank_momentum,args.source_reconciliation))
+    ap.add_argument('--muscl',type=Path,help='Completed corrected-engine first-order and MUSCL controls')
+    args=ap.parse_args();print(assemble(args.results,args.regression,args.analytical,args.river,args.wall,args.g2,args.geometry_momentum,args.reconstruction,args.partial_wet,args.bank_momentum,args.source_reconciliation,args.muscl))
