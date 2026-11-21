@@ -192,8 +192,8 @@
       </div>
       <div class="card">
         <span class="badge flagship-badge">In the engine</span>
-        <h3>Multi-species Reactions &amp; Transport</h3>
-        <p>Process components for multi-species reactions (EPANET-MSX conventions), Eulerian advection–reaction–dispersion transport and water age, computed inside the engine. Pollutant mass crosses a component boundary at outfalls, and one passive pollutant can pass between split network and surface instances; MSX species do not cross it yet.</p>
+        <h3>Multi-species Reactions (MSX) &amp; Transport</h3>
+        <p>MSX is part of the engine: multi-species reactions in EPANET-MSX conventions act in network, surface, LID and groundwater transport, beside Eulerian advection–reaction–dispersion transport and water age, with species written to the native output. Outfall transfers to other components carry conventional pollutants; MSX species do not cross a component boundary yet.</p>
       </div>
       <div class="card">
         <span class="badge available">Available</span>
@@ -229,32 +229,36 @@
 <section class="alt" id="planned">
   <div class="container">
     <div class="section-kicker">Roadmap</div>
-    <h2>Planned component work</h2>
+    <h2>What comes next for the engine and FVQual</h2>
     <p class="section-intro">
-      Development directions recorded in the public roadmap. Planned means planned: designs are studied and sequenced in the open before they are built, and priorities respond to community
+      Development directions recorded in the engine roadmap and the FVQual status. Planned means planned: designs are studied and sequenced in the open before they are built, and priorities respond to community
       and utility needs.
     </p>
     <div class="grid cols-3">
       <div class="card">
         <span class="badge planned">Planned</span>
-        <h3>Heat &amp; Species Across Components</h3>
-        <p>Carry heat and multi-species (MSX) material between split network and surface instances, not only water and one passive pollutant.</p>
+        <h3>Sediment Transport</h3>
+        <p>Overland erosion and detachment, suspended and bedload routing by particle size, deposition and re-entrainment, and the constituents carried on sediment, validated against flume and field data.</p>
+      </div>
+      <div class="card">
+        <span class="badge standard">In progress</span>
+        <h3>1D Routing and FVQual on GPUs</h3>
+        <p>The 2D surface already runs on Kokkos OpenMP, CUDA, HIP and SYCL plugins. Device backends for 1D routing are being implemented and qualified, and FVQual's Kokkos kernels still need GPU qualification.</p>
+      </div>
+      <div class="card">
+        <span class="badge standard">In progress</span>
+        <h3>Uncertainty Quantification Sidecar</h3>
+        <p>Spectral and 1D network reduced-order models, spatial random fields and cross-layer coupling for propagating parameter and forcing uncertainty at practical cost. Under development on a feature branch, with a paper in preparation.</p>
       </div>
       <div class="card">
         <span class="badge planned">Planned</span>
-        <h3>Two-way Hydraulic Coupling</h3>
-        <p>General hydraulic boundary ports on the engine component, and hydraulic feedback from FVQual's receiving water to SWMM outfalls.</p>
+        <h3>Richer Component Boundaries</h3>
+        <p>MSX species, heat and two-way hydraulic feedback across component boundaries, between split engine instances and with receiving-water models such as FVQual. Today the boundary carries water, conventional pollutants and sensible heat, one way.</p>
       </div>
       <div class="card">
         <span class="badge planned">Planned</span>
         <h3>Composition Restart</h3>
         <p>Coordinated checkpoint and restart of a whole composition. Each model restarts natively today; a graph of components does not yet.</p>
-      </div>
-      <div class="card">
-        <span class="badge planned">Planned</span>
-        <h3>Uncertainty Quantification Sidecar</h3>
-        <p>Reduced-order models and spatial-field methods for propagating parameter and forcing
-           uncertainty through coupled compositions at practical cost.</p>
       </div>
       <div class="card">
         <span class="badge planned">Planned</span>
