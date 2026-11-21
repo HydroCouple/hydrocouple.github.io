@@ -202,6 +202,49 @@
   </div>
 </section>
 
+<!-- Execution platform -->
+<section id="platform">
+  <div class="container">
+    <div class="section-kicker">Execution platform</div>
+    <h2>Simulations on compute you control</h2>
+    <p class="section-intro">
+      The HydroCouple execution platform runs SWMM simulations and HydroCouple compositions
+      durably on your own infrastructure, for people, the desktop application and AI agents.
+      A control plane decides what runs; an agent in your account or site does the running.
+    </p>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3>Your compute, your data</h3>
+        <p>The control plane records requests, enforces permissions, budgets and approvals, and
+           leases work. An execution agent inside your account or site opens every connection
+           itself, runs work on your scheduler (a local pool or Kubernetes) and writes results to
+           your own storage: S3, Azure Blob Storage, Google Cloud Storage or files.</p>
+      </div>
+      <div class="card">
+        <h3>Runs you can trace and repeat</h3>
+        <p>Runners execute approved, versioned workflows next to the engine. They verify every
+           input, then write a HydroCouple run manifest and an attempt manifest with provenance.
+           Fenced leases let the platform recover from a lost agent without publishing a result
+           twice, and the manifests load into the <span class="code-tag">water-ontology</span>
+           data model.</p>
+      </div>
+      <div class="card">
+        <h3>Studies at scale, for people and agents</h3>
+        <p>Ask-and-tell studies lease candidates in chunks to evaluator pools running
+           <span class="code-tag">openswmm.gymnasium</span> optimizers, keeping lineage and the
+           Pareto set. The same client serves the desktop application, the command line and AI
+           agents working through <span class="code-tag">openswmm.mcp</span>.</p>
+      </div>
+    </div>
+    <p class="mt-3">
+      Built today: the contracts, the durable core, packaging and runners on the real engine,
+      studies with evaluator pools, and Kubernetes installs with modules for AWS, Azure and
+      Google Cloud. Next: the platform toolset for the MCP server.
+    </p>
+    <p class="mt-2"><a href="https://github.com/HydroCouple/hydrocouple.platform">Explore the execution platform →</a></p>
+  </div>
+</section>
+
 <!-- Benchmarking -->
 <section id="benchmarks">
   <div class="container">
