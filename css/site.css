@@ -366,3 +366,39 @@ footer .footer-note { border-top: 1px solid #1c3a55; padding-top: 22px; font-siz
   font-size: 0.86rem; font-weight: 600; padding: 7px 15px; border-radius: 999px;
   background: var(--surface); border: 1px solid var(--line); color: var(--ink-soft);
 }
+
+/* ---------- Sub-tabs (long pages; js/subtabs.js) ---------- */
+/* Hidden without JavaScript, when every section shows. */
+.subtabs { display: none; }
+.has-subtabs .subtabs {
+  display: block;
+  position: sticky; top: 64px; z-index: 90;
+  background: rgba(250, 252, 253, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.subtabs-inner {
+  max-width: 1160px; margin: 0 auto; padding: 0 24px;
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none;
+}
+.subtabs-inner::-webkit-scrollbar { display: none; }
+.subtab {
+  flex: 0 0 auto; margin-bottom: -1px; padding: 13px 14px;
+  background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer;
+  font-family: var(--font-body); font-size: 0.95rem; font-weight: 600; color: var(--ink-soft);
+}
+.subtab:hover { color: var(--primary-deep); }
+.subtab[aria-selected="true"] { color: var(--primary-deep); border-bottom-color: var(--primary); }
+.subtab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 6px; }
+.has-subtabs .subtab-panel [id] { scroll-margin-top: 128px; }
+
+/* ---------- Page switcher (pages that belong together, e.g. the Ecosystem pages) ---------- */
+.page-switch { padding: 18px 0 6px; }
+.page-switch-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.page-switch-links a {
+  padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px;
+  font-size: 0.93rem; font-weight: 600; color: var(--ink-soft); background: var(--surface);
+}
+.page-switch-links a:hover { color: var(--primary-deep); border-color: var(--primary); }
+.page-switch-links a.active { color: #fff; background: var(--primary); border-color: var(--primary); }

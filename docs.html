@@ -33,6 +33,7 @@
     }
     .doc-links li .soon .kind { font-size: 0.75rem; font-weight: 400; white-space: nowrap; }
   </style>
+<script src="js/subtabs.js" defer></script>
 </head>
 <body>
 
@@ -67,6 +68,15 @@
   </svg>
 </header>
 
+<nav class="subtabs" data-subtabs aria-label="Sections of this page">
+  <div class="subtabs-inner" role="tablist">
+    <button class="subtab" type="button" role="tab" id="subtab-framework" data-tab="framework" aria-controls="panel-framework" aria-selected="true">Framework</button>
+    <button class="subtab" type="button" role="tab" id="subtab-openswmm" data-tab="openswmm" aria-controls="panel-openswmm" aria-selected="false">OpenSWMM</button>
+    <button class="subtab" type="button" role="tab" id="subtab-libraries" data-tab="libraries" aria-controls="panel-libraries" aria-selected="false">Platform &amp; libraries</button>
+  </div>
+</nav>
+
+<div class="subtab-panel" role="tabpanel" id="panel-framework" data-tab="framework" aria-labelledby="subtab-framework">
 <section>
   <div class="container">
     <div class="section-kicker">The standard</div>
@@ -134,7 +144,9 @@
     </div>
   </div>
 </section>
+</div>
 
+<div class="subtab-panel" role="tabpanel" id="panel-openswmm" data-tab="openswmm" aria-labelledby="subtab-openswmm">
 <section class="alt">
   <div class="container">
     <div class="section-kicker">The flagship</div>
@@ -279,7 +291,9 @@
 
   </div>
 </section>
+</div>
 
+<div class="subtab-panel" role="tabpanel" id="panel-libraries" data-tab="libraries" aria-labelledby="subtab-libraries">
 <section>
   <div class="container">
     <div class="section-kicker">Platform, data and libraries</div>
@@ -371,6 +385,7 @@
     </p>
   </div>
 </section>
+</div>
 
 <footer>
   <div class="container">

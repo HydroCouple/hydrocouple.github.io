@@ -10,6 +10,16 @@
   <link href="css/fonts.css" rel="stylesheet">
   <link href="css/site.css" rel="stylesheet">
   <link href="css/ecosystem.css" rel="stylesheet">
+<script src="js/subtabs.js" defer></script>
+<script>
+  // Sections that moved to the other Ecosystem pages: forward their old links.
+  (function () {
+    var moved = { ai: "ecosystem-platform.html#ai", platform: "ecosystem-platform.html#platform",
+                  planned: "ecosystem-components.html#planned" };
+    var target = moved[location.hash.slice(1)];
+    if (target) location.replace(target);
+  })();
+</script>
 </head>
 <body class="ecosystem-page">
 
@@ -40,7 +50,7 @@
     </p>
     <div class="hero-actions">
       <a class="btn btn-solid" href="https://github.com/HydroCouple/openswmm.engine">Get the Engine</a>
-      <a class="btn btn-ghost" href="#planned">See What's Planned</a>
+      <a class="btn btn-ghost" href="ecosystem-components.html#planned">See What's Planned</a>
     </div>
   </div>
   <svg class="hero-wave" viewBox="0 0 1440 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
@@ -48,6 +58,25 @@
   </svg>
 </header>
 
+<nav class="page-switch" aria-label="Ecosystem pages">
+  <div class="container">
+    <div class="page-switch-links">
+      <a href="ecosystem.html" class="active" aria-current="page">OpenSWMM</a>
+      <a href="ecosystem-platform.html">AI &amp; platform</a>
+      <a href="ecosystem-components.html">Components</a>
+    </div>
+  </div>
+</nav>
+
+<nav class="subtabs" data-subtabs aria-label="Sections of this page">
+  <div class="subtabs-inner" role="tablist">
+    <button class="subtab" type="button" role="tab" id="subtab-overview" data-tab="overview" aria-controls="panel-overview" aria-selected="true">Overview</button>
+    <button class="subtab" type="button" role="tab" id="subtab-in-action" data-tab="in-action" aria-controls="panel-in-action" aria-selected="false">In action</button>
+    <button class="subtab" type="button" role="tab" id="subtab-verification" data-tab="verification" aria-controls="panel-verification" aria-selected="false">Verification</button>
+  </div>
+</nav>
+
+<div class="subtab-panel" role="tabpanel" id="panel-overview" data-tab="overview" aria-labelledby="subtab-overview">
 <!-- Flagship -->
 <section>
   <div class="container">
@@ -125,41 +154,9 @@
     </div>
   </div>
 </section>
+</div>
 
-<!-- AI + water modeling -->
-<section id="ai">
-  <div class="container">
-    <div class="section-kicker">Artificial intelligence</div>
-    <h2>AI and physics, coupled</h2>
-    <p class="section-intro">
-      AI multiplies physics-based modeling. The ecosystem is built so the
-      two reinforce each other: agents operate the models, learning algorithms control the
-      infrastructure, and the physics engines supply the trustworthy, mass-conserving simulation
-      that AI needs to train against and be checked by.
-    </p>
-    <div class="grid cols-3">
-      <div class="card">
-        <h3>Agents that build and run models</h3>
-        <p>Through <span class="code-tag">openswmm.mcp</span>, AI agents assemble networks, edit
-           parameters, run simulations, and interrogate results over the Model Context Protocol: expert modeling workflows expressed in plain language.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.mcp">Explore the MCP tooling →</a></p>
-      </div>
-      <div class="card">
-        <h3>Controlling infrastructure in real time</h3>
-        <p>With <span class="code-tag">openswmm.gymnasium</span>, real-time control policies
-           train against the engine to operate gates, pumps, and storage: smart stormwater control grounded in full hydraulic physics.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.gymnasium">Explore the control environments →</a></p>
-      </div>
-      <div class="card">
-        <h3>Physics that keeps AI honest</h3>
-        <p>Surrogates, forecasts, and learned policies are only as good as their ground truth.
-           A reentrant, benchmarked, mass-conserving engine, cloneable for ensembles through the HydroCouple interfaces, is the reference AI is validated against.</p>
-        <p class="mt-2"><a href="standards.html">How the interfaces enable it →</a></p>
-      </div>
-    </div>
-  </div>
-</section>
-
+<div class="subtab-panel" role="tabpanel" id="panel-in-action" data-tab="in-action" aria-labelledby="subtab-in-action">
 <!-- In action / screenshots -->
 <section class="alt">
   <div class="container">
@@ -201,50 +198,9 @@
     </div>
   </div>
 </section>
+</div>
 
-<!-- Execution platform -->
-<section id="platform">
-  <div class="container">
-    <div class="section-kicker">Execution platform</div>
-    <h2>Simulations on compute you control</h2>
-    <p class="section-intro">
-      The HydroCouple execution platform runs SWMM simulations and HydroCouple compositions
-      durably on your own infrastructure, for people, the desktop application and AI agents.
-      A control plane decides what runs; an agent in your account or site does the running.
-    </p>
-    <div class="grid cols-3">
-      <div class="card">
-        <h3>Your compute, your data</h3>
-        <p>The control plane records requests, enforces permissions, budgets and approvals, and
-           leases work. An execution agent inside your account or site opens every connection
-           itself, runs work on your scheduler (a local pool or Kubernetes) and writes results to
-           your own storage: S3, Azure Blob Storage, Google Cloud Storage or files.</p>
-      </div>
-      <div class="card">
-        <h3>Runs you can trace and repeat</h3>
-        <p>Runners execute approved, versioned workflows next to the engine. They verify every
-           input, then write a HydroCouple run manifest and an attempt manifest with provenance.
-           Fenced leases let the platform recover from a lost agent without publishing a result
-           twice, and the manifests load into the <span class="code-tag">water-ontology</span>
-           data model.</p>
-      </div>
-      <div class="card">
-        <h3>Studies at scale, for people and agents</h3>
-        <p>Ask-and-tell studies lease candidates in chunks to evaluator pools running
-           <span class="code-tag">openswmm.gymnasium</span> optimizers, keeping lineage and the
-           Pareto set. The same client serves the desktop application, the command line and AI
-           agents working through <span class="code-tag">openswmm.mcp</span>.</p>
-      </div>
-    </div>
-    <p class="mt-3">
-      Built today: the contracts, the durable core, packaging and runners on the real engine,
-      studies with evaluator pools, and Kubernetes installs with modules for AWS, Azure and
-      Google Cloud. Next: the platform toolset for the MCP server.
-    </p>
-    <p class="mt-2"><a href="https://github.com/HydroCouple/hydrocouple.platform">Explore the execution platform →</a></p>
-  </div>
-</section>
-
+<div class="subtab-panel" role="tabpanel" id="panel-verification" data-tab="verification" aria-labelledby="subtab-verification">
 <!-- Benchmarking -->
 <section id="benchmarks">
   <div class="container">
@@ -297,229 +253,7 @@
     </div>
   </div>
 </section>
-
-<!-- Coupling figure -->
-<section class="alt">
-  <div class="container">
-    <div class="section-kicker">The vision</div>
-    <h2>One composition, the entire water cycle</h2>
-    <p class="section-intro">
-      Each ring below is a set of processes that exchange fluxes with the sewer and stream network
-      SWMM simulates. Through the HydroCouple interfaces, each becomes a couplable component in a
-      single composition.
-    </p>
-
-    <figure class="figure-block">
-      <svg viewBox="0 0 1000 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Open-Source SWMM at the center of couplable process components">
-        <defs>
-          <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stop-color="#d9edff"/><stop offset="1" stop-color="#fafcfd" stop-opacity="0"/>
-          </radialGradient>
-          <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 z" fill="#0071bf"/>
-          </marker>
-        </defs>
-
-        <circle cx="500" cy="260" r="250" fill="url(#halo)"/>
-
-        <!-- center -->
-        <circle cx="500" cy="260" r="108" fill="#fdf0dc" stroke="#f29f38" stroke-width="3"/>
-        <g text-anchor="middle" font-family="Sora, sans-serif">
-          <text x="500" y="240" font-size="12" font-weight="700" fill="#4a2c00" letter-spacing="1.2">FLAGSHIP</text>
-          <text x="500" y="266" font-size="17" font-weight="800" fill="#0a1c2e">Open-Source</text>
-          <text x="500" y="288" font-size="17" font-weight="800" fill="#0a1c2e">SWMM 6.0 (SWMM2D)</text>
-          <text x="500" y="310" font-size="11.5" fill="#35516b" font-family="Inter, sans-serif">1D · 2D · water quality</text>
-        </g>
-
-        <!-- satellites -->
-        <g font-family="Inter, sans-serif" text-anchor="middle">
-          <!-- top left -->
-          <circle cx="205" cy="105" r="66" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
-          <text x="205" y="98" font-size="13.5" font-weight="600" fill="#0a1c2e">Groundwater</text>
-          <text x="205" y="116" font-size="10.5" fill="#35516b">aquifer exchange</text>
-          <line x1="264" y1="134" x2="404" y2="207" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
-
-          <!-- top -->
-          <circle cx="500" cy="72" r="66" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
-          <text x="500" y="65" font-size="13.5" font-weight="600" fill="#0a1c2e">Snow &amp; Climate</text>
-          <text x="500" y="83" font-size="10.5" fill="#35516b">forcing · melt · PET</text>
-          <line x1="500" y1="138" x2="500" y2="152" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
-
-          <!-- top right -->
-          <circle cx="795" cy="105" r="74" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
-          <text x="795" y="92" font-size="13" font-weight="600" fill="#0a1c2e">Rivers &amp; Estuaries</text>
-          <text x="795" y="110" font-size="10.5" fill="#35516b">temperature · solutes</text>
-          <text x="795" y="126" font-size="10.5" fill="#35516b">FVQual (planned)</text>
-          <line x1="740" y1="138" x2="596" y2="207" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
-
-          <!-- left -->
-          <circle cx="130" cy="300" r="66" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
-          <text x="130" y="293" font-size="13.5" font-weight="600" fill="#0a1c2e">Watershed</text>
-          <text x="130" y="311" font-size="10.5" fill="#35516b">finite volume runoff</text>
-          <line x1="196" y1="290" x2="390" y2="270" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
-
-          <!-- right -->
-          <circle cx="870" cy="300" r="74" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
-          <text x="870" y="287" font-size="13" font-weight="600" fill="#0a1c2e">Lakes &amp; Reservoirs</text>
-          <text x="870" y="305" font-size="12" font-weight="600" fill="#0a1c2e">CE-QUAL-W2</text>
-          <text x="870" y="323" font-size="10.5" fill="#35516b">2D hydro · quality</text>
-          <line x1="796" y1="290" x2="610" y2="270" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
-
-          <!-- bottom left -->
-          <circle cx="285" cy="452" r="62" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
-          <text x="285" y="445" font-size="13.5" font-weight="600" fill="#0a1c2e">Smart Control</text>
-          <text x="285" y="463" font-size="10.5" fill="#35516b">RTC · forecasting</text>
-          <line x1="331" y1="410" x2="428" y2="342" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
-
-          <!-- bottom right -->
-          <circle cx="715" cy="452" r="62" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
-          <text x="715" y="440" font-size="13.5" font-weight="600" fill="#0a1c2e">Calibration &amp; UQ</text>
-          <text x="715" y="458" font-size="10.5" fill="#35516b">ensembles · optimization</text>
-          <text x="715" y="474" font-size="10.5" fill="#35516b">uncertainty</text>
-          <line x1="669" y1="410" x2="572" y2="342" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
-        </g>
-      </svg>
-      <figcaption>
-        Fluxes, states, and controls exchanged through standard interfaces. Every satellite is a
-        component (existing or planned) that couples to the flagship engine without custom glue code.
-      </figcaption>
-    </figure>
-  </div>
-</section>
-
-<!-- Existing HydroCouple components -->
-<section>
-  <div class="container">
-    <div class="section-kicker">Available today</div>
-    <h2>HydroCouple model components</h2>
-    <p class="section-intro">
-      Research-grade components developed and applied in peer-reviewed studies, implementing the HydroCouple interface definitions, spanning watershed runoff to receiving-water quality with CE-QUAL-W2.
-    </p>
-    <div class="grid cols-3">
-      <div class="card">
-        <span class="badge available">Available</span>
-        <h3>SWMM Component</h3>
-        <p>The classic EPA SWMM 5 engine wrapped as a HydroCouple component, the original demonstration of sewer-network coupling.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/SWMMComponent">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge available">Available</span>
-        <h3>Finite Volume Hydrologic Model</h3>
-        <p>A finite-volume watershed model for distributed rainfall–runoff simulation on
-           unstructured meshes.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/FVHMComponent">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge available">Available</span>
-        <h3>Groundwater Component</h3>
-        <p>Vertically averaged groundwater flow for estimating groundwater–surface water
-           exchange with streams and conduits.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/GWComponent">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge available">Available</span>
-        <h3>Channel Solute &amp; Heat Transport</h3>
-        <p>Advection–dispersion of heat and solutes in channel networks, the backbone of the
-           river temperature studies published with the framework.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/CSHComponent">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge available">Available</span>
-        <h3>Hyporheic Transient Storage</h3>
-        <p>Transient storage-zone exchange for stream temperature and solute dynamics in the
-           hyporheic zone.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/HTSComponent">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge available">Available</span>
-        <h3>CE-QUAL-W2 Component</h3>
-        <p>The widely used laterally averaged 2D hydrodynamic and water-quality model for lakes, reservoirs, and estuaries, maintained at Portland State University and wrapped as a couplable component connecting sewershed discharges to receiving-water response.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/CEQUALW2Component">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge available">Available</span>
-        <h3>Workflow &amp; Adapters</h3>
-        <p>Loop-driven time-marching workflows and temporal-interpolation adapted outputs, the plumbing that reconciles components in time.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/LoopDrivenWorkflowComponent">Workflow →</a> ·
-           <a href="https://github.com/HydroCouple/TemporalInterpAdaptedOutputFactoryComponent">Adapters →</a></p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Planned -->
-<section class="alt" id="planned">
-  <div class="container">
-    <div class="section-kicker">Roadmap</div>
-    <h2>Planned couplable components</h2>
-    <p class="section-intro">
-      Development directions recorded in the public roadmap. Planned means planned: designs are studied and sequenced in the open before they are built, and priorities respond to community
-      and utility needs.
-    </p>
-    <div class="grid cols-3">
-      <div class="card">
-        <span class="badge planned">Planned</span>
-        <h3>Spatially Explicit Groundwater</h3>
-        <p>A fully coupled two-layer subsurface kernel on the 2D mesh: moving water table,
-           lateral Darcy exchange, saturation-excess runoff, and head-driven pipe–aquifer
-           exchange.</p>
-      </div>
-      <div class="card">
-        <span class="badge planned">Planned</span>
-        <h3>Uncertainty Quantification Sidecar</h3>
-        <p>Reduced-order models and spatial-field methods for propagating parameter and forcing
-           uncertainty through coupled compositions at practical cost.</p>
-      </div>
-      <div class="card">
-        <span class="badge planned">Planned</span>
-        <h3>FVQual</h3>
-        <p>A fully three-dimensional finite volume hydrodynamic and water-quality model for rivers,
-           estuaries, and stratified waterbodies, designed from the start as a HydroCouple component,
-           so it couples directly with the SWMM2D engine and CE-QUAL-W2 for continuum studies from
-           sewershed to receiving water.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/FVQual">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge planned">Planned</span>
-        <h3>Water Quality Process Library</h3>
-        <p>Extended in-network and surface water-quality process formulations beyond legacy
-           buildup–washoff, exposed as couplable components.</p>
-      </div>
-      <div class="card">
-        <span class="badge planned">Planned</span>
-        <h3>Community Components</h3>
-        <p>Yours. The interface definitions are open: wrap your model, and it couples with
-           everything above.</p>
-        <p class="mt-2"><a href="https://github.com/hydrocouple">Start here →</a></p>
-      </div>
-    </div>
-    <div class="mt-3 center">
-      <a class="btn btn-primary" href="https://github.com/HydroCouple/openswmm.engine/blob/main/ROADMAP.md">Read the Full Roadmap</a>
-    </div>
-  </div>
-</section>
-
-<!-- Legacy tools -->
-<section>
-  <div class="container">
-    <div class="section-kicker">Composition tools</div>
-    <h2>Composer and SDK</h2>
-    <div class="grid cols-2">
-      <div class="card">
-        <h3>HydroCouple Composer</h3>
-        <p>A graphical environment for assembling coupled compositions: drag components onto a
-           canvas, wire their exchange items, and execute.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/HydroCoupleComposer">Source →</a> ·
-           <a href="https://github.com/HydroCouple/HydroCoupleComposer/releases">Installers →</a></p>
-      </div>
-      <div class="card">
-        <h3>HydroCouple SDK</h3>
-        <p>The C++ software development kit for building conforming components, with base implementations of the interface definitions so wrapping a model starts from working code.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/HydroCoupleSDK">Source →</a></p>
-      </div>
-    </div>
-  </div>
-</section>
+</div>
 
 <footer>
   <div class="container">
