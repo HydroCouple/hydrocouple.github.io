@@ -35,7 +35,7 @@
     <span class="hero-kicker">Ecosystem · Components</span>
     <h1>Components for the whole water cycle</h1>
     <p class="lede">
-      Couplable components around the SWMM engine, from watersheds and aquifers to streams, lakes and estuaries, and the tools for composing them.
+      The OpenSWMM engine, which now computes 2D overland flow, groundwater, heat and multi-species transport itself, and FVQual for rivers, lakes and estuaries, both published as couplable components, with the tools for composing them.
     </p>
     <div class="hero-actions">
       <a class="btn btn-solid" href="#available">Available Today</a>
@@ -74,8 +74,9 @@
     <h2>One composition, the entire water cycle</h2>
     <p class="section-intro">
       Each ring below is a set of processes that exchange fluxes with the sewer and stream network
-      SWMM simulates. Through the HydroCouple interfaces, each becomes a couplable component in a
-      single composition.
+      SWMM simulates. The engine now computes several of them itself: 2D overland flow, groundwater,
+      snowmelt, heat and multi-species transport. The rest couple to it through the HydroCouple
+      interfaces as separate components or platform services in a single composition.
     </p>
 
     <figure class="figure-block">
@@ -97,41 +98,45 @@
           <text x="500" y="240" font-size="12" font-weight="700" fill="#4a2c00" letter-spacing="1.2">FLAGSHIP</text>
           <text x="500" y="266" font-size="17" font-weight="800" fill="#0a1c2e">Open-Source</text>
           <text x="500" y="288" font-size="17" font-weight="800" fill="#0a1c2e">SWMM 6.0 (SWMM2D)</text>
-          <text x="500" y="310" font-size="11.5" fill="#35516b" font-family="Inter, sans-serif">1D · 2D · water quality</text>
+          <text x="500" y="310" font-size="11.5" fill="#35516b" font-family="Inter, sans-serif">1D · 2D · groundwater</text>
+          <text x="500" y="326" font-size="11.5" fill="#35516b" font-family="Inter, sans-serif">heat · multi-species</text>
         </g>
 
         <!-- satellites -->
         <g font-family="Inter, sans-serif" text-anchor="middle">
           <!-- top left -->
-          <circle cx="205" cy="105" r="66" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
-          <text x="205" y="98" font-size="13.5" font-weight="600" fill="#0a1c2e">Groundwater</text>
-          <text x="205" y="116" font-size="10.5" fill="#35516b">aquifer exchange</text>
+          <circle cx="205" cy="105" r="66" fill="#ffffff" stroke="#f29f38" stroke-width="1.8" stroke-dasharray="5 4"/>
+          <text x="205" y="94" font-size="13.5" font-weight="600" fill="#0a1c2e">Groundwater</text>
+          <text x="205" y="112" font-size="10.5" fill="#35516b">mesh aquifers</text>
+          <text x="205" y="128" font-size="10.5" font-weight="600" fill="#8a5300">in the engine</text>
           <line x1="264" y1="134" x2="404" y2="207" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
 
           <!-- top -->
-          <circle cx="500" cy="72" r="66" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
-          <text x="500" y="65" font-size="13.5" font-weight="600" fill="#0a1c2e">Snow &amp; Climate</text>
-          <text x="500" y="83" font-size="10.5" fill="#35516b">forcing · melt · PET</text>
+          <circle cx="500" cy="72" r="66" fill="#ffffff" stroke="#f29f38" stroke-width="1.8" stroke-dasharray="5 4"/>
+          <text x="500" y="61" font-size="13.5" font-weight="600" fill="#0a1c2e">Snow &amp; Climate</text>
+          <text x="500" y="79" font-size="10.5" fill="#35516b">forcing · melt · PET</text>
+          <text x="500" y="95" font-size="10.5" font-weight="600" fill="#8a5300">in the engine</text>
           <line x1="500" y1="138" x2="500" y2="152" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
 
           <!-- top right -->
           <circle cx="795" cy="105" r="74" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
           <text x="795" y="92" font-size="13" font-weight="600" fill="#0a1c2e">Rivers &amp; Estuaries</text>
           <text x="795" y="110" font-size="10.5" fill="#35516b">temperature · solutes</text>
-          <text x="795" y="126" font-size="10.5" fill="#35516b">FVQual (planned)</text>
+          <text x="795" y="126" font-size="10.5" fill="#35516b">FVQual</text>
           <line x1="740" y1="138" x2="596" y2="207" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
 
           <!-- left -->
-          <circle cx="130" cy="300" r="66" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
-          <text x="130" y="293" font-size="13.5" font-weight="600" fill="#0a1c2e">Watershed</text>
-          <text x="130" y="311" font-size="10.5" fill="#35516b">finite volume runoff</text>
+          <circle cx="130" cy="300" r="66" fill="#ffffff" stroke="#f29f38" stroke-width="1.8" stroke-dasharray="5 4"/>
+          <text x="130" y="289" font-size="13.5" font-weight="600" fill="#0a1c2e">Watershed</text>
+          <text x="130" y="307" font-size="10.5" fill="#35516b">2D overland runoff</text>
+          <text x="130" y="323" font-size="10.5" font-weight="600" fill="#8a5300">in the engine</text>
           <line x1="196" y1="290" x2="390" y2="270" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
 
           <!-- right -->
           <circle cx="870" cy="300" r="74" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5"/>
           <text x="870" y="287" font-size="13" font-weight="600" fill="#0a1c2e">Lakes &amp; Reservoirs</text>
-          <text x="870" y="305" font-size="12" font-weight="600" fill="#0a1c2e">CE-QUAL-W2</text>
-          <text x="870" y="323" font-size="10.5" fill="#35516b">2D hydro · quality</text>
+          <text x="870" y="305" font-size="12" font-weight="600" fill="#0a1c2e">FVQual</text>
+          <text x="870" y="323" font-size="10.5" fill="#35516b">3D hydro · quality</text>
           <line x1="796" y1="290" x2="610" y2="270" stroke="#0071bf" stroke-width="1.8" marker-end="url(#arr3)"/>
 
           <!-- bottom left -->
@@ -149,8 +154,9 @@
         </g>
       </svg>
       <figcaption>
-        Fluxes, states, and controls exchanged through standard interfaces. Every satellite is a
-        component (existing or planned) that couples to the flagship engine without custom glue code.
+        Fluxes, states, and controls exchanged through standard interfaces. Dashed orange rings are
+        processes the engine now computes itself; the solid rings couple to it as separate components
+        or platform services, existing or planned, without custom glue code.
       </figcaption>
     </figure>
   </div>
@@ -158,63 +164,62 @@
 </div>
 
 <div class="subtab-panel" role="tabpanel" id="panel-available" data-tab="available" aria-labelledby="subtab-available">
-<!-- Existing HydroCouple components -->
+<!-- Components available today -->
 <section>
   <div class="container">
     <div class="section-kicker">Available today</div>
-    <h2>HydroCouple model components</h2>
+    <h2>Two models, published as components</h2>
     <p class="section-intro">
-      Research-grade components developed and applied in peer-reviewed studies, implementing the HydroCouple interface definitions, spanning watershed runoff to receiving-water quality with CE-QUAL-W2.
+      Development centers on two models: the OpenSWMM engine and FVQual. The engine now computes the processes that separate components once supplied (2D overland flow, groundwater, heat and multi-species transport) and publishes itself as HydroCouple components, so those processes still take part in a composition. Each card says where the process runs and what crosses a component boundary today.
     </p>
     <div class="grid cols-3">
       <div class="card">
         <span class="badge available">Available</span>
-        <h3>SWMM Component</h3>
-        <p>The classic EPA SWMM 5 engine wrapped as a HydroCouple component, the original demonstration of sewer-network coupling.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/SWMMComponent">Source →</a></p>
+        <h3>OpenSWMM Engine Component</h3>
+        <p>Published as <code>org.hydrocouple.openswmm.engine</code>. It runs a complete model or a network only, or splits one model into network and surface instances that exchange water through a versioned phase contract. Qualified on the CPU; restarting a whole composition is still open.</p>
+        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.engine/blob/swmm6_rel/docs/COMPONENT_ENGINE.md">Component contract →</a></p>
       </div>
       <div class="card">
         <span class="badge available">Available</span>
-        <h3>Finite Volume Hydrologic Model</h3>
-        <p>A finite-volume watershed model for distributed rainfall–runoff simulation on
-           unstructured meshes.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/FVHMComponent">Source →</a></p>
+        <h3>2D Overland Flow &amp; Groundwater</h3>
+        <p>The engine component's <code>integrated2d</code> role runs the 2D surface and mesh groundwater as their own component beside a network instance. They exchange node and surface water, groundwater seepage at nodes and conduits, and joint Richards columns. Water only, and surface and groundwater stay one integrated component.</p>
+        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.engine/blob/swmm6_rel/docs/SPLIT_WATER_PACKET.md">Water phase contract →</a></p>
+      </div>
+      <div class="card">
+        <span class="badge flagship-badge">In the engine</span>
+        <h3>Heat Transport</h3>
+        <p>A process component, <code>org.hydrocouple.openswmm.heat</code>, switched on in <code>[PROCESS_COMPONENTS]</code> with its own configuration file and computed inside the engine's time step. Heat crosses a component boundary as sensible enthalpy at outfalls.</p>
+      </div>
+      <div class="card">
+        <span class="badge flagship-badge">In the engine</span>
+        <h3>Multi-species Reactions &amp; Transport</h3>
+        <p>Process components for multi-species reactions (EPANET-MSX conventions), Eulerian advection–reaction–dispersion transport and water age, computed inside the engine. Pollutant mass crosses a component boundary at outfalls, and one passive pollutant can pass between split network and surface instances; MSX species do not cross it yet.</p>
       </div>
       <div class="card">
         <span class="badge available">Available</span>
-        <h3>Groundwater Component</h3>
-        <p>Vertically averaged groundwater flow for estimating groundwater–surface water
-           exchange with streams and conduits.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/GWComponent">Source →</a></p>
+        <h3>Outfall Interval Transfer</h3>
+        <p><code>hydrocouple.interval-transfer/1</code> moves water, pollutant mass and sensible heat from SWMM outfalls to one receiving component, conserved over each exchange interval. It is the path from the sewer network into a receiving-water model such as FVQual.</p>
+        <p class="mt-2"><a href="https://github.com/HydroCouple/openswmm.engine/blob/swmm6_rel/docs/HYDROCOUPLE_HOSTING.md">Transfer profile →</a></p>
       </div>
       <div class="card">
-        <span class="badge available">Available</span>
-        <h3>Channel Solute &amp; Heat Transport</h3>
-        <p>Advection–dispersion of heat and solutes in channel networks, the backbone of the
-           river temperature studies published with the framework.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/CSHComponent">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge available">Available</span>
-        <h3>Hyporheic Transient Storage</h3>
-        <p>Transient storage-zone exchange for stream temperature and solute dynamics in the
-           hyporheic zone.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/HTSComponent">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge available">Available</span>
-        <h3>CE-QUAL-W2 Component</h3>
-        <p>The widely used laterally averaged 2D hydrodynamic and water-quality model for lakes, reservoirs, and estuaries, maintained at Portland State University and wrapped as a couplable component connecting sewershed discharges to receiving-water response.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/CEQUALW2Component">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge available">Available</span>
-        <h3>Workflow &amp; Adapters</h3>
-        <p>Loop-driven time-marching workflows and temporal-interpolation adapted outputs, the plumbing that reconciles components in time.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/LoopDrivenWorkflowComponent">Workflow →</a> ·
-           <a href="https://github.com/HydroCouple/TemporalInterpAdaptedOutputFactoryComponent">Adapters →</a></p>
+        <span class="badge available">Pre-alpha</span>
+        <h3>FVQual</h3>
+        <p>A three-dimensional unstructured finite-volume hydrodynamic and water-quality model for rivers, lakes, reservoirs and estuaries, built as a HydroCouple component and the successor to CE-QUAL-W2. Its coupling to SWMM outfalls is qualified through Composer on synthetic heat and species cases and a Bellinge storm event; hydraulic feedback to SWMM is still open.</p>
+        <p class="mt-2"><a href="https://github.com/HydroCouple/FVQual">Source →</a></p>
       </div>
     </div>
+    <p class="mt-3">
+      <strong>Earlier components, no longer developed.</strong> The first-generation components are deprecated:
+      the <a href="https://github.com/HydroCouple/SWMMComponent">EPA SWMM 5 wrapper</a>,
+      the <a href="https://github.com/HydroCouple/FVHMComponent">finite-volume hydrologic model</a>,
+      the <a href="https://github.com/HydroCouple/GWComponent">groundwater component</a>,
+      <a href="https://github.com/HydroCouple/CSHComponent">channel solute and heat transport</a>,
+      <a href="https://github.com/HydroCouple/HTSComponent">hyporheic transient storage</a>,
+      the <a href="https://github.com/HydroCouple/CEQUALW2Component">CE-QUAL-W2 wrapper</a>, and the
+      <a href="https://github.com/HydroCouple/LoopDrivenWorkflowComponent">loop-driven workflow</a> and
+      <a href="https://github.com/HydroCouple/TInterpAdaptedOutputFactoryComponent">temporal adapters</a>.
+      Their repositories stay online for the published studies that used them.
+    </p>
   </div>
 </section>
 </div>
@@ -224,7 +229,7 @@
 <section class="alt" id="planned">
   <div class="container">
     <div class="section-kicker">Roadmap</div>
-    <h2>Planned couplable components</h2>
+    <h2>Planned component work</h2>
     <p class="section-intro">
       Development directions recorded in the public roadmap. Planned means planned: designs are studied and sequenced in the open before they are built, and priorities respond to community
       and utility needs.
@@ -232,10 +237,18 @@
     <div class="grid cols-3">
       <div class="card">
         <span class="badge planned">Planned</span>
-        <h3>Spatially Explicit Groundwater</h3>
-        <p>A fully coupled two-layer subsurface kernel on the 2D mesh: moving water table,
-           lateral Darcy exchange, saturation-excess runoff, and head-driven pipe–aquifer
-           exchange.</p>
+        <h3>Heat &amp; Species Across Components</h3>
+        <p>Carry heat and multi-species (MSX) material between split network and surface instances, not only water and one passive pollutant.</p>
+      </div>
+      <div class="card">
+        <span class="badge planned">Planned</span>
+        <h3>Two-way Hydraulic Coupling</h3>
+        <p>General hydraulic boundary ports on the engine component, and hydraulic feedback from FVQual's receiving water to SWMM outfalls.</p>
+      </div>
+      <div class="card">
+        <span class="badge planned">Planned</span>
+        <h3>Composition Restart</h3>
+        <p>Coordinated checkpoint and restart of a whole composition. Each model restarts natively today; a graph of components does not yet.</p>
       </div>
       <div class="card">
         <span class="badge planned">Planned</span>
@@ -245,29 +258,14 @@
       </div>
       <div class="card">
         <span class="badge planned">Planned</span>
-        <h3>FVQual</h3>
-        <p>A fully three-dimensional finite volume hydrodynamic and water-quality model for rivers,
-           estuaries, and stratified waterbodies, designed from the start as a HydroCouple component,
-           so it couples directly with the SWMM2D engine and CE-QUAL-W2 for continuum studies from
-           sewershed to receiving water.</p>
-        <p class="mt-2"><a href="https://github.com/HydroCouple/FVQual">Source →</a></p>
-      </div>
-      <div class="card">
-        <span class="badge planned">Planned</span>
-        <h3>Water Quality Process Library</h3>
-        <p>Extended in-network and surface water-quality process formulations beyond legacy
-           buildup–washoff, exposed as couplable components.</p>
-      </div>
-      <div class="card">
-        <span class="badge planned">Planned</span>
         <h3>Community Components</h3>
-        <p>Yours. The interface definitions are open: wrap your model, and it couples with
-           everything above.</p>
+        <p>Yours. The interface definitions are open: wrap your model, and it couples with the
+           engine and FVQual.</p>
         <p class="mt-2"><a href="https://github.com/hydrocouple">Start here →</a></p>
       </div>
     </div>
     <div class="mt-3 center">
-      <a class="btn btn-primary" href="https://github.com/HydroCouple/openswmm.engine/blob/main/ROADMAP.md">Read the Full Roadmap</a>
+      <a class="btn btn-primary" href="https://github.com/HydroCouple/openswmm.engine/blob/swmm6_rel/ROADMAP.md">Read the Full Roadmap</a>
     </div>
   </div>
 </section>
