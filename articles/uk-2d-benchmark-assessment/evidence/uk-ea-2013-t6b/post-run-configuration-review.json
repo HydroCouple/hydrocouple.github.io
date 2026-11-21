@@ -1,6 +1,0 @@
-{
-  "scope": "Case metadata now explicitly documents the source-elevation conflict and user-selected written specification. Hydraulic input bytes and numerical parameters are identical to the executed input. Original executed case.json and manifest hashes are preserved.",
-  "model_sha256": "cee692cb474b8dc49ef4eaa95e2b78d50b1112799a024097dc831c285e253fed",
-  "current_corpus_case_sha256": "68cc801f82970cf10691904eb09ff661a90b1376cf84f3b643799ef58c2c1b84",
-  "executed_case_sha256": "a390253d3aeb13a1b27518cc08954e75a213d78890d9c758e180bcc4f5eee374"
-}

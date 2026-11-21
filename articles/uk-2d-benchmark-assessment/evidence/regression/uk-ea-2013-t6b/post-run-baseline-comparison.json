@@ -1,9 +1,0 @@
-{
-  "compared_utc": "2026-10-24T19:56:55.448643+00:00",
-  "scope": "The independent full-duration 6B repeat finished before its first-run anchor was reviewed. Only the saved-data baseline comparison is performed here; no simulation is relabelled or re-executed. Original unavailable-baseline metrics and coverage error are preserved in comparison-history.",
-  "repeat_data_sha256": "18efe2e6c1bcc75d906dfb3e8c1608f90a5745558ed67ec81959ce2aa03d8ea3",
-  "baseline_manifest_sha256": "dd0b013c3d2e6801e86f73e235e59f27cde58e6097611ccaec427f2e449dc9fe",
-  "original_scores_sha256": "ce0742bad6580fc4586e77e51eda35fba9ca1970ef527d304d6fd0d9b233f5c9",
-  "result": "BASELINE-PASS",
-  "max_absolute_change": 0.0
-}

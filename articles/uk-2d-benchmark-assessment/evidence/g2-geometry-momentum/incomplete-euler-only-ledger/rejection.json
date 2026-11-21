@@ -1,5 +1,0 @@
-{
-  "reason": "Euler-stage receipts omitted the final accepted RK2 dry reset. This is incomplete diagnostic instrumentation, not a solver-physics failure.",
-  "max_unaccounted_momentum_m4_s": 0.00010756115826726642,
-  "action": "Add the exact existing final-reset receipt, retain all old results, require amended-enabled fields to match original enabled fields bit for bit."
-}

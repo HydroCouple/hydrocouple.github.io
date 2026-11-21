@@ -1,8 +1,0 @@
-{
-  "state": "COMPLETE",
-  "checks": {
-    "nonnegative_depth": true,
-    "continuity": true,
-    "independent_volume": true
-  }
-}

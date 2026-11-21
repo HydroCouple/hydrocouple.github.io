@@ -1,1 +1,0 @@
-Test 4 attempted at the prescribed spacing and duration on the clean base engine. The process was stopped by the 1,200-second wall-time limit before the full simulated duration. No partial fields are graded as a complete result. The subsequent output-cache correction does not change the solver advance; the canonical case remains deferred at the assessment budget.

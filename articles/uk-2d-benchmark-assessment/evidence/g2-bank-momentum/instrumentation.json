@@ -1,6 +1,0 @@
-{
-  "source_copy": "/Users/calebbuahin/Documents/Projects/cbuahin_github/openswmm.engine/tests/verification/g2_bank_momentum_2026-10-26/source",
-  "original_cpp_sha256": "c8124296eb21b358590493aa016ebccd4cafd2d3abdff38e522e169db88a9271",
-  "instrumented_cpp_sha256": "b042d5abe497d6dda3dcb1a5fe4a81cc9fd2f7f9679212362281420bba5bd9c0",
-  "qualification": "Unqualified until enabled/disabled/frozen field identity checks; no product edit. Centered advective and pressure face terms are a defined diagnostic split, remainder includes Riemann upwinding and is not uniquely an energy dissipation."
-}

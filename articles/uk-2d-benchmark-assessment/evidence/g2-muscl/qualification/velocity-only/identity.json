@@ -1,9 +1,0 @@
-{
-  "mode": "velocity-only",
-  "executable_sha256": "66412262eb001cafe210e670c55df97e086f8d68c75c02a1132390155dc22e69",
-  "library_sha256": "78868cd7f473c7992b0ccfc95e521b27612368caf8047368a10a66212f99ac8f",
-  "native_sha256": "fde51b91ca2c4c4eb723a7bdc5f6105d942f4724b5d6f8573552f2897b3b8254",
-  "environment": {
-    "OPENSWMM_G2_RECONSTRUCTION": "velocity-only"
-  }
-}
