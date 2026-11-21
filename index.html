@@ -34,24 +34,33 @@
       <span class="hero-kicker">Open standards · Open engines · AI-ready</span>
       <h1>Digital public water infrastructure, built in the open and ready for AI</h1>
     </div>
+    <div class="hero-row">
     <figure class="hero-media">
-      <img src="img/screenshots/openswmm_gui_hero.jpg"
-           alt="Open-Source SWMM 6.0 GUI showing a coupled 1D and 2D flood simulation over aerial imagery of the Bellinge catchment, with velocity vectors, a conduit profile view, and a live attribute table">
+      <video class="hero-video" autoplay loop muted playsinline preload="metadata"
+             poster="img/screenshots/openswmm_gui_hero_poster.jpg"
+             aria-label="Open-Source SWMM 6.0 GUI animating a coupled 1D and 2D flood simulation of the Bellinge catchment over aerial imagery: flow streaks and flood depths on the map, a pipe section view, and a sewer profile filling as the storm passes">
+        <source src="img/screenshots/openswmm_gui_hero.mp4" type="video/mp4">
+        <img src="img/screenshots/openswmm_gui_hero_poster.jpg" alt="Open-Source SWMM 6.0 GUI animating a coupled 1D and 2D flood simulation of the Bellinge catchment over aerial imagery: flow streaks and flood depths on the map, a pipe section view, and a sewer profile filling as the storm passes">
+      </video>
+      <script>
+        // Respect a reduced-motion preference: show the still poster instead of playing.
+        (function () {
+          var v = document.currentScript.previousElementSibling;
+          if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            v.removeAttribute("autoplay"); v.pause(); v.controls = true;
+          }
+        })();
+      </script>
       <figcaption class="hero-tagline">Enabling architectures that spur innovation in water modeling</figcaption>
     </figure>
+    <ul class="hero-points">
+      <li><strong>Open standards</strong>Interface definitions and data standards that let water models connect.</li>
+      <li><strong>One water cycle</strong>Watersheds, aquifers, sewers, streams and receiving waters in a single composable model.</li>
+      <li><strong>Flagship engine</strong>Open&#8209;Source SWMM&nbsp;6.0 (SWMM2D), a HydroCouple initiative.</li>
+      <li><strong>Ready for AI</strong>Standard interfaces let anyone add components, science, tools and artificial intelligence.</li>
+    </ul>
+    </div>
     <div class="hero-copy">
-      <p class="lede">
-        The water systems that protect our communities are increasingly managed through models of
-        rainfall, runoff, pipes, streams, and aquifers. HydroCouple develops the enabling
-        architectures of the digital water transformation: open interface definitions, data
-        standards, and computational engines that let these models connect into a single,
-        composable representation of the entire water cycle, from watersheds and aquifers to
-        sewers, streams, and receiving waters.
-        <strong>Open-Source&nbsp;SWMM&nbsp;6.0&nbsp;(SWMM2D)</strong>, a HydroCouple initiative,
-        is the flagship engine. Because the whole stack speaks standard interfaces, anyone can
-        build on it: new components, new science, new tools, and
-        <strong>artificial intelligence</strong> in modeling, operations, and control.
-      </p>
       <div class="hero-actions">
         <a class="btn btn-solid" href="ecosystem.html">Explore the Ecosystem</a>
         <a class="btn btn-ghost" href="standards.html">Read the Standards</a>
@@ -105,133 +114,137 @@
     <div class="section-kicker">The architecture</div>
     <h2>Interface definitions are the glue</h2>
     <p class="section-intro">
-      Every component in the ecosystem (hydrologic, hydraulic, water quality, groundwater) implements the same HydroCouple interface definitions. That common contract is what turns
+      Every component in the ecosystem implements the same HydroCouple interface definitions. That common contract is what turns
       a collection of independent codes into an integrated digital representation of public
       water infrastructure. Open-Source SWMM sits at the center; the interfaces make the coupling possible.
     </p>
 
     <figure class="figure-block">
-      <svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HydroCouple architecture: models connected through the HydroCouple interface layer with Open-Source SWMM at the center">
+      <svg viewBox="0 0 1000 572" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HydroCouple architecture: data sources feed the HydroCouple interface definitions, which connect the Open-Source SWMM engine, FVQual and community components, supporting planning, operations and compliance">
         <defs>
-          <linearGradient id="glueGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#0071bf"/><stop offset="1" stop-color="#0096ff"/>
+          <linearGradient id="glueGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#005a9c"/><stop offset="1" stop-color="#1a8ae0"/>
           </linearGradient>
           <linearGradient id="swmmGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#fdf0dc"/><stop offset="1" stop-color="#fbe3bd"/>
+            <stop offset="0" stop-color="#fff7ea"/><stop offset="1" stop-color="#fdebcf"/>
           </linearGradient>
-          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 z" fill="#35516b"/>
+          <filter id="soft" x="-10%" y="-20%" width="120%" height="150%">
+            <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0a2a4a" flood-opacity="0.10"/>
+          </filter>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M1,1 L9,5 L1,9" fill="none" stroke="#5b7790" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arrowFlag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M1,1 L9,5 L1,9" fill="none" stroke="#d98518" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </marker>
         </defs>
 
-        <!-- Row: upstream data sources -->
-        <g font-family="Inter, sans-serif" font-size="15" text-anchor="middle">
-          <rect x="30"  y="30" width="210" height="58" rx="10" fill="#eef5fb" stroke="#d7e5f0"/>
-          <text x="135" y="55" fill="#0a1c2e" font-weight="600">Sensors &amp; SCADA</text>
-          <text x="135" y="76" fill="#35516b" font-size="12">rain gages · level · flow</text>
-
-          <rect x="245" y="30" width="210" height="58" rx="10" fill="#eef5fb" stroke="#d7e5f0"/>
-          <text x="350" y="55" fill="#0a1c2e" font-weight="600">Climate Forcing</text>
-          <text x="350" y="76" fill="#35516b" font-size="12">reanalysis · forecasts · scenarios</text>
-
-          <rect x="460" y="30" width="210" height="58" rx="10" fill="#eef5fb" stroke="#d7e5f0"/>
-          <text x="565" y="55" fill="#0a1c2e" font-weight="600">GIS &amp; Asset Data</text>
-          <text x="565" y="76" fill="#35516b" font-size="12">networks · terrain · land use</text>
-
-          <rect x="675" y="30" width="210" height="58" rx="10" fill="#eef5fb" stroke="#d7e5f0"/>
-          <text x="780" y="55" fill="#0a1c2e" font-weight="600">Observed Records</text>
-          <text x="780" y="76" fill="#35516b" font-size="12">calibration · validation</text>
+        <!-- Data sources -->
+        <g font-family="Inter, sans-serif" text-anchor="middle">
+          <rect x="40" y="24" width="215" height="56" rx="14" fill="#ffffff" stroke="#d7e5f0" filter="url(#soft)"/>
+          <text x="147.5" y="48" fill="#0a1c2e" font-size="14.5" font-weight="600">Sensors &amp; SCADA</text>
+          <text x="147.5" y="67" fill="#35516b" font-size="11.5">rain gages · level · flow</text>
+          <rect x="275" y="24" width="215" height="56" rx="14" fill="#ffffff" stroke="#d7e5f0" filter="url(#soft)"/>
+          <text x="382.5" y="48" fill="#0a1c2e" font-size="14.5" font-weight="600">Climate Forcing</text>
+          <text x="382.5" y="67" fill="#35516b" font-size="11.5">reanalysis · forecasts · scenarios</text>
+          <rect x="510" y="24" width="215" height="56" rx="14" fill="#ffffff" stroke="#d7e5f0" filter="url(#soft)"/>
+          <text x="617.5" y="48" fill="#0a1c2e" font-size="14.5" font-weight="600">GIS &amp; Asset Data</text>
+          <text x="617.5" y="67" fill="#35516b" font-size="11.5">networks · terrain · land use</text>
+          <rect x="745" y="24" width="215" height="56" rx="14" fill="#ffffff" stroke="#d7e5f0" filter="url(#soft)"/>
+          <text x="852.5" y="48" fill="#0a1c2e" font-size="14.5" font-weight="600">Observed Records</text>
+          <text x="852.5" y="67" fill="#35516b" font-size="11.5">calibration · validation</text>
+        </g>
+        <g stroke="#5b7790" stroke-width="1.6" stroke-linecap="round" marker-end="url(#arrow)">
+          <line x1="147.5" y1="84" x2="147.5" y2="126"/>
+          <line x1="382.5" y1="84" x2="382.5" y2="126"/>
+          <line x1="617.5" y1="84" x2="617.5" y2="126"/>
+          <line x1="852.5" y1="84" x2="852.5" y2="126"/>
         </g>
 
-        <!-- arrows into glue -->
-        <g stroke="#35516b" stroke-width="1.6" marker-end="url(#arrow)">
-          <line x1="135" y1="88" x2="330" y2="176"/>
-          <line x1="350" y1="88" x2="430" y2="176"/>
-          <line x1="565" y1="88" x2="530" y2="176"/>
-          <line x1="780" y1="88" x2="630" y2="176"/>
+        <!-- The interface layer -->
+        <rect x="40" y="132" width="920" height="92" rx="20" fill="url(#glueGrad)" filter="url(#soft)"/>
+        <g text-anchor="middle">
+          <text x="500" y="170" fill="#ffffff" font-family="Sora, sans-serif" font-size="22" font-weight="700">HydroCouple Interface Definitions</text>
+          <text x="500" y="199" fill="#d6ecff" font-family="JetBrains Mono, monospace" font-size="13">IModelComponent · IInput · IOutput · IArgument · IAdaptedOutput</text>
         </g>
 
-        <!-- The glue bar -->
-        <rect x="100" y="180" width="800" height="76" rx="14" fill="url(#glueGrad)"/>
-        <g font-family="Sora, sans-serif" text-anchor="middle">
-          <text x="500" y="212" fill="#ffffff" font-size="21" font-weight="700">HydroCouple Interface Definitions</text>
-          <text x="500" y="238" fill="#cfe9ff" font-size="13.5" font-family="JetBrains Mono, monospace">IComponent · IExchangeItem · IArgument · IGeometry · ITime · IUnit</text>
+        <!-- Plugs from the interface layer to each component -->
+        <g stroke="#0071bf" stroke-width="2" stroke-linecap="round">
+          <line x1="255" y1="224" x2="255" y2="264"/><line x1="665" y1="224" x2="665" y2="264"/><line x1="870" y1="224" x2="870" y2="264" stroke-dasharray="4 5"/>
+        </g>
+        <g fill="#ffffff" stroke="#0071bf" stroke-width="2">
+          <circle cx="255" cy="224" r="5"/><circle cx="255" cy="264" r="5"/>
+          <circle cx="665" cy="224" r="5"/><circle cx="665" cy="264" r="5"/>
+          <circle cx="870" cy="224" r="5"/><circle cx="870" cy="264" r="5"/>
         </g>
 
-        <!-- arrows glue to components -->
-        <g stroke="#35516b" stroke-width="1.6">
-          <line x1="220" y1="256" x2="220" y2="306" marker-end="url(#arrow)"/>
-          <line x1="500" y1="256" x2="500" y2="292" marker-end="url(#arrow)"/>
-          <line x1="780" y1="256" x2="780" y2="306" marker-end="url(#arrow)"/>
-          <line x1="330" y1="256" x2="365" y2="306" marker-end="url(#arrow)"/>
-          <line x1="670" y1="256" x2="635" y2="306" marker-end="url(#arrow)"/>
+        <!-- Flagship engine -->
+        <rect x="40" y="264" width="430" height="176" rx="18" fill="url(#swmmGrad)" stroke="#f29f38" stroke-width="2" filter="url(#soft)"/>
+        <g text-anchor="middle" font-family="Sora, sans-serif">
+          <text x="255" y="294" fill="#8a5300" font-size="11" font-weight="700" letter-spacing="1.6">FLAGSHIP ENGINE</text>
+          <text x="255" y="322" fill="#0a1c2e" font-size="19" font-weight="800">Open-Source SWMM 6.0 (SWMM2D)</text>
+        </g>
+        <g text-anchor="middle" font-family="Inter, sans-serif">
+          <rect x="58" y="344" width="124" height="28" rx="14" fill="#ffffff" stroke="#f3c98b"/>
+          <text x="120" y="362.5" fill="#4a2c00" font-size="12" font-weight="600">1D network</text>
+          <rect x="190" y="344" width="124" height="28" rx="14" fill="#ffffff" stroke="#f3c98b"/>
+          <text x="252" y="362.5" fill="#4a2c00" font-size="12" font-weight="600">2D overland</text>
+          <rect x="322" y="344" width="124" height="28" rx="14" fill="#ffffff" stroke="#f3c98b"/>
+          <text x="384" y="362.5" fill="#4a2c00" font-size="12" font-weight="600">Groundwater</text>
+          <rect x="58" y="384" width="124" height="28" rx="14" fill="#ffffff" stroke="#f3c98b"/>
+          <text x="120" y="402.5" fill="#4a2c00" font-size="12" font-weight="600">Heat</text>
+          <rect x="190" y="384" width="124" height="28" rx="14" fill="#ffffff" stroke="#f3c98b"/>
+          <text x="252" y="402.5" fill="#4a2c00" font-size="12" font-weight="600">Multi-species</text>
+          <rect x="322" y="384" width="124" height="28" rx="14" fill="#ffffff" stroke="#f3c98b"/>
+          <text x="384" y="402.5" fill="#4a2c00" font-size="12" font-weight="600">GPU-ready</text>
         </g>
 
-        <!-- SWMM centerpiece -->
-        <rect x="378" y="296" width="244" height="126" rx="14" fill="url(#swmmGrad)" stroke="#f29f38" stroke-width="2.5"/>
-        <g font-family="Sora, sans-serif" text-anchor="middle">
-          <text x="500" y="322" fill="#4a2c00" font-size="11.5" font-weight="700" letter-spacing="1.5">FLAGSHIP ENGINE</text>
-          <text x="500" y="347" fill="#0a1c2e" font-size="17" font-weight="800">Open-Source SWMM 6.0</text>
-          <text x="500" y="369" fill="#0a1c2e" font-size="15" font-weight="700">(SWMM2D)</text>
-          <text x="500" y="391" fill="#35516b" font-size="12" font-family="Inter, sans-serif">hydrology · hydraulics · water quality</text>
-          <text x="500" y="409" fill="#35516b" font-size="12" font-family="Inter, sans-serif">1D/2D · GPU-ready · reentrant engine</text>
+        <!-- FVQual -->
+        <rect x="570" y="264" width="190" height="176" rx="18" fill="#ffffff" stroke="#d7e5f0" stroke-width="1.5" filter="url(#soft)"/>
+        <g text-anchor="middle" font-family="Inter, sans-serif">
+          <text x="665" y="294" fill="#0071bf" font-family="Sora, sans-serif" font-size="11" font-weight="700" letter-spacing="1.6">RECEIVING WATERS</text>
+          <text x="665" y="322" fill="#0a1c2e" font-family="Sora, sans-serif" font-size="19" font-weight="800">FVQual</text>
+          <text x="665" y="356" fill="#35516b" font-size="12.5">3D hydrodynamics</text>
+          <text x="665" y="377" fill="#35516b" font-size="12.5">and water quality</text>
+          <text x="665" y="406" fill="#35516b" font-size="12.5">rivers · lakes · estuaries</text>
         </g>
 
-        <!-- Left component stack -->
-        <g font-family="Inter, sans-serif" font-size="14" text-anchor="middle">
-          <rect x="120" y="306" width="200" height="50" rx="10" fill="#ffffff" stroke="#d7e5f0"/>
-          <text x="220" y="328" fill="#0a1c2e" font-weight="600">Groundwater</text>
-          <text x="220" y="347" fill="#35516b" font-size="12">head-driven exchange</text>
-
-          <rect x="120" y="368" width="200" height="50" rx="10" fill="#ffffff" stroke="#d7e5f0"/>
-          <text x="220" y="390" fill="#0a1c2e" font-weight="600">2D Overland Flow</text>
-          <text x="220" y="409" fill="#35516b" font-size="12">street-scale flooding</text>
+        <!-- Community component -->
+        <rect x="780" y="264" width="180" height="176" rx="18" fill="#f6fafd" stroke="#9cb8cf" stroke-width="1.5" stroke-dasharray="6 6"/>
+        <g text-anchor="middle" font-family="Inter, sans-serif">
+          <text x="870" y="294" fill="#5b7790" font-family="Sora, sans-serif" font-size="11" font-weight="700" letter-spacing="1.6">COMMUNITY</text>
+          <text x="870" y="322" fill="#0a1c2e" font-family="Sora, sans-serif" font-size="19" font-weight="800">Your model</text>
+          <text x="870" y="356" fill="#35516b" font-size="12.5">wrap it once,</text>
+          <text x="870" y="377" fill="#35516b" font-size="12.5">couple it with</text>
+          <text x="870" y="398" fill="#35516b" font-size="12.5">everything else</text>
         </g>
 
-        <!-- Right component stack -->
-        <g font-family="Inter, sans-serif" font-size="14" text-anchor="middle">
-          <rect x="680" y="306" width="200" height="50" rx="10" fill="#ffffff" stroke="#d7e5f0"/>
-          <text x="780" y="328" fill="#0a1c2e" font-weight="600">Stream Temperature</text>
-          <text x="780" y="347" fill="#35516b" font-size="12">solute &amp; heat transport</text>
-
-          <rect x="680" y="368" width="200" height="50" rx="10" fill="#ffffff" stroke="#d7e5f0"/>
-          <text x="780" y="390" fill="#0a1c2e" font-weight="600">Hydrologic Models</text>
-          <text x="780" y="409" fill="#35516b" font-size="12">finite volume · snowmelt</text>
+        <!-- Exchange between the engine and FVQual -->
+        <line x1="476" y1="356" x2="564" y2="356" stroke="#d98518" stroke-width="2" stroke-linecap="round" marker-end="url(#arrowFlag)"/>
+        <g text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#8a5300" font-weight="600">
+          <text x="520" y="328">water · heat</text>
+          <text x="520" y="343">pollutants</text>
         </g>
 
-        <!-- coupling arrows between SWMM and neighbors -->
-        <g stroke="#f29f38" stroke-width="2">
-          <line x1="320" y1="345" x2="378" y2="345" marker-end="url(#arrow)"/>
-          <line x1="378" y1="380" x2="320" y2="393" marker-end="url(#arrow)"/>
-          <line x1="622" y1="345" x2="680" y2="331" marker-end="url(#arrow)"/>
-          <line x1="680" y1="393" x2="622" y2="380" marker-end="url(#arrow)"/>
+        <!-- Outcomes -->
+        <g stroke="#5b7790" stroke-width="1.6" stroke-linecap="round" marker-end="url(#arrow)">
+          <line x1="185" y1="444" x2="185" y2="486"/><line x1="500" y1="444" x2="500" y2="486"/><line x1="815" y1="444" x2="815" y2="486"/>
         </g>
-
-        <!-- arrows to outcomes -->
-        <g stroke="#35516b" stroke-width="1.6" marker-end="url(#arrow)">
-          <line x1="290" y1="430" x2="255" y2="478"/>
-          <line x1="500" y1="422" x2="500" y2="478"/>
-          <line x1="710" y1="430" x2="745" y2="478"/>
-        </g>
-
-        <!-- Outcomes row -->
-        <g font-family="Inter, sans-serif" font-size="14.5" text-anchor="middle">
-          <rect x="120" y="482" width="230" height="52" rx="10" fill="#dff2e7" stroke="#bfe4cf"/>
-          <text x="235" y="504" fill="#14532d" font-weight="600">Flood-risk planning</text>
-          <text x="235" y="522" fill="#2e6b47" font-size="12">consent decrees · resilience</text>
-
-          <rect x="385" y="482" width="230" height="52" rx="10" fill="#dff2e7" stroke="#bfe4cf"/>
-          <text x="500" y="504" fill="#14532d" font-weight="600">Real-time operations</text>
-          <text x="500" y="522" fill="#2e6b47" font-size="12">forecasting · smart control</text>
-
-          <rect x="650" y="482" width="230" height="52" rx="10" fill="#dff2e7" stroke="#bfe4cf"/>
-          <text x="765" y="504" fill="#14532d" font-weight="600">Water-quality compliance</text>
-          <text x="765" y="522" fill="#2e6b47" font-size="12">TMDLs · CSO/SSO reporting</text>
+        <g font-family="Inter, sans-serif" text-anchor="middle">
+          <rect x="40" y="492" width="290" height="56" rx="14" fill="#e8f6ee" stroke="#bfe4cf" filter="url(#soft)"/>
+          <text x="185" y="516" fill="#14532d" font-size="14.5" font-weight="600">Flood-risk planning</text>
+          <text x="185" y="535" fill="#2e6b47" font-size="11.5">consent decrees · resilience</text>
+          <rect x="355" y="492" width="290" height="56" rx="14" fill="#e8f6ee" stroke="#bfe4cf" filter="url(#soft)"/>
+          <text x="500" y="516" fill="#14532d" font-size="14.5" font-weight="600">Real-time operations</text>
+          <text x="500" y="535" fill="#2e6b47" font-size="11.5">forecasting · smart control</text>
+          <rect x="670" y="492" width="290" height="56" rx="14" fill="#e8f6ee" stroke="#bfe4cf" filter="url(#soft)"/>
+          <text x="815" y="516" fill="#14532d" font-size="14.5" font-weight="600">Water-quality compliance</text>
+          <text x="815" y="535" fill="#2e6b47" font-size="11.5">TMDLs · CSO/SSO reporting</text>
         </g>
       </svg>
       <figcaption>
         One integration layer, many models: data sources flow through the HydroCouple interface
-        definitions to a composable set of model components, with Open-Source SWMM 6.0 (SWMM2D) at the center, supporting planning, operations, and compliance.
+        definitions to the components that implement them. Open-Source SWMM 6.0 (SWMM2D) computes the network, 2D overland flow, groundwater, heat and multi-species transport; FVQual carries the result into receiving waters; and any model wrapped in the same interfaces joins them.
       </figcaption>
     </figure>
   </div>
