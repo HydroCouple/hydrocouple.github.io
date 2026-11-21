@@ -236,6 +236,16 @@
     </p>
     <div class="grid cols-3">
       <div class="card">
+        <span class="badge standard">In progress</span>
+        <h3>Heat, MSX, Transport &amp; Water Age as Components</h3>
+        <p>These processes run inside the engine today. Each is being converted into a HydroCouple component in its own right, with its own identity, typed exchange items and state: embedded in the engine with unchanged results, or composed beside another model such as FVQual.</p>
+      </div>
+      <div class="card">
+        <span class="badge standard">In progress</span>
+        <h3>2D Surface Water &amp; Groundwater Components</h3>
+        <p>Today they run as one integrated role that exchanges water with an OpenSWMM network. They are being built out as two full components with general exchange items for depths, heads, flows, species and heat, so each can couple to other models.</p>
+      </div>
+      <div class="card">
         <span class="badge planned">Planned</span>
         <h3>Sediment Transport</h3>
         <p>Overland erosion and detachment, suspended and bedload routing by particle size, deposition and re-entrainment, and the constituents carried on sediment, validated against flume and field data.</p>
@@ -252,22 +262,14 @@
       </div>
       <div class="card">
         <span class="badge planned">Planned</span>
-        <h3>Richer Component Boundaries</h3>
-        <p>MSX species, heat and two-way hydraulic feedback across component boundaries, between split engine instances and with receiving-water models such as FVQual. Today the boundary carries water, conventional pollutants and sensible heat, one way.</p>
-      </div>
-      <div class="card">
-        <span class="badge planned">Planned</span>
-        <h3>Composition Restart</h3>
-        <p>Coordinated checkpoint and restart of a whole composition. Each model restarts natively today; a graph of components does not yet.</p>
-      </div>
-      <div class="card">
-        <span class="badge planned">Planned</span>
-        <h3>Community Components</h3>
-        <p>Yours. The interface definitions are open: wrap your model, and it couples with the
-           engine and FVQual.</p>
-        <p class="mt-2"><a href="https://github.com/hydrocouple">Start here →</a></p>
+        <h3>Two-way Coupling &amp; Composition Restart</h3>
+        <p>Hydraulic feedback from FVQual's receiving water to SWMM outfalls, and coordinated checkpoint and restart of a whole composition. Each model restarts natively today; a graph of components does not yet.</p>
       </div>
     </div>
+    <p class="mt-3 center">
+      Community components are yours to add. The interface definitions are open: wrap your model, and it couples with the engine and FVQual.
+      <a href="https://github.com/hydrocouple">Start here →</a>
+    </p>
     <div class="mt-3 center">
       <a class="btn btn-primary" href="https://github.com/HydroCouple/openswmm.engine/blob/swmm6_rel/ROADMAP.md">Read the Full Roadmap</a>
     </div>
