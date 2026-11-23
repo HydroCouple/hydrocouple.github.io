@@ -1,0 +1,58 @@
+{
+  "scenarios": 54,
+  "nativeRuns": 162,
+  "refinementRuns": 8,
+  "engineSha256": "1394d6d69d1e272c470fd25474fc413348d268d9724c69a3ad8446c0dcfa735f",
+  "runnerSha256": "006e9b7421ce7dcb38b31e5a50306598d1a450c00ed63eb533f798c6b3be6c79",
+  "fine": [
+    {
+      "id": "a0.1-r0.25-s2-y25",
+      "method": "book",
+      "peakChangePct": -0.21285510187531997,
+      "timeChangeMin": 0
+    },
+    {
+      "id": "a0.1-r0.25-s2-y25",
+      "method": "drop",
+      "peakChangePct": -13.18146739826097,
+      "timeChangeMin": 1
+    },
+    {
+      "id": "a4-r4-s2-y25",
+      "method": "book",
+      "peakChangePct": 1.9451653531719737,
+      "timeChangeMin": 0
+    },
+    {
+      "id": "a4-r4-s2-y25",
+      "method": "drop",
+      "peakChangePct": 5.063916278587177,
+      "timeChangeMin": 0
+    },
+    {
+      "id": "a64-r0.25-s2-y25",
+      "method": "book",
+      "peakChangePct": -12.823191651981459,
+      "timeChangeMin": 2
+    },
+    {
+      "id": "a64-r0.25-s2-y25",
+      "method": "drop",
+      "peakChangePct": 0.8850727179149365,
+      "timeChangeMin": 4
+    },
+    {
+      "id": "a64-r0.25-s0.5-y25",
+      "method": "book",
+      "peakChangePct": -16.551251164711612,
+      "timeChangeMin": 13
+    },
+    {
+      "id": "a64-r0.25-s0.5-y25",
+      "method": "drop",
+      "peakChangePct": -31.287275083365717,
+      "timeChangeMin": 8
+    }
+  ],
+  "maxAbsoluteClosurePercent": 6.528945084207216e-11
+}
