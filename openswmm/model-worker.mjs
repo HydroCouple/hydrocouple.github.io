@@ -1,0 +1,20 @@
+// Long-lived editing worker: holds the ModelSession and answers {id, op, args} requests.
+import { ModelSession } from "./model.mjs";
+let ready;
+function session() {
+  ready ??= (async () => {
+    const { default: create } = await import("./vendor/engine/openswmm_engine.js");
+    return new ModelSession(await create());
+  })();
+  return ready;
+}
+self.onmessage = async ({ data: { id, op, args } }) => {
+  try {
+    const s = await session();
+    if (!["open", "summary", "fields", "set", "setAll", "write", "close"].includes(op))
+      throw new Error("Unknown request " + op);
+    postMessage({ id, result: s[op](...args) });
+  } catch (error) {
+    postMessage({ id, error: error.message || String(error) });
+  }
+};

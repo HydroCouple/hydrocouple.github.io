@@ -1,4 +1,5 @@
 .vscode
+workplans/
 
 # Local previews of the manuals published by the component repositories.
 /HydroCoupleSDK

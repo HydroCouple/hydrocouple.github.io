@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="theme-color" content="#0a1c2e" />
+    <title>OpenSWMM workbench · HydroCouple</title>
+    <link rel="stylesheet" href="./workbench.css" />
+  </head>
+  <body>
+    <svg hidden aria-hidden="true">
+      <symbol id="i-folder" viewBox="0 0 16 16"><path d="M2 4.5A1.5 1.5 0 0 1 3.5 3H7l1.5 1.5h4A1.5 1.5 0 0 1 14 6v5.5A1.5 1.5 0 0 1 12.5 13h-9A1.5 1.5 0 0 1 2 11.5z" fill="none" stroke="currentColor" stroke-width="1.4" /></symbol>
+      <symbol id="i-chevron" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></symbol>
+      <symbol id="i-edit" viewBox="0 0 16 16"><path d="M3 13h10M3 10l7.5-7.5 2 2L5 12z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></symbol>
+      <symbol id="i-terrain" viewBox="0 0 16 16"><path d="M2 11 6 4l4 5 4-3v7H2z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></symbol>
+      <symbol id="i-link" viewBox="0 0 16 16"><circle cx="4" cy="4" r="1.8" fill="none" stroke="currentColor" stroke-width="1.4" /><circle cx="12" cy="12" r="1.8" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M5.3 5.3 10.7 10.7" stroke="currentColor" stroke-width="1.4" /></symbol>
+      <symbol id="i-sliders" viewBox="0 0 16 16"><path d="M3 4.5h10M3 8h10M3 11.5h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="6" cy="4.5" r="1.3" fill="#fff" stroke="currentColor" stroke-width="1.2" /><circle cx="10" cy="8" r="1.3" fill="#fff" stroke="currentColor" stroke-width="1.2" /><circle cx="7" cy="11.5" r="1.3" fill="#fff" stroke="currentColor" stroke-width="1.2" /></symbol>
+      <symbol id="i-play" viewBox="0 0 16 16"><path d="M4.5 3.2v9.6L12.5 8z" fill="currentColor" /></symbol>
+      <symbol id="i-pause" viewBox="0 0 16 16"><path d="M4 3h3v10H4zM9 3h3v10H9z" fill="currentColor" /></symbol>
+      <symbol id="i-stop" viewBox="0 0 16 16"><rect x="3.5" y="3.5" width="9" height="9" rx="1.5" fill="currentColor" /></symbol>
+      <symbol id="i-chart" viewBox="0 0 16 16"><path d="M2 13 6 7l3 3 5-7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+      <symbol id="i-doc" viewBox="0 0 16 16"><path d="M4 2h5.5L13 5.5V14H4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><path d="M6 8h5M6 10.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></symbol>
+      <symbol id="i-files" viewBox="0 0 16 16"><path d="M4 2h5.5L13 5.5V14H4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><path d="M9.5 2v3.5H13" fill="none" stroke="currentColor" stroke-width="1.4" /></symbol>
+      <symbol id="i-layers" viewBox="0 0 16 16"><path d="M8 2 14 5 8 8 2 5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><path d="M2 8l6 3 6-3M2 11l6 3 6-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></symbol>
+      <symbol id="i-gear" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M8 1.8v2M8 12.2v2M1.8 8h2M12.2 8h2M3.6 3.6l1.4 1.4M11 11l1.4 1.4M3.6 12.4 5 11M11 5l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></symbol>
+      <symbol id="i-fit" viewBox="0 0 16 16"><path d="M2 6V3.5A1.5 1.5 0 0 1 3.5 2H6M10 2h2.5A1.5 1.5 0 0 1 14 3.5V6M14 10v2.5a1.5 1.5 0 0 1-1.5 1.5H10M6 14H3.5A1.5 1.5 0 0 1 2 12.5V10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></symbol>
+      <symbol id="i-minus" viewBox="0 0 16 16"><path d="M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></symbol>
+      <symbol id="i-pin" viewBox="0 0 16 16"><path d="M8 14s4.5-4.2 4.5-7.5A4.5 4.5 0 0 0 3.5 6.5C3.5 9.8 8 14 8 14z" fill="none" stroke="currentColor" stroke-width="1.4" /><circle cx="8" cy="6.5" r="1.6" fill="currentColor" /></symbol>
+      <symbol id="i-download" viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M3 13h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+      <symbol id="i-help" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M6.2 6.3a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.6-.8 1.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="8" cy="11.4" r=".8" fill="currentColor" /></symbol>
+      <symbol id="i-code" viewBox="0 0 16 16"><path d="M5.5 4.5 2 8l3.5 3.5M10.5 4.5 14 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+      <symbol id="i-panel-left" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M6 3v10" stroke="currentColor" stroke-width="1.4" /></symbol>
+      <symbol id="i-panel-bottom" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M2 9.5h12" stroke="currentColor" stroke-width="1.4" /></symbol>
+      <symbol id="i-panel-right" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M10 3v10" stroke="currentColor" stroke-width="1.4" /></symbol>
+      <symbol id="i-first" viewBox="0 0 16 16"><path d="M4 3v10M12 3.5v9L6 8z" fill="currentColor" /></symbol>
+      <symbol id="i-last" viewBox="0 0 16 16"><path d="M12 3v10M4 3.5v9L10 8z" fill="currentColor" /></symbol>
+      <symbol id="i-close" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></symbol>
+      <symbol id="i-check" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M5 8l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></symbol>
+    </svg>
+
+    <div class="app">
+      <header class="top">
+        <a class="brand" href="../"
+          ><img src="./vendor/brand/hydrocouple.png" alt="" />HydroCouple</a
+        ><span class="divider"></span>
+        <h1>OpenSWMM <small>workbench</small></h1>
+        <span class="chip project" id="modelname">Opening example…</span>
+        <span class="chip soft device" id="backend">Local solver</span>
+        <span class="chip ok" id="offline" hidden>● Offline ready</span>
+        <button class="tb icon" id="help" aria-label="Keyboard shortcuts and help"><svg aria-hidden="true"><use href="#i-help" /></svg></button>
+        <a class="tb" href="https://github.com/HydroCouple"><svg aria-hidden="true"><use href="#i-code" /></svg>Source</a>
+      </header>
+
+      <div class="toolbar" role="toolbar" aria-label="Project and run">
+        <button class="tb" id="filemenu" popovertarget="filepop"><svg aria-hidden="true"><use href="#i-folder" /></svg>File<svg class="caret" aria-hidden="true"><use href="#i-chevron" /></svg></button>
+        <div id="filepop" class="menu" popover>
+          <label for="example">Example model</label>
+          <select id="example">
+            <option value="surface">Rain on a sloping plane</option>
+            <option value="network">Drainage network · 1D</option>
+            <option value="coupled">Coupled drainage network</option>
+            <option value="split">Independent network &amp; surface</option>
+          </select>
+          <button class="item" id="open"><svg aria-hidden="true"><use href="#i-folder" /></svg>Open files…<kbd>⌘O</kbd></button>
+          <button class="item" id="welcomebtn"><svg aria-hidden="true"><use href="#i-layers" /></svg>Welcome &amp; examples</button>
+          <input id="input" type="file" multiple hidden />
+        </div>
+        <button class="tb" id="edit"><svg aria-hidden="true"><use href="#i-edit" /></svg>Edit INP</button>
+        <span class="sep"></span>
+        <button class="tb" id="study"><svg aria-hidden="true"><use href="#i-terrain" /></svg>New surface study</button>
+        <button class="tb" id="attach"><svg aria-hidden="true"><use href="#i-link" /></svg>Connect 1D network</button>
+        <button class="tb" id="settingsmenu" popovertarget="settingspop"><svg aria-hidden="true"><use href="#i-sliders" /></svg>Run settings<svg class="caret" aria-hidden="true"><use href="#i-chevron" /></svg></button>
+        <div id="settingspop" class="menu" popover>
+          <label for="compute">Compute backend</label>
+          <select id="compute">
+            <option value="auto">Automatic</option>
+            <option value="cpu">Portable CPU</option>
+          </select>
+          <label class="check"><input id="split" type="checkbox" /> Separate 1D solver instance</label>
+        </div>
+        <span class="sep"></span>
+        <button class="tb primary" id="run"><svg aria-hidden="true"><use href="#i-play" /></svg>Run model<kbd>⇧↵</kbd></button>
+        <button class="tb ghost" id="pause" hidden><svg aria-hidden="true"><use href="#i-pause" /></svg>Pause</button>
+        <button class="tb danger" id="stop" hidden><svg aria-hidden="true"><use href="#i-stop" /></svg>Stop job</button>
+        <span class="spacer"></span>
+        <button class="tb icon on" id="toggleleft" aria-label="Toggle layers panel" aria-pressed="true"><svg aria-hidden="true"><use href="#i-panel-left" /></svg></button>
+        <button class="tb icon on" id="togglebottom" aria-label="Toggle results panel" aria-pressed="true"><svg aria-hidden="true"><use href="#i-panel-bottom" /></svg></button>
+        <button class="tb icon on" id="toggleright" aria-label="Toggle inspector" aria-pressed="true"><svg aria-hidden="true"><use href="#i-panel-right" /></svg></button>
+      </div>
+
+      <main>
+        <nav class="rail" aria-label="Panels">
+          <button class="rail-btn on" id="raillayers"><svg aria-hidden="true"><use href="#i-layers" /></svg>Layers</button>
+          <button class="rail-btn" id="files"><svg aria-hidden="true"><use href="#i-files" /></svg>Files</button>
+          <button class="rail-btn end" popovertarget="settingspop"><svg aria-hidden="true"><use href="#i-gear" /></svg>Settings</button>
+        </nav>
+
+        <aside class="panel left" id="left" aria-label="Layers">
+          <div class="panel-h">
+            <h2>Layers</h2>
+            <button class="tb icon" id="fit" aria-label="Fit model to view"><svg aria-hidden="true"><use href="#i-fit" /></svg></button>
+          </div>
+          <div class="scroll">
+            <section class="sect">
+              <h3>Surface · 2D</h3>
+              <label class="check"><input type="checkbox" id="wet" checked /><span class="sw ramp"></span>Water depth</label>
+              <label class="check"><input type="checkbox" id="edges" checked /><span class="sw mesh"></span>Mesh edges</label>
+              <label class="check"><input type="checkbox" id="streaks" checked /><span class="sw streak"></span>Flow streaks</label>
+            </section>
+            <section class="sect">
+              <h3>Basemap</h3>
+              <label class="check"><input type="checkbox" id="basemap" /><span class="sw map"></span>Mapbox outdoors</label>
+              <button class="tb ghost wide" id="locate"><svg aria-hidden="true"><use href="#i-pin" /></svg>Set map reference</button>
+              <small id="mapstatus"></small>
+            </section>
+            <section class="sect legend" id="legend">
+              <h3>Water depth</h3>
+              <span class="ramp"></span>
+              <span id="scale">0 — 0.01</span>
+            </section>
+          </div>
+        </aside>
+
+        <section class="workspace" aria-label="Simulation workspace">
+          <div id="scene">
+            <div id="map"></div>
+            <canvas id="plot" aria-label="Model geometry, depth and flow directions"></canvas>
+            <div id="probe" role="status">Select a cell to inspect</div>
+            <div class="zoom">
+              <button class="map-tool" id="zoomin" aria-label="Zoom in"><svg aria-hidden="true"><use href="#i-plus" /></svg></button>
+              <button class="map-tool" id="zoomout" aria-label="Zoom out"><svg aria-hidden="true"><use href="#i-minus" /></svg></button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel right" id="right" aria-label="Inspector">
+          <div class="panel-h"><h2>Model</h2></div>
+          <div class="scroll">
+            <section class="sect">
+              <h3>Edit object</h3>
+              <div class="pair">
+                <select id="objkind" aria-label="Object type"></select>
+                <select id="objid" aria-label="Object"></select>
+                <input id="cellindex" type="number" min="0" step="1" aria-label="Surface cell index" hidden />
+              </div>
+              <div id="props" class="props"></div>
+              <small id="editnote"></small>
+              <div class="pair">
+                <button class="tb ghost" id="undoedit" disabled>Undo</button>
+                <button class="tb primary" id="applyedits" disabled>Apply to model</button>
+              </div>
+            </section>
+            <section class="sect">
+              <h3>Project</h3>
+              <div class="kv"><span>Name</span><b id="viewtitle">—</b></div>
+              <div class="kv"><span>Input deck</span><b id="inspentry">—</b></div>
+              <div class="kv"><span>Input files</span><b id="inspinputs">—</b></div>
+              <div class="kv"><span>Surface cells</span><b id="inspcells">—</b></div>
+              <div class="kv"><span>Network links</span><b id="insplinks">—</b></div>
+              <div class="kv"><span>Map reference</span><b id="inspanchor">—</b></div>
+              <div class="kv"><span>Solvers</span><b id="inspsplit">—</b></div>
+            </section>
+            <section class="sect">
+              <h3>Last run</h3>
+              <div class="kv"><span>Backend</span><b id="insprunbackend">—</b></div>
+              <div class="kv"><span>Engine</span><b id="inspengine">—</b></div>
+              <div class="kv"><span>Report steps</span><b id="inspframes">—</b></div>
+              <div class="kv"><span>Output files</span><b id="inspoutputs">—</b></div>
+            </section>
+            <section class="sect">
+              <h3>Selection</h3>
+              <p class="hint">Click a cell on the map. Its index, depth and speed at the displayed time appear in the probe card.</p>
+            </section>
+          </div>
+        </aside>
+      </main>
+
+      <section class="bottom" id="bottom" aria-label="Time browser and results">
+        <div class="time">
+          <button class="tb icon ghost" id="first" aria-label="Jump to start" disabled><svg aria-hidden="true"><use href="#i-first" /></svg></button>
+          <button class="tb icon primary" id="play" aria-label="Play" disabled><svg class="when-paused" aria-hidden="true"><use href="#i-play" /></svg><svg class="when-playing" aria-hidden="true"><use href="#i-pause" /></svg></button>
+          <button class="tb icon ghost" id="last" aria-label="Jump to end" disabled><svg aria-hidden="true"><use href="#i-last" /></svg></button>
+          <output id="clock" for="time">00:00:00</output>
+          <input id="time" type="range" min="0" max="0" value="0" disabled aria-label="Report step" />
+          <output id="step" for="time">—</output>
+        </div>
+        <div class="results">
+          <p id="status" role="status">Ready</p>
+          <div class="metrics">
+            <div class="metric"><span>Surface cells</span><b id="cells">—</b></div>
+            <div class="metric"><span>Rainfall volume</span><b id="volume">—</b></div>
+            <div class="metric"><span>1D → 2D / 2D → 1D</span><b id="exchange">—</b></div>
+          </div>
+          <div class="actions">
+            <button class="tb ghost" id="series" disabled><svg aria-hidden="true"><use href="#i-chart" /></svg>Hydrograph</button>
+            <button class="tb ghost" id="report" disabled><svg aria-hidden="true"><use href="#i-doc" /></svg>View report</button>
+            <button class="tb ghost" id="archive"><svg aria-hidden="true"><use href="#i-download" /></svg>Export project</button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="status">
+        <span id="engine"></span>
+        <span>Models, results and exports stay on this device</span>
+        <span class="spacer"></span>
+        <span id="viewstatus"></span>
+      </footer>
+    </div>
+
+    <dialog id="dialog">
+      <div class="dialoghead">
+        <h2 id="dialogtitle"></h2>
+        <button class="tb icon" id="close" aria-label="Close dialog"><svg aria-hidden="true"><use href="#i-close" /></svg></button>
+      </div>
+      <div id="content"></div>
+    </dialog>
+
+    <dialog id="welcome" class="welcome" aria-labelledby="welcometitle">
+      <div class="wcol start">
+        <div class="wbrand">
+          <img src="./vendor/brand/hydrocouple.png" alt="" />
+          <div><h2 id="welcometitle">OpenSWMM</h2><small>Browser workbench · HydroCouple</small></div>
+        </div>
+        <button class="act" id="wopen"><span class="ic"><svg aria-hidden="true"><use href="#i-folder" /></svg></span><div><b>Open model files</b><span>An INP with its rainfall, time series, mesh and hot-start files, or a project ZIP exported earlier</span></div></button>
+        <button class="act" id="wstudy"><span class="ic"><svg aria-hidden="true"><use href="#i-terrain" /></svg></span><div><b>New surface study</b><span>Pick an area, fetch terrain, build a 2D mesh and a design storm</span></div></button>
+        <button class="act" id="wattach"><span class="ic flag"><svg aria-hidden="true"><use href="#i-link" /></svg></span><div><b>Couple a 1D network</b><span>Open a surface model, then connect a drainage network with reviewed exchanges</span></div></button>
+        <div class="wnote">
+          <b>Runs entirely in your browser</b>
+          OpenSWMM engine <span id="wengine"></span> (WebAssembly) and the MeshKit mesher. Models, results and exports never leave this device. Terrain and basemap tiles come from the providers you choose.
+        </div>
+      </div>
+      <div class="wcol">
+        <div class="whead"><h2>Examples</h2><small>Bundled · work offline</small></div>
+        <div class="examples">
+          <button class="ex" data-example="surface"><svg viewBox="0 0 200 92" aria-hidden="true"><rect width="200" height="92" fill="#eef3f6" /><path d="M30 20 170 20 170 72 30 72z" fill="#0071bf" opacity=".55" /><path d="M30 20 170 72M30 46 130 20M70 72 170 46M30 72 100 20M100 72 170 20" stroke="#fff" stroke-opacity=".6" /></svg><b>Rain on a sloping plane</b><span>2D surface · 30 min storm</span></button>
+          <button class="ex" data-example="network"><svg viewBox="0 0 200 92" aria-hidden="true"><rect width="200" height="92" fill="#eef3f6" /><path d="M30 20 70 40 110 46 150 60 180 78M110 46 130 22M70 40 60 70" fill="none" stroke="#c4760d" stroke-width="3" stroke-linecap="round" /><g fill="#fff" stroke="#f29f38" stroke-width="2.5"><circle cx="30" cy="20" r="4" /><circle cx="70" cy="40" r="4" /><circle cx="110" cy="46" r="4" /><circle cx="150" cy="60" r="4" /><circle cx="130" cy="22" r="4" /><circle cx="60" cy="70" r="4" /></g></svg><b>Drainage network</b><span>1D · dynamic wave</span></button>
+          <button class="ex" data-example="coupled"><svg viewBox="0 0 200 92" aria-hidden="true"><rect width="200" height="92" fill="#eef3f6" /><path d="M40 18 160 14 170 74 36 70z" fill="#9fd0ff" opacity=".35" stroke="#0071bf" stroke-dasharray="4 3" /><ellipse cx="110" cy="48" rx="40" ry="18" fill="#0071bf" opacity=".55" /><path d="M30 20 70 40 110 46 150 60 180 78" fill="none" stroke="#c4760d" stroke-width="3" stroke-linecap="round" /><g fill="#fff" stroke="#f29f38" stroke-width="2.5"><circle cx="70" cy="40" r="4" /><circle cx="110" cy="46" r="4" /><circle cx="150" cy="60" r="4" /></g></svg><b>Coupled drainage network</b><span>1D ⇄ 2D exchanges</span></button>
+          <button class="ex" data-example="split"><svg viewBox="0 0 200 92" aria-hidden="true"><rect width="200" height="92" fill="#eef3f6" /><path d="M20 16 96 16 96 76 20 76z" fill="#9fd0ff" opacity=".35" stroke="#0071bf" /><ellipse cx="58" cy="50" rx="24" ry="12" fill="#0071bf" opacity=".55" /><path d="M114 24 140 40 170 44 186 70" fill="none" stroke="#c4760d" stroke-width="3" stroke-linecap="round" /><g fill="#fff" stroke="#f29f38" stroke-width="2.5"><circle cx="114" cy="24" r="4" /><circle cx="140" cy="40" r="4" /><circle cx="170" cy="44" r="4" /></g><path d="M100 20v52" stroke="#4a6480" stroke-dasharray="3 3" /></svg><b>Independent network &amp; surface</b><span>Separate 1D and 2D solver handles</span></button>
+        </div>
+        <div class="whead"><h2>This browser</h2><small>Stored locally</small></div>
+        <p class="recent" id="wrecent">No saved workspace yet. The latest successful workspace is kept in this browser.</p>
+        <div class="wfoot">
+          <label class="check"><input type="checkbox" id="wstartup" /> Show at startup</label>
+          <span class="spacer"></span>
+          <button class="tb" id="wclose">Continue</button>
+        </div>
+      </div>
+    </dialog>
+
+    <template id="shortcuts">
+      <dl class="keys">
+        <dt><kbd>⇧</kbd><kbd>↵</kbd></dt><dd>Run model</dd>
+        <dt><kbd>⌘</kbd><kbd>O</kbd></dt><dd>Open model files (Ctrl on Windows and Linux)</dd>
+        <dt><kbd>Space</kbd></dt><dd>Play or pause the result frames (outside text fields)</dd>
+        <dt><kbd>←</kbd><kbd>→</kbd></dt><dd>Step through report times when the time slider has focus</dd>
+        <dt><kbd>Esc</kbd></dt><dd>Close a dialog or cancel picking on the map</dd>
+        <dt><kbd>?</kbd></dt><dd>This list</dd>
+      </dl>
+      <p>Drag on the map to pan, scroll to zoom, click a cell to inspect it. On the basemap, map gestures follow Mapbox GL.</p>
+    </template>
+
+    <template id="studyform"
+      ><form id="newform">
+        <p>
+          Enter a southwest corner and width for a square study, or import a
+          WGS84 study polygon.
+        </p>
+        <div class="fields">
+          <label
+            >Latitude<input
+              name="lat"
+              type="number"
+              step="any"
+              min="-80"
+              max="80"
+              value="40.75"
+              required /></label
+          ><label
+            >Longitude<input
+              name="lon"
+              type="number"
+              step="any"
+              min="-180"
+              max="180"
+              value="-111.88"
+              required
+          /></label>
+        </div>
+        <button type="button" id="pick" class="tb ghost wide"><svg aria-hidden="true"><use href="#i-pin" /></svg>Pick southwest corner on map</button>
+        <label
+          >Study polygon (optional GeoJSON)<input
+            name="polygon"
+            type="file"
+            accept=".geojson,.json"
+        /></label>
+        <div class="fields">
+          <label
+            >Domain width (m)<input
+              name="size"
+              type="number"
+              min="50"
+              max="5000"
+              value="200"
+              required /></label
+          ><label
+            >Cell target (m)<input
+              name="cell"
+              type="number"
+              min="5"
+              max="5000"
+              value="20"
+              required
+          /></label>
+        </div>
+        <h3>Mesh</h3>
+        <label
+          >Constraint lines (optional GeoJSON LineString features)<input
+            name="lines"
+            type="file"
+            accept=".geojson,.json"
+        /></label>
+        <small
+          >Breaklines such as curbs, berms or channel banks become mesh edges.
+          Lines must lie inside the domain and may not cross each other.</small
+        >
+        <div class="fields">
+          <label
+            >Minimum angle (°)<input
+              name="angle"
+              type="number"
+              min="0"
+              max="34"
+              step="any"
+              value="30"
+              required /></label
+          ><label
+            >Smoothing passes<input
+              name="smoothing"
+              type="number"
+              min="0"
+              max="10"
+              step="1"
+              value="0"
+              required
+          /></label>
+        </div>
+        <div class="fields">
+          <label
+            >Minimum cell size (m, 0 = none)<input
+              name="mincell"
+              type="number"
+              min="0"
+              step="any"
+              value="0"
+              required /></label
+          ><label class="check" style="align-self: end"
+            ><input name="strict" type="checkbox" checked /> Strict sizing</label
+          >
+        </div>
+        <h3>Terrain</h3>
+        <label
+          >Terrain source<select name="source">
+            <option value="plane">Synthetic sloping plane</option>
+            <option value="usgs">USGS 3DEP · U.S.</option>
+            <option value="skadi">AWS Terrain Tiles · global 1″ SRTM-derived</option>
+            <option value="opentopo">OpenTopography · your API key</option>
+            <option value="tiles">Local SRTMGL1 HGT ZIP tiles</option>
+            <option value="local">Local elevation grid (JSON)</option>
+          </select></label
+        >
+        <small id="skadinote" hidden
+          >Terrain Tiles combine SRTM, USGS 3DEP and national elevation data
+          (Mapzen; see licenses/Terrain-Tiles-attribution.txt). Each 1° tile is
+          13–16 MB.</small
+        >
+        <div id="opentopolabel" class="fields" hidden>
+          <label
+            >Dataset<select name="demtype">
+              <option value="SRTMGL1">NASA SRTMGL1 · 30 m</option>
+              <option value="COP30">Copernicus GLO-30</option>
+              <option value="NASADEM">NASADEM · 30 m</option>
+            </select></label
+          ><label
+            >OpenTopography API key<input
+              name="apikey"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+          /></label>
+        </div>
+        <label id="tileslabel" hidden
+          >SRTMGL1 tiles<input
+            name="tiles"
+            type="file"
+            accept=".zip"
+            multiple /></label
+        ><label id="gridlabel" hidden
+          >Elevation grid<input name="grid" type="file" accept=".json"
+        /></label>
+        <h3>Design storm</h3>
+        <small
+          >Look the depth up at the
+          <a href="https://hdsc.nws.noaa.gov/pfds/" target="_blank" rel="noopener">NOAA Atlas 14 PFDS</a>
+          for the study point. NOAA's servers do not accept requests from other sites.</small
+        >
+        <div class="fields">
+          <label
+            >Storm shape<select name="storm">
+              <option value="triangular">Triangular · central peak</option>
+              <option value="uniform">Uniform intensity</option>
+              <option value="scs-i">SCS Type I · 24 h</option>
+              <option value="scs-ia">SCS Type IA · 24 h</option>
+              <option value="scs-ii">SCS Type II · 24 h</option>
+              <option value="scs-iii">SCS Type III · 24 h</option>
+              <option value="nrcs-mse3">NRCS MSE3 · 24 h</option>
+              <option value="huff-1">Huff quartile 1 · Midwest</option>
+              <option value="huff-2">Huff quartile 2 · Midwest</option>
+              <option value="huff-3">Huff quartile 3 · Midwest</option>
+              <option value="huff-4">Huff quartile 4 · Midwest</option>
+            </select></label
+          ><label
+            >Total rainfall (mm)<input
+              type="number"
+              name="depth"
+              value="25"
+              min="0.01"
+              step="any"
+              required
+          /></label>
+        </div>
+        <small id="study-note"></small>
+        <div class="fields">
+          <label
+            >Duration (minutes)<input
+              name="minutes"
+              type="number"
+              min="5"
+              max="1440"
+              step="5"
+              value="30"
+              required /></label
+          ><label
+            >Manning roughness<input
+              name="roughness"
+              type="number"
+              min="0.001"
+              max="1"
+              step="any"
+              value="0.03"
+              required
+          /></label>
+        </div>
+        <h3>Surface</h3>
+        <div class="fields">
+          <label
+            >Boundary<select name="boundary">
+              <option value="south">South edge normal flow</option>
+              <option value="perimeter">Outer perimeter normal flow</option>
+              <option value="walls">Closed perimeter</option>
+            </select></label
+          ><label
+            >Normal / plane slope (m/m)<input
+              name="slope"
+              type="number"
+              min="0.00001"
+              max="1"
+              step="any"
+              value="0.01"
+              required
+          /></label>
+        </div>
+        <button class="tb primary wide">Generate surface model</button>
+      </form></template
+    >
+    <script type="module" src="./app.mjs"></script>
+  </body>
+</html>

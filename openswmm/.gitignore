@@ -1,0 +1,4 @@
+/vendor/
+/config.json
+/offline-files.json
+/tests/node_modules/
