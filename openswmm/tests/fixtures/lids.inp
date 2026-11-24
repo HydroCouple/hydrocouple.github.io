@@ -1,0 +1,119 @@
+[TITLE]
+LID editors fixture: one control of each classic type (rows from the openswmm.engine checkpoint
+session decks) placed on three subcatchments, with a pollutant removal and a drain to a subcatchment.
+
+[OPTIONS]
+FLOW_UNITS           CFS
+INFILTRATION         HORTON
+FLOW_ROUTING         KINWAVE
+START_DATE           01/01/2026
+START_TIME           00:00:00
+REPORT_START_DATE    01/01/2026
+REPORT_START_TIME    00:00:00
+END_DATE             01/01/2026
+END_TIME             06:00:00
+REPORT_STEP          00:15:00
+WET_STEP             00:05:00
+DRY_STEP             01:00:00
+ROUTING_STEP         0:00:30
+
+[RAINGAGES]
+RG1              INTENSITY  0:15       1.0        TIMESERIES Rain
+
+[TIMESERIES]
+Rain                        0:00       0.0
+Rain                        0:15       1.5
+Rain                        1:00       0.5
+Rain                        2:00       0.0
+
+[SUBCATCHMENTS]
+A                RG1              J1               5        60       300      1        0
+B                RG1              J1               5        70       300      1        0
+D                RG1              J1               2        40       200      1        0
+
+[SUBAREAS]
+A                0.012      0.1        0.05       0.1        25         OUTLET
+B                0.012      0.1        0.05       0.1        25         OUTLET
+D                0.012      0.1        0.05       0.1        25         OUTLET
+
+[INFILTRATION]
+A                3.0        0.5        4          7          0
+B                3.0        0.5        4          7          0
+D                3.0        0.5        4          7          0
+
+[POLLUTANTS]
+TSS              MG/L       0.0        0.0        0.0        0.0        0.0
+
+[LANDUSES]
+Urban            0          0          0
+
+[COVERAGES]
+A                Urban            100
+B                Urban            100
+D                Urban            100
+
+[BUILDUP]
+Urban            TSS              EXP        20         0.5        0          AREA
+
+[WASHOFF]
+Urban            TSS              EXP        0.5        1.5        0          0
+
+[LID_CONTROLS]
+UBC              BC
+UBC              SURFACE    3          .05        .12        1          3
+UBC              SOIL       6          .45        .2         .08        1          10         3
+UBC              STORAGE    6          .667       .1         0
+UBC              DRAIN      .5         .5         0          0
+UBC              REMOVALS   TSS        50
+URG              RG
+URG              SURFACE    3          .05        .12        1          3
+URG              SOIL       6          .45        .2         .08        1          10         3
+UGR              GR
+UGR              SURFACE    3          .05        .12        1          3
+UGR              SOIL       6          .45        .2         .08        1          10         3
+UGR              DRAINMAT   2          .5         .1
+UIT              IT
+UIT              SURFACE    3          .05        .12        1          3
+UIT              STORAGE    6          .667       .1         0
+UIT              DRAIN      .5         .5         0          0
+UPP              PP
+UPP              SURFACE    3          .05        .12        1          3
+UPP              PAVEMENT   3          .2         0          1          0          0          0
+UPP              SOIL       6          .45        .2         .08        1          10         3
+UPP              STORAGE    6          .667       .1         0
+UPP              DRAIN      .5         .5         0          0
+URB              RB
+URB              STORAGE    36         1          0          0          YES
+URB              DRAIN      .5         .5         0          6
+URD              RD
+URD              SURFACE    3          .05        .12        1          3
+URD              DRAIN      2          0          0          0
+UVS              VS
+UVS              SURFACE    3          .05        .12        1          3
+
+[LID_USAGE]
+A                UBC              2          20         3          70         30         1          *          B
+A                URG              1          20         3          50         30         1
+A                UGR              1          20         3          50         20         0
+B                UIT              1          20         3          70         20         0
+B                UPP              1          20         3          70         20         0
+B                URB              4          5          0          0          20         0
+D                URD              1          20         3          0          30         1
+D                UVS              1          20         3          0          30         0
+
+[JUNCTIONS]
+J1               10         4          0          0          0
+
+[OUTFALLS]
+O1               0          FREE                        NO
+
+[CONDUITS]
+C1               J1               O1               400        0.013      0          0          0          0
+
+[XSECTIONS]
+C1               CIRCULAR     1.5              0          0          0          1
+
+[REPORT]
+SUBCATCHMENTS ALL
+NODES ALL
+LINKS ALL

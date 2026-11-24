@@ -208,6 +208,88 @@ try {
   await page.getByRole("button", { name: "Close dialog" }).click();
   await page.getByRole("button", { name: "Run model" }).click();
   await until(/^Run complete/);
+  // Climate: constant evaporation in dry periods only, applied and run. The engine refuses this
+  // model for checkpoint sessions after initializing it; the run still completes.
+  await page.locator("#input").setInputFiles({ name: "climate.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/climate.inp", import.meta.url)) });
+  await page.waitForFunction(() => document.getElementById("modelname").textContent === "climate.inp");
+  await choose("objkind", "model");
+  await page.getByRole("button", { name: "Edit climate…" }).click();
+  await page.getByRole("tab", { name: "Evaporation" }).click();
+  await page.getByLabel("Evaporation source", { exact: true }).selectOption("CONSTANT");
+  await page.getByLabel("Constant evaporation", { exact: true }).fill("0.15");
+  await page.getByLabel("Evaporate only in dry periods", { exact: true }).check();
+  await page.getByRole("tab", { name: "Snowmelt" }).click();
+  await page.getByLabel("ATI weight", { exact: true }).fill("2");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => /ATI weight: a fraction/.test(document.querySelector("#content .record-message")?.textContent || ""));
+  await page.getByLabel("ATI weight", { exact: true }).fill("0.5");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("1 edit"));
+  await page.getByRole("button", { name: "Apply to model" }).click();
+  await until(/^1 edit applied/);
+  await page.getByRole("button", { name: "Edit INP" }).click();
+  const climateDeck = await page.locator("#content textarea").inputValue();
+  assert.match(climateDeck, /^CONSTANT\s+0\.14999999999999999\s*$/m); // 17 significant digits
+  assert.match(climateDeck, /^DRY_ONLY\s+YES\s*$/m);
+  assert.match(climateDeck, /^SNOWMELT\s+32\.5 0\.5 /m);
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  await page.getByRole("button", { name: "Run model" }).click();
+  await until(/^Run complete/);
+  // Transects: one in use keeps its name; its channel n is checked and saved, applied and run.
+  await page.locator("#input").setInputFiles({ name: "channel.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/channel.inp", import.meta.url)) });
+  await page.waitForFunction(() => document.getElementById("modelname").textContent === "channel.inp");
+  await choose("objkind", "transect");
+  await page.waitForFunction(() => [...document.getElementById("objid").options].some((o) => o.value === "Upper"));
+  await choose("objid", "Upper");
+  await page.getByRole("button", { name: "Edit cross-section…" }).waitFor();
+  assert.equal(await page.getByLabel("Name of the transect", { exact: true }).isDisabled(), true);
+  await page.getByRole("button", { name: "Edit cross-section…" }).click();
+  await page.getByLabel("Channel n", { exact: true }).fill("0");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => /Channel n: a number greater than zero/.test(document.querySelector("#content .record-message")?.textContent || ""));
+  await page.getByLabel("Channel n", { exact: true }).fill("0.03");
+  await page.getByLabel("Point 2 elevation", { exact: true }).fill("7.5");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("1 edit"));
+  await page.getByRole("button", { name: "Apply to model" }).click();
+  await until(/^1 edit applied/);
+  await page.getByRole("button", { name: "Edit INP" }).click();
+  const channelDeck = await page.locator("#content textarea").inputValue();
+  assert.match(channelDeck, /^NC 0\.059999999999999998 0\.059999999999999998 0\.029999999999999999$/m);
+  assert.match(channelDeck, /^GR 10 0 7\.5 20 /m);
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  await page.getByRole("button", { name: "Run model" }).click();
+  await until(/^Run complete/);
+  // LID controls: a bio-retention cell's soil and a subcatchment's placements (0 units refused),
+  // applied and run.
+  await page.locator("#input").setInputFiles({ name: "lids.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/lids.inp", import.meta.url)) });
+  await page.waitForFunction(() => document.getElementById("modelname").textContent === "lids.inp");
+  await choose("objkind", "lid");
+  await page.waitForFunction(() => [...document.getElementById("objid").options].some((o) => o.value === "UBC"));
+  await choose("objid", "UBC");
+  await page.getByRole("button", { name: "Edit layers…" }).click();
+  assert.equal(await page.getByLabel("LID type", { exact: true }).isDisabled(), true);
+  await page.getByLabel("Soil thickness", { exact: true }).fill("18");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("1 edit"));
+  await choose("objkind", "subcatchment");
+  await choose("objid", "A");
+  await page.getByRole("button", { name: "Edit LID usage…" }).click();
+  await page.getByLabel("Row 1 units", { exact: true }).fill("0");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => /Row 1: the number of units is a whole number/.test(document.querySelector("#content .record-message")?.textContent || ""));
+  await page.getByLabel("Row 1 units", { exact: true }).fill("3");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("2 edits"));
+  await page.getByRole("button", { name: "Apply to model" }).click();
+  await until(/^2 edits applied/);
+  await page.getByRole("button", { name: "Edit INP" }).click();
+  const lidDeck = await page.locator("#content textarea").inputValue();
+  assert.match(lidDeck, /^UBC\s+SOIL\s+18 /m);
+  assert.match(lidDeck, /^A\s+UBC\s+3 20 /m);
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  await page.getByRole("button", { name: "Run model" }).click();
+  await until(/^Run complete/);
   // A model with a CRS is placed by it: the inspector names the system and the hand-placed map
   // reference is not offered; a model without one keeps the reference button.
   await page.locator("#input").setInputFiles({ name: "crs.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/crs.inp", import.meta.url)) });

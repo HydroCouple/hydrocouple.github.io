@@ -187,7 +187,9 @@ test("the model session edits through the catalog and the engine-written deck ru
   assert.equal(invert.unit, "m");
   assert.ok(!rows.some((r) => r.path.startsWith("node.storage.")), "junction shows no storage fields");
   assert.ok(session.fields("node", "ST1").some((r) => r.path.startsWith("node.storage.")), "storage shows its view");
-  assert.ok(session.fields("model", null).some((r) => r.path.startsWith("climate.")));
+  // Climate values are edited in the climate dialog, not as model rows.
+  assert.ok(!session.fields("model", null).some((r) => r.path.startsWith("climate.")));
+  assert.equal(session.climate().kind, "climate");
   const options = session.fields("options", null);
   assert.equal(options.find((r) => r.path === "options.FLOW_UNITS").value, "CMS");
   assert.deepEqual(options.find((r) => r.path === "options.FLOW_ROUTING").choices.slice(0, 3), ["STEADY", "KINWAVE", "DYNWAVE"]);
@@ -300,6 +302,19 @@ test("a model the engine will not checkpoint still runs without save/resume and 
   const full = await simulate(await create(), project);
   assert.equal(full.stopped, false);
   assert.ok(outOf(full).length > 0);
+});
+
+test("a model the engine refuses after initializing a checkpoint session still runs", async () => {
+  // The engine checks climate sources after it initializes a session and then closes itself; the
+  // run opens the deck again and runs it without save/resume (fixtures/climate.inp with
+  // evaporation from a time series).
+  const text = (await readFile(new URL("./fixtures/climate.inp", import.meta.url), "utf8")).replace(/^MONTHLY\s+0\.10 .*$/m, "TIMESERIES TS1");
+  const project = { name: "c", entry: "climate.inp", inputs: { "climate.inp": new TextEncoder().encode(text) }, anchor: null, split: false };
+  const run = await simulate(await create(), project);
+  assert.equal(run.stopped, false);
+  assert.equal(run.resumable, false);
+  assert.match(run.resumeRefusal, /in-memory climate sources/);
+  assert.ok(outOf(run).length > 0);
 });
 
 test("a 1D run stopped early saves its state and a later run continues it to the same results", async () => {

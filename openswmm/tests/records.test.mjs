@@ -247,6 +247,122 @@ const cases = [
         .replace(/^S1\s+Lead\s+2\.0\s*\n/m, "")
         .replace(/^J1\s+TSS\s+R = 0\.5$/m, "J1 TSS C = 0.8 * Lead\nJ1 Lead R = 0.5 * R_TSS"),
   },
+  {
+    // Climate (increment 4): constant evaporation in dry periods only, no recovery pattern, wind,
+    // snowmelt, areal depletion and monthly adjustments.
+    entry: "climate.inp",
+    source: "climate.inp",
+    edit(s) {
+      const c = s.climate();
+      assert.equal(c.temperature.source, "TIMESERIES");
+      assert.equal(c.evaporation.type, "MONTHLY");
+      c.evaporation = { ...c.evaporation, type: "CONSTANT", monthly: Array(12).fill(0.15), recovery: "", dryOnly: true };
+      c.wind.monthly = c.wind.monthly.map((x) => x + 1);
+      c.snowmelt.divide = 34;
+      c.snowmelt.ati = 0.5;
+      c.adc.impervious[1] = 0.95;
+      c.adjustments.rainfall[5] = 1.6;
+      c.adjustments.temperature[6] = 6;
+      s.setClimate(c);
+    },
+    text: (t) =>
+      t
+        .replace(/^MONTHLY\s+0\.10 .*$/m, "CONSTANT 0.15")
+        .replace(/^RECOVERY\s+RecovPat\n/m, "")
+        .replace(/^DRY_ONLY\s+NO$/m, "DRY_ONLY YES")
+        .replace(/^WINDSPEED\s+MONTHLY .*$/m, "WINDSPEED MONTHLY 2 3 4 5 6 7 8 9 10 11 12 13")
+        .replace(/^SNOWMELT\s+32\.5\s+0\.45/m, "SNOWMELT 34 0.5")
+        .replace(/^ADC IMPERVIOUS\s+1\.0 0\.9 /m, "ADC IMPERVIOUS 1.0 0.95 ")
+        .replace(/^(RAIN\s+1\.0 1\.1 1\.2 1\.3 1\.4 )1\.5/m, "$11.6")
+        .replace(/^(TEMP\s+-2 -1 0 1 2 3 )4/m, "$16"),
+  },
+  {
+    // No air temperature, evaporation from a time series, a recovery pattern; a conductivity of
+    // zero reads as one.
+    entry: "climate.inp",
+    source: "climate.inp",
+    edit(s) {
+      const c = s.climate();
+      c.temperature = { ...c.temperature, source: "NONE", series: "" };
+      c.evaporation = { ...c.evaporation, type: "TIMESERIES", series: "ts1", recovery: "npervpat" }; // names match without case
+      c.adjustments.conductivity[0] = 0;
+      c.adjustments.conductivity[11] = 0.8;
+      s.setClimate(c);
+    },
+    text: (t) =>
+      t
+        .replace(/^TIMESERIES\s+TempTS\n/m, "")
+        .replace(/^MONTHLY\s+0\.10 .*$/m, "TIMESERIES TS1")
+        .replace(/^RECOVERY\s+RecovPat$/m, "RECOVERY NPervPat")
+        .replace(/^(CONDUCT\s+)(1\.0 ){11}1\.0$/m, "$11.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 0.8"),
+  },
+  {
+    // Transects (increment 4): roughness, points, modifiers and description of a transect in use,
+    // and a new one (a trapezoid, so the deck stays valid for legacy SWMM).
+    entry: "channel.inp",
+    source: "channel.inp",
+    edit(s) {
+      const t = s.record("transect", "Upper");
+      assert.deepEqual(t.modifiers, { meander: 1, stationFactor: 1, elevationOffset: 0 });
+      assert.deepEqual(s.record("transect", "Lower").modifiers, { meander: 1.1, stationFactor: 0.9, elevationOffset: 0.5 });
+      t.roughness = { left: 0.07, right: 0.065, channel: 0.03 };
+      t.points[1][1] = 7.5;
+      t.points[3][1] = 1.5;
+      t.modifiers = { meander: 1.2, stationFactor: 0, elevationOffset: 0.25 }; // a factor of 0 means 1
+      t.comment = "Upper reach, resurveyed 2026";
+      s.setRecord("transect", "Upper", t);
+      s.addRecord("transect", "Middle");
+    },
+    text: (t) =>
+      t
+        .replace(";Upper reach, surveyed 2025", ";Upper reach, resurveyed 2026")
+        .replace(/^NC 0\.06 .*$/m, "NC 0.07 0.065 0.03")
+        .replace(/^X1 Upper .*$/m, "X1 Upper 7 20 60 0 0 1.2 1 0.25")
+        .replace(/^GR 10\s+0\s+8\s+20\s+4\s+30\s+2\s+40/m, "GR 10 0 7.5 20 4 30 1.5 40")
+        .replace(/^(GR 9\s+90)$/m, "$1\nNC 0.03 0.03 0.03\nX1 Middle 6 10 30 0 0 1 1 0\nGR 5 0 5 10 0 15 0 25 5 30\nGR 5 40"),
+  },
+  {
+    // LID controls and usage (increment 4): layers of a bio-retention cell (with its removal), a
+    // permeable pavement and a rain barrel, a new swale, and one subcatchment's placements.
+    entry: "lids.inp",
+    source: "lids.inp",
+    edit(s) {
+      const bc = s.record("lid", "UBC");
+      assert.equal(bc.type, "BC");
+      assert.deepEqual(bc.removals, [{ pollutant: "TSS", percent: 50 }]);
+      bc.layers.surface = { ...bc.layers.surface, storage: 4, vegetation: 0.1 };
+      bc.layers.soil.thick = 18;
+      bc.layers.drain.delay = 6;
+      bc.removals[0].percent = 75;
+      s.setRecord("lid", "UBC", bc);
+      const pp = s.record("lid", "UPP");
+      pp.layers.pavement = { ...pp.layers.pavement, thick: 4, voidRatio: 0.15, ksat: 100, regenDays: 30, regenDegree: 0.5 };
+      s.setRecord("lid", "UPP", pp);
+      const rb = s.record("lid", "URB");
+      assert.equal(rb.layers.storage.covered, true);
+      rb.layers.storage.covered = false;
+      s.setRecord("lid", "URB", rb);
+      s.addRecord("lid", "Swale2", "VS");
+      const a = s.lidUsage("A");
+      assert.deepEqual(a.rows.map((r) => r.lid), ["UBC", "URG", "UGR"]);
+      a.rows[0] = { ...a.rows[0], number: 3, area: 25, drainTo: "d" }; // names match without case
+      a.rows.splice(1, 1);
+      a.rows.push({ lid: "UVS", number: 1, area: 10, width: 3, initSat: 0, fromImperv: 5, fromPerv: 0, toPerv: false, drainTo: "J1", reportFile: "" });
+      s.setLidUsage("A", a);
+    },
+    text: (t) =>
+      t
+        .replace(/^UBC\s+SURFACE\s+3\s+\.05/m, "UBC SURFACE 4 0.1")
+        .replace(/^UBC\s+SOIL\s+6 /m, "UBC SOIL 18 ")
+        .replace(/^UBC\s+DRAIN\s+\.5\s+\.5\s+0\s+0$/m, "UBC DRAIN .5 .5 0 6")
+        .replace(/^UBC\s+REMOVALS\s+TSS\s+50$/m, "UBC REMOVALS TSS 75")
+        .replace(/^UPP\s+PAVEMENT .*$/m, "UPP PAVEMENT 4 0.15 0 100 0 30 0.5")
+        .replace(/^URB\s+STORAGE\s+36\s+1\s+0\s+0\s+YES$/m, "URB STORAGE 36 1 0 0 NO")
+        .replace(/^(UVS\s+SURFACE.*)$/m, "$1\nSwale2 VS\nSwale2 SURFACE 6 0 0.1 1 5")
+        .replace(/^A\s+UBC\s+2\s+20\s+3\s+70\s+30\s+1\s+\*\s+B$/m, "A UBC 3 25 3 70 30 1 * D")
+        .replace(/^A\s+URG .*\n/m, "")
+        .replace(/^(A\s+UGR .*)$/m, "$1\nA UVS 1 10 3 0 5 0 * J1 0"),
+  },
 ];
 
 for (const c of cases)
@@ -439,4 +555,108 @@ test("rules, inflows and unit hydrographs refuse what the engine would not read 
   session.restore(token);
   assert.equal(decoder.decode(session.write()), before);
   session.close();
+});
+
+test("climate edits refuse what legacy SWMM would not read, and keep a climate file", async () => {
+  const s = new ModelSession(await create());
+  s.open(project("climate.inp", await deck("climate.inp")));
+  const c = s.climate();
+  const refused = (patch, message) => {
+    const d = structuredClone(c);
+    patch(d);
+    assert.throws(() => s.setClimate(d), message);
+  };
+  refused((d) => (d.temperature.series = "NOPE"), /Air temperature: no time series named NOPE/);
+  refused((d) => (d.temperature.source = "FILE"), /climate file is kept/);
+  refused((d) => (d.evaporation.type = "TEMPERATURE"), /needs a climate file/);
+  refused((d) => (d.evaporation.type = "FILE"), /needs a climate file/);
+  refused((d) => (d.wind.type = "FILE"), /needs a climate file/);
+  refused((d) => (d.evaporation.recovery = "NOPE"), /no time pattern named NOPE/);
+  refused((d) => (d.snowmelt.ati = 2), /ATI weight: a fraction/);
+  refused((d) => (d.snowmelt.latitude = 95), /Latitude/);
+  refused((d) => (d.adc.pervious[3] = 1.5), /Areal depletion \(pervious\), value 4/);
+  refused((d) => (d.adjustments.rainfall[0] = "x"), /Rainfall multipliers, value 1: enter a number/);
+  assert.deepEqual(s.climate(), c, "nothing changed");
+  // The workbench does not choose climate files (engine item 14); a deck's own file is kept.
+  const withFile = (await deck("climate.inp")).replace(/^TIMESERIES\s+TempTS$/m, "FILE climate.dat 01/01/2020");
+  const f = new ModelSession(await create());
+  f.open(project("climate.inp", withFile, { "climate.dat": new TextEncoder().encode("") }));
+  const fc = f.climate();
+  assert.equal(fc.temperature.source, "FILE");
+  assert.equal(fc.temperature.file, "climate.dat");
+  fc.evaporation.type = "TEMPERATURE";
+  fc.wind.type = "FILE";
+  f.setClimate(fc);
+  assert.match(decoder.decode(f.write()), /^FILE\s+"?climate\.dat"?\s+01\/01\/2020/m);
+  assert.throws(() => f.setClimate({ ...fc, temperature: { source: "NONE", series: "" } }), /climate file is kept/);
+  f.close();
+  s.close();
+});
+
+test("transects: a rename waits while links use one, a delete makes their sections circular, bad points are refused", async () => {
+  const s = new ModelSession(await create());
+  s.open(project("channel.inp", await deck("channel.inp")));
+  assert.deepEqual(s.impact("transect", "Upper"), [{ object: "link R1", field: "cross-section" }]);
+  assert.throws(() => s.renameRecord("transect", "Upper", "UpperReach"), /Links R1 use Upper; a transect in use cannot be renamed yet/);
+  const t = s.record("transect", "Lower");
+  const refused = (patch, message) => {
+    const d = structuredClone(t);
+    patch(d);
+    assert.throws(() => s.setRecord("transect", "Lower", d), message);
+  };
+  refused((d) => (d.points = [[0, 9]]), /at least two points/);
+  refused((d) => (d.points[2][0] = 5), /Point 3: stations run from left to right/);
+  refused((d) => (d.points = d.points.map(([x]) => [x, 4])), /no depth/);
+  refused((d) => (d.roughness.channel = 0), /Channel n: a number greater than zero/);
+  refused((d) => (d.roughness.left = 0), /Left overbank n: a number greater than zero/);
+  refused((d) => (d.banks = { left: 80, right: 20 }), /left bank station is right of the right bank/);
+  refused((d) => (d.modifiers.meander = -1), /Meander factor/);
+  assert.deepEqual(s.record("transect", "Lower"), t, "nothing changed");
+  // An unused transect renames; a delete of one in use turns its links circular, and undo restores.
+  s.addRecord("transect", "Spare");
+  s.renameRecord("transect", "Spare", "Reserve");
+  assert.equal(s.summary().objects.transect.map((x) => x.id).join(), "Upper,Lower,Reserve");
+  const { token, impact } = s.deleteRecord("transect", "Lower");
+  assert.deepEqual(impact, [{ object: "link R2", field: "cross-section" }]);
+  assert.match(decoder.decode(s.write()), /^R2\s+CIRCULAR\s/m);
+  s.restore(token);
+  assert.match(decoder.decode(s.write()), /^R2\s+IRREGULAR\s+Lower\s/m);
+  s.close();
+});
+
+test("LID controls and usage refuse what legacy SWMM would not run; renames follow, deletes take their placements", async () => {
+  const s = new ModelSession(await create());
+  s.open(project("lids.inp", await deck("lids.inp")));
+  const bc = s.record("lid", "UBC");
+  const refused = (patch, message) => {
+    const d = structuredClone(bc);
+    patch(d);
+    assert.throws(() => s.setRecord("lid", "UBC", d), message);
+  };
+  refused((d) => (d.type = "RG"), /in use keeps its type/);
+  refused((d) => (d.layers.soil.wp = 0.3), /Soil: porosity above field capacity above wilting point/);
+  refused((d) => (d.layers.soil.thick = 0), /Soil: this LID type needs a soil layer/);
+  refused((d) => (d.layers.drain = { ...d.layers.drain, open: 1, close: 2 }), /Drain: the open level is above the closed level/);
+  refused((d) => (d.layers.surface.vegetation = 1), /vegetation volume fraction is less than 1/);
+  refused((d) => (d.layers.storage.ksat = -1), /Storage: seepage rate is a number, zero or more/);
+  refused((d) => (d.removals[0].percent = 150), /Removal of TSS is a percentage/);
+  assert.deepEqual(s.record("lid", "UBC"), bc, "nothing changed");
+  const a = s.lidUsage("A");
+  const usage = (patch, message) => assert.throws(() => s.setLidUsage("A", { rows: a.rows.map((r, i) => (i ? r : { ...r, ...patch })) }), message);
+  usage({ number: 0 }, /Row 1: the number of units is a whole number, 1 or more/);
+  usage({ initSat: 150 }, /Row 1: the initial saturation is a percentage/);
+  usage({ drainTo: "NOPE" }, /no subcatchment or node named NOPE/);
+  usage({ number: 100, area: 5000 }, /cover 500040 ft², more than its area \(217800\)/);
+  usage({ fromImperv: 80 }, /treat more than 100 % of its impervious area/);
+  assert.deepEqual(s.lidUsage("A"), a, "nothing changed");
+  // A new control starts with the layers its type needs; an unused one may change type.
+  const added = s.addRecord("lid", "Cell", "BC");
+  assert.deepEqual(Object.keys(added.layers), ["surface", "soil", "storage", "drain"]);
+  assert.equal(s.setRecord("lid", "Cell", { ...added, type: "IT", layers: { ...added.layers } }).type, "IT");
+  s.renameRecord("lid", "UBC", "Planter");
+  assert.equal(s.lidUsage("A").rows[0].lid, "Planter");
+  assert.deepEqual(s.impact("lid", "UPP"), [{ object: "subcatchment B", field: "LID usage" }]);
+  s.deleteRecord("lid", "UPP");
+  assert.deepEqual(s.lidUsage("B").rows.map((r) => r.lid), ["UIT", "URB"]);
+  s.close();
 });

@@ -1670,3 +1670,109 @@ dialog:has(.inflows-editor) {
 .quality-verdict.bad {
   color: var(--danger-ink);
 }
+/* Climate dialog (E2 increment 4). */
+.climate-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.climate-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+}
+#content .climate-tabs button[role="tab"] {
+  height: auto;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  padding: 6px 9px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+#content .climate-tabs button[role="tab"]:hover:enabled {
+  background: none;
+  color: var(--ink);
+}
+#content .climate-tabs button[role="tab"][aria-selected="true"] {
+  border-bottom-color: var(--primary);
+  color: var(--ink);
+  font-weight: 600;
+}
+.climate-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 220px;
+}
+.climate-panel .prop {
+  max-width: 360px;
+}
+.prop-caption {
+  margin: 4px 0 -4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-mute);
+}
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px 8px;
+}
+.month-grid.ten {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+@media (max-width: 560px) {
+  .month-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.month-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.month-grid input {
+  height: 28px;
+  font-size: 12.5px;
+  min-width: 0;
+}
+.climate-adjust input {
+  width: 100%;
+  min-width: 70px;
+}
+label.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ink);
+}
+/* LID usage table: a wide dialog, compact cells; the table scrolls inside it. */
+dialog:has(.lid-usage-editor) {
+  width: min(1040px, 96vw);
+}
+.record-scroll {
+  max-width: 100%;
+}
+#content .lid-usage input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+.lid-usage th {
+  font-size: 11.5px;
+  line-height: 1.25;
+  vertical-align: bottom;
+}
+.lid-usage input:not([type="checkbox"]) {
+  width: 64px;
+  min-width: 0;
+}
+.lid-usage select {
+  max-width: 140px;
+}

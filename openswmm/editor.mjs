@@ -1,13 +1,17 @@
 // Catalog-driven object editor in the inspector: object lists, generated property rows, record
 // cards (time series, curves, patterns, unit hydrographs) with their editor dialogs, the control
 // rule program, a node's inflows and treatment, pollutants and land uses (buildup, washoff), a
-// subcatchment's land uses and loadings, edits sent to the model worker, undo, and "Apply to model"
-// which installs the engine-written deck.
-import { objectKinds, recordKinds, qualityKinds, patternLength, concentrationUnits } from "./model.mjs";
+// subcatchment's land uses and loadings, the climate, transects, LID controls and their placement,
+// edits sent to the model worker, undo, and
+// "Apply to model" which installs the engine-written deck.
+import { objectKinds, recordKinds, qualityKinds, patternLength, concentrationUnits, lidTypes, lidDefaults } from "./model.mjs";
 import { recordEditor, drawRecord, describeRecord, curveTypes } from "./records.mjs";
 import { rulesEditor } from "./rules.mjs";
 import { inflowsEditor, describeInflows, hydrographEditor, describeHydrograph, hydrographCurve, monthRows } from "./inflows.mjs";
 import { landuseEditor, describeLanduse, subQualityEditor, describeSubQuality, treatmentEditor, describeTreatment } from "./quality.mjs";
+import { climateEditor, describeClimate } from "./climate.mjs";
+import { transectEditor, describeTransect, drawTransect } from "./transects.mjs";
+import { lidEditor, describeLid, lidNames, lidUsageEditor, describeLidUsage } from "./lids.mjs";
 const $ = (id) => document.getElementById(id);
 const kindLabels = {
   options: "Simulation options",
@@ -23,10 +27,12 @@ const kindLabels = {
   curve: "Curves",
   pattern: "Time patterns",
   hydrograph: "Unit hydrographs",
+  transect: "Transects",
+  lid: "LID controls",
   controls: "Control rules",
 };
-const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern", hydrograph: "unit hydrograph", pollutant: "pollutant", landuse: "land use" };
-const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern", hydrograph: "Unit hydrograph", pollutant: "Pollutant", landuse: "Land use" };
+const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern", hydrograph: "unit hydrograph", pollutant: "pollutant", landuse: "land use", transect: "transect", lid: "LID control" };
+const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern", hydrograph: "Unit hydrograph", pollutant: "Pollutant", landuse: "Land use", transect: "Transect", lid: "LID control" };
 /** Kinds edited as one whole (no object list). */
 const globalKinds = ["model", "options", "controls"];
 const node = (tag, props = {}, ...children) => {
@@ -121,7 +127,7 @@ export class Editor {
       ...objects.map(
         (o) =>
           new Option(
-            o.id + (o.type ? " · " + o.type.toLowerCase() : "") + (o.from ? " · " + o.from + " → " + o.to : ""),
+            o.id + (o.type ? " · " + (kind === "lid" ? lidNames[o.type] : o.type).toLowerCase() : "") + (o.from ? " · " + o.from + " → " + o.to : ""),
             o.id,
           ),
       ),
@@ -166,7 +172,9 @@ export class Editor {
       props.replaceChildren(...rows.map((row) => this.row(kind, key, row)));
       if (kind === "node" || kind === "link") await this.showReferences(kind, key, props);
       if (kind === "subcatchment") await this.showSubQuality(key, props);
+      if (kind === "subcatchment") await this.showSubLids(key, props);
       if (qualityKinds.includes(kind)) await this.showQuality(kind, key, props);
+      if (kind === "model") await this.showClimate(props);
     } catch (e) {
       this.fail(e);
     }
@@ -234,6 +242,90 @@ export class Editor {
       node("div", { className: "pair" }, remove, create),
     );
     props.append(card);
+  }
+  /** Above the model's settings: the climate, edited in one dialog. */
+  async showClimate(props) {
+    const data = await this.call("climate");
+    if (!this.current()) return; // a later show() draws instead
+    const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit climate…" });
+    edit.onclick = () => this.openClimate();
+    props.prepend(
+      node(
+        "div",
+        { className: "record-card" },
+        node("p", { className: "record-desc", textContent: "Climate" }),
+        ...describeClimate(data, this.summary.unitSystem).map((line) => node("p", { className: "hint", textContent: line })),
+        edit,
+      ),
+    );
+  }
+  async openClimate() {
+    let data;
+    try {
+      data = await this.call("climate");
+    } catch (e) {
+      return this.fail(e);
+    }
+    this.openDialog(
+      "Climate",
+      climateEditor({
+        data,
+        series: this.summary.objects.timeseries.map((t) => t.id),
+        patterns: this.summary.objects.pattern.filter((p) => p.type === "MONTHLY").map((p) => p.id),
+        unitSystem: this.summary.unitSystem,
+        onSave: async (next) => {
+          const after = await this.call("setClimate", next);
+          this.edits.push({ op: "climate", kind: "model", key: null, before: data, after });
+          this.closeDialog();
+          this.note();
+          this.show();
+        },
+        onCancel: () => this.closeDialog(),
+      }),
+    );
+  }
+  /** Below a subcatchment's properties: the LID controls placed on it. */
+  async showSubLids(key, props) {
+    if (!this.summary?.objects.lid.length) return;
+    const data = await this.call("lidUsage", key);
+    if (!this.current()) return; // a later show() draws instead
+    const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit LID usage…" });
+    edit.onclick = () => this.openLidUsage(key);
+    props.append(
+      node(
+        "div",
+        { className: "record-card" },
+        node("p", { className: "record-desc", textContent: "Low impact development" }),
+        ...describeLidUsage(data, this.summary.unitSystem).map((line) => node("p", { className: "hint", textContent: line })),
+        edit,
+      ),
+    );
+  }
+  async openLidUsage(key) {
+    let data;
+    try {
+      data = await this.call("lidUsage", key);
+    } catch (e) {
+      return this.fail(e);
+    }
+    const o = this.summary.objects;
+    this.openDialog(
+      "Subcatchment " + data.id + " · LID usage",
+      lidUsageEditor({
+        data,
+        lids: o.lid.filter((l) => l.type !== "NODE").map((l) => l.id),
+        drains: [...o.subcatchment, ...o.node].map((x) => x.id),
+        unitSystem: this.summary.unitSystem,
+        onSave: async (next) => {
+          const after = await this.call("setLidUsage", key, next);
+          this.edits.push({ op: "lidusage", kind: "subcatchment", key: data.id, before: data, after });
+          this.closeDialog();
+          this.note();
+          this.show();
+        },
+        onCancel: () => this.closeDialog(),
+      }),
+    );
   }
   /** Below a subcatchment's properties: its land uses and initial loadings. */
   async showSubQuality(key, props) {
@@ -512,6 +604,8 @@ export class Editor {
       else if (edit.op === "landuse") await this.call("setLanduse", edit.key, edit.before);
       else if (edit.op === "subquality") await this.call("setSubQuality", edit.key, edit.before);
       else if (edit.op === "treatment") await this.call("setTreatment", edit.key, edit.before);
+      else if (edit.op === "climate") await this.call("setClimate", edit.before);
+      else if (edit.op === "lidusage") await this.call("setLidUsage", edit.key, edit.before);
       else if (edit.op === "add") await this.call("deleteRecord", edit.kind, edit.key);
       else if (edit.op === "rename") await this.call("renameRecord", edit.kind, edit.after, edit.before);
       else if (edit.op === "delete") await this.call("restore", edit.token);
@@ -555,27 +649,35 @@ export class Editor {
     }
     if (!this.current()) return; // another object was picked meanwhile
     const preview = node("canvas", { width: 260, height: 64, className: "record-spark", ariaLabel: "Preview of " + record.id });
-    const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit values…" });
-    edit.disabled = !!record.file; // a FILE series is edited in its file
+    preview.hidden = kind === "lid";
+    const edit = node("button", { type: "button", className: "tb ghost", textContent: { transect: "Edit cross-section…", lid: "Edit layers…" }[kind] ?? "Edit values…" });
+    edit.disabled = !!record.file || record.type === "NODE"; // a FILE series is edited in its file; a node LID stack in Edit INP
     edit.onclick = () => this.openRecord(kind, record.id);
     const name = node("input", { type: "text", value: record.id, ariaLabel: "Name of the " + noun });
     name.onchange = () => this.rename(kind, record.id, name.value);
+    // The engine's transect rename leaves its links naming the old transect (engine item 11).
+    const fixedName = kind === "transect" && users.length > 0;
+    name.disabled = fixedName;
     const remove = node("button", { type: "button", className: "tb ghost", textContent: "Delete" });
     remove.onclick = () => this.confirmDelete(kind, record.id, users, card);
+    const describe =
+      kind === "hydrograph" ? describeHydrograph(record) : kind === "transect" ? describeTransect(record) : kind === "lid" ? describeLid(record) : describeRecord(record);
     card.append(
-      node("p", { className: "record-desc", textContent: kind === "hydrograph" ? describeHydrograph(record) : describeRecord(record) }),
+      node("p", { className: "record-desc", textContent: describe }),
       preview,
       node(
         "p",
         { className: "hint" },
         users.length ? "Used by " + users.map((u) => u.object).join(", ") + "." : "Not used by any object.",
       ),
-      node("label", { className: "prop" }, node("span", { textContent: "Name" }), name),
+      node("label", { className: "prop", title: fixedName ? "A transect that links use keeps its name for now." : "" }, node("span", { textContent: "Name" }), name),
       node("div", { className: "pair" }, edit, remove),
       create,
     );
     props.replaceChildren(card);
-    if (kind === "hydrograph") {
+    if (kind === "transect") drawTransect(preview, record);
+    else if (kind === "lid") return;
+    else if (kind === "hydrograph") {
       const months = record.entries.map((e) => e.month);
       drawRecord(preview, { kind: "curve", points: hydrographCurve(monthRows(record, months.includes(-1) ? -1 : Math.min(...months))) });
     } else drawRecord(preview, record);
@@ -584,8 +686,8 @@ export class Editor {
   newRecordForm(kind, card, button) {
     const name = node("input", { type: "text", ariaLabel: "New " + recordNoun[kind] + " name", placeholder: "Name" });
     const type = node("select", { ariaLabel: "New " + recordNoun[kind] + " type" });
-    const types = kind === "curve" ? curveTypes : kind === "pattern" ? Object.keys(patternLength) : kind === "pollutant" ? Object.keys(concentrationUnits) : [];
-    for (const t of types) type.add(new Option(kind === "pollutant" ? t : t[0] + t.slice(1).toLowerCase(), t));
+    const types = kind === "curve" ? curveTypes : kind === "pattern" ? Object.keys(patternLength) : kind === "pollutant" ? Object.keys(concentrationUnits) : kind === "lid" ? lidTypes : [];
+    for (const t of types) type.add(new Option(kind === "pollutant" ? t : kind === "lid" ? lidNames[t] : t[0] + t.slice(1).toLowerCase(), t));
     if (kind === "pollutant") type.ariaLabel = "New pollutant units";
     type.hidden = !types.length;
     const ok = node("button", { type: "button", className: "tb primary", textContent: "Create" });
@@ -632,7 +734,13 @@ export class Editor {
     yes.onclick = run;
     no.onclick = () => this.show();
     card.replaceChildren(
-      node("p", { className: "hint", textContent: "Deleting " + id + " clears these references: " + users.map((u) => u.object + " (" + u.field + ")").join(", ") + "." }),
+      node("p", {
+        className: "hint",
+        textContent:
+          kind === "transect"
+            ? "Deleting " + id + " turns the cross-section of " + users.map((u) => u.object).join(", ") + " into a circular one."
+            : "Deleting " + id + " clears these references: " + users.map((u) => u.object + " (" + u.field + ")").join(", ") + ".",
+      }),
       node("div", { className: "pair" }, no, yes),
     );
   }
@@ -655,7 +763,11 @@ export class Editor {
     const onCancel = () => this.closeDialog();
     this.openDialog(
       recordTitle[kind] + " " + record.id,
-      kind === "hydrograph"
+      kind === "transect"
+        ? transectEditor({ record, unitSystem: this.summary?.unitSystem, onSave, onCancel })
+        : kind === "lid"
+        ? lidEditor({ record, defaults: lidDefaults(this.summary?.unitSystem), unitSystem: this.summary?.unitSystem, onSave, onCancel })
+        : kind === "hydrograph"
         ? hydrographEditor({
             record,
             gages: (this.summary?.objects.gage || []).map((g) => g.id),

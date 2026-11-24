@@ -117,9 +117,15 @@ export async function simulate(engine, project, emit = () => {}, control = {}, t
       try {
         network.checkpoints.startSession(1); // initializes and starts, with binary output
       } catch (error) {
-        // The engine qualifies each model for checkpoint sessions (pollutants, reactions, ...). A
-        // refusal before initialization leaves the model OPENED: run it without save/resume.
-        if (control.resume || network.state !== EngineState.OPENED) throw error;
+        // The engine qualifies each model for checkpoint sessions (pollutants, reactions, climate
+        // sources, ...). A refusal before initialization leaves the model OPENED; one after it (a
+        // climate file, evaporation from a time series) closes the engine, which opens again.
+        // Either way the model runs without save/resume.
+        if (control.resume) throw error;
+        if (network.state === EngineState.CLOSED) {
+          network.open(entry, report, output);
+          if (threads > 1) network.options.set("THREADS", String(threads));
+        } else if (network.state !== EngineState.OPENED) throw error;
         session = false;
         resumeRefusal = error.message || String(error);
         network.setWarningCallback(runtimeWarning);

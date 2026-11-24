@@ -1,6 +1,6 @@
 // Engine-as-model: one solver kept in the OPENED state so edits go through the engine API
 // (catalog field paths) and the INP deck becomes a derived artifact written by the engine.
-import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits } from "./vendor/engine/index.js";
+import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField } from "./vendor/engine/index.js";
 import { localPath } from "./simulation.mjs";
 
 /** Sub-view path prefixes that only apply to one object type. */
@@ -13,9 +13,9 @@ const subviews = {
   "link.orifice.": "ORIFICE",
   "link.outlet.": "OUTLET",
 };
-export const objectKinds = ["options", "model", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "controls"];
+export const objectKinds = ["options", "model", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "controls"];
 /** Record kinds: edited as whole tables in the record editor rather than as property rows. */
-export const recordKinds = ["timeseries", "curve", "pattern", "hydrograph"];
+export const recordKinds = ["timeseries", "curve", "pattern", "hydrograph", "transect", "lid"];
 /** Water-quality objects: property rows plus a name, new and delete like a record. */
 export const qualityKinds = ["pollutant", "landuse"];
 /** Buildup functions, normalizers and washoff functions by their engine codes ([BUILDUP], [WASHOFF]). */
@@ -24,6 +24,45 @@ export const normalizers = ["AREA", "CURB"];
 export const washoffFuncs = ["NONE", "EXP", "RC", "EMC"];
 /** Concentration units of a pollutant, deck spelling → engine name. */
 export const concentrationUnits = { "MG/L": "MG_PER_L", "UG/L": "UG_PER_L", "#/L": "COUNT_PER_L" };
+/** Climate sources, in the engine's code order. */
+export const evapTypes = ["CONSTANT", "MONTHLY", "TIMESERIES", "TEMPERATURE", "FILE"];
+/** LID control types in the engine's LidType order, and the layers each has (SWMM 5.2). */
+export const lidTypes = ["BC", "RG", "GR", "IT", "PP", "RB", "RD", "VS"];
+const lidTypeNames = { BC: "BIO_CELL", RG: "RAIN_GARDEN", GR: "GREEN_ROOF", IT: "INFIL_TRENCH", PP: "PERM_PAVEMENT", RB: "RAIN_BARREL", RD: "ROOFTOP_DISCONN", VS: "VEGETATIVE_SWALE" };
+export const lidLayers = {
+  BC: ["surface", "soil", "storage", "drain"],
+  RG: ["surface", "soil", "storage"],
+  GR: ["surface", "soil", "drainmat"],
+  IT: ["surface", "storage", "drain"],
+  PP: ["surface", "pavement", "soil", "storage", "drain"],
+  RB: ["storage", "drain"],
+  RD: ["surface", "drain"],
+  VS: ["surface"],
+};
+export const lidFieldNames = {
+  surface: { storage: "berm height", vegetation: "vegetation volume fraction", roughness: "surface roughness", slope: "surface slope", sideSlope: "side slope" },
+  soil: { thick: "thickness", porosity: "porosity", fc: "field capacity", wp: "wilting point", ksat: "conductivity", kslope: "conductivity slope", suction: "suction head" },
+  pavement: { thick: "thickness", voidRatio: "void ratio", fracImperv: "impervious surface fraction", ksat: "permeability", clogFactor: "clogging factor", regenDays: "regeneration interval", regenDegree: "regeneration fraction" },
+  storage: { thick: "thickness", voidFrac: "void ratio", ksat: "seepage rate", clogging: "clogging factor", covered: "covered" },
+  drain: { coeff: "flow coefficient", expon: "flow exponent", offset: "offset", delay: "drain delay", open: "open level", close: "closed level", curve: "control curve" },
+  drainmat: { thick: "thickness", voidFrac: "void fraction", roughness: "roughness" },
+};
+/**
+ * Starting layer values for a new LID control (lengths in inches or millimeters, rates per hour);
+ * legacy SWMM refuses a control without its required layers.
+ */
+export function lidDefaults(unitSystem) {
+  const k = unitSystem === "SI" ? 25 : 1; // inches → about the same in millimeters
+  return {
+    surface: { storage: 6 * k, roughness: 0.1, slope: 1, vegetation: 0, sideSlope: 5 },
+    soil: { thick: 12 * k, porosity: 0.5, fc: 0.2, wp: 0.1, ksat: 0.5 * k, kslope: 10, suction: 3.5 * k },
+    pavement: { thick: 6 * k, voidRatio: 0.15, fracImperv: 0, ksat: 100 * k, clogFactor: 0, regenDays: 0, regenDegree: 0 },
+    storage: { thick: 12 * k, voidFrac: 0.75, ksat: 0.5 * k, clogging: 0, covered: true },
+    drain: { coeff: 0, expon: 0.5, offset: 6 * k, delay: 6, open: 0, close: 0, curve: "" },
+    drainmat: { thick: 3 * k, voidFrac: 0.5, roughness: 0.1 },
+  };
+}
+export const tempSources = ["NONE", "TIMESERIES", "FILE"];
 /** Treatment expression variables and functions the engine knows (Treatment.cpp). */
 const treatmentWords = /^(C|R|DT|HRT|Q|V|D|AREA|EXP|LOG|LN|SQRT|MIN|MAX|ABS|SGN|STEP)$/i;
 /** External inflow types ([INFLOWS]); a FLOW row is always type FLOW. */
@@ -104,6 +143,7 @@ const fieldNames = {
   upper_evap_pat: "upper evaporation pattern",
   uh_name: "unit hydrograph",
   co_pollut: "co-pollutant",
+  "xsect_curve[transect]": "cross-section",
 };
 /** Time series that read their values from a file (`name FILE path`), keyed by upper-case name. */
 function fileSeries(fs, entry) {
@@ -203,6 +243,8 @@ export class ModelSession {
         hydrograph: range(s.inflows.hydrographGroupCount).map((i) => ({ id: s.inflows.getHydrographGroupId(i) })),
         pollutant: this.pollutantIds().map((id) => ({ id })),
         landuse: this.landuseIds().map((id) => ({ id })),
+        transect: this.transectIds().map((id) => ({ id })),
+        lid: this.lidIds().map((id, i) => ({ id, type: lidTypes[s.infrastructure.lids.getType(i)] ?? "NODE" })),
       },
     };
   }
@@ -230,6 +272,8 @@ export class ModelSession {
   record(kind, id) {
     const s = this.solver;
     if (kind === "hydrograph") return this.hydrograph(id);
+    if (kind === "transect") return this.transect(id);
+    if (kind === "lid") return this.lid(id);
     if (kind === "pattern") {
       const p = s.patterns.get(id);
       return { kind, id: p.id, type: PatternType[p.type], factors: p.factors };
@@ -248,6 +292,8 @@ export class ModelSession {
   setRecord(kind, id, data) {
     const s = this.solver;
     if (kind === "hydrograph") return this.setHydrograph(id, data);
+    if (kind === "transect") return this.setTransect(id, data);
+    if (kind === "lid") return this.setLid(id, data);
     if (kind === "pattern") {
       const type = PatternType[data.type];
       if (type === undefined) throw new Error("Unknown pattern type " + data.type + ".");
@@ -292,6 +338,28 @@ export class ModelSession {
       s.quality.landuses.add(id);
       return { kind, id };
     }
+    if (kind === "lid") {
+      if (this.lidIds().some((l) => same(l, id))) throw new Error("A LID control named " + id + " exists.");
+      if (!lidLayers[type]) throw new Error("Unknown LID type " + type + ".");
+      s.infrastructure.lids.add(id, LidType[lidTypeNames[type]]);
+      const defaults = lidDefaults(this.unitSystem);
+      this.setLid(id, { type, layers: Object.fromEntries(lidLayers[type].map((n) => [n, defaults[n]])), removals: [] });
+      return this.lid(id);
+    }
+    if (kind === "transect") {
+      if (this.transectIds().some((t) => same(t, id))) throw new Error("A transect named " + id + " exists.");
+      // Legacy SWMM refuses a transect with fewer than two points, so a new one starts as a
+      // trapezoidal channel 5 deep with n 0.03 (in the model's length units).
+      s.infrastructure.transects.add(id);
+      this.setTransect(id, {
+        roughness: { left: 0.03, right: 0.03, channel: 0.03 },
+        banks: { left: 10, right: 30 },
+        modifiers: { meander: 1, stationFactor: 1, elevationOffset: 0 },
+        points: [[0, 5], [10, 5], [15, 0], [25, 0], [30, 5], [40, 5]],
+        comment: "",
+      });
+      return this.transect(id);
+    }
     if (kind === "hydrograph") {
       if (this.groupIndex(id) >= 0) throw new Error("A unit hydrograph named " + id + " exists.");
       const gage = s.gages.ids[0];
@@ -327,14 +395,25 @@ export class ModelSession {
             ? this.pollutantIds().some((p) => same(p, next))
             : kind === "landuse"
               ? this.landuseIds().some((l) => same(l, next))
-              : this.findTable(kind, next) >= 0;
+              : kind === "transect"
+                ? this.transectIds().some((t) => same(t, next))
+                : kind === "lid"
+                  ? this.lidIds().some((l) => same(l, next))
+                  : this.findTable(kind, next) >= 0;
     if (taken && next.toUpperCase() !== id.toUpperCase()) throw new Error(next + " is taken.");
     // Buildup, washoff, coverages, loadings, treatment and inflow rows follow a pollutant or land use.
     if (kind === "pollutant") s.pollutants.rename(this.name("pollutant", id), next);
     else if (kind === "landuse") s.quality.landuses.get(this.name("landuse", id)).rename(next);
     else if (kind === "hydrograph") s.inflows.renameHydrographGroup(this.group(id), next); // RDII rows follow
     else if (kind === "pattern") s.patterns.rename(id, next);
-    else s.tables.rename(this.table(kind, id), next);
+    else if (kind === "lid") s.infrastructure.lids.rename(this.lidIndex(id), next); // [LID_USAGE] rows follow
+    else if (kind === "transect") {
+      // The engine renames the transect but its links keep the old name, and the deck no longer
+      // opens (engine item 11): a transect in use keeps its name.
+      const users = this.impact(kind, id);
+      if (users.length) throw new Error("Links " + users.map((u) => u.object.replace(/^link /, "")).join(", ") + " use " + id + "; a transect in use cannot be renamed yet.");
+      s.infrastructure.transects.rename(this.transectIndex(id), next);
+    } else s.tables.rename(this.table(kind, id), next);
     const file = kind === "timeseries" ? this.files.get(id.toUpperCase()) : undefined;
     if (file !== undefined) {
       this.files.delete(id.toUpperCase());
@@ -354,7 +433,11 @@ export class ModelSession {
             ? s.editor.analyzePollutantImpact(this.name("pollutant", id))
             : kind === "landuse"
               ? s.editor.analyzeLanduseImpact(this.name("landuse", id))
-              : s.editor.analyzeTableImpact(this.table(kind, id));
+              : kind === "transect"
+                ? s.editor.analyzeTransectImpact(this.transectIndex(id))
+                : kind === "lid"
+                  ? s.editor.analyzeLidImpact(this.lidIds()[this.lidIndex(id)])
+                  : s.editor.analyzeTableImpact(this.table(kind, id));
     const named = (list, i) => list.ids?.[i] ?? list.getId?.(i);
     // The engine's pollutant impact leaves out initial loadings, which its delete removes too (engine
     // item 8): listed here from the subcatchments.
@@ -382,6 +465,7 @@ export class ModelSession {
         else if (type === "landuse") return { object: "land use " + this.landuseIds()[e.objIdx], field: e.field };
         else if (type === "pollutant") name = this.pollutantIds()[e.objIdx];
         else if (type === "treatment") return { object: "node " + s.nodes.ids[e.objIdx], field: "treatment" };
+        else if (type === "lid_usage") return { object: "subcatchment " + s.subcatchments.ids[s.infrastructure.lids.usageRecord(e.objIdx).subcatchIndex], field: "LID usage" };
         else if (type === "ext_inflow") {
           const [n, constituent] = s.inflows.getExternal(e.objIdx);
           return { object: "external " + constituent + " inflow at " + s.nodes.ids[n], field: "constituent" };
@@ -402,6 +486,8 @@ export class ModelSession {
     else if (kind === "hydrograph") this.solver.editor.deleteHydrograph(this.solver.inflows.getHydrographGroupId(this.group(id)));
     else if (kind === "pollutant") this.solver.editor.deletePollutant(this.name("pollutant", id));
     else if (kind === "landuse") this.solver.editor.deleteLanduse(this.name("landuse", id));
+    else if (kind === "transect") this.solver.editor.deleteTransect(this.transectIndex(id));
+    else if (kind === "lid") this.solver.editor.deleteLid(this.lidIds()[this.lidIndex(id)]);
     else this.solver.editor.deleteTable(this.table(kind, id));
     if (kind === "timeseries") this.files.delete(String(id).toUpperCase());
     return { impact, token };
@@ -839,6 +925,463 @@ export class ModelSession {
     }
     return this.treatment(name);
   }
+  // ---- Transects ([TRANSECTS]): irregular natural-channel cross-sections that IRREGULAR links use.
+  transectIds() {
+    const t = this.solver.infrastructure.transects;
+    return range(t.length).map((i) => t.getId(i));
+  }
+  transectIndex(id) {
+    const i = this.transectIds().findIndex((t) => same(t, id));
+    if (i < 0) throw new Error("No transect named " + id + ".");
+    return i;
+  }
+  /**
+   * A transect as plain data: Manning's n of the left and right overbanks and the main channel, the
+   * bank stations, the modifiers (meander factor, station factor, elevation offset; a factor of 0
+   * means 1) and its station / elevation points as authored.
+   */
+  transect(id) {
+    const t = this.solver.infrastructure.transects,
+      i = this.transectIndex(id);
+    const [left, right, channel] = t.getRoughness(i);
+    const [bankLeft, bankRight] = t.getBankStations(i);
+    const [stationFactor, elevationOffset, meander] = t.getModifiers(i); // engine item 15: this order
+    return {
+      kind: "transect",
+      id: t.getId(i),
+      roughness: { left, right, channel },
+      banks: { left: bankLeft, right: bankRight },
+      modifiers: { meander, stationFactor, elevationOffset },
+      points: t.stations(i),
+      comment: t.getComments(i),
+    };
+  }
+  /**
+   * Transect data as the engine will hold it, or an error naming the first bad value. Checked as
+   * legacy SWMM's transect_validate (the engine stores what legacy refuses; engine item 13).
+   */
+  checkTransect(data) {
+    const number = (v, what, ok = () => true, rule = "enter a number.") => {
+      const x = Number(v);
+      if (String(v).trim() === "" || !Number.isFinite(x) || !ok(x)) throw new Error(what + ": " + rule);
+      return x;
+    };
+    // In an NC row a 0 keeps the previous transect's value, so a 0 written here would change meaning
+    // when the deck is read again: every n is greater than zero.
+    const positive = (x) => x > 0;
+    const roughness = {
+      left: number(data.roughness.left, "Left overbank n", positive, "a number greater than zero."),
+      right: number(data.roughness.right, "Right overbank n", positive, "a number greater than zero."),
+      channel: number(data.roughness.channel, "Channel n", positive, "a number greater than zero."),
+    };
+    const points = data.points.map(([x, y], i) => [number(x, "Point " + (i + 1) + " station"), number(y, "Point " + (i + 1) + " elevation")]);
+    if (points.length < 2) throw new Error("A transect needs at least two points.");
+    if (points.length >= 1500) throw new Error("A transect has fewer than 1500 points.");
+    for (let i = 1; i < points.length; i++)
+      if (points[i][0] < points[i - 1][0]) throw new Error("Point " + (i + 1) + ": stations run from left to right (each at least the one before).");
+    const ys = points.map((p) => p[1]);
+    if (Math.min(...ys) >= Math.max(...ys)) throw new Error("The points have no depth: the elevations are all the same.");
+    const banks = { left: number(data.banks.left, "Left bank station"), right: number(data.banks.right, "Right bank station") };
+    if (banks.left > banks.right) throw new Error("The left bank station is right of the right bank station.");
+    // A factor of 0 reads as 1 (legacy and the engine's reader), so it is stored as 1.
+    const factor = (v, what) => number(v, what, (x) => x >= 0, "a number, zero or more (0 means 1).") || 1;
+    const modifiers = {
+      meander: factor(data.modifiers.meander, "Meander factor"),
+      stationFactor: factor(data.modifiers.stationFactor, "Station factor"),
+      elevationOffset: number(data.modifiers.elevationOffset, "Elevation offset"),
+    };
+    return { kind: "transect", roughness, banks, modifiers, points, comment: String(data.comment ?? "").replace(/\s*\n\s*/g, " ").trim() };
+  }
+  /** Set a transect's changed values; returns it as the engine holds it. */
+  setTransect(id, data) {
+    const t = this.solver.infrastructure.transects,
+      i = this.transectIndex(id);
+    const next = this.checkTransect(data),
+      was = this.transect(id);
+    const differs = (part) => JSON.stringify(next[part]) !== JSON.stringify(was[part]);
+    if (differs("roughness")) t.setRoughness(i, next.roughness.left, next.roughness.right, next.roughness.channel);
+    if (differs("points")) {
+      t.clearStations(i);
+      for (const [x, y] of next.points) t.addStation(i, x, y);
+    }
+    if (differs("banks")) t.setBankStations(i, next.banks.left, next.banks.right);
+    if (differs("modifiers")) t.setModifiers(i, next.modifiers.stationFactor, next.modifiers.elevationOffset, next.modifiers.meander);
+    if (differs("comment")) t.setComments(i, next.comment);
+    return this.transect(id);
+  }
+  // ---- LID controls ([LID_CONTROLS]) and their placement on subcatchments ([LID_USAGE]). ----
+  lidIds() {
+    const l = this.solver.infrastructure.lids;
+    return range(l.length).map((i) => l.getId(i));
+  }
+  lidIndex(id) {
+    const i = this.lidIds().findIndex((l) => same(l, id));
+    if (i < 0) throw new Error("No LID control named " + id + ".");
+    return i;
+  }
+  /** How many [LID_USAGE] rows place a control. */
+  lidUses(i) {
+    const l = this.solver.infrastructure.lids;
+    return range(l.usageCount()).filter((u) => l.usageRecord(u).lidIndex === i).length;
+  }
+  /**
+   * A LID control as plain data: its type (BC, RG, GR, IT, PP, RB, RD, VS; NODE stacks are not edited
+   * here), the layers that type has with their values in project units, the underdrain removal (%)
+   * per pollutant and how many placements use it.
+   */
+  lid(id) {
+    const l = this.solver.infrastructure.lids,
+      i = this.lidIndex(id);
+    const type = lidTypes[l.getType(i)] ?? "NODE";
+    const x = (f) => l.getExtra(i, LidExtraField[f]);
+    const read = {
+      surface: () => ({ ...l.getSurface(i), vegetation: x("SURFACE_VEGETATION"), sideSlope: x("SURFACE_SIDE_SLOPE") }),
+      soil: () => ({ ...l.getSoil(i), suction: x("SOIL_SUCTION") }),
+      pavement: () => l.getPavement(i),
+      storage: () => ({ ...l.getStorage(i), clogging: x("STORAGE_CLOGGING"), ...(type === "RB" ? { covered: x("STORAGE_COVERED") !== 0 } : {}) }),
+      drain: () => ({ ...l.getDrain(i), delay: x("DRAIN_DELAY"), open: x("DRAIN_OPEN"), close: x("DRAIN_CLOSE"), curve: l.getDrainCurve(i) }),
+      drainmat: () => l.getDrainmat(i),
+    };
+    const layers = Object.fromEntries((lidLayers[type] || []).map((name) => [name, read[name]()]));
+    const removals = lidLayers[type]?.includes("drain") ? this.pollutantIds().map((pollutant, p) => ({ pollutant, percent: l.getRemoval(i, p) })) : [];
+    return { kind: "lid", id: l.getId(i), type, layers, removals, uses: this.lidUses(i) };
+  }
+  /**
+   * LID control data as the engine will hold it, or an error naming the first bad value. Checked as
+   * legacy SWMM's validateLidProc (required layers, soil moisture order, void ratios, drain heads,
+   * swale surface).
+   */
+  checkLid(data, uses = 0, was = null) {
+    const type = data.type;
+    if (!lidLayers[type]) throw new Error("Unknown LID type " + type + ".");
+    if (was && type !== was.type && uses) throw new Error("A LID control in use keeps its type.");
+    const layerNames = { surface: "Surface", soil: "Soil", pavement: "Pavement", storage: "Storage", drain: "Drain", drainmat: "Drainage mat" };
+    const v = {};
+    for (const name of lidLayers[type]) {
+      const given = data.layers[name] || lidDefaults(this.unitSystem)[name];
+      v[name] = {};
+      for (const [key, value] of Object.entries(given)) {
+        if (key === "curve") v[name].curve = String(value ?? "");
+        else if (key === "covered") v[name].covered = !!value;
+        else {
+          const n = Number(value);
+          if (String(value).trim() === "" || !Number.isFinite(n) || n < 0) throw new Error(layerNames[name] + ": " + lidFieldNames[name][key] + " is a number, zero or more.");
+          v[name][key] = n;
+        }
+      }
+    }
+    const fail = (name, rule) => {
+      throw new Error(layerNames[name] + ": " + rule);
+    };
+    const s = v.surface;
+    if (s && s.vegetation >= 1) fail("surface", "the vegetation volume fraction is less than 1.");
+    if (type === "VS" && !(s.roughness * s.slope > 0 && s.storage > 0)) fail("surface", "a swale needs a berm height, a roughness and a slope above zero.");
+    if ((type === "BC" || type === "RG" || type === "GR") && !(v.soil.thick > 0)) fail("soil", "this LID type needs a soil layer thickness above zero.");
+    if (type === "GR" && !(v.drainmat.thick > 0)) fail("drainmat", "a green roof needs a drainage mat thickness above zero.");
+    if (type === "IT" && !(v.storage.thick > 0)) fail("storage", "an infiltration trench needs a storage thickness above zero.");
+    const p = v.pavement;
+    if (p && !(p.thick > 0 && p.ksat > 0 && p.voidRatio > 0)) fail("pavement", "the thickness, void ratio and permeability are above zero.");
+    if (p && p.fracImperv > 1) fail("pavement", "the impervious surface fraction is at most 1.");
+    if (p && p.regenDegree > 1) fail("pavement", "the regeneration fraction is at most 1.");
+    const o = v.soil;
+    if (o && o.thick > 0 && !(o.porosity > 0 && o.fc < o.porosity && o.wp < o.fc && o.ksat > 0))
+      fail("soil", "porosity above field capacity above wilting point, and a conductivity above zero.");
+    if (v.storage && v.storage.thick > 0 && !(v.storage.voidFrac > 0)) fail("storage", "the void ratio is above zero.");
+    if (v.drain && v.drain.open > 0 && v.drain.open <= v.drain.close) fail("drain", "the open level is above the closed level.");
+    const removals = (lidLayers[type].includes("drain") ? data.removals || [] : []).map((r) => {
+      const percent = Number(r.percent);
+      if (!(Number.isFinite(percent) && percent >= 0 && percent <= 100)) throw new Error("Removal of " + r.pollutant + " is a percentage, 0 to 100.");
+      return { pollutant: this.name("pollutant", r.pollutant), percent };
+    });
+    return { kind: "lid", type, layers: v, removals };
+  }
+  /** Set a LID control's changed type, layers and removals; returns it as the engine holds it. */
+  setLid(id, data) {
+    const l = this.solver.infrastructure.lids,
+      i = this.lidIndex(id),
+      was = this.lid(id);
+    if (was.type === "NODE") throw new Error("Node LID stacks are edited in Edit INP.");
+    const next = this.checkLid(data, was.uses, was);
+    if (next.type !== was.type) {
+      l.validateType(i, LidType[lidTypeNames[next.type]]);
+      l.setType(i, LidType[lidTypeNames[next.type]]);
+    }
+    const before = next.type === was.type ? was.layers : {};
+    const changed = (name) => JSON.stringify(next.layers[name]) !== JSON.stringify(before[name]);
+    const extra = (f, value, old) => value !== old && l.setExtra(i, LidExtraField[f], value);
+    for (const name of lidLayers[next.type]) {
+      if (!changed(name)) continue;
+      const v = next.layers[name],
+        o = before[name] || {};
+      if (name === "surface") {
+        l.setSurface(i, { storage: v.storage, roughness: v.roughness, slope: v.slope });
+        extra("SURFACE_VEGETATION", v.vegetation, o.vegetation);
+        extra("SURFACE_SIDE_SLOPE", v.sideSlope, o.sideSlope);
+      } else if (name === "soil") {
+        l.setSoil(i, v);
+        extra("SOIL_SUCTION", v.suction, o.suction);
+      } else if (name === "pavement") l.setPavement(i, v);
+      else if (name === "storage") {
+        l.setStorage(i, { thick: v.thick, voidFrac: v.voidFrac, ksat: v.ksat });
+        extra("STORAGE_CLOGGING", v.clogging, o.clogging);
+        if (next.type === "RB") extra("STORAGE_COVERED", v.covered ? 1 : 0, o.covered === undefined ? undefined : o.covered ? 1 : 0);
+      } else if (name === "drain") {
+        l.setDrain(i, { coeff: v.coeff, expon: v.expon, offset: v.offset });
+        extra("DRAIN_DELAY", v.delay, o.delay);
+        extra("DRAIN_OPEN", v.open, o.open);
+        extra("DRAIN_CLOSE", v.close, o.close);
+      } else if (name === "drainmat") l.setDrainmat(i, v);
+    }
+    const ids = this.pollutantIds();
+    for (const r of next.removals) {
+      const p = ids.indexOf(r.pollutant);
+      if (l.getRemoval(i, p) !== r.percent) l.setRemoval(i, p, r.percent);
+    }
+    return this.lid(id);
+  }
+  /**
+   * A subcatchment's LID placements: per row the control, number of units, unit area and width,
+   * initial saturation (%), impervious and pervious area treated (%), whether outflow returns to the
+   * pervious area, the underdrain outlet ("" = the subcatchment's outlet) and the report file (kept).
+   */
+  lidUsage(sub) {
+    const l = this.solver.infrastructure.lids,
+      name = this.name("subcatchment", sub),
+      si = this.solver.subcatchments.ids.indexOf(name);
+    const lids = this.lidIds();
+    const rows = range(l.usageCount())
+      .map((u) => l.usageRecord(u))
+      .filter((r) => r.subcatchIndex === si)
+      .map((r) => ({
+        lid: lids[r.lidIndex],
+        number: r.number,
+        area: r.area,
+        width: r.width,
+        initSat: r.initSat,
+        fromImperv: r.fromImperv,
+        fromPerv: r.fromPerv,
+        toPerv: r.toPerv !== 0,
+        drainTo: r.drainTo,
+        reportFile: r.reportFile,
+      }));
+    return { kind: "lidusage", id: name, area: this.solver.subcatchments.get(name).area, rows };
+  }
+  /** Placement rows as the engine will hold them, checked as legacy lid_readGroupParams and its area totals. */
+  checkLidUsage(sub, data) {
+    const name = this.name("subcatchment", sub),
+      s = this.solver;
+    const drains = [...s.subcatchments.ids, ...s.nodes.ids];
+    const rows = data.rows.map((r, k) => {
+      const at = "Row " + (k + 1) + ": ";
+      const lid = this.lidIds().find((id) => same(id, r.lid));
+      if (lid === undefined) throw new Error(at + "no LID control named " + r.lid + ".");
+      const num = (v, what, max = Infinity) => {
+        const x = Number(v);
+        if (String(v).trim() === "" || !Number.isFinite(x) || x < 0 || x > max) throw new Error(at + what + (max === 100 ? " is a percentage, 0 to 100." : " is a number, zero or more."));
+        return x;
+      };
+      const number = num(r.number, "the number of units");
+      if (!Number.isInteger(number) || number < 1) throw new Error(at + "the number of units is a whole number, 1 or more.");
+      let drainTo = String(r.drainTo ?? "").trim();
+      if (drainTo) {
+        drainTo = drains.find((d) => same(d, drainTo));
+        if (drainTo === undefined) throw new Error(at + "no subcatchment or node named " + r.drainTo + ".");
+      }
+      return {
+        lid,
+        number,
+        area: num(r.area, "the unit area"),
+        width: num(r.width, "the surface width"),
+        initSat: num(r.initSat, "the initial saturation", 100),
+        fromImperv: num(r.fromImperv, "the impervious area treated", 100),
+        fromPerv: num(r.fromPerv, "the pervious area treated", 100),
+        toPerv: !!r.toPerv,
+        drainTo,
+        reportFile: String(r.reportFile ?? ""),
+      };
+    });
+    const sqft = this.unitSystem === "SI" ? 10000 : 43560; // m² per ha or ft² per acre
+    const total = rows.reduce((t, r) => t + r.number * r.area, 0);
+    const area = s.subcatchments.get(name).area * sqft;
+    if (total > 1.001 * area) throw new Error("The LID units of " + name + " cover " + +total.toFixed(2) + (this.unitSystem === "SI" ? " m²" : " ft²") + ", more than its area (" + +area.toFixed(2) + ").");
+    const imperv = rows.reduce((t, r) => t + r.fromImperv, 0),
+      perv = rows.reduce((t, r) => t + r.fromPerv, 0);
+    if (imperv > 100.1 || perv > 100.1) throw new Error("The LID units of " + name + " treat more than 100 % of its " + (imperv > 100.1 ? "impervious" : "pervious") + " area.");
+    return { kind: "lidusage", id: name, rows };
+  }
+  /** Replace a subcatchment's placements when they changed; returns them as the engine holds them. */
+  setLidUsage(sub, data) {
+    const next = this.checkLidUsage(sub, data),
+      was = this.lidUsage(sub);
+    if (JSON.stringify(next.rows) === JSON.stringify(was.rows)) return was;
+    const l = this.solver.infrastructure.lids,
+      si = this.solver.subcatchments.ids.indexOf(next.id);
+    const records = next.rows.map((r) => ({
+      subcatchIndex: si,
+      lidIndex: this.lidIndex(r.lid),
+      number: r.number,
+      area: r.area,
+      width: r.width,
+      initSat: r.initSat,
+      fromImperv: r.fromImperv,
+      toPerv: r.toPerv ? 1 : 0,
+      fromPerv: r.fromPerv,
+      reportFile: r.reportFile,
+      reportFileResolved: "",
+      drainTo: r.drainTo,
+    }));
+    for (const r of records) l.validateUsage(r);
+    l.replaceUsages(next.id, records);
+    return this.lidUsage(sub);
+  }
+  // ---- Climate (E2 increment 4): [TEMPERATURE], [EVAPORATION] and the monthly [ADJUSTMENTS]. ----
+  /** The climate file a FILE temperature source names ([TEMPERATURE] FILE row), or "". */
+  climateFile() {
+    const text = new TextDecoder().decode(this.engine.FS.readFile(this.entry));
+    const row = (sections(text)["[TEMPERATURE]"] || []).find((t) => same(t[0], "FILE"));
+    return row?.[1]?.replace(/^"|"$/g, "") ?? "";
+  }
+  /**
+   * The model's climate as plain data: the temperature source, evaporation (constant evaporation is
+   * twelve equal monthly values), wind speed, snowmelt, areal depletion (ten fractions per surface)
+   * and the monthly adjustments, in project units.
+   */
+  climate() {
+    const c = this.solver.climate,
+      list = (v) => Array.from(v);
+    const source = tempSources[c.tempSource] ?? "NONE";
+    return {
+      kind: "climate",
+      temperature: { source, series: source === "TIMESERIES" ? c.tempTimeseries : "", file: source === "FILE" ? this.climateFile() : "", start: c.tempFileStart },
+      evaporation: {
+        type: evapTypes[c.evapType],
+        monthly: list(c.evapMonthly),
+        series: c.evapType === 2 ? c.evapTimeseries : "",
+        pan: list(c.panCoeff),
+        recovery: c.evapRecovery,
+        dryOnly: this.solver.forcing.getClimateDryOnly(),
+      },
+      wind: { type: c.windType === 1 ? "FILE" : "MONTHLY", monthly: list(c.windMonthly) },
+      snowmelt: { divide: c.snowTemp, ati: c.atiWeight, negMelt: c.negMeltRatio, elevation: c.elevation, latitude: c.latitude, longitude: c.longitudeCorrection },
+      adc: { impervious: list(c.adcImpervious), pervious: list(c.adcPervious) },
+      adjustments: { temperature: list(c.adjustTemperature), evaporation: list(c.adjustEvaporation), rainfall: list(c.adjustRainfall), conductivity: list(c.adjustConductivity) },
+    };
+  }
+  /**
+   * Climate data as the engine will hold it, or an error naming the first bad value. Names and
+   * ranges are checked as legacy SWMM reads them (the engine's setters take unknown names; engine
+   * item 13). A climate file cannot be chosen here (engine item 14): a FILE source stays as it is.
+   */
+  checkClimate(data) {
+    const numbers = (values, n, what, lo = -Infinity, hi = Infinity) => {
+      if (!Array.isArray(values) || values.length !== n) throw new Error(what + ": enter " + n + " values.");
+      return values.map((v, i) => {
+        const x = Number(v);
+        if (String(v).trim() === "" || !Number.isFinite(x)) throw new Error(what + ", value " + (i + 1) + ": enter a number.");
+        if (x < lo || x > hi) throw new Error(what + ", value " + (i + 1) + ": a fraction, 0 to 1.");
+        return x;
+      });
+    };
+    const number = (v, what, ok = () => true, rule = "enter a number.") => {
+      const x = Number(v);
+      if (String(v).trim() === "" || !Number.isFinite(x) || !ok(x)) throw new Error(what + ": " + rule);
+      return x;
+    };
+    const series = (name, what) => {
+      const i = name ? this.findTable("timeseries", name) : -1;
+      if (i < 0) throw new Error(what + ": " + (name ? "no time series named " + name + "." : "choose a time series."));
+      return this.solver.tables.getId(i);
+    };
+    const was = this.climate();
+    const t = data.temperature;
+    if (!tempSources.includes(t.source)) throw new Error("Unknown temperature source " + t.source + ".");
+    if ((t.source === "FILE") !== (was.temperature.source === "FILE"))
+      throw new Error("A climate file is kept as the model names it; change it in Edit INP.");
+    const temperature = { ...was.temperature, source: t.source, series: t.source === "TIMESERIES" ? series(t.series, "Air temperature") : "" };
+    const hasFile = temperature.source === "FILE";
+    const e = data.evaporation;
+    if (!evapTypes.includes(e.type)) throw new Error("Unknown evaporation source " + e.type + ".");
+    if ((e.type === "FILE" || e.type === "TEMPERATURE") && !hasFile)
+      throw new Error("Evaporation " + (e.type === "FILE" ? "from the climate file" : "from temperatures") + " needs a climate file as the temperature source.");
+    let recovery = "";
+    if (e.recovery) {
+      const p = this.solver.patterns;
+      recovery = range(p.length).map((i) => p.get(i).id).find((id) => same(id, e.recovery));
+      if (recovery === undefined) throw new Error("Evaporation recovery: no time pattern named " + e.recovery + ".");
+    }
+    const evaporation = {
+      type: e.type,
+      monthly: e.type === "CONSTANT" ? Array(12).fill(number(e.monthly[0], "Constant evaporation")) : numbers(e.monthly, 12, "Monthly evaporation"),
+      series: e.type === "TIMESERIES" ? series(e.series, "Evaporation") : "",
+      pan: numbers(e.pan, 12, "Pan coefficients"),
+      recovery,
+      dryOnly: !!e.dryOnly,
+    };
+    const w = data.wind;
+    if (w.type !== "MONTHLY" && w.type !== "FILE") throw new Error("Unknown wind speed source " + w.type + ".");
+    if (w.type === "FILE" && !hasFile) throw new Error("Wind speed from the climate file needs a climate file as the temperature source.");
+    const wind = { type: w.type, monthly: numbers(w.monthly, 12, "Monthly wind speed") };
+    const m = data.snowmelt;
+    const fraction = (x) => x >= 0 && x <= 1;
+    const snowmelt = {
+      divide: number(m.divide, "Dividing temperature"),
+      ati: number(m.ati, "ATI weight", fraction, "a fraction, 0 to 1."),
+      negMelt: number(m.negMelt, "Negative melt ratio", fraction, "a fraction, 0 to 1."),
+      elevation: number(m.elevation, "Elevation"),
+      latitude: number(m.latitude, "Latitude", (x) => x > -89.99 && x < 89.99, "degrees, between -90 and 90."),
+      longitude: number(m.longitude, "Longitude correction"),
+    };
+    const adc = {
+      impervious: numbers(data.adc.impervious, 10, "Areal depletion (impervious)", 0, 1),
+      pervious: numbers(data.adc.pervious, 10, "Areal depletion (pervious)", 0, 1),
+    };
+    const a = data.adjustments;
+    const adjustments = {
+      temperature: numbers(a.temperature, 12, "Temperature adjustments"),
+      evaporation: numbers(a.evaporation, 12, "Evaporation adjustments"),
+      rainfall: numbers(a.rainfall, 12, "Rainfall multipliers"),
+      conductivity: numbers(a.conductivity, 12, "Conductivity multipliers").map((x) => (x <= 0 ? 1 : x)), // as legacy reads it
+    };
+    return { kind: "climate", temperature, evaporation, wind, snowmelt, adc, adjustments };
+  }
+  /** Set the parts of the climate that changed; returns the climate the engine now holds. */
+  setClimate(data) {
+    const next = this.checkClimate(data),
+      was = this.climate(),
+      c = this.solver.climate;
+    const changed = (part) => JSON.stringify(next[part]) !== JSON.stringify(was[part]);
+    if (changed("temperature")) {
+      if (next.temperature.source === "NONE") c.tempSource = 0;
+      else if (next.temperature.source === "TIMESERIES") c.tempTimeseries = next.temperature.series; // selects TIMESERIES
+    }
+    if (changed("evaporation")) {
+      const e = next.evaporation,
+        w = was.evaporation;
+      if (e.type === "TIMESERIES") c.evapTimeseries = e.series; // selects TIMESERIES
+      else if (e.type !== w.type) c.evapType = evapTypes.indexOf(e.type);
+      if ((e.type === "CONSTANT" || e.type === "MONTHLY") && JSON.stringify(e.monthly) !== JSON.stringify(w.monthly)) c.evapMonthly = e.monthly;
+      if (JSON.stringify(e.pan) !== JSON.stringify(w.pan)) c.panCoeff = e.pan;
+      if (e.recovery !== w.recovery) c.evapRecovery = e.recovery;
+      if (e.dryOnly !== w.dryOnly) this.solver.forcing.climateDryOnly(e.dryOnly);
+    }
+    if (changed("wind")) {
+      if (next.wind.type !== was.wind.type) c.windType = next.wind.type === "FILE" ? 1 : 0;
+      if (next.wind.type === "MONTHLY" && JSON.stringify(next.wind.monthly) !== JSON.stringify(was.wind.monthly)) c.windMonthly = next.wind.monthly;
+    }
+    if (changed("snowmelt")) {
+      const m = next.snowmelt;
+      Object.assign(c, { snowTemp: m.divide, atiWeight: m.ati, negMeltRatio: m.negMelt, elevation: m.elevation, latitude: m.latitude, longitudeCorrection: m.longitude });
+    }
+    if (changed("adc")) {
+      c.adcImpervious = next.adc.impervious;
+      c.adcPervious = next.adc.pervious;
+    }
+    if (changed("adjustments")) {
+      const a = next.adjustments;
+      Object.assign(c, { adjustTemperature: a.temperature, adjustEvaporation: a.evaporation, adjustRainfall: a.rainfall, adjustConductivity: a.conductivity });
+    }
+    return this.climate();
+  }
   /** Reopen the deck saved by `deleteRecord` (undo of a delete); returns the summary. */
   restore(token) {
     const fs = this.engine.FS;
@@ -896,6 +1439,7 @@ export class ModelSession {
     for (const [path, spec] of Object.entries(FIELDS)) {
       if (!spec.set) continue;
       if (kind === "model" ? spec.element : spec.element !== kind) continue;
+      if (kind === "model" && path.startsWith("climate.")) continue; // edited in the climate dialog
       const sub = Object.keys(subviews).find((prefix) => path.startsWith(prefix));
       if (sub && subviews[sub] !== type) continue;
       if (path.includes(".stats.") || runtimeState.has(path)) continue;

@@ -1,0 +1,56 @@
+[TITLE]
+Transect editors fixture: two natural channel reaches with irregular cross-sections.
+
+[OPTIONS]
+FLOW_UNITS           CFS
+INFILTRATION         HORTON
+FLOW_ROUTING         DYNWAVE
+START_DATE           01/01/2026
+START_TIME           00:00:00
+REPORT_START_DATE    01/01/2026
+REPORT_START_TIME    00:00:00
+END_DATE             01/01/2026
+END_TIME             04:00:00
+REPORT_STEP          00:15:00
+WET_STEP             00:05:00
+DRY_STEP             01:00:00
+ROUTING_STEP         0:00:10
+
+[JUNCTIONS]
+N1               100        12         0          0          0
+N2               98         12         0          0          0
+
+[OUTFALLS]
+Out              95         FREE                        NO
+
+[CONDUITS]
+R1               N1               N2               1000       0.035      0          0          0          0
+R2               N2               Out              1200       0.035      0          0          0          0
+
+[XSECTIONS]
+R1               IRREGULAR    Upper            0          0          0          1
+R2               IRREGULAR    Lower            0          0          0          1
+
+[TRANSECTS]
+;Upper reach, surveyed 2025
+NC 0.06       0.06       0.035
+X1 Upper            7        20       60       0          0          0          0          0
+GR 10        0          8        20         4        30         2        40         4        50
+GR 8         60         10       80
+NC 0.08       0.07       0.04
+X1 Lower            6        15       75       0          0          1.1        0.9        0.5
+GR 9         0          6        15         3        40         2.5      50         6        75
+GR 9         90
+
+[INFLOWS]
+N1               FLOW             Hydro            FLOW     1.0      1.0
+
+[TIMESERIES]
+Hydro                       0:00       5
+Hydro                       1:00       120
+Hydro                       2:00       40
+Hydro                       4:00       5
+
+[REPORT]
+NODES ALL
+LINKS ALL
