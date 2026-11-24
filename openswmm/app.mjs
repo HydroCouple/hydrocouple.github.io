@@ -4,6 +4,7 @@ import { sketch, ModelView } from "./view.mjs";
 import { LayerTree, contentOf } from "./layers.mjs";
 import { layersPanel } from "./layers-panel.mjs";
 import { PanelLayout, panelChrome } from "./panels.mjs";
+import { Timeline, timelineBar, clock } from "./timeline.mjs";
 import { placement, anchorPlacement } from "./crs.mjs";
 import { pack, unpack, save, restore } from "./project.mjs";
 import { Editor } from "./editor.mjs";
@@ -17,7 +18,6 @@ let config = {},
   run,
   sweep = null, // the last scenario sweep of this session: { names, results }
   job,
-  playTimer,
   loadId = 0,
   preview = {},
   placed = null, // where the current model sits on the globe (crs.mjs), null for local coordinates
@@ -39,6 +39,12 @@ function showGeometry(geo, place) {
   layers.setContent(contentOf(geo));
   view.geometry(geo, place);
 }
+// Result playback: the time bar and the map both follow the timeline model.
+const timeline = new Timeline();
+timelineBar(timeline);
+timeline.addEventListener("change", ({ detail }) => {
+  if (detail.kind === "frame") view.setFrame(timeline.current);
+});
 // The basemap follows its layer row; a failure switches it back off and says why.
 let basemapJob = Promise.resolve();
 layers.addEventListener("change", ({ detail }) => {
@@ -129,23 +135,6 @@ $("forceclear").onclick = () => {
   renderForcing();
   status(job ? "Clearing sent; the run restores the computed value at its next report sample." : "Forcing cleared.");
 };
-const clock = (s) =>
-  [Math.floor(s / 3600), Math.floor(s / 60) % 60, Math.floor(s) % 60]
-    .map((n) => String(n).padStart(2, "0"))
-    .join(":");
-function stopPlay() {
-  clearInterval(playTimer);
-  playTimer = null;
-  $("play").classList.remove("playing");
-  $("play").setAttribute("aria-label", "Play");
-}
-function setFrame(i, frames = run?.frames || []) {
-  const f = frames[i];
-  view.setFrame(f);
-  $("time").value = i;
-  $("clock").value = clock(f?.seconds || 0);
-  $("step").value = frames.length ? i + 1 + " / " + frames.length : "—";
-}
 function feedback(error) {
   status(error.message || String(error));
 }
@@ -167,10 +156,6 @@ function finishUI() {
     !run || !Object.keys(run.files).some((p) => p.endsWith("/model.out"));
   $("report").disabled = !run?.files[run.report];
   const frames = run?.frames || [];
-  $("time").max = Math.max(0, frames.length - 1);
-  $("time").disabled = frames.length < 2;
-  for (const id of ["play", "first", "last"])
-    $(id).disabled = frames.length < 2;
   $("insprunbackend").textContent = run?.backend || "—";
   $("inspengine").textContent = run?.engine || "—";
   $("inspframes").textContent = frames.length || "—";
@@ -192,17 +177,13 @@ function finishUI() {
     ? fmt(b.coupling1dTo2dIn) + " / " + fmt(b.coupling2dTo1dOut) + " m³"
     : "—";
   $("backend").textContent = run?.backend || "Local solver";
-  if (frames.length) setFrame(frames.length - 1);
-  else {
-    view.setFrame(null);
-    $("clock").value = clock(run?.seconds || 0);
-  }
+  timeline.load(frames, run?.seconds || 0); // the time bar shows only when there are frames to play
 }
 function install(p, r = null) {
   if (!p?.inputs?.[p.entry]) throw new Error("Missing model input");
   project = p;
   run = r;
-  stopPlay();
+  timeline.pause(); // finishUI loads this model's frames, if it has any
   $("modelname").textContent = p.entry;
   $("viewtitle").textContent = p.name;
   $("split").checked = !!p.split;
@@ -299,7 +280,7 @@ function setPaused(on) {
 }
 function launch(data) {
   if (job) return;
-  stopPlay();
+  timeline.pause();
   busy(true);
   // One engine at a time: the editing instance is dropped while a job owns the memory.
   editor.suspend();
@@ -308,6 +289,7 @@ function launch(data) {
     backend,
     warned = 0,
     sweepAt = "",
+    at = 0, // the job's model clock, seconds
     frames = [];
   function end() {
     clearTimeout(stopTimer);
@@ -343,7 +325,7 @@ function launch(data) {
         status("At " + clock(m.seconds) + ": " + describe(m) + ".");
         break;
       case "control":
-        if (m.state === "pause") status("Paused at " + $("clock").value + " · Resume or stop the run.");
+        if (m.state === "pause") status("Paused at " + clock(at) + " · Resume or stop the run.");
         else if (m.state === "stop") status("Stopping after the current report step…");
         break;
       case "backend":
@@ -356,12 +338,11 @@ function launch(data) {
           : preview;
         showGeometry({ ...geometry, network: preview.network });
         $("cells").textContent = geometry.cells.length;
-        $("time").disabled = true;
-        $("play").disabled = true;
+        timeline.beginLive(); // the time bar hides until this run's results are ready
         break;
       case "frame":
         frames.push(m);
-        view.setFrame(m);
+        timeline.push(m);
         break;
       case "scenario":
         sweepAt = "Scenario " + (m.index + 1) + " of " + m.count + " (" + m.name + ") · ";
@@ -380,7 +361,8 @@ function launch(data) {
         openScenarios();
         break;
       case "progress":
-        $("clock").value = clock(m.seconds);
+        at = m.seconds;
+        if (timeline.live) timeline.progress(at);
         status(
           sweepAt +
             "Running · " +
@@ -437,7 +419,9 @@ function launch(data) {
                   ? run.resumeRefusal
                     ? " · this model cannot continue from a stop: " + run.resumeRefusal
                     : " · a model with a 2D surface cannot yet continue from a stop"
-                  : ""),
+                  : "") +
+            // A model without a 2D surface has no frames, so no time bar: say where its results are.
+            (geometry?.cells?.length ? "" : " · network results in Hydrograph and View report"),
         );
         editor.load(project); // the run worker is gone; the editing engine may come back
         break;
@@ -614,24 +598,6 @@ $("stop").onclick = () => {
 $("split").onchange = () => {
   install({ ...project, split: $("split").checked });
   persist();
-};
-$("time").oninput = () => {
-  stopPlay();
-  setFrame(+$("time").value);
-};
-$("play").onclick = () => {
-  if (playTimer) {
-    stopPlay();
-    return;
-  }
-  if (+$("time").value >= run.frames.length - 1) setFrame(0);
-  $("play").classList.add("playing");
-  $("play").setAttribute("aria-label", "Pause");
-  playTimer = setInterval(() => {
-    const i = +$("time").value + 1;
-    if (i >= run.frames.length) stopPlay();
-    else setFrame(i);
-  }, 130);
 };
 /**
  * A bundled example: `examples/<key>.inp` alone, or a folder `examples/<key>/` whose `example.json`
@@ -1104,14 +1070,6 @@ $("study").onclick = () => {
     }
   };
   dialog("New surface study", form);
-};
-$("first").onclick = () => {
-  stopPlay();
-  setFrame(0);
-};
-$("last").onclick = () => {
-  stopPlay();
-  setFrame(run.frames.length - 1);
 };
 
 // Panels: open/closed and the side panels' widths are remembered in this browser (panels.mjs);

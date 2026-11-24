@@ -11,6 +11,8 @@ try {
   // sloping-plane card loads the small deck the rest of this test runs.
   await page.locator('#welcome .ex[data-example="surface"]').click();
   await page.waitForFunction(() => document.getElementById("modelname").textContent === "surface.inp");
+  // The time bar is context driven: hidden until a run has results to play.
+  assert.equal(await page.locator("#timebar").isHidden(), true);
   await page.getByRole("button", { name: "Run model" }).click();
   await page.waitForFunction(
     () =>
@@ -18,6 +20,14 @@ try {
     {},
     { timeout: 90000 },
   );
+  assert.equal(await page.locator("#timebar").isHidden(), false);
+  const steps = await page.locator("#step").innerText();
+  assert.match(steps, /^(\d+) \/ \1$/, "the last frame is shown");
+  await page.getByRole("button", { name: "Jump to start" }).click();
+  assert.match(await page.locator("#step").innerText(), /^1 \/ /);
+  await page.evaluate(() => document.activeElement?.blur());
+  await page.keyboard.press(" "); // Space plays
+  await page.waitForFunction(() => !/^1 \//.test(document.getElementById("step").textContent));
   assert.match(await page.locator("#volume").innerText(), /250/);
   await page.getByRole("button", { name: "View report" }).click();
   assert.ok((await page.locator("#content pre").innerText()).length > 200);
@@ -72,15 +82,20 @@ try {
   await page.getByRole("button", { name: "Resume run" }).click();
   await until(/^Run complete/);
   assert.equal(await page.locator("#resume").isHidden(), true);
+  // A network model has no surface frames: no time bar, and the status says where its results are.
+  assert.equal(await page.locator("#timebar").isHidden(), true);
+  assert.match(await status(), /network results in Hydrograph and View report$/);
 
   await choose("example", "surface");
   await page.waitForFunction(() => document.getElementById("modelname").textContent === "surface.inp");
+  assert.equal(await page.locator("#timebar").isHidden(), true, "another model, not run yet");
   await page.getByRole("button", { name: "Forcing" }).click();
   await page.locator("#forcevalue").fill("0");
   await page.locator("#forceapply").click();
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Run model" }).click();
   await until(/^Run complete/);
+  assert.equal(await page.locator("#timebar").isHidden(), false);
   assert.equal(await page.locator("#volume").innerText(), "0 m³");
   assert.equal(await page.locator("#inspforced").innerText(), "1");
   await page.getByRole("button", { name: "Forcing" }).click();

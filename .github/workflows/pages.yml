@@ -58,7 +58,7 @@ jobs:
           npm pack jszip@3.10.2 proj4@2.23.0 epsg-index@2.0.0 --ignore-scripts
           mkdir zip proj4 epsg && tar xzf jszip-3.10.2.tgz -C zip && tar xzf proj4-2.23.0.tgz -C proj4 && tar xzf epsg-index-2.0.0.tgz -C epsg
           node website/openswmm/prepare.mjs --engine engine --mesh mesh --jszip zip/package --proj4 proj4/package --epsg epsg/package --simd simd --threads threads
-          node --test website/openswmm/tests/model.test.mjs website/openswmm/tests/records.test.mjs website/openswmm/tests/crs.test.mjs website/openswmm/tests/layers.test.mjs website/openswmm/tests/panels.test.mjs
+          node --test website/openswmm/tests/model.test.mjs website/openswmm/tests/records.test.mjs website/openswmm/tests/crs.test.mjs website/openswmm/tests/layers.test.mjs website/openswmm/tests/panels.test.mjs website/openswmm/tests/timeline.test.mjs
           npm install --prefix website/openswmm/tests --no-save --package-lock=false playwright@1.55.0
           website/openswmm/tests/node_modules/.bin/playwright install --with-deps chromium
           node website/openswmm/tests/serve.mjs > /tmp/http.log 2>&1 &

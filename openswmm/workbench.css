@@ -810,6 +810,18 @@ main {
   padding: 0 16px;
   border-bottom: 1px solid var(--line);
 }
+/* The time bar appears when results are ready (timeline.mjs); a short fade unless motion is reduced. */
+@media (prefers-reduced-motion: no-preference) {
+  .time:not([hidden]) {
+    animation: time-in 0.2s ease-out;
+  }
+}
+@keyframes time-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
 .time #clock {
   font-weight: 600;
   font-size: 14px;
