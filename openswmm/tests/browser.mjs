@@ -159,12 +159,30 @@ try {
   await page.locator("#input").setInputFiles({ name: "inflows.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/inflows.inp", import.meta.url)) });
   await page.waitForFunction(() => document.getElementById("inspanchor").textContent === "Local coordinates");
   assert.equal(await page.locator("#locate").isHidden(), false);
+  // Layer tree: a 1D model lists only SWMM and Basemaps; switching a kind off redraws without it.
+  const shownCategories = () =>
+    page.evaluate(() => [...document.querySelectorAll("#layertree .layer-cat:not([hidden]) .layer-head b")].map((b) => b.textContent));
+  assert.deepEqual(await shownCategories(), ["SWMM", "Basemaps"]);
+  const plot = () => page.evaluate(() => document.getElementById("plot").toDataURL());
+  const before = await plot();
+  await page.getByLabel("Conduits", { exact: true }).uncheck();
+  assert.notEqual(await plot(), before);
+  assert.equal(await page.getByLabel("Links", { exact: true }).isChecked(), false);
+  assert.equal(await page.getByLabel("SWMM", { exact: true }).evaluate((b) => b.indeterminate), true);
+  await page.getByLabel("Conduits", { exact: true }).check();
+  assert.equal(await plot(), before);
   // The Bellinge example loads its deck, mesh sidecar and rain file, and is placed by its CRS.
   await choose("example", "bellinge");
   await page.waitForFunction(() => document.getElementById("modelname").textContent === "BellingeSWMM_v021_nopervious.inp");
   await page.waitForFunction(() => document.getElementById("inspanchor").textContent === "EPSG:25832 · ETRS89 / UTM zone 32N");
   assert.equal(await page.locator("#inspcells").innerText(), "27628");
   assert.equal(await page.locator("#inspinputs").innerText(), "3");
+  // The desktop's category order; SWMM can be moved above the 2D outputs and back.
+  assert.deepEqual(await shownCategories(), ["SWMM 2D Outputs", "SWMM", "Meshes", "Basemaps"]);
+  await page.getByRole("button", { name: "Move SWMM up" }).click();
+  assert.deepEqual(await shownCategories(), ["SWMM", "SWMM 2D Outputs", "Meshes", "Basemaps"]);
+  await page.getByRole("button", { name: "Move SWMM down" }).click();
+  assert.deepEqual(await shownCategories(), ["SWMM 2D Outputs", "SWMM", "Meshes", "Basemaps"]);
   assert.deepEqual(errors, []);
 } finally {
   await browser.close();

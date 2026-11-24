@@ -1,3 +1,4 @@
+import { symbols, markerOutline } from "./layers.mjs";
 const el = (id) => document.getElementById(id);
 function sections(inp) {
   const rows = {};
@@ -26,12 +27,41 @@ export function sketch(text, inputs = {}, dir = "") {
     nodes = new Map(
       (s["[COORDINATES]"] || []).map(([id, x, y]) => [id, [+x, +y]]),
     );
-  const links = ["CONDUITS", "PUMPS", "WEIRS", "ORIFICES", "OUTLETS"].flatMap(
-    (k) =>
-      (s["[" + k + "]"] || [])
-        .map((row) => [nodes.get(row[1]), nodes.get(row[2])])
-        .filter((pair) => pair.every(Boolean)),
-  );
+  /** Rows of a map section grouped by object, in file order: id → [[x, y], …]. */
+  const points = (name) => {
+    const map = new Map();
+    for (const [id, x, y] of s[name] || []) {
+      if (!map.has(id)) map.set(id, []);
+      map.get(id).push([+x, +y]);
+    }
+    return map;
+  };
+  const bends = points("[VERTICES]"),
+    rings = points("[POLYGONS]"),
+    symbolsAt = points("[SYMBOLS]");
+  const at = (section) =>
+    (s["[" + section + "]"] || []).map((row) => nodes.get(row[0])).filter(Boolean);
+  // A link runs from its inlet node through its [VERTICES] to its outlet node.
+  const polylines = (section) =>
+    (s["[" + section + "]"] || [])
+      .filter((row) => nodes.has(row[1]) && nodes.has(row[2]))
+      .map((row) => [nodes.get(row[1]), ...(bends.get(row[0]) || []), nodes.get(row[2])]);
+  const network = {
+    junctions: at("JUNCTIONS"),
+    outfalls: at("OUTFALLS"),
+    storage: at("STORAGE"),
+    dividers: at("DIVIDERS"),
+    conduits: polylines("CONDUITS"),
+    pumps: polylines("PUMPS"),
+    orifices: polylines("ORIFICES"),
+    weirs: polylines("WEIRS"),
+    outlets: polylines("OUTLETS"),
+    subcatchments: (s["[SUBCATCHMENTS]"] || [])
+      .map((row) => rings.get(row[0]))
+      .filter((ring) => ring?.length >= 3),
+    gages: (s["[RAINGAGES]"] || []).map((row) => symbolsAt.get(row[0])?.[0]).filter(Boolean),
+  };
+  const links = ["conduits", "pumps", "weirs", "orifices", "outlets"].flatMap((k) => network[k]);
   return {
     x: vertices.map((v) => +v[0]),
     y: vertices.map((v) => +v[1]),
@@ -39,7 +69,8 @@ export function sketch(text, inputs = {}, dir = "") {
       ...(mesh["[2D_TRIANGLES]"] || []).map((v) => v.slice(0, 3).map(Number)),
       ...(mesh["[2D_QUADS]"] || []).map((v) => v.slice(0, 4).map(Number)),
     ],
-    links,
+    links, // every link as a polyline (saved with a run's geometry)
+    network, // per kind, as the layer tree (layers.mjs) lists them
     // What the live forcings can address, and the units their values are in.
     gages: (s["[RAINGAGES]"] || []).map((row) => row[0]),
     nodes: ["JUNCTIONS", "OUTFALLS", "STORAGE", "DIVIDERS"].flatMap((k) =>
@@ -60,9 +91,12 @@ function contains(poly, x, y) {
   }
   return inside;
 }
+/** Map canvas (view): draws the displayed geometry and frame as the layer tree model says. */
 export class ModelView {
-  constructor(token) {
+  /** @param {string} token Mapbox public token @param {import("./layers.mjs").LayerTree} layers */
+  constructor(token, layers) {
     this.token = token;
+    this.layers = layers;
     this.canvas = el("plot");
     this.ctx = this.canvas.getContext("2d");
     this.geo = { x: [], y: [], cells: [], links: [] };
@@ -99,10 +133,11 @@ export class ModelView {
     el("fit").onclick = () => this.fit();
     el("zoomin").onclick = () => this.scale(1.4);
     el("zoomout").onclick = () => this.scale(1 / 1.4);
-    for (const id of ["edges", "wet", "streaks"])
-      el(id).onchange = () => this.draw();
-    el("streaks").checked = !matchMedia("(prefers-reduced-motion: reduce)")
-      .matches;
+    layers.addEventListener("change", ({ detail }) => {
+      if (detail.kind === "opacity" && detail.id === "basemaps")
+        el("map").style.opacity = String(layers.opacity("basemaps"));
+      if (["visible", "order", "opacity", "content"].includes(detail.kind)) this.draw();
+    });
     new ResizeObserver(() => {
       this.map?.resize();
       this.draw();
@@ -114,7 +149,7 @@ export class ModelView {
       if (
         this.frame &&
         !this.still &&
-        el("streaks").checked &&
+        this.layers.visible("streaks") &&
         !document.hidden &&
         t - last > 40
       ) {
@@ -136,9 +171,14 @@ export class ModelView {
     this.frame = null;
     this.particles = [];
     this.selected = -1;
-    const points = geo.cells.length
-      ? Array.from(geo.x, (x, i) => [x, geo.y[i]])
-      : (geo.links || []).flat();
+    // The network as the layer tree draws it: per kind, or a saved run's plain links as conduits.
+    this.network = geo.network || { conduits: geo.links || [] };
+    const n = this.network;
+    const points = [
+      ...Array.from(geo.x || [], (x, i) => [x, geo.y[i]]),
+      ...[n.conduits, n.pumps, n.orifices, n.weirs, n.outlets, n.subcatchments].flatMap((list) => (list || []).flat()),
+      ...[n.junctions, n.outfalls, n.storage, n.dividers, n.gages].flatMap((list) => list || []),
+    ];
     this.bounds = points.reduce(
       ([l, b, r, t], [x, y]) => [
         Math.min(l, x),
@@ -198,7 +238,7 @@ export class ModelView {
       if (d > peak) peak = d;
     });
     this.peak = peak;
-    el("scale").textContent = "0 — " + peak.toPrecision(3);
+    this.layers.setLegend("depth", frame ? { min: 0, max: peak, unit: "m" } : null);
     this.draw();
   }
   advance(dt) {
@@ -326,8 +366,7 @@ export class ModelView {
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, w, h);
     const f = this.frame,
-      edges = el("edges").checked,
-      wet = el("wet").checked;
+      L = this.layers;
     const line = (points) => {
       c.beginPath();
       points.forEach((p, j) => {
@@ -336,46 +375,111 @@ export class ModelView {
         else c.moveTo(x, y);
       });
     };
-    (this.polys || []).forEach((p, i) => {
-      line(p);
-      c.closePath();
-      const d = f?.depth[i] || 0;
-      if (wet && d > 0.00001) {
-        const a = Math.min(1, d / this.peak);
-        c.fillStyle =
-          "rgba(" +
-          [
-            Math.round(217 - 217 * a),
-            Math.round(237 - 156 * a),
-            Math.round(255 - 115 * a),
-            0.9,
-          ].join(",") +
-          ")";
-        c.fill();
-      } else if (!f) {
-        c.fillStyle = "rgba(0,113,191,.14)";
-        c.fill();
+    const marker = (kind, [px, py]) => {
+      const s = symbols[kind],
+        [x, y] = this.project(px, py),
+        r = s.size / 2;
+      c.beginPath();
+      if (s.shape === "circle") c.arc(x, y, r, 0, 2 * Math.PI);
+      else if (s.shape === "square") c.rect(x - r, y - r, 2 * r, 2 * r);
+      else if (s.shape === "triangle") {
+        c.moveTo(x, y - r);
+        c.lineTo(x + r, y + r * 0.8);
+        c.lineTo(x - r, y + r * 0.8);
+        c.closePath();
+      } else {
+        c.moveTo(x, y - r);
+        c.lineTo(x + r, y);
+        c.lineTo(x, y + r);
+        c.lineTo(x - r, y);
+        c.closePath();
       }
-      if (edges || this.selected === i) {
-        c.strokeStyle = this.selected === i ? "#0a1c2e" : "rgba(47,93,134,.6)";
-        c.lineWidth = this.selected === i ? 2 : 0.75;
-        c.stroke();
-      }
-    });
-    c.strokeStyle = "#c4760d";
-    c.lineWidth = 2;
-    for (const pair of this.geo.links || []) {
-      line(pair);
+      c.fillStyle = s.fill;
+      c.fill();
       c.stroke();
-    }
-    if (el("streaks").checked) {
-      c.strokeStyle = this.map ? "#ffe07a" : "#ffae3b";
-      c.lineWidth = 1.7;
-      for (const p of this.particles)
-        if (p?.trail.length) {
-          line([...p.trail, [p.x, p.y]]);
-          c.stroke();
+    };
+    const n = this.network || {};
+    // Each category's own paint order; the categories go bottom → top as the tree says.
+    const paint = {
+      meshes: () => {
+        const fill = L.visible("meshfill"),
+          edges = L.visible("edges");
+        if (!fill && !edges) return;
+        c.fillStyle = "rgba(74,100,128,.12)";
+        c.strokeStyle = "rgba(47,93,134,.6)";
+        c.lineWidth = 0.75;
+        for (const p of this.polys || []) {
+          line(p);
+          c.closePath();
+          if (fill) c.fill();
+          if (edges) c.stroke();
         }
+      },
+      swmm: () => {
+        if (L.visible("subcatchments")) {
+          const s = symbols.subcatchments;
+          c.fillStyle = s.fill;
+          c.strokeStyle = s.outline;
+          c.lineWidth = s.width;
+          for (const ring of n.subcatchments || []) {
+            line(ring);
+            c.closePath();
+            c.fill();
+            c.stroke();
+          }
+        }
+        c.lineCap = c.lineJoin = "round";
+        for (const kind of ["conduits", "pumps", "orifices", "weirs", "outlets"]) {
+          if (!L.visible(kind)) continue;
+          c.strokeStyle = symbols[kind].stroke;
+          c.lineWidth = symbols[kind].width;
+          for (const points of n[kind] || []) {
+            line(points);
+            c.stroke();
+          }
+        }
+        c.strokeStyle = markerOutline.stroke;
+        c.lineWidth = markerOutline.width;
+        for (const kind of ["junctions", "dividers", "storage", "outfalls", "gages"])
+          if (L.visible(kind)) for (const p of n[kind] || []) marker(kind, p);
+      },
+      outputs2d: () => {
+        if (f && L.visible("depth"))
+          (this.polys || []).forEach((p, i) => {
+            const d = f.depth[i];
+            if (!(d > 0.00001)) return;
+            const a = Math.min(1, d / this.peak);
+            line(p);
+            c.closePath();
+            c.fillStyle =
+              "rgba(" +
+              [Math.round(217 - 217 * a), Math.round(237 - 156 * a), Math.round(255 - 115 * a), 0.9].join(",") +
+              ")";
+            c.fill();
+          });
+        if (L.visible("streaks")) {
+          c.strokeStyle = this.map ? "#ffe07a" : "#ffae3b";
+          c.lineWidth = 1.7;
+          for (const p of this.particles)
+            if (p?.trail.length) {
+              line([...p.trail, [p.x, p.y]]);
+              c.stroke();
+            }
+        }
+      },
+    };
+    for (const id of L.paintOrder()) {
+      if (!paint[id]) continue; // the basemap is the Mapbox canvas underneath
+      c.globalAlpha = L.opacity(id);
+      paint[id]();
+    }
+    c.globalAlpha = 1;
+    if (this.selected >= 0 && this.polys?.[this.selected]) {
+      line(this.polys[this.selected]);
+      c.closePath();
+      c.strokeStyle = "#0a1c2e";
+      c.lineWidth = 2;
+      c.stroke();
     }
     if (this.selected >= 0) {
       const i = this.selected;
@@ -434,7 +538,7 @@ export class ModelView {
         });
       await this.loader;
     }
-    if (!el("basemap").checked || !this.placement) return;
+    if (!this.layers.visible("basemap") || !this.placement || this.map) return; // switched off, or another call made it
     const [[west, south], [east, north]] = this.lonLatBounds();
     this.map = new window.mapboxgl.Map({
       container: "map",
@@ -451,12 +555,13 @@ export class ModelView {
     this.map.on("click", (e) =>
       this.onPick ? this.onPick(e.lngLat) : this.inspect(e.point.x, e.point.y),
     );
-    this.map.on("error", (e) => {
-      el("mapstatus").textContent =
+    this.map.on("error", (e) =>
+      this.onMapError?.(
         e.error?.status === 403
           ? "Mapbox denied this origin or token. Check its URL restrictions."
-          : "Basemap request failed. Local modeling remains available.";
-    });
+          : "Basemap request failed. Local modeling remains available.",
+      ),
+    );
     this.fit();
   }
 }

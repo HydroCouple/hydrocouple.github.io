@@ -125,25 +125,8 @@
             <h2>Layers</h2>
             <button class="tb icon" id="fit" aria-label="Fit model to view"><svg aria-hidden="true"><use href="#i-fit" /></svg></button>
           </div>
-          <div class="scroll">
-            <section class="sect">
-              <h3>Surface · 2D</h3>
-              <label class="check"><input type="checkbox" id="wet" checked /><span class="sw ramp"></span>Water depth</label>
-              <label class="check"><input type="checkbox" id="edges" checked /><span class="sw mesh"></span>Mesh edges</label>
-              <label class="check"><input type="checkbox" id="streaks" checked /><span class="sw streak"></span>Flow streaks</label>
-            </section>
-            <section class="sect">
-              <h3>Basemap</h3>
-              <label class="check"><input type="checkbox" id="basemap" /><span class="sw map"></span>Mapbox outdoors</label>
-              <button class="tb ghost wide" id="locate"><svg aria-hidden="true"><use href="#i-pin" /></svg>Set map reference</button>
-              <small id="mapstatus"></small>
-            </section>
-            <section class="sect legend" id="legend">
-              <h3>Water depth</h3>
-              <span class="ramp"></span>
-              <span id="scale">0 — 0.01</span>
-            </section>
-          </div>
+          <!-- Built by layers-panel.mjs from the layer tree model (layers.mjs). -->
+          <div class="scroll" id="layertree"></div>
         </aside>
 
         <section class="workspace" aria-label="Simulation workspace">

@@ -1,6 +1,8 @@
 import { attachNetwork, networkInfo } from "./coupling.mjs";
 import { lonLat, domainFromGeoJSON, linesFromGeoJSON } from "./surface.mjs";
 import { sketch, ModelView } from "./view.mjs";
+import { LayerTree, contentOf } from "./layers.mjs";
+import { layersPanel } from "./layers-panel.mjs";
 import { placement, anchorPlacement } from "./crs.mjs";
 import { pack, unpack, save, restore } from "./project.mjs";
 import { Editor } from "./editor.mjs";
@@ -26,7 +28,25 @@ try {
   const r = await fetch("./config.json");
   if (r.ok) config = await r.json();
 } catch {}
-const view = new ModelView(config.mapboxPublicToken);
+// The layer tree is the one model the Layers panel and the map both read.
+const layers = new LayerTree({ reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches });
+layersPanel($("layertree"), layers);
+const view = new ModelView(config.mapboxPublicToken, layers);
+view.onMapError = (message) => layers.setNote("basemap", message);
+/** Show a geometry on the map and list what it holds in the layer tree. */
+function showGeometry(geo, place) {
+  layers.setContent(contentOf(geo));
+  view.geometry(geo, place);
+}
+// The basemap follows its layer row; a failure switches it back off and says why.
+let basemapJob = Promise.resolve();
+layers.addEventListener("change", ({ detail }) => {
+  if (detail.kind !== "visible" || !layers.leaves(detail.id ?? "").includes("basemap")) return;
+  basemapJob = view.basemap(layers.visible("basemap")).catch((e) => {
+    layers.setVisible("basemap", false);
+    layers.setNote("basemap", e.message);
+  });
+});
 const editor = new Editor({
   openDialog: (title, content) => dialog(title, content),
   closeDialog: () => $("dialog").close(),
@@ -43,8 +63,8 @@ view.onSelect = (index) => {
 };
 const tokenNote = config.mapboxPublicToken ? "" : "Basemap token unconfigured · local view";
 if (!config.mapboxPublicToken) {
-  $("basemap").disabled = true;
-  $("mapstatus").textContent = tokenNote;
+  layers.setEnabled("basemap", false);
+  layers.setNote("basemap", tokenNote);
 }
 if ("serviceWorker" in navigator)
   navigator.serviceWorker
@@ -204,11 +224,9 @@ function install(p, r = null) {
   // hand-placed anchor does; otherwise it is shown in local coordinates.
   placed = preview.crs ? null : p.anchor ? anchorPlacement(p.anchor) : null;
   showPlacement(placed, preview.crs ? "Reading the coordinate system…" : "");
-  if (!placed && !preview.crs) {
-    $("basemap").checked = false;
-    view.basemap(false);
-  }
-  view.geometry(r?.geometry || preview, placed);
+  if (!placed && !preview.crs) layers.setVisible("basemap", false);
+  // A saved run's mesh with the deck's network (the run kept only plain links).
+  showGeometry(r?.geometry ? { ...r.geometry, network: preview.network } : preview, placed);
   if (preview.crs) placeModel(preview.crs);
   // Forcings stay set across runs while their gage or node exists.
   forcings = forcings.filter((f) => (f.kind === "rain" ? preview.gages : preview.nodes).includes(f.target));
@@ -221,7 +239,7 @@ function install(p, r = null) {
 function showPlacement(place, note) {
   $("inspanchor").textContent = place ? place.label : "Local coordinates";
   $("locate").hidden = place?.kind === "crs"; // a CRS is edited in the model, not placed by hand
-  $("mapstatus").textContent = note || tokenNote;
+  layers.setNote("basemap", note || tokenNote);
 }
 /** Resolve the model's CRS and re-place the view; a later install wins over a slow resolution. */
 async function placeModel(crs) {
@@ -232,11 +250,9 @@ async function placeModel(crs) {
     placed = place;
     view.setPlacement(place);
     showPlacement(place, "");
-    if ($("basemap").checked) await view.basemap(true);
   } catch (e) {
     if (mine !== placeSeq) return;
-    $("basemap").checked = false;
-    view.basemap(false);
+    layers.setVisible("basemap", false);
     showPlacement(null, e.message + " The model is shown in local coordinates.");
   }
 }
@@ -337,7 +353,7 @@ function launch(data) {
         geometry = m.geometry
           ? { ...m.geometry, links: preview.links }
           : preview;
-        view.geometry(geometry);
+        showGeometry({ ...geometry, network: preview.network });
         $("cells").textContent = geometry.cells.length;
         $("time").disabled = true;
         $("play").disabled = true;
@@ -941,14 +957,6 @@ $("report").onclick = () => {
   pre.textContent = decoder.decode(run.files[run.report]);
   dialog("Run report", pre);
 };
-$("basemap").onchange = async () => {
-  try {
-    await view.basemap($("basemap").checked);
-  } catch (e) {
-    $("basemap").checked = false;
-    $("mapstatus").textContent = e.message;
-  }
-};
 $("study").onclick = () => {
   const form = $("studyform").content.cloneNode(true).querySelector("form"),
     fields = form.elements;
@@ -1006,18 +1014,18 @@ $("study").onclick = () => {
     try {
       // Use a provisional geographic reference for picking without drawing existing local geometry.
       $("dialog").close();
-      view.geometry(
+      showGeometry(
         { x: [], y: [], cells: [] },
         anchorPlacement({ lat: +fields.lat.value, lon: +fields.lon.value }),
       );
-      $("basemap").checked = true;
-      await view.basemap(true);
+      layers.setVisible("basemap", true);
+      await basemapJob;
+      if (!layers.visible("basemap")) throw new Error(layers.note("basemap"));
       const restoreView = () => {
         view.onPick = null;
         document.removeEventListener("keydown", cancel);
-        $("basemap").checked = false;
-        view.basemap(false);
-        view.geometry(run?.geometry || preview, placed);
+        layers.setVisible("basemap", false);
+        showGeometry(run?.geometry ? { ...run.geometry, network: preview.network } : preview, placed);
         busy(false);
         dialog("New surface study", form);
       };
@@ -1034,9 +1042,9 @@ $("study").onclick = () => {
       $("stop").hidden = true;
       status("Select the southwest corner. Escape cancels.");
     } catch (e) {
-      $("basemap").checked = false;
-      await view.basemap(false);
-      view.geometry(run?.geometry || preview, placed);
+      layers.setVisible("basemap", false);
+      await basemapJob;
+      showGeometry(run?.geometry ? { ...run.geometry, network: preview.network } : preview, placed);
       dialog("New surface study", form);
       feedback(e);
     }

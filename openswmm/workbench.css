@@ -503,8 +503,12 @@ main {
   flex: none;
 }
 .sw.ramp,
-.legend .ramp {
+.layer-legend .ramp {
   background: linear-gradient(90deg, #d9edff, #5bb2ff 35%, #0071bf 70%, #00518c);
+}
+.sw.meshfill {
+  background: rgba(74, 100, 128, 0.18);
+  border: 1px solid var(--line);
 }
 .sw.mesh {
   border: 1.5px solid var(--ink-mute);
@@ -518,22 +522,90 @@ main {
   background: #e2ebe0;
   border: 1px solid #b9c9c0;
 }
-.legend {
-  border-bottom: 0;
+/* Layer tree (layers-panel.mjs): categories in the desktop's order, groups, kind rows. */
+.layer-cat {
+  padding-top: 6px;
+  padding-bottom: 8px;
 }
-.legend .ramp {
-  display: block;
-  height: 10px;
-  border-radius: 5px;
+.layer-head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
-.legend #scale {
+.layer-head .check b {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.layer-move {
+  width: 26px;
+  height: 26px;
+}
+.layer-move svg {
+  width: 14px;
+  height: 14px;
+}
+.layer-move.up svg {
+  transform: rotate(180deg);
+}
+.layer-sub {
+  margin-left: 14px;
+  min-height: 26px;
+  color: var(--ink-mute);
+  font-size: 12px;
+}
+.layer-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 14px;
+}
+.layer-row.nested {
+  margin-left: 30px;
+}
+.layer-row .check {
+  flex: 1;
+  min-height: 26px;
+  min-width: 0;
+}
+.layer-count {
+  font: 11px "JetBrains Mono", ui-monospace, monospace;
+  color: var(--ink-mute);
+}
+.layer-cat small.layer-count {
+  margin-top: 0;
+}
+.layer-legend {
+  margin: 2px 0 6px 36px;
+}
+.layer-legend .ramp {
   display: block;
-  margin-top: 4px;
+  height: 8px;
+  border-radius: 4px;
+}
+.layer-legend #scale {
+  display: block;
+  margin-top: 3px;
   font-size: 11px;
   color: var(--ink-soft);
 }
-.legend #scale::after {
-  content: " m";
+.layer-cat #mapstatus {
+  margin: 4px 0 6px 14px;
+}
+.layer-cat #locate {
+  margin-left: 14px;
+  width: calc(100% - 14px);
+}
+.layer-opacity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0 14px;
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.layer-opacity input {
+  flex: 1;
+  min-width: 0;
 }
 .kv {
   display: flex;
