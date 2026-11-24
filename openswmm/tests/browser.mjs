@@ -166,6 +166,48 @@ try {
   await page.getByRole("button", { name: "Close dialog" }).click();
   await page.getByRole("button", { name: "Run model" }).click();
   await until(/^Run complete/);
+
+  // Water quality on EPA Example 1: a land use's buildup, a subcatchment's land uses (a total over
+  // 100 % is refused) and a node's treatment (checked as it is typed), applied and run.
+  await page.locator("#input").setInputFiles({ name: "example1.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/example1.inp", import.meta.url)) });
+  await page.waitForFunction(() => document.getElementById("modelname").textContent === "example1.inp");
+  await choose("objkind", "landuse");
+  await page.waitForFunction(() => [...document.getElementById("objid").options].some((o) => o.value === "Commercial"));
+  await choose("objid", "Commercial");
+  await page.getByRole("button", { name: "Edit buildup and washoff…" }).click();
+  await page.getByLabel("Max. buildup", { exact: true }).fill("0.2");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("1 edit"));
+  await choose("objkind", "subcatchment");
+  await choose("objid", "S4");
+  await page.getByRole("button", { name: "Edit land uses and loadings…" }).click();
+  await page.getByLabel("Undeveloped coverage", { exact: true }).fill("80");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => /at most 100 %/.test(document.querySelector("#content .record-message")?.textContent || ""));
+  await page.getByLabel("Undeveloped coverage", { exact: true }).fill("20");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("2 edits"));
+  await choose("objkind", "node");
+  await choose("objid", "J1");
+  await page.getByRole("button", { name: "Edit treatment…" }).click();
+  const treat = page.getByLabel("TSS treatment", { exact: true });
+  await treat.fill("R = FOO");
+  await page.waitForFunction(() => /unknown identifier 'FOO'/.test(document.querySelector(".quality-verdict.bad")?.textContent || ""));
+  await treat.fill("R = 0.3");
+  await page.waitForFunction(() => document.querySelector(".quality-verdict.ok")?.textContent === "Checked");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("3 edits"));
+  await page.getByRole("button", { name: "Apply to model" }).click();
+  await until(/^3 edits applied/);
+  await page.getByRole("button", { name: "Edit INP" }).click();
+  const qualityDeck = await page.locator("#content textarea").inputValue();
+  // The writer keeps 17 significant digits: 0.2 is written 0.20000000000000001.
+  assert.match(qualityDeck, /^Commercial\s+TSS\s+EXP\s+0\.20000000000000001\s/m);
+  assert.match(qualityDeck, /^S4\s+Undeveloped\s+20\s*$/m);
+  assert.match(qualityDeck, /^J1\s+TSS\s+R = 0\.3\s*$/m);
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  await page.getByRole("button", { name: "Run model" }).click();
+  await until(/^Run complete/);
   // A model with a CRS is placed by it: the inspector names the system and the hand-placed map
   // reference is not offered; a model without one keeps the reference button.
   await page.locator("#input").setInputFiles({ name: "crs.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/crs.inp", import.meta.url)) });

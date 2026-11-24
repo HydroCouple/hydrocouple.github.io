@@ -183,6 +183,70 @@ const cases = [
         .replace(/^J1  UH1  12\.0$/m, "J1  UH1  10")
         .replace(/^(UH1  ALL  SHORT  0\.033  1\.0  )2\.0/m, "$13"),
   },
+  {
+    // Water quality (increment 3): pollutant and land use properties, buildup and washoff, coverage,
+    // initial loading and a treatment expression; Example 1 runs, so the .out must match too.
+    entry: "example1.inp",
+    source: "example1.inp",
+    edit(s) {
+      assert.equal(s.set("pollutant.kdecay", "TSS", 0.1), 0.1);
+      s.set("landuse.sweep_interval", "Commercial", 7);
+      s.set("landuse.sweep_removal", "Commercial", 0.3);
+      const lu = s.landuse("Commercial");
+      const tss = lu.rows.find((r) => r.pollutant === "TSS");
+      assert.deepEqual(tss.buildup, { func: "EXP", c1: 0.15, c2: 0.2, c3: 0, series: "", per: "CURB" });
+      tss.buildup.c1 = 0.2;
+      tss.washoff.coeff = 5;
+      s.setLanduse("Commercial", lu);
+      const s4 = s.subQuality("S4");
+      assert.deepEqual(s4.coverages.map((c) => c.percent), [9, 30, 26, 0]);
+      s4.coverages[0].percent = 10;
+      s4.coverages[3].percent = 20;
+      s4.loadings[0].value = 2;
+      s.setSubQuality("S4", s4);
+      s.setTreatment("J1", { node: "J1", rows: [{ pollutant: "TSS", expression: "R = 0.3" }] });
+    },
+    text: (t) =>
+      t
+        .replace(/^(TSS\s+MG\/L\s+0\.0\s+0\.0\s+0\.0\s+)0\.0/m, "$10.1")
+        .replace(/^Commercial\s+0\s+0\s+0\s*$/m, "Commercial 7 0.3 0")
+        .replace(/^(Commercial\s+TSS\s+EXP\s+)0\.15/m, "$10.2")
+        .replace(/^(Commercial\s+TSS\s+EXP\s+)4(\s+2\.2)/m, "$15$2")
+        .replace(/^(S4\s+Residential_1\s+)9(\s*)$/m, "$110$2")
+        .replace(/^(S4\s+Commercial\s+26\s*)$/m, "$1\nS4 Undeveloped 20")
+        .replace(/^\[LOADINGS\]$/m, "[LOADINGS]\nS4 TSS 2") + "\n[TREATMENT]\nJ1 TSS R = 0.3\n",
+  },
+  {
+    entry: "kitchen.inp",
+    source: "kitchen.inp",
+    run: false,
+    edit(s) {
+      assert.deepEqual(s.coPollutant("Lead"), { co: "TSS", fraction: 0.25 });
+      s.setCoPollutant("Lead", { co: "TSS", fraction: 0.5 });
+      s.addRecord("pollutant", "NH3", "MG/L");
+      const res = s.landuse("Res");
+      res.rows.find((r) => r.pollutant === "TSS").washoff.coeff = 0.2;
+      s.setLanduse("Res", res);
+      const com = s.landuse("Com");
+      const lead = com.rows.find((r) => r.pollutant === "Lead");
+      lead.buildup = { func: "EXT", c1: 10, c2: 1, c3: 0, series: "ts1", per: "AREA" }; // names match without case
+      com.rows.find((r) => r.pollutant === "TSS").washoff = { func: "EMC", coeff: 10, expon: 0, cleaning: 0, bmp: 25 };
+      s.setLanduse("Com", com);
+      const s1 = s.subQuality("S1");
+      s1.loadings.find((l) => l.pollutant === "Lead").value = 0;
+      s.setSubQuality("S1", s1);
+      s.setTreatment("J1", { node: "J1", rows: [{ pollutant: "TSS", expression: "C = 0.8 * Lead" }, { pollutant: "Lead", expression: "R = 0.5 * R_TSS" }] });
+    },
+    text: (t) =>
+      t
+        .replace(/^(Lead\s+UG\/L\s+0\s+0\s+0\s+0\s+NO\s+TSS\s+)0\.25/m, "$10.5")
+        .replace(/^(Lead\s+UG\/L.*)$/m, "$1\nNH3 MG/L 0 0 0 0 NO * 0 0 0")
+        .replace(/^(Res\s+TSS\s+EXP\s+)0\.1/m, "$10.2")
+        .replace(/^(Com\s+TSS\s+POW.*)$/m, "$1\nCom Lead EXT 10 1 TS1 AREA")
+        .replace(/^(Res\s+TSS\s+EXP.*)$/m, "$1\nCom TSS EMC 10 0 0 25")
+        .replace(/^S1\s+Lead\s+2\.0\s*\n/m, "")
+        .replace(/^J1\s+TSS\s+R = 0\.5$/m, "J1 TSS C = 0.8 * Lead\nJ1 Lead R = 0.5 * R_TSS"),
+  },
 ];
 
 for (const c of cases)
@@ -256,6 +320,69 @@ test("records are added, renamed and deleted with their references, and a delete
   session.close();
   await evidence("kitchen.records.inp", kept);
   await evidence("rain.dat", new TextEncoder().encode("01/01/2026 00:00 1.0\n"));
+});
+
+test("pollutants and land uses are added, renamed and deleted with their references; quality edits refuse bad values", async () => {
+  const session = new ModelSession(await create());
+  const summary = session.open(project("kitchen.inp", await deck("kitchen.inp")));
+  assert.deepEqual(summary.objects.pollutant, [{ id: "TSS" }, { id: "Lead" }]);
+  assert.deepEqual(summary.objects.landuse, [{ id: "Res" }, { id: "Com" }]);
+  // Every reference a pollutant delete clears, including the initial loading the engine leaves out.
+  assert.deepEqual(session.impact("pollutant", "TSS"), [
+    { object: "land use Res", field: "buildup" },
+    { object: "land use Com", field: "buildup" },
+    { object: "land use Res", field: "washoff" },
+    { object: "node J1", field: "treatment" },
+    { object: "pollutant Lead", field: "co-pollutant" },
+    { object: "subcatchment S1", field: "initial loading" },
+  ]);
+  assert.deepEqual(session.impact("landuse", "Com"), [
+    { object: "pollutant TSS", field: "buildup" },
+    { object: "subcatchment S1", field: "coverage" },
+  ]);
+  // A rename follows every row that names the land use.
+  assert.equal(session.renameRecord("landuse", "Res", "Resid"), "Resid");
+  assert.equal(session.subQuality("S1").coverages[0].landuse, "Resid");
+  assert.equal(session.landuse("Resid").rows[0].buildup.func, "POW");
+  assert.throws(() => session.renameRecord("pollutant", "TSS", "lead"), /taken/);
+  assert.throws(() => session.addRecord("pollutant", "tss"), /exists/);
+  assert.deepEqual(session.addRecord("landuse", "Park"), { kind: "landuse", id: "Park" });
+  // Delete and undo.
+  const before = decoder.decode(session.write());
+  const { token } = session.deleteRecord("pollutant", "TSS");
+  const gone = decoder.decode(session.write());
+  assert.doesNotMatch(gone, /\bTSS\b/);
+  session.restore(token);
+  assert.equal(decoder.decode(session.write()), before);
+  // Refusals, before the engine sees a value.
+  const s1 = session.subQuality("S1");
+  s1.coverages[1].percent = 50; // 60 + 50
+  assert.throws(() => session.setSubQuality("S1", s1), /cover 110 % of it; at most 100 %/);
+  const com = session.landuse("Com");
+  com.rows[1].buildup = { func: "EXT", c1: 1, c2: 1, c3: 0, series: "NOPE", per: "AREA" };
+  assert.throws(() => session.setLanduse("Com", com), /No time series named NOPE/);
+  com.rows[1].buildup = { func: "POW", c1: 1, c2: 1, c3: 1, series: "", per: "LENGTH" };
+  assert.throws(() => session.setLanduse("Com", com), /per AREA or per CURB/);
+  const res = session.landuse("Resid");
+  res.rows[0].washoff.cleaning = 150;
+  assert.throws(() => session.setLanduse("Resid", res), /percentage, 0 to 100/);
+  assert.throws(() => session.setCoPollutant("Lead", { co: "lead", fraction: 1 }), /its own co-pollutant/);
+  assert.throws(() => session.setCoPollutant("Lead", { co: "TSS", fraction: -1 }), /zero or more/);
+  // Treatment: the engine's grammar, the model's pollutant names.
+  assert.equal(session.checkTreatment("C = 0.5 * TSS"), "");
+  assert.equal(session.checkTreatment("R = 0.8 * r_tss"), "");
+  assert.equal(session.checkTreatment("R = 1 - exp(-0.1*HRT)"), "");
+  assert.match(session.checkTreatment("R = R_NOPE"), /No pollutant named NOPE/);
+  assert.match(session.checkTreatment("C = FOO * 2"), /unknown identifier 'FOO'.*a pollutant name.*\(at character 5\)/);
+  assert.throws(() => session.setTreatment("J1", { node: "J1", rows: [{ pollutant: "TSS", expression: "C = FOO" }] }), /TSS: unknown identifier/);
+  assert.deepEqual(session.treatment("J1").rows, [
+    { pollutant: "TSS", expression: "R = 0.5" },
+    { pollutant: "Lead", expression: "" },
+  ], "a refused edit changes nothing");
+  // An emptied expression removes the row.
+  session.setTreatment("J1", { node: "J1", rows: [{ pollutant: "TSS", expression: "" }] });
+  assert.doesNotMatch(decoder.decode(session.write()), /^J1\s+TSS\s+R/m);
+  session.close();
 });
 
 test("the editor's date and elapsed-time encoding matches the engine's reading of the deck", async () => {

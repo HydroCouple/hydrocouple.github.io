@@ -1,6 +1,6 @@
 // Engine-as-model: one solver kept in the OPENED state so edits go through the engine API
 // (catalog field paths) and the INP deck becomes a derived artifact written by the engine.
-import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits } from "./vendor/engine/index.js";
+import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits } from "./vendor/engine/index.js";
 import { localPath } from "./simulation.mjs";
 
 /** Sub-view path prefixes that only apply to one object type. */
@@ -13,9 +13,19 @@ const subviews = {
   "link.orifice.": "ORIFICE",
   "link.outlet.": "OUTLET",
 };
-export const objectKinds = ["options", "model", "node", "link", "subcatchment", "gage", "cell", "timeseries", "curve", "pattern", "hydrograph", "controls"];
+export const objectKinds = ["options", "model", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "controls"];
 /** Record kinds: edited as whole tables in the record editor rather than as property rows. */
 export const recordKinds = ["timeseries", "curve", "pattern", "hydrograph"];
+/** Water-quality objects: property rows plus a name, new and delete like a record. */
+export const qualityKinds = ["pollutant", "landuse"];
+/** Buildup functions, normalizers and washoff functions by their engine codes ([BUILDUP], [WASHOFF]). */
+export const buildupFuncs = ["NONE", "POW", "EXP", "SAT", "EXT"];
+export const normalizers = ["AREA", "CURB"];
+export const washoffFuncs = ["NONE", "EXP", "RC", "EMC"];
+/** Concentration units of a pollutant, deck spelling → engine name. */
+export const concentrationUnits = { "MG/L": "MG_PER_L", "UG/L": "UG_PER_L", "#/L": "COUNT_PER_L" };
+/** Treatment expression variables and functions the engine knows (Treatment.cpp). */
+const treatmentWords = /^(C|R|DT|HRT|Q|V|D|AREA|EXP|LOG|LN|SQRT|MIN|MAX|ABS|SGN|STEP)$/i;
 /** External inflow types ([INFLOWS]); a FLOW row is always type FLOW. */
 export const inflowTypes = ["FLOW", "CONCEN", "MASS"];
 /** Dry-weather pattern slots, in [DWF] column order, and the pattern type each takes. */
@@ -93,6 +103,7 @@ const fieldNames = {
   pat4: "weekend pattern",
   upper_evap_pat: "upper evaporation pattern",
   uh_name: "unit hydrograph",
+  co_pollut: "co-pollutant",
 };
 /** Time series that read their values from a file (`name FILE path`), keyed by upper-case name. */
 function fileSeries(fs, entry) {
@@ -190,6 +201,8 @@ export class ModelSession {
           return { id: p.id, type: PatternType[p.type] };
         }),
         hydrograph: range(s.inflows.hydrographGroupCount).map((i) => ({ id: s.inflows.getHydrographGroupId(i) })),
+        pollutant: this.pollutantIds().map((id) => ({ id })),
+        landuse: this.landuseIds().map((id) => ({ id })),
       },
     };
   }
@@ -268,6 +281,17 @@ export class ModelSession {
   addRecord(kind, name, type) {
     const s = this.solver;
     const id = validName(name);
+    if (kind === "pollutant") {
+      if (this.pollutantIds().some((p) => same(p, id))) throw new Error("A pollutant named " + id + " exists.");
+      const units = concentrationUnits[type] ?? "MG_PER_L";
+      s.pollutants.add(id, ConcentrationUnits[units]);
+      return { kind, id };
+    }
+    if (kind === "landuse") {
+      if (this.landuseIds().some((l) => same(l, id))) throw new Error("A land use named " + id + " exists.");
+      s.quality.landuses.add(id);
+      return { kind, id };
+    }
     if (kind === "hydrograph") {
       if (this.groupIndex(id) >= 0) throw new Error("A unit hydrograph named " + id + " exists.");
       const gage = s.gages.ids[0];
@@ -294,9 +318,21 @@ export class ModelSession {
   renameRecord(kind, id, name) {
     const s = this.solver;
     const next = validName(name);
-    const taken = kind === "pattern" ? s.patterns.has(next) : kind === "hydrograph" ? this.groupIndex(next) >= 0 : this.findTable(kind, next) >= 0;
+    const taken =
+      kind === "pattern"
+        ? s.patterns.has(next)
+        : kind === "hydrograph"
+          ? this.groupIndex(next) >= 0
+          : kind === "pollutant"
+            ? this.pollutantIds().some((p) => same(p, next))
+            : kind === "landuse"
+              ? this.landuseIds().some((l) => same(l, next))
+              : this.findTable(kind, next) >= 0;
     if (taken && next.toUpperCase() !== id.toUpperCase()) throw new Error(next + " is taken.");
-    if (kind === "hydrograph") s.inflows.renameHydrographGroup(this.group(id), next); // RDII rows follow
+    // Buildup, washoff, coverages, loadings, treatment and inflow rows follow a pollutant or land use.
+    if (kind === "pollutant") s.pollutants.rename(this.name("pollutant", id), next);
+    else if (kind === "landuse") s.quality.landuses.get(this.name("landuse", id)).rename(next);
+    else if (kind === "hydrograph") s.inflows.renameHydrographGroup(this.group(id), next); // RDII rows follow
     else if (kind === "pattern") s.patterns.rename(id, next);
     else s.tables.rename(this.table(kind, id), next);
     const file = kind === "timeseries" ? this.files.get(id.toUpperCase()) : undefined;
@@ -314,8 +350,20 @@ export class ModelSession {
         ? s.editor.analyzePatternImpact(id)
         : kind === "hydrograph"
           ? s.editor.analyzeHydrographImpact(s.inflows.getHydrographGroupId(this.group(id)))
-          : s.editor.analyzeTableImpact(this.table(kind, id));
+          : kind === "pollutant"
+            ? s.editor.analyzePollutantImpact(this.name("pollutant", id))
+            : kind === "landuse"
+              ? s.editor.analyzeLanduseImpact(this.name("landuse", id))
+              : s.editor.analyzeTableImpact(this.table(kind, id));
     const named = (list, i) => list.ids?.[i] ?? list.getId?.(i);
+    // The engine's pollutant impact leaves out initial loadings, which its delete removes too (engine
+    // item 8): listed here from the subcatchments.
+    const loadings =
+      kind === "pollutant"
+        ? s.subcatchments.ids
+            .filter((sub) => s.subcatchments.get(sub).loadings.get(this.name("pollutant", id)) !== 0)
+            .map((sub) => ({ object: "subcatchment " + sub, field: "initial loading" }))
+        : [];
     return entries
       .filter((e) => {
         // The engine also lists STREET and IRREGULAR links (their street/transect index sits in the
@@ -331,8 +379,16 @@ export class ModelSession {
         else if (type === "dwf_inflow") name = "dry-weather " + s.inflows.getDwf(e.objIdx)[1] + " at " + s.nodes.ids[s.inflows.getDwf(e.objIdx)[0]];
         else if (type === "aquifer") name = s.aquifers.getId(e.objIdx);
         else if (type === "rdii_assign") return { object: "RDII at " + s.nodes.ids[s.inflows.getRdii(e.objIdx).nodeIndex], field: "unit hydrograph" };
+        else if (type === "landuse") return { object: "land use " + this.landuseIds()[e.objIdx], field: e.field };
+        else if (type === "pollutant") name = this.pollutantIds()[e.objIdx];
+        else if (type === "treatment") return { object: "node " + s.nodes.ids[e.objIdx], field: "treatment" };
+        else if (type === "ext_inflow") {
+          const [n, constituent] = s.inflows.getExternal(e.objIdx);
+          return { object: "external " + constituent + " inflow at " + s.nodes.ids[n], field: "constituent" };
+        }
         return { object: (type.replaceAll("_", " ") + " " + (name ?? "#" + (e.objIdx + 1))).trim(), field: fieldNames[e.field] ?? e.field.replaceAll("_", " ") };
-      });
+      })
+      .concat(loadings);
   }
   /**
    * Delete a record (references to it are cleared by the engine); returns the impact and an undo
@@ -344,6 +400,8 @@ export class ModelSession {
     this.solver.write(token);
     if (kind === "pattern") this.solver.editor.deletePattern(id);
     else if (kind === "hydrograph") this.solver.editor.deleteHydrograph(this.solver.inflows.getHydrographGroupId(this.group(id)));
+    else if (kind === "pollutant") this.solver.editor.deletePollutant(this.name("pollutant", id));
+    else if (kind === "landuse") this.solver.editor.deleteLanduse(this.name("landuse", id));
     else this.solver.editor.deleteTable(this.table(kind, id));
     if (kind === "timeseries") this.files.delete(String(id).toUpperCase());
     return { impact, token };
@@ -567,6 +625,219 @@ export class ModelSession {
       rows.rdii ? [[n, "RDII", rows.rdii.hydrograph, rows.rdii.area]] : [],
     );
     return this.inflows(node);
+  }
+  // ---- Water quality: pollutants and land uses are objects with catalog properties (fields); a land
+  // use holds a buildup and a washoff per pollutant ([BUILDUP], [WASHOFF]); a subcatchment its
+  // land-use coverage and initial loadings ([COVERAGES], [LOADINGS]); a node a treatment expression
+  // per pollutant ([TREATMENT]).
+  pollutantIds() {
+    const p = this.solver.pollutants;
+    return range(p.length).map((i) => p.getId(i));
+  }
+  landuseIds() {
+    const l = this.solver.quality.landuses;
+    return range(l.length).map((i) => l.getId(i));
+  }
+  /** An object's name as the model spells it (names match without case); throws when there is none. */
+  name(kind, id) {
+    const s = this.solver;
+    const list =
+      kind === "pollutant" ? this.pollutantIds() : kind === "landuse" ? this.landuseIds() : kind === "node" ? s.nodes.ids : s.subcatchments.ids;
+    const found = list.find((x) => same(x, id));
+    if (found === undefined) throw new Error("No " + (kind === "landuse" ? "land use" : kind) + " named " + id + ".");
+    return found;
+  }
+  /** A pollutant's co-pollutant: its name ("" for none) and the fraction of its runoff concentration. */
+  coPollutant(id) {
+    const co = this.solver.pollutants.get(this.name("pollutant", id)).coPollutant;
+    return { co: co ? co[0].id : "", fraction: co ? co[1] : 0 };
+  }
+  setCoPollutant(id, data) {
+    const p = this.solver.pollutants.get(this.name("pollutant", id));
+    if (!data.co) p.setCoPollutant(-1, 0);
+    else {
+      const co = this.name("pollutant", data.co);
+      if (same(co, p.id)) throw new Error("A pollutant cannot be its own co-pollutant.");
+      const fraction = Number(data.fraction);
+      if (!(Number.isFinite(fraction) && fraction >= 0)) throw new Error("The co-pollutant fraction is a number, zero or more.");
+      p.setCoPollutant(co, fraction);
+    }
+    return this.coPollutant(id);
+  }
+  /**
+   * A land use's buildup and washoff for every pollutant. Buildup: function (NONE, POW, EXP, SAT,
+   * EXT), c1–c3, `per` (AREA or CURB) and, for EXT, the time series the engine keeps as c3. Washoff:
+   * function (NONE, EXP, RC, EMC), coefficient, exponent and the cleaning and BMP removal (%).
+   */
+  landuse(id) {
+    const s = this.solver,
+      q = s.quality,
+      name = this.name("landuse", id);
+    return {
+      kind: "landuse",
+      id: name,
+      rows: this.pollutantIds().map((pollutant) => {
+        const b = q.getBuildup(name, pollutant),
+          w = q.getWashoff(name, pollutant);
+        const ext = buildupFuncs[b.func] === "EXT";
+        return {
+          pollutant,
+          buildup: { func: buildupFuncs[b.func], c1: b.c1, c2: b.c2, c3: ext ? 0 : b.c3, series: ext ? s.tables.getId(b.c3) : "", per: normalizers[b.normalizer] ?? "AREA" },
+          washoff: { func: washoffFuncs[w.func], coeff: w.coeff, expon: w.expon, cleaning: w.sweep_effic, bmp: w.bmp_effic },
+        };
+      }),
+    };
+  }
+  /** Land use rows as the engine will hold them, or an error naming the first bad value. */
+  checkLanduse(data) {
+    const seen = new Set();
+    const number = (v, what, max = Infinity) => {
+      const n = Number(v);
+      if (!(Number.isFinite(n) && n >= 0 && n <= max)) throw new Error(what + (max === 100 ? " is a percentage, 0 to 100." : " is a number, zero or more."));
+      return n;
+    };
+    return data.rows.map((row) => {
+      const pollutant = this.name("pollutant", row.pollutant);
+      if (seen.has(pollutant)) throw new Error("One row per pollutant: " + pollutant + " appears twice.");
+      seen.add(pollutant);
+      const b = row.buildup,
+        w = row.washoff;
+      if (!buildupFuncs.includes(b.func)) throw new Error("Unknown buildup function " + b.func + ".");
+      if (!washoffFuncs.includes(w.func)) throw new Error("Unknown washoff function " + w.func + ".");
+      if (!normalizers.includes(b.per)) throw new Error("Buildup is per AREA or per CURB length, not " + b.per + ".");
+      let buildup = { func: "NONE", c1: 0, c2: 0, c3: 0, series: "", per: "AREA" };
+      if (b.func !== "NONE") {
+        const what = pollutant + " buildup ";
+        buildup = { func: b.func, c1: number(b.c1, what + "maximum"), c2: number(b.c2, what + "C2"), c3: 0, series: "", per: b.per };
+        if (b.func === "EXT") {
+          const i = this.findTable("timeseries", b.series);
+          if (i < 0) throw new Error("No time series named " + (b.series || "(none)") + " for the external " + pollutant + " buildup.");
+          buildup.series = this.solver.tables.getId(i);
+        } else buildup.c3 = number(b.c3, what + "C3");
+      }
+      let washoff = { func: "NONE", coeff: 0, expon: 0, cleaning: 0, bmp: 0 };
+      if (w.func !== "NONE") {
+        const what = pollutant + " washoff ";
+        washoff = {
+          func: w.func,
+          coeff: number(w.coeff, what + "coefficient"),
+          expon: number(w.expon, what + "exponent"),
+          cleaning: number(w.cleaning, what + "cleaning efficiency", 100),
+          bmp: number(w.bmp, what + "BMP efficiency", 100),
+        };
+      }
+      return { pollutant, buildup, washoff };
+    });
+  }
+  /** Set the changed buildup and washoff rows of a land use; returns the land use as stored. */
+  setLanduse(id, data) {
+    const s = this.solver,
+      q = s.quality,
+      name = this.name("landuse", id);
+    const rows = this.checkLanduse(data);
+    const current = this.landuse(name).rows;
+    for (const row of rows) {
+      const was = current.find((r) => r.pollutant === row.pollutant);
+      const b = row.buildup,
+        w = row.washoff;
+      if (JSON.stringify(was.buildup) !== JSON.stringify(b))
+        q.setBuildup(name, row.pollutant, {
+          func: buildupFuncs.indexOf(b.func),
+          c1: b.c1,
+          c2: b.c2,
+          c3: b.func === "EXT" ? this.findTable("timeseries", b.series) : b.c3, // EXT: the series' table index
+          normalizer: normalizers.indexOf(b.per),
+        });
+      if (JSON.stringify(was.washoff) !== JSON.stringify(w))
+        q.setWashoff(name, row.pollutant, { func: washoffFuncs.indexOf(w.func), coeff: w.coeff, expon: w.expon, sweep_effic: w.cleaning, bmp_effic: w.bmp });
+    }
+    return this.landuse(name);
+  }
+  /** A subcatchment's land-use coverage (% of its area, every land use) and initial loadings. */
+  subQuality(id) {
+    const name = this.name("subcatchment", id),
+      sub = this.solver.subcatchments.get(name);
+    const cover = sub.coverages();
+    return {
+      kind: "subquality",
+      id: name,
+      coverages: this.landuseIds().map((landuse, i) => ({ landuse, percent: cover[i] })),
+      loadings: this.pollutantIds().map((pollutant) => ({ pollutant, value: sub.loadings.get(pollutant) })),
+    };
+  }
+  /** Set changed coverages and loadings; coverage is 0–100 % per land use and at most 100 % in all. */
+  setSubQuality(id, data) {
+    const name = this.name("subcatchment", id),
+      sub = this.solver.subcatchments.get(name);
+    const coverages = data.coverages.map((c) => {
+      const percent = Number(c.percent);
+      if (!(Number.isFinite(percent) && percent >= 0 && percent <= 100)) throw new Error("Coverage of " + c.landuse + " is a percentage, 0 to 100.");
+      return { landuse: this.name("landuse", c.landuse), percent };
+    });
+    const total = coverages.reduce((sum, c) => sum + c.percent, 0);
+    // The engine accepts more than 100 % and runs with it (engine item 9); the deck would be wrong.
+    if (total > 100 + 1e-9) throw new Error("The land uses of " + name + " cover " + +total.toFixed(6) + " % of it; at most 100 %.");
+    const loadings = data.loadings.map((l) => {
+      const value = Number(l.value);
+      if (!(Number.isFinite(value) && value >= 0)) throw new Error("The initial loading of " + l.pollutant + " is a number, zero or more.");
+      return { pollutant: this.name("pollutant", l.pollutant), value };
+    });
+    const current = this.subQuality(name);
+    for (const c of coverages)
+      if (current.coverages.find((x) => x.landuse === c.landuse).percent !== c.percent) sub.coverage.set(c.landuse, c.percent);
+    for (const l of loadings)
+      if (current.loadings.find((x) => x.pollutant === l.pollutant).value !== l.value) sub.loadings.set(l.pollutant, l.value);
+    return this.subQuality(name);
+  }
+  /** A node's treatment expression for every pollutant ("" for none). */
+  treatment(node) {
+    const name = this.name("node", node);
+    return { node: name, rows: this.pollutantIds().map((pollutant) => ({ pollutant, expression: this.solver.quality.getTreatment(name, pollutant) })) };
+  }
+  /**
+   * Check a treatment expression; "" when it is fine. The engine checks the grammar, but its checker
+   * has no model and refuses the pollutant references its runtime parser reads (a pollutant's name
+   * for its concentration, R_name / C_name; engine item 7). Those are checked here against the
+   * model's pollutants and stand in as C (padded, so the engine's column stays right).
+   */
+  checkTreatment(expression) {
+    const text = String(expression ?? "").trim();
+    if (!text) return "";
+    const ids = this.pollutantIds();
+    let unknown = null;
+    const masked = text.replace(/[A-Za-z_][A-Za-z0-9_]*/g, (word) => {
+      if (treatmentWords.test(word)) return word;
+      const ref = /^[RC]_(.+)$/i.exec(word)?.[1];
+      if (ids.some((p) => same(p, word)) || (ref && ids.some((p) => same(p, ref)))) return "C".padEnd(word.length);
+      if (ref) unknown ??= "No pollutant named " + ref + " (in " + word + ").";
+      return word;
+    });
+    if (unknown) return unknown;
+    const [ok, message, column] = this.solver.quality.validateTreatmentExpression(masked);
+    if (ok) return "";
+    return message.replace(/\(variables: ([^;]*);/, "(variables: $1, a pollutant name, R_name or C_name;") + (column >= 0 ? " (at character " + (column + 1) + ")" : "");
+  }
+  checkTreatments(rows) {
+    return rows.map((r) => ({ pollutant: r.pollutant, message: this.checkTreatment(r.expression) }));
+  }
+  /** Set a node's changed treatment expressions (an empty one removes the row); returns them. */
+  setTreatment(node, data) {
+    const q = this.solver.quality,
+      name = this.name("node", node);
+    const rows = data.rows.map((r) => {
+      const pollutant = this.name("pollutant", r.pollutant);
+      const expression = String(r.expression ?? "").trim().replace(/\s+/g, " ");
+      const message = this.checkTreatment(expression);
+      if (message) throw new Error(pollutant + ": " + message);
+      return { pollutant, expression };
+    });
+    const current = this.treatment(name).rows;
+    for (const r of rows) {
+      if (current.find((c) => c.pollutant === r.pollutant).expression === r.expression) continue;
+      if (r.expression) q.setTreatment(name, r.pollutant, r.expression);
+      else q.clearTreatment(name, r.pollutant);
+    }
+    return this.treatment(name);
   }
   /** Reopen the deck saved by `deleteRecord` (undo of a delete); returns the summary. */
   restore(token) {

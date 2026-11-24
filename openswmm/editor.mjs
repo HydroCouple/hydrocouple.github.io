@@ -1,11 +1,13 @@
 // Catalog-driven object editor in the inspector: object lists, generated property rows, record
 // cards (time series, curves, patterns, unit hydrographs) with their editor dialogs, the control
-// rule program, a node's inflows, edits sent to the model worker, undo, and "Apply to model" which
-// installs the engine-written deck.
-import { objectKinds, recordKinds, patternLength } from "./model.mjs";
+// rule program, a node's inflows and treatment, pollutants and land uses (buildup, washoff), a
+// subcatchment's land uses and loadings, edits sent to the model worker, undo, and "Apply to model"
+// which installs the engine-written deck.
+import { objectKinds, recordKinds, qualityKinds, patternLength, concentrationUnits } from "./model.mjs";
 import { recordEditor, drawRecord, describeRecord, curveTypes } from "./records.mjs";
 import { rulesEditor } from "./rules.mjs";
 import { inflowsEditor, describeInflows, hydrographEditor, describeHydrograph, hydrographCurve, monthRows } from "./inflows.mjs";
+import { landuseEditor, describeLanduse, subQualityEditor, describeSubQuality, treatmentEditor, describeTreatment } from "./quality.mjs";
 const $ = (id) => document.getElementById(id);
 const kindLabels = {
   options: "Simulation options",
@@ -15,14 +17,16 @@ const kindLabels = {
   subcatchment: "Subcatchments",
   gage: "Rain gages",
   cell: "Surface cells",
+  pollutant: "Pollutants",
+  landuse: "Land uses",
   timeseries: "Time series",
   curve: "Curves",
   pattern: "Time patterns",
   hydrograph: "Unit hydrographs",
   controls: "Control rules",
 };
-const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern", hydrograph: "unit hydrograph" };
-const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern", hydrograph: "Unit hydrograph" };
+const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern", hydrograph: "unit hydrograph", pollutant: "pollutant", landuse: "land use" };
+const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern", hydrograph: "Unit hydrograph", pollutant: "Pollutant", landuse: "Land use" };
 /** Kinds edited as one whole (no object list). */
 const globalKinds = ["model", "options", "controls"];
 const node = (tag, props = {}, ...children) => {
@@ -144,8 +148,12 @@ export class Editor {
     const kind = $("objkind").value,
       key = this.key();
     const props = $("props");
+    // Only the latest show() draws: choosing a kind and then an object starts two for one key.
+    const mine = (this.showSeq = (this.showSeq || 0) + 1);
+    this.current = () => mine === this.showSeq && key === this.key();
     if (recordKinds.includes(kind)) return this.showRecord(kind, key);
     if (kind === "controls") return this.showRules();
+    if (qualityKinds.includes(kind) && !key) return this.showQuality(kind, null, props);
     const global = kind === "model" || kind === "options";
     if ((!global && !key) || (kind === "cell" && !this.summary?.cells)) {
       props.replaceChildren();
@@ -154,17 +162,180 @@ export class Editor {
     }
     try {
       const rows = await this.call("fields", kind, key);
+      if (mine !== this.showSeq) return;
       props.replaceChildren(...rows.map((row) => this.row(kind, key, row)));
       if (kind === "node" || kind === "link") await this.showReferences(kind, key, props);
+      if (kind === "subcatchment") await this.showSubQuality(key, props);
+      if (qualityKinds.includes(kind)) await this.showQuality(kind, key, props);
     } catch (e) {
       this.fail(e);
     }
   }
+  /** Whether the model has water quality to edit (pollutants or land uses). */
+  hasQuality() {
+    return !!(this.summary?.objects.pollutant.length || this.summary?.objects.landuse.length);
+  }
+  /**
+   * Below a pollutant's or land use's properties: its name, what refers to it, New and Delete; a
+   * pollutant's co-pollutant; a land use's buildup and washoff.
+   */
+  async showQuality(kind, key, props) {
+    const noun = recordNoun[kind];
+    const card = node("div", { className: "record-card" });
+    const create = node("button", { type: "button", className: "tb ghost", textContent: "New " + noun });
+    create.onclick = () => this.newRecordForm(kind, card, create);
+    if (!key) {
+      card.append(node("p", { className: "hint", textContent: "This model has no " + noun + "s." }), create);
+      props.replaceChildren(card);
+      return;
+    }
+    const [users, extra] = await Promise.all([this.call("impact", kind, key), this.call(kind === "pollutant" ? "coPollutant" : "landuse", key)]);
+    if (!this.current()) return; // a later show() draws instead
+    const name = node("input", { type: "text", value: key, ariaLabel: "Name of the " + noun });
+    name.onchange = () => this.rename(kind, key, name.value);
+    const remove = node("button", { type: "button", className: "tb ghost", textContent: "Delete" });
+    remove.onclick = () => this.confirmDelete(kind, key, users, card);
+    const parts = [];
+    if (kind === "landuse") {
+      const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit buildup and washoff…" });
+      edit.disabled = !extra.rows.length;
+      edit.onclick = () => this.openLanduse(key);
+      parts.push(node("p", { className: "record-desc", textContent: describeLanduse(extra) }), edit);
+    } else {
+      // Co-pollutant: a fraction of another pollutant's runoff concentration.
+      const others = this.summary.objects.pollutant.map((p) => p.id).filter((p) => p !== key);
+      const co = node("select", { ariaLabel: "Co-pollutant" });
+      co.add(new Option("None", ""));
+      for (const p of others) co.add(new Option(p, p));
+      co.value = extra.co;
+      const fraction = node("input", { type: "number", step: "any", min: "0", value: String(extra.fraction), ariaLabel: "Co-pollutant fraction" });
+      fraction.disabled = !extra.co;
+      const save = async () => {
+        try {
+          const after = await this.call("setCoPollutant", key, { co: co.value, fraction: co.value ? fraction.value : 0 });
+          this.edits.push({ op: "co", kind, key, before: extra, after });
+          this.note();
+          this.show();
+        } catch (e) {
+          this.fail(e);
+          this.show();
+        }
+      };
+      co.onchange = fraction.onchange = save;
+      parts.push(
+        node("label", { className: "prop", title: "The pollutant's runoff concentration includes this fraction of another pollutant's." }, node("span", { textContent: "Co-pollutant" }), co),
+        node("label", { className: "prop" }, node("span", { textContent: "Co-pollutant fraction" }), fraction),
+      );
+    }
+    card.append(
+      ...parts,
+      node("p", { className: "hint", textContent: users.length ? "Used by " + users.map((u) => u.object + " (" + u.field + ")").join(", ") + "." : "Not used by any object." }),
+      node("label", { className: "prop" }, node("span", { textContent: "Name" }), name),
+      node("div", { className: "pair" }, remove, create),
+    );
+    props.append(card);
+  }
+  /** Below a subcatchment's properties: its land uses and initial loadings. */
+  async showSubQuality(key, props) {
+    if (!this.hasQuality()) return;
+    const data = await this.call("subQuality", key);
+    if (!this.current()) return; // a later show() draws instead
+    const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit land uses and loadings…" });
+    edit.onclick = () => this.openSubQuality(key);
+    props.append(
+      node(
+        "div",
+        { className: "record-card" },
+        node("p", { className: "record-desc", textContent: "Water quality" }),
+        ...describeSubQuality(data, this.summary).map((line) => node("p", { className: "hint", textContent: line })),
+        edit,
+      ),
+    );
+  }
+  async openLanduse(key) {
+    let record;
+    try {
+      record = await this.call("landuse", key);
+    } catch (e) {
+      return this.fail(e);
+    }
+    this.openDialog(
+      "Land use " + record.id + " · buildup and washoff",
+      landuseEditor({
+        record,
+        series: this.summary.objects.timeseries.map((t) => t.id),
+        onSave: async (data) => {
+          const after = await this.call("setLanduse", key, data);
+          this.edits.push({ op: "landuse", kind: "landuse", key: record.id, before: record, after });
+          this.closeDialog();
+          this.note();
+          this.show();
+        },
+        onCancel: () => this.closeDialog(),
+      }),
+    );
+  }
+  async openSubQuality(key) {
+    let data;
+    try {
+      data = await this.call("subQuality", key);
+    } catch (e) {
+      return this.fail(e);
+    }
+    this.openDialog(
+      "Subcatchment " + data.id + " · land uses and loadings",
+      subQualityEditor({
+        data,
+        units: this.summary,
+        onSave: async (next) => {
+          const after = await this.call("setSubQuality", key, next);
+          this.edits.push({ op: "subquality", kind: "subcatchment", key: data.id, before: data, after });
+          this.closeDialog();
+          this.note();
+          this.show();
+        },
+        onCancel: () => this.closeDialog(),
+      }),
+    );
+  }
+  async openTreatment(key) {
+    let data;
+    try {
+      data = await this.call("treatment", key);
+    } catch (e) {
+      return this.fail(e);
+    }
+    this.openDialog(
+      "Treatment at " + data.node,
+      treatmentEditor({
+        data,
+        onCheck: (rows) => this.call("checkTreatments", rows),
+        onSave: async (next) => {
+          const after = await this.call("setTreatment", key, next);
+          this.edits.push({ op: "treatment", kind: "node", key: data.node, before: data, after });
+          this.closeDialog();
+          this.note();
+          this.show();
+        },
+        onCancel: () => this.closeDialog(),
+      }),
+    );
+  }
   /** Below a node's or link's properties: the rules that name it and, for a node, its inflows. */
   async showReferences(kind, key, props) {
-    const [rules, inflows] = await Promise.all([this.call("ruleRefs", key), kind === "node" ? this.call("inflows", key) : null]);
-    if (key !== this.key()) return;
+    const treats = kind === "node" && this.summary?.objects.pollutant.length;
+    const [rules, inflows, treatment] = await Promise.all([
+      this.call("ruleRefs", key),
+      kind === "node" ? this.call("inflows", key) : null,
+      treats ? this.call("treatment", key) : null,
+    ]);
+    if (!this.current()) return; // a later show() draws instead
     const extra = node("div", { className: "record-card" });
+    if (treatment) {
+      const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit treatment…" });
+      edit.onclick = () => this.openTreatment(key);
+      extra.append(node("p", { className: "hint", textContent: describeTreatment(treatment) }), edit);
+    }
     if (inflows) {
       const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit inflows…" });
       edit.onclick = () => this.openInflows(key);
@@ -337,6 +508,10 @@ export class Editor {
       if (edit.op === "record") await this.call("setRecord", edit.kind, edit.key, edit.before);
       else if (edit.op === "rules") await this.call("setRules", edit.before);
       else if (edit.op === "inflows") await this.call("setInflows", edit.key, edit.before);
+      else if (edit.op === "co") await this.call("setCoPollutant", edit.key, edit.before);
+      else if (edit.op === "landuse") await this.call("setLanduse", edit.key, edit.before);
+      else if (edit.op === "subquality") await this.call("setSubQuality", edit.key, edit.before);
+      else if (edit.op === "treatment") await this.call("setTreatment", edit.key, edit.before);
       else if (edit.op === "add") await this.call("deleteRecord", edit.kind, edit.key);
       else if (edit.op === "rename") await this.call("renameRecord", edit.kind, edit.after, edit.before);
       else if (edit.op === "delete") await this.call("restore", edit.token);
@@ -378,7 +553,7 @@ export class Editor {
       props.replaceChildren();
       return this.fail(e);
     }
-    if (key !== this.key()) return; // another object was picked meanwhile
+    if (!this.current()) return; // another object was picked meanwhile
     const preview = node("canvas", { width: 260, height: 64, className: "record-spark", ariaLabel: "Preview of " + record.id });
     const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit values…" });
     edit.disabled = !!record.file; // a FILE series is edited in its file
@@ -409,8 +584,9 @@ export class Editor {
   newRecordForm(kind, card, button) {
     const name = node("input", { type: "text", ariaLabel: "New " + recordNoun[kind] + " name", placeholder: "Name" });
     const type = node("select", { ariaLabel: "New " + recordNoun[kind] + " type" });
-    const types = kind === "curve" ? curveTypes : kind === "pattern" ? Object.keys(patternLength) : [];
-    for (const t of types) type.add(new Option(t[0] + t.slice(1).toLowerCase(), t));
+    const types = kind === "curve" ? curveTypes : kind === "pattern" ? Object.keys(patternLength) : kind === "pollutant" ? Object.keys(concentrationUnits) : [];
+    for (const t of types) type.add(new Option(kind === "pollutant" ? t : t[0] + t.slice(1).toLowerCase(), t));
+    if (kind === "pollutant") type.ariaLabel = "New pollutant units";
     type.hidden = !types.length;
     const ok = node("button", { type: "button", className: "tb primary", textContent: "Create" });
     const form = node("div", { className: "record-new" }, name, type, ok);

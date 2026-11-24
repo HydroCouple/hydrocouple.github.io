@@ -1617,3 +1617,56 @@ dialog:has(.inflows-editor) {
 .record-table.compact td input {
   min-width: 56px;
 }
+/* Water-quality editors (quality.mjs). */
+.quality-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+.quality-part {
+  margin: 0;
+  padding: 8px 12px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.quality-part legend {
+  padding: 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-mute);
+}
+.quality-editor .record-table caption {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-mute);
+  padding: 6px 0 4px;
+}
+.quality-editor td.unit {
+  font-size: 12px;
+  color: var(--ink-mute);
+  white-space: nowrap;
+}
+.quality-total {
+  font-weight: 600;
+}
+.quality-total.over {
+  color: var(--danger-ink);
+}
+.quality-expression {
+  width: 100%;
+  min-width: 260px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12.5px;
+}
+.quality-verdict {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+}
+.quality-verdict.ok {
+  color: var(--ok-ink);
+}
+.quality-verdict.bad {
+  color: var(--danger-ink);
+}
