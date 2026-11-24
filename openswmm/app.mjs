@@ -1,6 +1,7 @@
 import { attachNetwork, networkInfo } from "./coupling.mjs";
 import { lonLat, domainFromGeoJSON, linesFromGeoJSON } from "./surface.mjs";
 import { sketch, ModelView } from "./view.mjs";
+import { placement, anchorPlacement } from "./crs.mjs";
 import { pack, unpack, save, restore } from "./project.mjs";
 import { Editor } from "./editor.mjs";
 import { scenarioPanel } from "./scenarios.mjs";
@@ -15,7 +16,9 @@ let config = {},
   job,
   playTimer,
   loadId = 0,
-  preview = {};
+  preview = {},
+  placed = null, // where the current model sits on the globe (crs.mjs), null for local coordinates
+  placeSeq = 0;
 const status = (s) => {
   $("status").textContent = s;
 };
@@ -186,9 +189,6 @@ function install(p, r = null) {
   $("inspinputs").textContent = Object.keys(p.inputs).length;
   $("inspcells").textContent = preview.cells.length || "—";
   $("insplinks").textContent = preview.links.length || "—";
-  $("inspanchor").textContent = p.anchor
-    ? p.anchor.lat.toFixed(5) + ", " + p.anchor.lon.toFixed(5)
-    : "Local coordinates";
   $("inspsplit").textContent = p.split
     ? "Separate 1D and 2D instances"
     : "Single engine instance";
@@ -199,17 +199,46 @@ function install(p, r = null) {
     (preview.cells.length ? preview.cells.length + " surface cells" : "1D network") +
     (r ? " · results saved" : " · not run") +
     ". The latest successful workspace is kept in this browser.";
-  if (!p.anchor) {
+  // A model's own CRS places it (resolved below, it needs the bundled table); without one a
+  // hand-placed anchor does; otherwise it is shown in local coordinates.
+  placed = preview.crs ? null : p.anchor ? anchorPlacement(p.anchor) : null;
+  showPlacement(placed, preview.crs ? "Reading the coordinate system…" : "");
+  if (!placed && !preview.crs) {
     $("basemap").checked = false;
     view.basemap(false);
   }
-  view.geometry(r?.geometry || preview, p.anchor);
+  view.geometry(r?.geometry || preview, placed);
+  if (preview.crs) placeModel(preview.crs);
   // Forcings stay set across runs while their gage or node exists.
   forcings = forcings.filter((f) => (f.kind === "rain" ? preview.gages : preview.nodes).includes(f.target));
   renderForcing();
   finishUI();
   status(r ? "Reopened local results." : "Ready to run.");
   editor.load(p);
+}
+/** Inspector and Layers panel lines for where the model sits; `note` is a map status message. */
+function showPlacement(place, note) {
+  $("inspanchor").textContent = place ? place.label : "Local coordinates";
+  $("locate").hidden = place?.kind === "crs"; // a CRS is edited in the model, not placed by hand
+  if (note) $("mapstatus").textContent = note;
+  else if (view.token) $("mapstatus").textContent = "";
+}
+/** Resolve the model's CRS and re-place the view; a later install wins over a slow resolution. */
+async function placeModel(crs) {
+  const mine = ++placeSeq;
+  try {
+    const place = await placement({ crs });
+    if (mine !== placeSeq) return;
+    placed = place;
+    view.setPlacement(place);
+    showPlacement(place, "");
+    if ($("basemap").checked) await view.basemap(true);
+  } catch (e) {
+    if (mine !== placeSeq) return;
+    $("basemap").checked = false;
+    view.basemap(false);
+    showPlacement(null, e.message + " The model is shown in local coordinates.");
+  }
 }
 function busy(on) {
   view.still = on; // no streak animation while a job runs
@@ -308,7 +337,7 @@ function launch(data) {
         geometry = m.geometry
           ? { ...m.geometry, links: preview.links }
           : preview;
-        view.geometry(geometry, project.anchor);
+        view.geometry(geometry);
         $("cells").textContent = geometry.cells.length;
         $("time").disabled = true;
         $("play").disabled = true;
@@ -962,7 +991,7 @@ $("study").onclick = () => {
       $("dialog").close();
       view.geometry(
         { x: [], y: [], cells: [] },
-        { lat: +fields.lat.value, lon: +fields.lon.value },
+        anchorPlacement({ lat: +fields.lat.value, lon: +fields.lon.value }),
       );
       $("basemap").checked = true;
       await view.basemap(true);
@@ -971,7 +1000,7 @@ $("study").onclick = () => {
         document.removeEventListener("keydown", cancel);
         $("basemap").checked = false;
         view.basemap(false);
-        view.geometry(run?.geometry || preview, project.anchor);
+        view.geometry(run?.geometry || preview, placed);
         busy(false);
         dialog("New surface study", form);
       };
@@ -990,7 +1019,7 @@ $("study").onclick = () => {
     } catch (e) {
       $("basemap").checked = false;
       await view.basemap(false);
-      view.geometry(run?.geometry || preview, project.anchor);
+      view.geometry(run?.geometry || preview, placed);
       dialog("New surface study", form);
       feedback(e);
     }

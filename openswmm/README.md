@@ -22,7 +22,11 @@ Open a bundled example, an INP and its companion files, or a previously exported
 - **Resume run** continues a stopped run from its saved state, with the same results as an uninterrupted run. A model without a 2D surface runs in an engine checkpoint session, so a stop (by hand or at Stop at) saves its state with the run's files. A model with a 2D surface stops without one: the engine does not yet take 2D surfaces into checkpoint sessions, and a hot start does not carry 2D depths. The engine also declines sessions for some other models (for example ones with water-quality pollutants it does not checkpoint); those run normally without save/resume, and the status line gives the engine's reason when they stop.
 - **Forcing** sets a rain intensity at a gage (replacing the gage's values) or an added inflow at a node, in the model's units. A run starts with the forcings set there; a change during a run takes effect at its next report sample, and rain reaches the surface at the gage's next interval. The inspector lists when the run took each one.
 - **Scenarios** keeps snapshots of the model with the project: edit the model, then add it. **Run all scenarios** runs them in turn in one engine, with the current run settings and forcings (the same results, byte for byte, as running each one alone), then compares the surface balance, the deepest cell and the warnings, and overlays the same node depth or link flow from every run.
-- The model's **warnings** count in the status bar during a run and are listed from the inspector afterwards (a run in a checkpoint session reads them from its report when it ends). **New surface study** builds a triangular domain with terrain and design forcing. The square domain can be replaced with a WGS84 GeoJSON Polygon with optional holes. A generated study has a geographic anchor. For small imported Cartesian models, **Set map reference** assigns the southwest corner when the axes are east and north in metres. Georeference a US-unit or externally projected network before overlaying it.
+- The model's **warnings** count in the status bar during a run and are listed from the inspector afterwards (a run in a checkpoint session reads them from its report when it ends). **New surface study** builds a triangular domain with terrain and design forcing. The square domain can be replaced with a WGS84 GeoJSON Polygon with optional holes. A generated study has a geographic anchor. For small imported Cartesian models without a coordinate system, **Set map reference** assigns the southwest corner when the axes are east and north in metres.
+
+### Coordinate systems
+
+A model that names its coordinate reference system (`[OPTIONS] CRS`, as the desktop GUI writes it: an EPSG code such as `EPSG:25832`, or a WKT or PROJ definition) is placed on the globe by it, so its network, mesh and results sit at their real location when the basemap is on. The transform is proj4js with every projected and geographic EPSG system bundled as PROJ strings (`vendor/epsg/`, from the EPSG Geodetic Parameter Dataset), so it works offline and asks no service. The inspector's **Coordinates** line names the system; a code outside the table, or a definition the library cannot use, leaves the model in local coordinates and says why in the Layers panel. The CRS is edited like any other option in **Simulation options**.
 
 **Connect a 1D network** takes a metric network with the same XY and vertical reference and a manually reviewed cell/node exchange. The network clock and selected direct-rain policy control the combined deck. Use **Edit INP** to configure more exchanges or advanced engine options. Preconfigured US-unit models can run directly. Independent solver mode runs eligible split-water configurations using separate network and surface handles and the engine’s synchronous exchange callback.
 
@@ -53,11 +57,11 @@ Every visitor can inspect a deployed public token. A GitHub Actions secret can c
 
 ## Build and verify locally
 
-Use the same engine revision as the Pages workflow. Build its TypeScript wrappers and Emscripten module, and run `npm --prefix wasm run build` in MeshKit. The website bundler and tests need Node.js 22 or later. The bundler accepts local paths to the compiled packages and to an unpacked JSZip 3.10.2 package. Set `MAPBOX_PUBLIC_TOKEN` in the shell if using the online basemap.
+Use the same engine revision as the Pages workflow. Build its TypeScript wrappers and Emscripten module, and run `npm --prefix wasm run build` in MeshKit. The website bundler and tests need Node.js 22 or later. The bundler accepts local paths to the compiled packages and to unpacked JSZip 3.10.2, proj4 2.23.0 and epsg-index 2.0.0 packages (`npm pack <name>@<version>`). Set `MAPBOX_PUBLIC_TOKEN` in the shell if using the online basemap.
 
 ```sh
-node openswmm/prepare.mjs --engine /path/to/openswmm.engine.wasm --mesh /path/to/MeshKit --jszip /path/to/jszip-package
-node --test openswmm/tests/model.test.mjs openswmm/tests/records.test.mjs
+node openswmm/prepare.mjs --engine /path/to/openswmm.engine.wasm --mesh /path/to/MeshKit --jszip /path/to/jszip-package --proj4 /path/to/proj4-package --epsg /path/to/epsg-index-package
+node --test openswmm/tests/model.test.mjs openswmm/tests/records.test.mjs openswmm/tests/crs.test.mjs
 node openswmm/tests/serve.mjs
 ```
 

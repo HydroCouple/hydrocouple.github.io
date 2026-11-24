@@ -1,4 +1,3 @@
-import { lonLat } from "./surface.mjs";
 const el = (id) => document.getElementById(id);
 function sections(inp) {
   const rows = {};
@@ -39,6 +38,8 @@ export function sketch(text) {
       (s["[" + k + "]"] || []).map((row) => row[0]),
     ),
     flowUnits: ((s["[OPTIONS]"] || []).find((row) => /^FLOW_UNITS$/i.test(row[0]))?.[1] || "CFS").toUpperCase(),
+    // [OPTIONS] CRS as written (an EPSG code, WKT or PROJ string; crs.mjs reads it); "" for none.
+    crs: ((s["[OPTIONS]"] || []).find((row) => /^CRS$/i.test(row[0])) || []).slice(1).join(" "),
   };
 }
 function contains(poly, x, y) {
@@ -117,9 +118,13 @@ export class ModelView {
     };
     requestAnimationFrame(tick);
   }
-  geometry(geo, anchor) {
+  /**
+   * Show a model's geometry. `placement` (crs.mjs: `{toLonLat, …}`, null for local coordinates)
+   * says where it sits on the globe; leave it undefined to keep the current one.
+   */
+  geometry(geo, placement) {
     this.geo = geo;
-    this.anchor = anchor;
+    if (placement !== undefined) this.placement = placement;
     this.frame = null;
     this.particles = [];
     this.selected = -1;
@@ -236,9 +241,31 @@ export class ModelView {
       Object.assign(p, { x, y, cell: next, age: p.age + dt });
     }
   }
+  /** A new placement for the same geometry (a CRS resolved after the model was shown). */
+  setPlacement(placement) {
+    this.placement = placement;
+    if (this.map) this.fit();
+    else this.draw();
+  }
+  /** The model's bounds on the globe, `[[west, south], [east, north]]`, from its four corners. */
+  lonLatBounds() {
+    const [l, b, r, t] = this.bounds;
+    const corners = [
+      [l, b],
+      [r, b],
+      [r, t],
+      [l, t],
+    ].map(([x, y]) => this.placement.toLonLat(x, y));
+    const lons = corners.map((c) => c[0]),
+      lats = corners.map((c) => c[1]);
+    return [
+      [Math.min(...lons), Math.min(...lats)],
+      [Math.max(...lons), Math.max(...lats)],
+    ];
+  }
   project(x, y) {
-    if (this.map && this.anchor) {
-      const p = this.map.project(lonLat(this.anchor, x, y));
+    if (this.map && this.placement) {
+      const p = this.map.project(this.placement.toLonLat(x, y));
       return [p.x, p.y];
     }
     const [l, b, r, t] = this.bounds || [0, 0, 100, 100],
@@ -256,13 +283,8 @@ export class ModelView {
   fit() {
     this.zoom = 1;
     this.pan = [0, 0];
-    if (this.map && this.anchor && this.bounds) {
-      const [l, b, r, t] = this.bounds;
-      this.map.fitBounds(
-        [lonLat(this.anchor, l, b), lonLat(this.anchor, r, t)],
-        { padding: 55, duration: 0, maxZoom: 20 },
-      );
-    }
+    if (this.map && this.placement && this.bounds)
+      this.map.fitBounds(this.lonLatBounds(), { padding: 55, duration: 0, maxZoom: 20 });
     this.draw();
   }
   scale(f) {
@@ -373,9 +395,9 @@ export class ModelView {
       throw new Error(
         "A site Mapbox public token is required for the basemap.",
       );
-    if (!this.anchor)
+    if (!this.placement)
       throw new Error(
-        "This model needs a geographic reference. Use the local model view.",
+        "This model has no coordinate system or map reference. Use the local model view.",
       );
     if (this.map) {
       this.fit();
@@ -404,7 +426,8 @@ export class ModelView {
         });
       await this.loader;
     }
-    if (!el("basemap").checked || !this.anchor) return;
+    if (!el("basemap").checked || !this.placement) return;
+    const [[west, south], [east, north]] = this.lonLatBounds();
     this.map = new window.mapboxgl.Map({
       container: "map",
       accessToken: this.token,
@@ -412,7 +435,7 @@ export class ModelView {
       projection: "mercator",
       pitchWithRotate: false,
       dragRotate: false,
-      center: [this.anchor.lon, this.anchor.lat],
+      center: [(west + east) / 2, (south + north) / 2],
       zoom: 15,
     });
     el("scene").classList.add("geographic");

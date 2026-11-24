@@ -149,6 +149,14 @@ try {
   await page.getByRole("button", { name: "Close dialog" }).click();
   await page.getByRole("button", { name: "Run model" }).click();
   await until(/^Run complete/);
+  // A model with a CRS is placed by it: the inspector names the system and the hand-placed map
+  // reference is not offered; a model without one keeps the reference button.
+  await page.locator("#input").setInputFiles({ name: "crs.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/crs.inp", import.meta.url)) });
+  await page.waitForFunction(() => document.getElementById("inspanchor").textContent === "EPSG:2284 · NAD83 / Virginia South (ftUS)");
+  assert.equal(await page.locator("#locate").isHidden(), true);
+  await page.locator("#input").setInputFiles({ name: "inflows.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/inflows.inp", import.meta.url)) });
+  await page.waitForFunction(() => document.getElementById("inspanchor").textContent === "Local coordinates");
+  assert.equal(await page.locator("#locate").isHidden(), false);
   assert.deepEqual(errors, []);
 } finally {
   await browser.close();
