@@ -1,0 +1,117 @@
+/**
+ * @file index.ts
+ * @brief Public API entry point for `@hydrocouple/openswmm-engine-wasm`.
+ *
+ * @details Re-exports every public symbol from the package so consumers can
+ * import everything from a single specifier:
+ *
+ * ```ts
+ * import {
+ *   Solver,
+ *   Nodes, Node, Links, Link,
+ *   Subcatchments, Subcatchment,
+ *   Gages, Gage,
+ *   Controls, Forcing,
+ *   EngineState, NodeType, FlowUnits,
+ *   EngineError, BadIndexError,
+ * } from "@hydrocouple/openswmm-engine-wasm";
+ * ```
+ *
+ * The Emscripten-generated WASM loader (`createOpenSwmmModule`) is **not**
+ * re-exported here because it lives in the compiled `dist/` directory and
+ * is imported separately by the consumer:
+ *
+ * ```ts
+ * import createOpenSwmmModule from
+ *   "@hydrocouple/openswmm-engine-wasm/wasm";
+ * ```
+ *
+ * @author   Caleb Buahin <caleb.buahin@gmail.com>
+ * @copyright Copyright (c) 2026 Caleb Buahin. All rights reserved.
+ * @license  Apache-2.0
+ */
+// ---------------------------------------------------------------------------
+// Solver (main lifecycle controller)
+// ---------------------------------------------------------------------------
+export { Solver, abiTag, run, runWithCallback } from "./Solver.js";
+// ---------------------------------------------------------------------------
+// Model builder (programmatic model construction)
+// ---------------------------------------------------------------------------
+export { ModelBuilder } from "./ModelBuilder.js";
+// ---------------------------------------------------------------------------
+// Domain collections and element accessors
+// ---------------------------------------------------------------------------
+export { Nodes, Node, StorageView, OutfallView, DividerView } from "./Nodes.js";
+export { Links, Link, LinkStatsView, XSection, PumpView, WeirView, OrificeView, OutletView, } from "./Links.js";
+export { Subcatchments, Subcatchment, SubcatchmentStatsView, InfiltrationView, CoverageView, LoadingsView, } from "./Subcatchments.js";
+export { Aquifers, Snowpacks } from "./NamedObjects.js";
+export { Pollutant, Pollutants } from "./Pollutants.js";
+export { Landuse, Landuses, Quality } from "./Quality.js";
+export { InitialQuality } from "./InitialQuality.js";
+export { MassBalance } from "./MassBalance.js";
+export { getReportSnapshot } from "./Report.js";
+export { OutputReader, OutputNodeStats } from "./OutputReader.js";
+export { Output2DReader } from "./Output2D.js";
+export { Results, ResultCollection, ResultField, ResultObject, SeriesField, SurfaceCell, SurfaceCells, SurfaceField, SurfaceResults, } from "./Results.js";
+export { ELLIPSIS, slice } from "./ndarray.js";
+export { ModelEditor, DeleteRecord, ImpactEntry, ConversionResult, TypeChange } from "./Edit.js";
+export { Spatial } from "./Spatial.js";
+export { Infrastructure, Transects, Streets, Inlets, InletUsages, LIDs } from "./Infrastructure.js";
+export { LidNodeLayerKind, LidNodeLayer, LidLayerTreatment } from "./LidNodes.js";
+export { GeoPackage, registerGeoPackage, isGeoPackageRegistered } from "./GeoPackage.js";
+export { Climate } from "./Climate.js";
+export { Statistics } from "./Statistics.js";
+export { Inflows } from "./Inflows.js";
+export { HotStart, SaveSchedule } from "./HotStart.js";
+export { Checkpoints } from "./Checkpoints.js";
+export { Gages, Gage } from "./Gages.js";
+export { Controls } from "./Controls.js";
+export { Forcing } from "./Forcing.js";
+// ---------------------------------------------------------------------------
+// Enumerations
+// ---------------------------------------------------------------------------
+export * from "./enums.js";
+// ---------------------------------------------------------------------------
+// Error hierarchy
+// ---------------------------------------------------------------------------
+export { EngineError, BadHandleError, BadIndexError, BadParamError, LifecycleError, HotStartError, PluginError, FileError, ParseError, NumericalError, CRSError, DependencyError, ElementNotFoundError, StaleObjectError, GeoPackageError, raiseForCode, } from "./errors.js";
+export { oadateToDate, dateToOadate } from "./types.js";
+export { oadateToDatetime, datetimeToOadate } from "./dates.js";
+export { encodeDate, encodeTime, decodeDate, decodeTime, addSeconds, timeDiff, } from "./datetime.js";
+export { CrossSection } from "./geometry.js";
+export { PointTable, TimeSeries, Curve, Tables, Pattern, Patterns } from "./Tables.js";
+export { XSectionGeometry, shapeName } from "./XSectionGeometry.js";
+export { SimulationOptions, OptionsExtView, UserFlags, EventsView } from "./SolverViews.js";
+export { Snow } from "./Snow.js";
+export { readStruct, writeStruct, withStruct, withStructs } from "./structs.js";
+// ---------------------------------------------------------------------------
+// Raw layer (generated) — for advanced users; also published as "./raw"
+// ---------------------------------------------------------------------------
+export { bindRaw, STRUCTS, RAW_FUNCTION_COUNT } from "./raw.js";
+export { rawOf, withCString, withDouble, withInt, withDoubleArray, withDoubleInput, } from "./mem.js";
+export { Transport } from "./Transport.js";
+export { Fields } from "./Fields.js";
+export { CATALOG_REVISION, ELEMENTS, FIELDS } from "./fields.generated.js";
+export { TransportCell, threadInfo, effectiveThreads, transportMatrix, transportDomainName, transportClassName, } from "./Transport.js";
+export * as catalog from "./catalog.js";
+export { capabilities, CHECKPOINT_FEATURES } from "./capabilities.js";
+export { VERSION } from "./version.js";
+export { ProcessComponents } from "./ProcessComponents.js";
+export { WaterAge, WaterAgeGlobals, WaterAgeOverrides } from "./WaterAge.js";
+export { Reactions, ReactionSpecies, ReactionCoefficient, ReactionTerm, SpeciesCollection, CoefficientCollection, TermCollection, InitialQualityRows, } from "./Reactions.js";
+export { Heat, HeatSnapshot, HeatModules, HeatRadiative, HeatSolar, HeatCloud, HeatSources, HeatSediment, HeatNodeOverrides, HeatElementOverrides, } from "./Heat.js";
+export { MeshSnow } from "./Snow2D.js";
+export { SurfaceQuality, SurfaceCoverage, SurfaceLoading, SurfaceCurbLength, } from "./SurfaceQuality.js";
+// ---------------------------------------------------------------------------
+// 2D surface routing (solver.surface2d)
+// ---------------------------------------------------------------------------
+export { Surface2D, Infiltration2D, Infil2DDefaults } from "./Surface2D.js";
+export { Groundwater, GroundwaterTransport, GroundwaterOptions, AquiferOptions, GroundwaterTransportOptions, } from "./Groundwater.js";
+// ---------------------------------------------------------------------------
+// Coupling family: runtime exchange, native peers, passive exchange, tracing
+// ---------------------------------------------------------------------------
+export { Coupling, DomainSources } from "./Coupling.js";
+export { SplitFrame, SplitParticipant, MaterialSplitParticipant } from "./Split.js";
+export { PassiveExchange } from "./PassiveExchange.js";
+export { FlowTracer, TraceError } from "./Trace.js";
+//# sourceMappingURL=index.js.map

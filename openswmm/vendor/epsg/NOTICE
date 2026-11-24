@@ -1,0 +1,3 @@
+epsg.json lists the projected and geographic coordinate reference systems of the EPSG Geodetic
+Parameter Dataset (IOGP, https://epsg.org, used under its Terms of Use) as PROJ strings, as
+published by the epsg-index package (license.md). Codes and names are reproduced unchanged.

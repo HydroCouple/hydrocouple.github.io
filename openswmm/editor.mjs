@@ -154,12 +154,13 @@ export class Editor {
     const kind = $("objkind").value,
       key = this.key();
     const props = $("props");
-    // Only the latest show() draws: choosing a kind and then an object starts two for one key.
+    // Only the latest show() draws: choosing a kind and then an object starts two for one key. Each
+    // show hands its own check to the card builders; a stale one stops after its next await.
     const mine = (this.showSeq = (this.showSeq || 0) + 1);
-    this.current = () => mine === this.showSeq && key === this.key();
-    if (recordKinds.includes(kind)) return this.showRecord(kind, key);
+    const current = () => mine === this.showSeq && key === this.key();
+    if (recordKinds.includes(kind)) return this.showRecord(kind, key, current);
     if (kind === "controls") return this.showRules();
-    if (qualityKinds.includes(kind) && !key) return this.showQuality(kind, null, props);
+    if (qualityKinds.includes(kind) && !key) return this.showQuality(kind, null, props, current);
     const global = kind === "model" || kind === "options";
     if ((!global && !key) || (kind === "cell" && !this.summary?.cells)) {
       props.replaceChildren();
@@ -170,11 +171,11 @@ export class Editor {
       const rows = await this.call("fields", kind, key);
       if (mine !== this.showSeq) return;
       props.replaceChildren(...rows.map((row) => this.row(kind, key, row)));
-      if (kind === "node" || kind === "link") await this.showReferences(kind, key, props);
-      if (kind === "subcatchment") await this.showSubQuality(key, props);
-      if (kind === "subcatchment") await this.showSubLids(key, props);
-      if (qualityKinds.includes(kind)) await this.showQuality(kind, key, props);
-      if (kind === "model") await this.showClimate(props);
+      if (kind === "node" || kind === "link") await this.showReferences(kind, key, props, current);
+      if (kind === "subcatchment") await this.showSubQuality(key, props, current);
+      if (kind === "subcatchment") await this.showSubLids(key, props, current);
+      if (qualityKinds.includes(kind)) await this.showQuality(kind, key, props, current);
+      if (kind === "model") await this.showClimate(props, current);
     } catch (e) {
       this.fail(e);
     }
@@ -187,7 +188,7 @@ export class Editor {
    * Below a pollutant's or land use's properties: its name, what refers to it, New and Delete; a
    * pollutant's co-pollutant; a land use's buildup and washoff.
    */
-  async showQuality(kind, key, props) {
+  async showQuality(kind, key, props, current) {
     const noun = recordNoun[kind];
     const card = node("div", { className: "record-card" });
     const create = node("button", { type: "button", className: "tb ghost", textContent: "New " + noun });
@@ -198,7 +199,7 @@ export class Editor {
       return;
     }
     const [users, extra] = await Promise.all([this.call("impact", kind, key), this.call(kind === "pollutant" ? "coPollutant" : "landuse", key)]);
-    if (!this.current()) return; // a later show() draws instead
+    if (!current()) return; // a later show() draws instead
     const name = node("input", { type: "text", value: key, ariaLabel: "Name of the " + noun });
     name.onchange = () => this.rename(kind, key, name.value);
     const remove = node("button", { type: "button", className: "tb ghost", textContent: "Delete" });
@@ -244,9 +245,9 @@ export class Editor {
     props.append(card);
   }
   /** Above the model's settings: the climate, edited in one dialog. */
-  async showClimate(props) {
+  async showClimate(props, current) {
     const data = await this.call("climate");
-    if (!this.current()) return; // a later show() draws instead
+    if (!current()) return; // a later show() draws instead
     const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit climate…" });
     edit.onclick = () => this.openClimate();
     props.prepend(
@@ -285,10 +286,10 @@ export class Editor {
     );
   }
   /** Below a subcatchment's properties: the LID controls placed on it. */
-  async showSubLids(key, props) {
+  async showSubLids(key, props, current) {
     if (!this.summary?.objects.lid.length) return;
     const data = await this.call("lidUsage", key);
-    if (!this.current()) return; // a later show() draws instead
+    if (!current()) return; // a later show() draws instead
     const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit LID usage…" });
     edit.onclick = () => this.openLidUsage(key);
     props.append(
@@ -328,10 +329,10 @@ export class Editor {
     );
   }
   /** Below a subcatchment's properties: its land uses and initial loadings. */
-  async showSubQuality(key, props) {
+  async showSubQuality(key, props, current) {
     if (!this.hasQuality()) return;
     const data = await this.call("subQuality", key);
-    if (!this.current()) return; // a later show() draws instead
+    if (!current()) return; // a later show() draws instead
     const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit land uses and loadings…" });
     edit.onclick = () => this.openSubQuality(key);
     props.append(
@@ -414,14 +415,14 @@ export class Editor {
     );
   }
   /** Below a node's or link's properties: the rules that name it and, for a node, its inflows. */
-  async showReferences(kind, key, props) {
+  async showReferences(kind, key, props, current) {
     const treats = kind === "node" && this.summary?.objects.pollutant.length;
     const [rules, inflows, treatment] = await Promise.all([
       this.call("ruleRefs", key),
       kind === "node" ? this.call("inflows", key) : null,
       treats ? this.call("treatment", key) : null,
     ]);
-    if (!this.current()) return; // a later show() draws instead
+    if (!current()) return; // a later show() draws instead
     const extra = node("div", { className: "record-card" });
     if (treatment) {
       const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit treatment…" });
@@ -629,7 +630,7 @@ export class Editor {
     this.show();
   }
   /** The inspector card of a time series, curve or pattern: its extent, a preview, its users and actions. */
-  async showRecord(kind, key) {
+  async showRecord(kind, key, current) {
     const props = $("props");
     const noun = recordNoun[kind];
     const card = node("div", { className: "record-card" });
@@ -647,7 +648,7 @@ export class Editor {
       props.replaceChildren();
       return this.fail(e);
     }
-    if (!this.current()) return; // another object was picked meanwhile
+    if (!current()) return; // another object was picked meanwhile
     const preview = node("canvas", { width: 260, height: 64, className: "record-spark", ariaLabel: "Preview of " + record.id });
     preview.hidden = kind === "lid";
     const edit = node("button", { type: "button", className: "tb ghost", textContent: { transect: "Edit cross-section…", lid: "Edit layers…" }[kind] ?? "Edit values…" });

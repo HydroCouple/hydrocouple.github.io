@@ -660,3 +660,17 @@ test("LID controls and usage refuse what legacy SWMM would not run; renames foll
   assert.deepEqual(s.lidUsage("B").rows.map((r) => r.lid), ["UIT", "URB"]);
   s.close();
 });
+
+test("a subcatchment's adjustment patterns survive every write of the editing session", async () => {
+  // climate.inp lists [ADJUSTMENTS] before [SUBCATCHMENTS] and [PATTERNS], as the engine writes it;
+  // engines before e44317bf dropped the N-PERV row when reading such a deck.
+  const s = new ModelSession(await create());
+  s.open(project("climate.inp", await deck("climate.inp")));
+  const first = decoder.decode(s.write());
+  s.close();
+  assert.match(first, /^N-PERV\s+S1\s+NPervPat\s*$/m);
+  const again = new ModelSession(await create());
+  again.open(project("climate.inp", first));
+  assert.equal(decoder.decode(again.write()), first, "a second write keeps the deck");
+  again.close();
+});
