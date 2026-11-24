@@ -8,9 +8,9 @@ const CONFIG = Object.freeze({
   hours: 48,
 });
 const METHODS = [
-  { id: "lumped", label: "SWMM lumped runoff", color: "#9c6c28" },
-  { id: "book", label: "2D open book", color: "#087f78" },
-  { id: "drop", label: "2D teardrop", color: "#ad4561" },
+  { id: "lumped", label: "SWMM subcatchment (lumped)", color: "#9c6c28" },
+  { id: "book", label: "OpenSWMM 2D · open book", color: "#087f78" },
+  { id: "drop", label: "OpenSWMM 2D · teardrop", color: "#ad4561" },
 ];
 const STATIONS = [0, 0.08, 0.2, 0.35, 0.5, 0.64, 0.76, 0.86, 0.94, 0.98, 1];
 const WIDTHS = [0.05, 0.24, 0.53, 0.74, 0.94, 1, 0.96, 0.82, 0.58, 0.34, 0.12];
@@ -277,7 +277,7 @@ function drawTerrain(g, shape, project) {
   const outletHalf = halfWidth(0,g.width,shape)/4;
   html += `<path d="M${pt(-outletHalf,0)} L${pt(outletHalf,0)}" stroke="#173c3a" stroke-width="5" stroke-linecap="round"/>`;
   const outlet = project(0, 0);
-  html += `<circle cx="${outlet[0]}" cy="${outlet[1]}" r="4" fill="#173c3a"/><text x="${outlet[0]}" y="${outlet[1] + 22}" text-anchor="middle" fill="#365650" font-size="17">Outlet</text>`;
+  html += `<circle cx="${outlet[0]}" cy="${outlet[1]}" r="4" fill="#173c3a"/>`;
   return html;
 }
 
@@ -325,7 +325,7 @@ function initialize(root) {
     for(const id of ['book','drop']) {
       const g=geometry(s,id);
       $(id).innerHTML = terrain[id];
-      $(id+'-dim').textContent=`${fmt(g.width,1)} m maximum width × ${fmt(g.length,1)} m long · ${fmt(halfWidth(0,g.width,id)/2,2)} m outlet`;
+      $(id+'-dim').textContent=`${fmt(g.width,1)} m wide × ${fmt(g.length,1)} m long · ${fmt(halfWidth(0,g.width,id)/2,2)} m outlet`;
     }
     $('refinement').textContent = s.refinement
       ? 'After doubling mesh resolution in each direction, the change from the plotted 2D result was '+
@@ -333,12 +333,76 @@ function initialize(root) {
       : 'This selection uses the baseline mesh. Four selected scenarios also have a finer-mesh check.';
     chart();
   }
+  const plot = $('plot');
+  const plotly = globalThis.Plotly;
+  if (plotly) {
+    plot.hidden = false;
+    $('chart').setAttribute('hidden', '');
+    // The Articles reader can reveal this chart after its first, hidden render.
+    const observer = new ResizeObserver(() => {
+      if (plot.clientWidth > 0 && plot._fullLayout) plotly.Plots.resize(plot);
+    });
+    observer.observe(plot);
+  }
+
+  function interactiveChart(s, lo, hi, value, flowLabel) {
+    const unit = view === 'volume' ? '% of rain' : view === 'unit' ? 'ft³/s/acre' : 'ft³/s';
+    const minutes = s.runs[0].samples.map((_, i) => i);
+    const dash = ['dash', 'solid', 'dot'];
+    const traces = s.runs.map((run, i) => ({
+      type: 'scatter', mode: 'lines', name: methods[i].label,
+      x: minutes, y: run.samples.map(([q, v]) => value(q, v)),
+      line: {color: methods[i].color, dash: dash[i], width: 2.5},
+      hovertemplate: '%{y:.3f} ' + unit + '<extra></extra>'
+    }));
+    if (view !== 'volume') {
+      s.runs.forEach((run, i) => traces.push({
+        type: 'scatter', mode: 'markers', x: [run.peakTime / 60], y: [value(run.peak, 0)],
+        marker: {color: methods[i].color, size: 7}, hoverinfo: 'skip', showlegend: false
+      }));
+    }
+    const intensity = blocksPercent.map(percent => depths[s.period] * percent / 100 * 12);
+    traces.push({
+      type: 'bar', name: 'Rainfall', yaxis: 'y2',
+      x: intensity.map((_, i) => 5 * i + 2.5), y: intensity, width: 5,
+      customdata: intensity.map((_, i) => [i * 5, (i + 1) * 5]),
+      marker: {color: rainFill, line: {color: '#71a7bf', width: 0.7}},
+      hovertemplate: 'Minute %{customdata[0]}–%{customdata[1]} · %{y:.2f} in/h<extra>Rainfall</extra>'
+    });
+    const maximum = Math.max(...traces.slice(0, 3).flatMap(trace => trace.y.slice(lo, hi + 1)));
+    const label = (text, x, y, xanchor, color) => ({
+      text, x, y, xref: 'paper', yref: 'paper', xanchor, yanchor: 'bottom',
+      showarrow: false, font: {size: 12, color}
+    });
+    const layout = {
+      margin: {l: 44, r: 32, t: 22, b: 40}, showlegend: false, bargap: 0,
+      font: {family: 'Inter, system-ui, sans-serif', size: 11, color: '#365650'},
+      hovermode: 'x unified', dragmode: 'zoom',
+      xaxis: {range: [lo, hi], title: {text: 'Minutes from storm start', standoff: 6},
+        showgrid: false, zeroline: false, hoverformat: '.0f'},
+      yaxis: {domain: [0, 0.62], range: [0, maximum * 1.07], fixedrange: true,
+        gridcolor: '#dbe4e1', zeroline: false, nticks: 5},
+      yaxis2: {domain: [0.79, 1], range: [rainTicks.at(-1), 0], side: 'right',
+        fixedrange: true, tickvals: [0, 6, 12], tickfont: {color: rainInk},
+        showgrid: false, zeroline: false, showline: true, linecolor: rainInk},
+      annotations: [label(flowLabel, 0, 0.63, 'left', '#365650'),
+        label('Rainfall (in/h)', 1, 1, 'right', rainInk)]
+    };
+    plotly.react(plot, traces, layout, {
+      responsive: true, displaylogo: false, displayModeBar: 'hover', scrollZoom: false,
+      modeBarButtonsToRemove: ['lasso2d', 'select2d', 'autoScale2d', 'zoomIn2d', 'zoomOut2d']
+    });
+  }
+
   function chart() {
     const s=current;
     const peaks=s.runs.map(r=>r.peakTime/60);
     const lo=zoom?Math.max(0,Math.min(...peaks)-20):0;
     const hi=zoom?Math.min(hours*60,Math.max(...peaks)+30):hours*60;
     const value=(q,v)=>view==='volume'?100*v/s.runs[0].rain:q*cfs/(view==='unit'?s.areaAcres:1);
+    const flowLabel=view==='volume'?'Cumulative volume (% of rain)':view==='unit'?'Outlet flow (ft³/s per acre)':'Outlet flow (ft³/s)';
+    $('chart-label').textContent=flowLabel;
+    if (plotly) { interactiveChart(s, lo, hi, value, flowLabel); return; }
     const curves=s.runs.map(r=>r.samples.slice(lo,hi+1).map(([q,v],i)=>[i+lo,value(q,v)]));
     const top=Math.max(...curves.flat().map(p=>p[1]))*1.07;
     const left=81, right=925;
@@ -365,8 +429,6 @@ function initialize(root) {
     const colors=methods.map(m=>m.color), dashes=['9 5','','4 4'];
     curves.forEach((pts,i)=>{mark+=`<path d="${path(pts)}" clip-path="url(#rt-plot-clip)" fill="none" stroke="${colors[i]}" stroke-width="3" stroke-dasharray="${dashes[i]}"/>`;});
     if(view!=='volume') s.runs.forEach((r,i)=>{mark+=`<circle cx="${x(r.peakTime/60)}" cy="${y(value(r.peak,0))}" r="4" fill="${colors[i]}"/>`;});
-    const flowLabel=view==='volume'?'Cumulative volume (% of rain)':view==='unit'?'Outlet flow (ft³/s per acre)':'Outlet flow (ft³/s)';
-    $('chart-label').textContent=flowLabel;
     $('chart').innerHTML=mark+label(left,plotTop-13,flowLabel,'start')+label((left+right)/2,bottom+59,'Minutes from storm start');
   }
   for (const c of controls) {

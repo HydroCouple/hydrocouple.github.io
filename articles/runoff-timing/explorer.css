@@ -478,3 +478,28 @@
 .rt-study-figure figcaption { font-size: .93rem; color: var(--rt-muted); margin-top: .5rem; }
 .rt-control output { font-size: clamp(.95rem, 2vw, 1.25rem); }
 .rt-explorer .rt-table-scroll th[scope="row"] { text-align: left; white-space: nowrap; }
+
+/* Keep the shared-scale terrain preview above a single controls-and-chart group. */
+.rt-explorer { container-type: inline-size; }
+.rt-explorer #drainage-shapes { margin: 0; padding: 0; background: #fff; }
+.rt-explorer .rt-geometry { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 10px 14px 0; }
+.rt-explorer .rt-diagram { width: 100%; height: clamp(78px, 13vh, 112px); aspect-ratio: auto; }
+.rt-explorer .rt-shape-title { margin: 0 auto; font-size: 14px; line-height: 1.35; }
+.rt-explorer .rt-dimensions { line-height: 1.3; font-size: 12px; }
+.rt-explorer .rt-geom-note { margin: 5px 12px 10px !important; font-size: 12px; line-height: 1.35; }
+.rt-explorer .rt-controls { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 20px; padding: 12px 16px; }
+.rt-explorer .rt-control label { display: grid; gap: 0; font-size: 13px; line-height: 1.4; }
+.rt-explorer .rt-control output { font-size: 16px; }
+.rt-explorer .rt-control input[type=range] { display: block; height: 24px; margin: 0; }
+.rt-explorer .rt-range-ends { font-size: 11px; line-height: 1.3; }
+.rt-explorer .rt-status { min-height: 0; padding: 5px 16px; }
+.rt-explorer .rt-chartbar { padding: 7px 14px; gap: 6px 12px; }
+.rt-plot { width: 100%; height: clamp(268px, 40vh, 375px); }
+@container (max-width: 600px) {
+  .rt-explorer .rt-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 9px 12px; gap: 8px 14px; }
+  .rt-explorer .rt-chartbar { padding: 6px 10px; }
+  .rt-explorer .rt-chart-label { display: none; }
+  .rt-explorer .rt-view { gap: 3px; }
+  .rt-explorer .rt-view button { font-size: 12px; padding: 4px 6px; }
+  .rt-explorer .rt-plot { height: clamp(255px, 37vh, 310px); }
+}
