@@ -12,6 +12,10 @@
   <style>
     /* Docs-hub cards: icon + title + blurb + link list. Add a new doc set by copying one .doc-card. */
     .doc-card { display: flex; flex-direction: column; }
+    #panel-framework .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 720px) {
+      #panel-framework .grid { grid-template-columns: minmax(0, 1fr); }
+    }
     .doc-card .doc-icon {
       width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center;
       justify-content: center; margin-bottom: 16px; flex-shrink: 0;
@@ -117,14 +121,29 @@
             <path d="M10 13 v2 h4 v-2"/>
           </svg>
         </div>
-        <h3>HydroCouple SDK &amp; Composer</h3>
-        <p>Wrap a model with the C++ SDK. Use Composer to connect model instances, run a composition and inspect recorded results.</p>
+        <h3>HydroCouple SDK</h3>
+        <p>Wrap a model as a C++ component, define its inputs and outputs, and record results from a coupled run.</p>
         <ul class="doc-links">
           <li><a href="/HydroCoupleSDK/">SDK Reference <span class="kind">Doxygen</span></a></li>
           <li><a href="/HydroCoupleSDK/guide/">SDK Developer Guide <span class="kind">Doxygen</span></a></li>
+          <li><a href="https://github.com/HydroCouple/HydroCoupleSDK/tree/removing_qt">SDK Source <span class="kind">GitHub</span></a></li>
+        </ul>
+      </div>
+
+      <div class="card doc-card">
+        <div class="doc-icon" style="background:#fdf0dc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#a46615" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="9" width="6" height="6" rx="1.2"/>
+            <rect x="16" y="3" width="6" height="6" rx="1.2"/>
+            <rect x="16" y="15" width="6" height="6" rx="1.2"/>
+            <path d="M8 12h4 M16 6h-4v12h4"/>
+          </svg>
+        </div>
+        <h3>HydroCouple Composer</h3>
+        <p>Connect model components on the canvas, run a composition from the desktop or command line, and inspect recorded results.</p>
+        <ul class="doc-links">
           <li><a href="/HydroCoupleComposer/">Composer Reference <span class="kind">Doxygen</span></a></li>
           <li><a href="/HydroCoupleComposer/guide/">Composer User Guide <span class="kind">Doxygen</span></a></li>
-          <li><a href="https://github.com/HydroCouple/HydroCoupleSDK/tree/removing_qt">SDK Source <span class="kind">GitHub</span></a></li>
           <li><a href="https://github.com/HydroCouple/HydroCoupleComposer/tree/v2">Composer Source <span class="kind">GitHub</span></a></li>
           <li><a href="https://github.com/HydroCouple/HydroCoupleComposer/releases">Composer Installers <span class="kind">Releases</span></a></li>
         </ul>
