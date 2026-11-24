@@ -183,6 +183,31 @@ try {
   assert.deepEqual(await shownCategories(), ["SWMM", "SWMM 2D Outputs", "Meshes", "Basemaps"]);
   await page.getByRole("button", { name: "Move SWMM down" }).click();
   assert.deepEqual(await shownCategories(), ["SWMM 2D Outputs", "SWMM", "Meshes", "Basemaps"]);
+  // Side panels: drag the layers panel wider, resize the inspector from the keyboard and reset it
+  // by double-click, collapse the layers panel from its header and reopen it from the rail; the
+  // width survives a reload.
+  const width = (id) => page.evaluate((id) => document.getElementById(id).getBoundingClientRect().width, id);
+  const leftBar = page.getByRole("separator", { name: "Resize layers panel" });
+  const grip = await leftBar.boundingBox();
+  await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(grip.x + grip.width / 2 + 100, grip.y + grip.height / 2, { steps: 5 });
+  await page.mouse.up();
+  assert.equal(await width("left"), 372);
+  const rightBar = page.getByRole("separator", { name: "Resize inspector" });
+  await rightBar.focus();
+  await page.keyboard.press("ArrowLeft"); // toward the map: wider
+  assert.equal(await width("right"), 316);
+  await rightBar.dblclick();
+  assert.equal(await width("right"), 300);
+  await page.getByRole("button", { name: "Collapse layers panel" }).click();
+  assert.equal(await page.locator("#left").isHidden(), true);
+  assert.equal(await leftBar.isHidden(), true);
+  await page.locator("#raillayers").click();
+  assert.equal(await width("left"), 372);
+  await page.reload();
+  await page.waitForFunction(() => document.getElementById("modelname").textContent.length > 0);
+  assert.equal(await width("left"), 372);
   assert.deepEqual(errors, []);
 } finally {
   await browser.close();

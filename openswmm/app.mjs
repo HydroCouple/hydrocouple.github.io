@@ -3,6 +3,7 @@ import { lonLat, domainFromGeoJSON, linesFromGeoJSON } from "./surface.mjs";
 import { sketch, ModelView } from "./view.mjs";
 import { LayerTree, contentOf } from "./layers.mjs";
 import { layersPanel } from "./layers-panel.mjs";
+import { PanelLayout, panelChrome } from "./panels.mjs";
 import { placement, anchorPlacement } from "./crs.mjs";
 import { pack, unpack, save, restore } from "./project.mjs";
 import { Editor } from "./editor.mjs";
@@ -1113,33 +1114,9 @@ $("last").onclick = () => {
   setFrame(run.frames.length - 1);
 };
 
-// Panels: the three toggles and the rail remember their state in this browser.
-const panelKey = "openswmm.panels";
-const panels = { left: true, bottom: true, right: true };
-try {
-  Object.assign(panels, JSON.parse(localStorage.getItem(panelKey) || "{}"));
-} catch {}
-function showPanels() {
-  for (const side of ["left", "bottom", "right"]) {
-    $(side).hidden = !panels[side];
-    const b = $("toggle" + side);
-    b.classList.toggle("on", panels[side]);
-    b.setAttribute("aria-pressed", String(panels[side]));
-  }
-  $("raillayers").classList.toggle("on", panels.left);
-  view.draw();
-}
-function togglePanel(side) {
-  panels[side] = !panels[side];
-  try {
-    localStorage.setItem(panelKey, JSON.stringify(panels));
-  } catch {}
-  showPanels();
-}
-for (const side of ["left", "bottom", "right"])
-  $("toggle" + side).onclick = () => togglePanel(side);
-$("raillayers").onclick = () => togglePanel("left");
-showPanels();
+// Panels: open/closed and the side panels' widths are remembered in this browser (panels.mjs);
+// the map redraws through its canvas ResizeObserver when they change.
+panelChrome(new PanelLayout());
 
 // Popover menus sit under the button that opened them.
 for (const [button, pop] of [
