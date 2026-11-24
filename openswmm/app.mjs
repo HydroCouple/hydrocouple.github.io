@@ -3,6 +3,7 @@ import { lonLat, domainFromGeoJSON, linesFromGeoJSON } from "./surface.mjs";
 import { sketch, ModelView } from "./view.mjs";
 import { pack, unpack, save, restore } from "./project.mjs";
 import { Editor } from "./editor.mjs";
+import { scenarioPanel } from "./scenarios.mjs";
 const $ = (id) => document.getElementById(id),
   decoder = new TextDecoder(),
   encoder = new TextEncoder();
@@ -10,6 +11,7 @@ const topoKey = "openswmm.opentopographyKey";
 let config = {},
   project,
   run,
+  sweep = null, // the last scenario sweep of this session: { names, results }
   job,
   playTimer,
   loadId = 0,
@@ -42,6 +44,64 @@ if ("serviceWorker" in navigator)
   navigator.serviceWorker
     .register("./sw.js", { updateViaCache: "none" })
     .catch(() => {});
+/** "h:mm" or "h:mm:ss" elapsed from the start of the run → seconds; "" → 0; NaN if malformed. */
+function parseElapsed(text) {
+  const t = text.trim();
+  if (!t) return 0;
+  const m = t.match(/^(\d{1,4}):([0-5]\d)(?::([0-5]\d))?$/);
+  return m ? Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3] || 0) : NaN;
+}
+// ---- Live forcings: the set a run starts with; a change during a run is sent to it.
+let forcings = [];
+const forceHint = $("forcelist").textContent;
+const FLOW_LABEL = { CFS: "ft³/s", GPM: "gal/min", MGD: "Mgal/d", CMS: "m³/s", LPS: "L/s", MLD: "ML/d" };
+/** Forcing values are in the model's units: rain intensity per its unit system, inflow per FLOW_UNITS. */
+function forcingUnit(kind) {
+  const units = preview.flowUnits || "CFS";
+  if (kind === "rain") return ["CFS", "GPM", "MGD"].includes(units) ? "in/h" : "mm/h";
+  return FLOW_LABEL[units] || units;
+}
+const describe = (f) =>
+  (f.kind === "rain" ? "rain at " : "inflow at ") +
+  f.target +
+  (f.value === null ? " cleared" : " " + f.value + " " + forcingUnit(f.kind));
+function renderForcing() {
+  const kind = $("forcekind").value;
+  const ids = (kind === "rain" ? preview.gages : preview.nodes) || [];
+  const keep = $("forcetarget").value;
+  $("forcetarget").replaceChildren(...ids.map((id) => new Option(id, id)));
+  if (ids.includes(keep)) $("forcetarget").value = keep;
+  $("forcetargetlabel").textContent = kind === "rain" ? "Gage" : "Node";
+  $("forceunit").textContent = "(" + forcingUnit(kind) + ")";
+  for (const id of ["forcetarget", "forcevalue", "forceapply", "forceclear"]) $(id).disabled = !ids.length;
+  $("forcelist").textContent = forcings.length
+    ? "Set: " + forcings.map(describe).join(" · ") + ". A run starts with these; a change during a run takes effect at its next report sample."
+    : ids.length
+      ? forceHint
+      : "This model has no " + (kind === "rain" ? "rain gages" : "nodes") + ".";
+}
+$("forcekind").onchange = renderForcing;
+$("forceapply").onclick = () => {
+  const kind = $("forcekind").value,
+    target = $("forcetarget").value,
+    value = Number($("forcevalue").value);
+  if (!target || $("forcevalue").value === "" || !(value >= 0)) {
+    status("Enter a value of zero or more, in " + forcingUnit(kind) + ".");
+    return;
+  }
+  forcings = forcings.filter((f) => !(f.kind === kind && f.target === target)).concat({ kind, target, value });
+  job?.postMessage({ type: "force", forcing: { kind, target, value } });
+  renderForcing();
+  status(job ? "Forcing sent; the run takes it at its next report sample." : "Forcing set; the next run starts with it.");
+};
+$("forceclear").onclick = () => {
+  const kind = $("forcekind").value,
+    target = $("forcetarget").value;
+  forcings = forcings.filter((f) => !(f.kind === kind && f.target === target));
+  job?.postMessage({ type: "force", forcing: { kind, target, clear: true } });
+  renderForcing();
+  status(job ? "Clearing sent; the run restores the computed value at its next report sample." : "Forcing cleared.");
+};
 const clock = (s) =>
   [Math.floor(s / 3600), Math.floor(s / 60) % 60, Math.floor(s) % 60]
     .map((n) => String(n).padStart(2, "0"))
@@ -88,6 +148,14 @@ function finishUI() {
   $("inspengine").textContent = run?.engine || "—";
   $("inspframes").textContent = frames.length || "—";
   $("inspoutputs").textContent = run ? Object.keys(run.files).length : "—";
+  const warned = run?.warnings?.count ?? 0;
+  $("inspwarnings").textContent = run ? (warned ? warned.toLocaleString() : "None") : "—";
+  $("inspwarnings").disabled = !warned;
+  const forced = run?.forced?.length ?? 0;
+  $("inspforced").textContent = run ? (forced ? forced.toLocaleString() : "None") : "—";
+  $("inspforced").disabled = !forced;
+  // A run that stopped early with its state saved can be continued.
+  $("resume").hidden = !(run?.saved && run.files[run.saved.path]) || !!job;
   const b = run?.balance;
   const fmt = (n) =>
     Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -134,6 +202,9 @@ function install(p, r = null) {
     view.basemap(false);
   }
   view.geometry(r?.geometry || preview, p.anchor);
+  // Forcings stay set across runs while their gage or node exists.
+  forcings = forcings.filter((f) => (f.kind === "rain" ? preview.gages : preview.nodes).includes(f.target));
+  renderForcing();
   finishUI();
   status(r ? "Reopened local results." : "Ready to run.");
   editor.load(p);
@@ -149,6 +220,7 @@ function busy(on) {
     "archive",
     "split",
     "compute",
+    "scenarios",
     "files",
     "locate",
     "attach",
@@ -158,6 +230,7 @@ function busy(on) {
     b.disabled = on;
   $("stop").hidden = !on;
   $("run").hidden = on;
+  if (on) $("resume").hidden = true;
   if (!on) {
     $("pause").hidden = true;
     $("stop").disabled = false;
@@ -185,6 +258,8 @@ function launch(data) {
   const worker = (job = new Worker("./worker.mjs", { type: "module" }));
   let geometry,
     backend,
+    warned = 0,
+    sweepAt = "",
     frames = [];
   function end() {
     clearTimeout(stopTimer);
@@ -204,12 +279,20 @@ function launch(data) {
     );
   worker.onmessage = ({ data: m }) => {
     if (job !== worker) return;
+    // A sweep's runs do not take over the map.
+    if (m.scenario !== undefined && (m.type === "geometry" || m.type === "frame")) return;
     switch (m.type) {
       case "error":
         recover(m.message);
         break;
       case "status":
         status(m.message);
+        break;
+      case "warning":
+        warned++;
+        break;
+      case "forced":
+        status("At " + clock(m.seconds) + ": " + describe(m) + ".");
         break;
       case "control":
         if (m.state === "pause") status("Paused at " + $("clock").value + " · Resume or stop the run.");
@@ -232,9 +315,32 @@ function launch(data) {
         frames.push(m);
         view.setFrame(m);
         break;
+      case "scenario":
+        sweepAt = "Scenario " + (m.index + 1) + " of " + m.count + " (" + m.name + ") · ";
+        break;
+      case "scenarios-done":
+        end();
+        sweep = { names: data.scenarios.map((s) => s.name), results: m.results };
+        status(
+          "Scenarios run · " +
+            m.results.length +
+            " of " +
+            data.scenarios.length +
+            (m.results.some((r) => r.stopped) ? " · stopped early" : ""),
+        );
+        editor.load(project);
+        openScenarios();
+        break;
       case "progress":
         $("clock").value = clock(m.seconds);
-        status("Running · " + clock(m.seconds) + " of " + clock(m.total));
+        status(
+          sweepAt +
+            "Running · " +
+            clock(m.seconds) +
+            " of " +
+            clock(m.total) +
+            (warned ? " · " + warned + (warned > 1 ? " warnings" : " warning") : ""),
+        );
         break;
       case "built": {
         end();
@@ -273,7 +379,15 @@ function launch(data) {
           (run.stopped ? "Run stopped at " + clock(run.seconds) : "Run complete") +
             " · " +
             Object.keys(run.files).length +
-            " local output files",
+            " local output files" +
+            (warned ? " · " + warned + (warned > 1 ? " warnings" : " warning") : "") +
+            (!run.stopped
+              ? ""
+              : run.saved
+                ? " · state saved; Resume run continues it"
+                : run.resumable === false
+                  ? " · a model with a 2D surface cannot yet continue from a stop"
+                  : ""),
         );
         editor.load(project); // the run worker is gone; the editing engine may come back
         break;
@@ -283,17 +397,141 @@ function launch(data) {
     data.type === "build" ? "Preparing terrain…" : "Starting local solver…",
   );
   setPaused(false);
-  $("pause").hidden = data.type !== "run";
+  $("pause").hidden = data.type !== "run" && data.type !== "scenarios";
   worker.postMessage(data);
 }
-$("run").onclick = () =>
-  launch({
-    type: "run",
-    project,
+/** The run settings a run or a sweep starts with, or null after reporting a malformed Stop at. */
+function runSettings() {
+  const until = parseElapsed($("until").value);
+  if (Number.isNaN(until)) {
+    status("Stop at must be hours:minutes or hours:minutes:seconds from the start, e.g. 1:30.");
+    $("settingspop").showPopover();
+    $("until").focus();
+    return null;
+  }
+  return {
+    until,
+    forcings,
     simd: !!config.simd && $("compute").value === "auto",
     threads: !!config.threads && $("compute").value !== "cpu" && crossOriginIsolated,
     webgpu: $("compute").value === "webgpu",
+  };
+}
+function start(resume) {
+  const settings = runSettings();
+  if (!settings) return;
+  const until = settings.until;
+  if (resume && until && until <= run.saved.seconds) {
+    status("Stop at " + $("until").value + " is before the saved state (" + clock(run.saved.seconds) + "). Clear it or choose a later time.");
+    return;
+  }
+  launch({
+    type: "run",
+    project,
+    resume: resume ? run.files[run.saved.path] : null,
+    ...settings,
   });
+}
+$("run").onclick = () => start(false);
+$("resume").onclick = () => {
+  if (run?.saved && run.files[run.saved.path]) start(true);
+};
+// ---- Scenarios: snapshots of the model, run in turn and compared.
+function openScenarios() {
+  const list = project?.scenarios || [];
+  const save = (scenarios) => {
+    project = { ...project, scenarios };
+    persist();
+  };
+  dialog(
+    "Scenarios",
+    scenarioPanel({
+      scenarios: list,
+      sweep,
+      busy: !!job,
+      onAdd() {
+        save([
+          ...list,
+          {
+            name: "Scenario " + (list.length + 1),
+            added: new Date().toISOString(),
+            entry: project.entry,
+            inputs: { ...project.inputs },
+            split: !!project.split,
+          },
+        ]);
+        openScenarios();
+      },
+      onRemove(i) {
+        save(list.filter((_, k) => k !== i));
+        openScenarios();
+      },
+      onRename(i, name) {
+        save(list.map((s, k) => (k === i ? { ...s, name } : s)));
+      },
+      onRun() {
+        $("dialog").close();
+        const settings = runSettings();
+        if (!settings) return;
+        launch({
+          type: "scenarios",
+          scenarios: list.map((s) => ({
+            name: s.name,
+            project: { name: s.name, entry: s.entry, inputs: s.inputs, split: s.split, anchor: project.anchor },
+          })),
+          ...settings,
+        });
+      },
+      onSeries(selection) {
+        return new Promise((resolve, reject) => {
+          const reader = new Worker("./worker.mjs", { type: "module" });
+          reader.onerror = (e) => {
+            reader.terminate();
+            reject(new Error(e.message || "The output reader failed to start."));
+          };
+          reader.onmessage = ({ data }) => {
+            reader.terminate();
+            if (data.type === "error") reject(new Error(data.message));
+            else resolve(data.results);
+          };
+          reader.postMessage({ type: "series-many", list: sweep.results.map((r) => r.out), selection });
+        });
+      },
+    }),
+  );
+}
+$("scenarios").onclick = () => {
+  if (project) openScenarios();
+};
+$("inspforced").onclick = () => {
+  if (!run?.forced?.length) return;
+  const list = document.createElement("ol");
+  list.className = "warnings";
+  for (const f of run.forced) list.append(Object.assign(document.createElement("li"), { textContent: clock(f.seconds) + " · " + describe(f) }));
+  const note = Object.assign(document.createElement("p"), {
+    className: "hint",
+    textContent: "When the run took each forcing (rain changes reach the surface at the gage's next interval).",
+  });
+  const box = document.createElement("div");
+  box.append(list, note);
+  dialog("Forcings applied", box);
+};
+$("inspwarnings").onclick = () => {
+  const w = run?.warnings;
+  if (!w?.count) return;
+  const list = document.createElement("ol");
+  list.className = "warnings";
+  for (const message of w.list) list.append(Object.assign(document.createElement("li"), { textContent: message }));
+  const note = document.createElement("p");
+  note.className = "hint";
+  note.textContent =
+    w.count > w.list.length
+      ? "The first " + w.list.length + " of " + w.count.toLocaleString() + " warnings. The report lists them all."
+      : "The report lists them with the rest of the run summary.";
+  const box = document.createElement("div");
+  box.append(list, note);
+  dialog("Run warnings", box);
+};
 $("pause").onclick = () => {
   if (!job) return;
   setPaused(!paused);
@@ -849,6 +1087,7 @@ showPanels();
 for (const [button, pop] of [
   ["filemenu", "filepop"],
   ["settingsmenu", "settingspop"],
+  ["forcemenu", "forcepop"],
 ]) {
   const menu = $(pop);
   menu.addEventListener("beforetoggle", (e) => {

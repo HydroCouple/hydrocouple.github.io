@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { readFile } from "node:fs/promises";
 import create from "../vendor/engine/openswmm_engine.js";
 import createMesh from "../vendor/mesh/meshkit.mjs";
-import { simulate } from "../simulation.mjs";
+import { simulate, resumable, runScenarios } from "../simulation.mjs";
 import { buildSurface, rainfall } from "../surface.mjs";
 import { distributions } from "../distributions.mjs";
 import { gzipSync } from "node:zlib";
@@ -87,11 +87,10 @@ test("standalone, integrated and independent solver cases run with both builds",
       assert.ok(frames.length >= 2 && frames.at(-1).u.length === result.cells);
       if (key === "surface")
         assert.ok(Math.abs(result.balance.rainfallIn - 250) < 1e-6);
-      if (key === "coupled")
-        assert.ok(
-          result.balance.coupling1dTo2dIn > 0 &&
-            result.balance.coupling2dTo1dOut > 0,
-        );
+      // The pan drains through the junction. It no longer also spills back: since engine
+      // 3bdd6e2c, COUPLING_EQUALIZE DEFAULT caps every junction exchange, which stops the
+      // rim-full orifice from draining and spilling in turn.
+      if (key === "coupled") assert.ok(result.balance.coupling2dTo1dOut > 0);
       if (reference) {
         for (const key of Object.keys(result.balance))
           assert.ok(
@@ -242,6 +241,122 @@ test("a run pauses and stops between report steps and keeps its partial outputs"
   const full = await simulate(await create(), project);
   assert.equal(full.stopped, false);
   assert.equal(full.seconds, 7200);
+});
+
+/** The project of one bundled example deck. */
+async function exampleProject(name, transform = (text) => text) {
+  const text = transform(await readFile(new URL(`../examples/${name}.inp`, import.meta.url), "utf8"));
+  return { name, entry: name + ".inp", inputs: { [name + ".inp"]: new TextEncoder().encode(text) }, anchor: null, split: false };
+}
+const outOf = (result) => result.files[Object.keys(result.files).find((p) => p.endsWith("/model.out"))];
+
+test("pausing between steps leaves the results byte-identical", async () => {
+  for (const name of ["surface", "coupled"]) {
+    const project = await exampleProject(name);
+    let pauses = 0;
+    const paused = await simulate(await create(), project, () => {}, {
+      async check() {
+        pauses++;
+        await new Promise((r) => setTimeout(r, 2)); // the worker waits here while paused
+        return "continue";
+      },
+    });
+    const straight = await simulate(await create(), project);
+    assert.ok(pauses > 10, name + ": the run paused " + pauses + " times");
+    assert.deepEqual(outOf(paused), outOf(straight), name + ": .out differs after pauses");
+  }
+});
+
+test("a run stops at the requested elapsed time and keeps its outputs", async () => {
+  const project = await exampleProject("coupled");
+  const result = await simulate(await create(), project, () => {}, { until: 1800 });
+  assert.ok(result.stopped);
+  assert.ok(result.seconds >= 1800 && result.seconds < 1800 + 60, "stopped at " + result.seconds);
+  assert.ok(outOf(result)?.length > 0, "the partial .out was written");
+  assert.ok(Object.keys(result.files).some((p) => p.endsWith("/model.rpt")));
+});
+
+test("the model's warnings reach the run as they arrive and with its result", async () => {
+  // J2 raised to J1's invert: conduit C1 is flat, and the engine warns that it used a minimum drop.
+  const project = await exampleProject("network", (text) =>
+    text.replace(/^(J2\s+)\S+/m, (m, a) => a + text.match(/^J1\s+(\S+)/m)[1]),
+  );
+  const streamed = [];
+  const result = await simulate(await create(), project, (m) => m.type === "warning" && streamed.push(m.message));
+  assert.ok(result.warnings.count >= 1);
+  assert.equal(result.warnings.count, streamed.length);
+  assert.ok(result.warnings.list.some((w) => /minimum elevation drop used for Conduit C1/.test(w)), result.warnings.list.join("; "));
+});
+
+test("a 1D run stopped early saves its state and a later run continues it to the same results", async () => {
+  const project = await exampleProject("network");
+  assert.ok(resumable(project));
+  const first = await simulate(await create(), project, () => {}, { until: 3600 });
+  assert.ok(first.stopped && first.saved, "the stopped run saved its state");
+  assert.ok(first.files[first.saved.path]?.length > 0);
+  const progress = [];
+  const rest = await simulate(await create(), project, (m) => m.type === "progress" && progress.push(m.seconds), {
+    resume: first.files[first.saved.path],
+  });
+  const straight = await simulate(await create(), project);
+  assert.equal(rest.stopped, false);
+  assert.equal(rest.seconds, straight.seconds);
+  assert.ok(progress[0] >= 3600, "the resumed run starts at its saved time: " + progress[0]);
+  assert.deepEqual(outOf(rest), outOf(straight), "the resumed run's .out differs from an uninterrupted run");
+  // A model with a 2D surface stops without a saved state, and says why it cannot continue.
+  const surface = await exampleProject("surface");
+  assert.equal(resumable(surface), false);
+  const stopped = await simulate(await create(), surface, () => {}, { until: 1800 });
+  assert.ok(stopped.stopped && !stopped.saved && !stopped.resumable);
+  await assert.rejects(simulate(await create(), surface, () => {}, { resume: first.files[first.saved.path] }), /without a 2D surface/);
+});
+
+test("live forcings change the run as booked and are logged with it", async () => {
+  // A rain override of 0 at the gage, set before the run, leaves the surface dry of rain.
+  const surface = await exampleProject("surface");
+  const dry = await simulate(await create(), surface, () => {}, {
+    forcings: [{ kind: "rain", target: "RG1", value: 0 }],
+  });
+  assert.equal(dry.balance.rainfallIn, 0);
+  assert.deepEqual(dry.forced, [{ seconds: 0, kind: "rain", target: "RG1", value: 0 }]);
+  // An inflow added at J1 mid-run, then cleared: logged at the samples that took them, and the
+  // network's external inflow is the added rate over that span.
+  const network = await exampleProject("network");
+  const control = { forcings: [], checks: 0 };
+  control.check = async () => {
+    control.checks++;
+    if (control.checks === 3) control.forcings.push({ kind: "inflow", target: "J1", value: 0.5 });
+    if (control.checks === 9) control.forcings.push({ kind: "inflow", target: "J1", clear: true });
+    return "continue";
+  };
+  const fed = await simulate(await create(), network, () => {}, control);
+  assert.equal(fed.forced.length, 2);
+  const [on, off] = fed.forced;
+  assert.ok(on.seconds > 0 && off.seconds > on.seconds && off.value === null);
+  const rpt = new TextDecoder().decode(fed.files[fed.report]);
+  const external = Number(rpt.match(/External Inflow[ .]*\s+([-0-9.]+)/)[1]); // acre-ft (CFS model)
+  const expected = (0.5 * (off.seconds - on.seconds)) / 43560;
+  assert.ok(Math.abs(external - expected) <= 0.002 + 0.05 * expected, `external ${external} vs ${expected}`);
+});
+
+test("a scenario sweep in one engine module reproduces three separate runs byte for byte", async () => {
+  const scenarios = [
+    { name: "Base", project: await exampleProject("coupled") },
+    // The storm's 5 mm/h intensity raised to 7.5 mm/h.
+    { name: "Heavier storm", project: await exampleProject("coupled", (t) => t.replace(/^(RAIN_TS\s.*\s)5\.0$/gm, "$17.5")) },
+    { name: "Rougher pipes", project: await exampleProject("coupled", (t) => t.replace(/^(C\d\s+\S+\s+\S+\s+\d+\s+)0\.013/gm, "$10.020")) },
+  ];
+  const seen = [];
+  const swept = await runScenarios(await create(), scenarios, (m) => m.type === "scenario" && seen.push(m.name));
+  assert.deepEqual(seen, ["Base", "Heavier storm", "Rougher pipes"]);
+  assert.equal(swept.length, 3);
+  for (const [k, s] of scenarios.entries()) {
+    const alone = await simulate(await create(), s.project);
+    assert.deepEqual(outOf(swept[k]), outOf(alone), s.name + ": the sweep's .out differs from a separate run");
+  }
+  assert.ok(swept[1].balance.rainfallIn > 1.4 * swept[0].balance.rainfallIn, "the heavier storm rains more");
+  assert.notDeepEqual(outOf(swept[2]), outOf(swept[0]), "rougher pipes change the network results");
+  assert.ok(swept[0].peakDepth > 0);
 });
 
 test("published storm knots conserve depth and protect native duration", () => {

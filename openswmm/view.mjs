@@ -33,6 +33,12 @@ export function sketch(text) {
       ...(s["[2D_QUADS]"] || []).map((v) => v.slice(0, 4).map(Number)),
     ],
     links,
+    // What the live forcings can address, and the units their values are in.
+    gages: (s["[RAINGAGES]"] || []).map((row) => row[0]),
+    nodes: ["JUNCTIONS", "OUTFALLS", "STORAGE", "DIVIDERS"].flatMap((k) =>
+      (s["[" + k + "]"] || []).map((row) => row[0]),
+    ),
+    flowUnits: ((s["[OPTIONS]"] || []).find((row) => /^FLOW_UNITS$/i.test(row[0]))?.[1] || "CFS").toUpperCase(),
   };
 }
 function contains(poly, x, y) {

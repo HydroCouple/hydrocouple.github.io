@@ -297,6 +297,24 @@ a:focus-visible {
 .menu label.check {
   margin-top: 10px;
 }
+.menu label.check + label {
+  margin-top: 12px;
+}
+/* A value in a key/value row that opens its details. */
+button.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primary);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+button.link:disabled {
+  color: inherit;
+  text-decoration: none;
+  cursor: default;
+}
 .menu .item {
   display: flex;
   align-items: center;
@@ -322,6 +340,18 @@ a:focus-visible {
 }
 .menu .item kbd {
   margin-left: auto;
+}
+.menu .row {
+  display: flex;
+  gap: 6px;
+}
+.menu .row .item {
+  justify-content: center;
+  border: 1px solid var(--line);
+}
+.menu .hint {
+  max-width: 280px;
+  margin: 8px 2px 0;
 }
 
 /* Form controls */
@@ -1195,4 +1225,68 @@ pre {
   dialog::backdrop {
     background: rgba(0, 0, 0, 0.55);
   }
+}
+
+/* Scenarios dialog and run lists */
+ol.warnings {
+  margin: 0 0 8px;
+  padding-left: 22px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.scenarios .scenario-list {
+  margin: 8px 0;
+  padding-left: 22px;
+}
+.scenarios .scenario-list li {
+  margin: 6px 0;
+}
+.scenarios .scenario-list li > * {
+  vertical-align: middle;
+  margin-right: 10px;
+}
+.scenarios .scenario-list input {
+  width: 220px;
+}
+#content .scenario-list button.link {
+  width: auto;
+  height: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primary);
+  font: inherit;
+  text-decoration: underline;
+}
+.scenarios .actions {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 4px;
+}
+.scenarios h3 {
+  margin: 18px 0 8px;
+  font-size: 13px;
+}
+.scenarios table.compare {
+  border-collapse: collapse;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.scenarios table.compare th,
+.scenarios table.compare td {
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+.scenarios table.compare tbody th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.scenarios canvas.overlay {
+  display: block;
+  max-width: 100%;
+  margin-top: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
 }

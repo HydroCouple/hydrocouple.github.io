@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: HydroCouple/openswmm.engine.wasm
-          ref: 996504091a384ef15363710033aee315636a4275
+          ref: b275beceb24b0cff32c4cde67f73155e0dcb6565
           submodules: recursive
           path: engine
       - uses: actions/setup-node@v4

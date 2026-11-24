@@ -1,9 +1,9 @@
 import { readHydrograph } from "./series.mjs";
-import { simulate } from "./simulation.mjs";
+import { simulate, runScenarios } from "./simulation.mjs";
 import { buildSurface } from "./surface.mjs";
 import { getTerrain } from "./terrain.mjs";
 // Run control: the stepping loop yields at every preview sample so these messages get through.
-const control = { paused: false, stop: false, resume: null };
+const control = { paused: false, stop: false, resume: null, forcings: [] };
 control.check = async () => {
   await new Promise((r) => setTimeout(r, 0));
   while (control.paused && !control.stop)
@@ -11,6 +11,11 @@ control.check = async () => {
   return control.stop ? "stop" : "continue";
 };
 self.onmessage = async ({ data }) => {
+  if (data.type === "force") {
+    // Taken by the run at its next preview sample.
+    control.forcings.push(data.forcing);
+    return;
+  }
   if (data.type === "pause" || data.type === "resume" || data.type === "stop") {
     control.paused = data.type === "pause";
     if (data.type === "stop") control.stop = true;
@@ -25,6 +30,17 @@ self.onmessage = async ({ data }) => {
       postMessage({
         type: "series",
         result: readHydrograph(await create(), data.bytes, data.selection),
+      });
+      return;
+    }
+    if (data.type === "series-many") {
+      // One module reads the same series from each scenario's output in turn.
+      const { default: create } =
+        await import("./vendor/engine/openswmm_engine.js");
+      const module = await create();
+      postMessage({
+        type: "series-many",
+        results: data.list.map((bytes) => (bytes ? readHydrograph(module, bytes, data.selection) : null)),
       });
       return;
     }
@@ -95,15 +111,34 @@ self.onmessage = async ({ data }) => {
       engine = await create();
     }
     postMessage({ type: "backend", backend });
-    const result = await simulate(
-      engine,
-      data.project,
-      (message) => postMessage(message),
-      control,
-      backend.includes("threads") ? threads : 0,
-      // The WebGPU 2D marcher ships in the threads build only.
-      !!data.webgpu && backend.includes("threads"),
-    );
+    control.until = Number(data.until) || 0; // seconds; 0 runs to the end
+    control.resume = data.resume || null; // the state a stopped run saved, to continue it
+    control.forcings.push(...(data.forcings || [])); // forcings set before the run
+    const team = backend.includes("threads") ? threads : 0;
+    // The WebGPU 2D marcher ships in the threads build only.
+    const gpu = !!data.webgpu && backend.includes("threads");
+    if (data.type === "scenarios") {
+      const results = await runScenarios(engine, data.scenarios, (message) => {
+        if (message.type !== "frame") postMessage(message); // no playback for a sweep
+      }, control, team, gpu);
+      // What the comparison needs from each run: its summary, report and binary output.
+      const out = (r) => Object.keys(r.files).find((p) => p.endsWith("/model.out"));
+      postMessage({
+        type: "scenarios-done",
+        backend,
+        results: results.map((r) => ({
+          seconds: r.seconds,
+          stopped: r.stopped,
+          balance: r.balance,
+          peakDepth: r.peakDepth,
+          warnings: r.warnings.count,
+          report: r.files[r.report],
+          out: r.files[out(r)] || null,
+        })),
+      });
+      return;
+    }
+    const result = await simulate(engine, data.project, (message) => postMessage(message), control, team, gpu);
     postMessage({ type: "done", result, backend });
   } catch (error) {
     postMessage({ type: "error", message: error.message || String(error) });
