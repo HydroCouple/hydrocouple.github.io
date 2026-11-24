@@ -41,9 +41,10 @@ const editor = new Editor({
 view.onSelect = (index) => {
   if (index >= 0) editor.selectCell(index);
 };
+const tokenNote = config.mapboxPublicToken ? "" : "Basemap token unconfigured · local view";
 if (!config.mapboxPublicToken) {
   $("basemap").disabled = true;
-  $("mapstatus").textContent = "Local coordinates · basemap token unconfigured";
+  $("mapstatus").textContent = tokenNote;
 }
 if ("serviceWorker" in navigator)
   navigator.serviceWorker
@@ -184,7 +185,7 @@ function install(p, r = null) {
   $("modelname").textContent = p.entry;
   $("viewtitle").textContent = p.name;
   $("split").checked = !!p.split;
-  preview = sketch(decoder.decode(p.inputs[p.entry]));
+  preview = sketch(decoder.decode(p.inputs[p.entry]), p.inputs, p.entry.slice(0, p.entry.lastIndexOf("/") + 1));
   $("inspentry").textContent = p.entry;
   $("inspinputs").textContent = Object.keys(p.inputs).length;
   $("inspcells").textContent = preview.cells.length || "—";
@@ -220,8 +221,7 @@ function install(p, r = null) {
 function showPlacement(place, note) {
   $("inspanchor").textContent = place ? place.label : "Local coordinates";
   $("locate").hidden = place?.kind === "crs"; // a CRS is edited in the model, not placed by hand
-  if (note) $("mapstatus").textContent = note;
-  else if (view.token) $("mapstatus").textContent = "";
+  $("mapstatus").textContent = note || tokenNote;
 }
 /** Resolve the model's CRS and re-place the view; a later install wins over a slow resolution. */
 async function placeModel(crs) {
@@ -616,17 +616,34 @@ $("play").onclick = () => {
     else setFrame(i);
   }, 130);
 };
+/**
+ * A bundled example: `examples/<key>.inp` alone, or a folder `examples/<key>/` whose `example.json`
+ * names the entry deck and the files beside it (a mesh sidecar, a rain file).
+ */
 async function example(key) {
-  const id = ++loadId,
-    r = await fetch("./examples/" + key + ".inp");
-  if (!r.ok) throw new Error("Example unavailable");
-  const bytes = new Uint8Array(await r.arrayBuffer());
+  const id = ++loadId;
+  const fetchBytes = async (path) => {
+    const r = await fetch(path);
+    if (!r.ok) throw new Error("Example unavailable: " + path);
+    return new Uint8Array(await r.arrayBuffer());
+  };
+  const manifest = await fetch("./examples/" + key + "/example.json");
+  let entry, inputs;
+  if (manifest.ok) {
+    const m = await manifest.json();
+    entry = m.entry;
+    inputs = Object.fromEntries(
+      await Promise.all(m.files.map(async (name) => [name, await fetchBytes("./examples/" + key + "/" + name)])),
+    );
+  } else {
+    entry = key + ".inp";
+    inputs = { [entry]: await fetchBytes("./examples/" + entry) };
+  }
   if (id !== loadId || job) return;
-  const entry = key + ".inp";
   install({
     name: $("example").selectedOptions[0].text,
     entry,
-    inputs: { [entry]: bytes },
+    inputs,
     split: key === "split",
     anchor: null,
   });
@@ -1224,10 +1241,10 @@ let saved = null;
 try {
   saved = await restore().catch(() => null);
   if (saved) install(saved.project, saved.run);
-  else await example("surface");
+  else await example("bellinge");
 } catch (e) {
   try {
-    await example("surface");
+    await example("bellinge");
   } catch (second) {
     feedback(second);
   }

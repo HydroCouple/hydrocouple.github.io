@@ -7,8 +7,10 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("http://127.0.0.1:8765/openswmm/");
-  // A first visit opens the welcome dialog over the workbench.
-  await page.getByRole("button", { name: "Continue" }).click();
+  // A first visit opens the welcome dialog over the workbench (Bellinge loads behind it); the
+  // sloping-plane card loads the small deck the rest of this test runs.
+  await page.locator('#welcome .ex[data-example="surface"]').click();
+  await page.waitForFunction(() => document.getElementById("modelname").textContent === "surface.inp");
   await page.getByRole("button", { name: "Run model" }).click();
   await page.waitForFunction(
     () =>
@@ -157,6 +159,12 @@ try {
   await page.locator("#input").setInputFiles({ name: "inflows.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/inflows.inp", import.meta.url)) });
   await page.waitForFunction(() => document.getElementById("inspanchor").textContent === "Local coordinates");
   assert.equal(await page.locator("#locate").isHidden(), false);
+  // The Bellinge example loads its deck, mesh sidecar and rain file, and is placed by its CRS.
+  await choose("example", "bellinge");
+  await page.waitForFunction(() => document.getElementById("modelname").textContent === "BellingeSWMM_v021_nopervious.inp");
+  await page.waitForFunction(() => document.getElementById("inspanchor").textContent === "EPSG:25832 · ETRS89 / UTM zone 32N");
+  assert.equal(await page.locator("#inspcells").innerText(), "27628");
+  assert.equal(await page.locator("#inspinputs").innerText(), "3");
   assert.deepEqual(errors, []);
 } finally {
   await browser.close();

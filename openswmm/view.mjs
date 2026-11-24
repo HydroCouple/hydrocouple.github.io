@@ -12,9 +12,17 @@ function sections(inp) {
   }
   return rows;
 }
-export function sketch(text) {
-  const s = sections(text),
-    vertices = s["[2D_VERTICES]"] || [],
+/**
+ * What a deck's text says about its geometry and the objects the forcings can address. A deck that
+ * keeps its mesh in a `[2D_MESH_FILE]` sidecar gets it from `inputs` (the project's files by name,
+ * the sidecar's path relative to the deck's folder `dir`).
+ */
+export function sketch(text, inputs = {}, dir = "") {
+  const s = sections(text);
+  const sidecar = s["[2D_MESH_FILE]"]?.find((row) => /^FILE$/i.test(row[0]))?.[1]?.replace(/^"(.*)"$/, "$1");
+  const bytes = sidecar && (inputs[dir + sidecar] || inputs[sidecar]);
+  const mesh = bytes ? sections(new TextDecoder().decode(bytes)) : s;
+  const vertices = mesh["[2D_VERTICES]"] || [],
     nodes = new Map(
       (s["[COORDINATES]"] || []).map(([id, x, y]) => [id, [+x, +y]]),
     );
@@ -28,8 +36,8 @@ export function sketch(text) {
     x: vertices.map((v) => +v[0]),
     y: vertices.map((v) => +v[1]),
     cells: [
-      ...(s["[2D_TRIANGLES]"] || []).map((v) => v.slice(0, 3).map(Number)),
-      ...(s["[2D_QUADS]"] || []).map((v) => v.slice(0, 4).map(Number)),
+      ...(mesh["[2D_TRIANGLES]"] || []).map((v) => v.slice(0, 3).map(Number)),
+      ...(mesh["[2D_QUADS]"] || []).map((v) => v.slice(0, 4).map(Number)),
     ],
     links,
     // What the live forcings can address, and the units their values are in.

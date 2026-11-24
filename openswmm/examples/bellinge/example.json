@@ -1,0 +1,9 @@
+{
+  "name": "Bellinge \u00b7 coupled 1D/2D, Odense",
+  "entry": "BellingeSWMM_v021_nopervious.inp",
+  "files": [
+    "BellingeSWMM_v021_nopervious.inp",
+    "BellingeSWMM_v021_nopervious.2dm",
+    "rg_bellinge_2012-06-28_30.dat"
+  ]
+}

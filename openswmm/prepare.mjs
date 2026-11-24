@@ -149,7 +149,7 @@ await writeFile(
 );
 
 // Offline cache list and version: every served app file except the service worker and tests.
-const served = new Set([".html", ".css", ".js", ".mjs", ".inp", ".wasm", ".woff2", ".png", ".json"]);
+const served = new Set([".html", ".css", ".js", ".mjs", ".inp", ".2dm", ".dat", ".wasm", ".woff2", ".png", ".json"]);
 const files = (await readdir(root, { recursive: true, withFileTypes: true }))
   .filter((d) => d.isFile())
   .map((d) => relative(root, join(d.parentPath, d.name)).split(sep).join("/"))
