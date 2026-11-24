@@ -288,6 +288,20 @@ test("the model's warnings reach the run as they arrive and with its result", as
   assert.ok(result.warnings.list.some((w) => /minimum elevation drop used for Conduit C1/.test(w)), result.warnings.list.join("; "));
 });
 
+test("a model the engine will not checkpoint still runs without save/resume and says why", async () => {
+  // EPA Example 1 (tests/fixtures): pollutants keep it out of engine checkpoint sessions.
+  const text = await readFile(new URL("./fixtures/example1.inp", import.meta.url));
+  const project = { name: "e1", entry: "example1.inp", inputs: { "example1.inp": new Uint8Array(text) }, anchor: null, split: false };
+  const stopped = await simulate(await create(), project, () => {}, { until: 1800 });
+  assert.equal(stopped.stopped, true);
+  assert.equal(stopped.resumable, false);
+  assert.match(stopped.resumeRefusal, /checkpoint sessions require/);
+  assert.equal(stopped.saved, null);
+  const full = await simulate(await create(), project);
+  assert.equal(full.stopped, false);
+  assert.ok(outOf(full).length > 0);
+});
+
 test("a 1D run stopped early saves its state and a later run continues it to the same results", async () => {
   const project = await exampleProject("network");
   assert.ok(resumable(project));

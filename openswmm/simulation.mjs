@@ -1,4 +1,4 @@
-import { Solver, SplitRole, ForcingMode, ForcingTarget } from "./vendor/engine/index.js";
+import { Solver, SplitRole, ForcingMode, ForcingTarget, EngineState } from "./vendor/engine/index.js";
 
 export function localPath(path) {
   if (
@@ -75,7 +75,8 @@ export async function simulate(engine, project, emit = () => {}, control = {}, t
   while (fs.analyzePath(resultDir).exists) resultDir += "-new";
   fs.mkdir(resultDir);
   const network = new Solver(engine);
-  const session = resumable(project);
+  let session = resumable(project),
+    resumeRefusal = null;
   if (control.resume && !session)
     throw new Error("A saved run state can only continue a model without a 2D surface.");
   let surface, geometry, frame, balance, webgpu = false, peakDepth = 0;
@@ -113,7 +114,18 @@ export async function simulate(engine, project, emit = () => {}, control = {}, t
       );
       surface.start(false);
     } else if (session) {
-      network.checkpoints.startSession(1); // initializes and starts, with binary output
+      try {
+        network.checkpoints.startSession(1); // initializes and starts, with binary output
+      } catch (error) {
+        // The engine qualifies each model for checkpoint sessions (pollutants, reactions, ...). A
+        // refusal before initialization leaves the model OPENED: run it without save/resume.
+        if (control.resume || network.state !== EngineState.OPENED) throw error;
+        session = false;
+        resumeRefusal = error.message || String(error);
+        network.setWarningCallback(runtimeWarning);
+        webgpu = gpu && useWebGpu(network);
+        network.initialize();
+      }
       if (control.resume) {
         fs.mkdirTree("/resume");
         fs.writeFile("/resume/state.ckpt", control.resume);
@@ -259,6 +271,7 @@ export async function simulate(engine, project, emit = () => {}, control = {}, t
       stopped,
       warnings,
       resumable: session,
+      resumeRefusal, // the engine's reason when a model without a 2D surface still cannot resume
       saved,
       forced,
       peakDepth: active ? peakDepth : null, // the deepest cell over the preview samples, m

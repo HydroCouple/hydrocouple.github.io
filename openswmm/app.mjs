@@ -386,7 +386,9 @@ function launch(data) {
               : run.saved
                 ? " · state saved; Resume run continues it"
                 : run.resumable === false
-                  ? " · a model with a 2D surface cannot yet continue from a stop"
+                  ? run.resumeRefusal
+                    ? " · this model cannot continue from a stop: " + run.resumeRefusal
+                    : " · a model with a 2D surface cannot yet continue from a stop"
                   : ""),
         );
         editor.load(project); // the run worker is gone; the editing engine may come back
