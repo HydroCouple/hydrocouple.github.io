@@ -94,6 +94,24 @@ try {
   const rain = await page.locator("table.compare tbody tr").nth(1).locator("td").allInnerTexts();
   assert.deepEqual(rain, ["250", "250"]);
   await page.waitForFunction(() => /Depth at|No network time series/.test(document.querySelector(".scenarios p.hint:last-child")?.textContent || ""));
+  await page.getByRole("button", { name: "Close dialog" }).click();
+
+  // Record editors: change one time series value in the dialog, apply it, and the deck row changes.
+  await choose("example", "network");
+  await page.waitForFunction(() => document.getElementById("modelname").textContent === "network.inp");
+  await page.waitForFunction(() => [...document.getElementById("objkind").options].some((o) => o.value === "timeseries"));
+  await choose("objkind", "timeseries");
+  await page.waitForFunction(() => /^7 rows · 0:00:00 elapsed → 1:30:00 elapsed$/.test(document.querySelector(".record-card .record-desc")?.textContent || ""));
+  assert.match(await page.locator(".record-card p.hint").innerText(), /Used by gage G1\./);
+  await page.getByRole("button", { name: "Edit values…" }).click();
+  await page.getByLabel("Row 3 value").fill("1.25");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("1 edit"));
+  await page.getByRole("button", { name: "Apply to model" }).click();
+  await until(/^1 edit applied/);
+  await page.getByRole("button", { name: "Edit INP" }).click();
+  assert.match(await page.locator("#content textarea").inputValue(), /^TS1\s+0:30\s+1\.25\s*$/m);
+  await page.getByRole("button", { name: "Close dialog" }).click();
   assert.deepEqual(errors, []);
 } finally {
   await browser.close();

@@ -1,6 +1,8 @@
-// Catalog-driven object editor in the inspector: object lists, generated property rows,
-// edits sent to the model worker, undo, and "Apply to model" which installs the engine-written deck.
-import { objectKinds } from "./model.mjs";
+// Catalog-driven object editor in the inspector: object lists, generated property rows, record
+// cards (time series, curves, patterns) with the record editor dialog, edits sent to the model
+// worker, undo, and "Apply to model" which installs the engine-written deck.
+import { objectKinds, recordKinds, patternLength } from "./model.mjs";
+import { recordEditor, drawRecord, describeRecord, curveTypes } from "./records.mjs";
 const $ = (id) => document.getElementById(id);
 const kindLabels = {
   options: "Simulation options",
@@ -10,11 +12,29 @@ const kindLabels = {
   subcatchment: "Subcatchments",
   gage: "Rain gages",
   cell: "Surface cells",
+  timeseries: "Time series",
+  curve: "Curves",
+  pattern: "Time patterns",
+};
+const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern" };
+const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern" };
+const node = (tag, props = {}, ...children) => {
+  const n = Object.assign(document.createElement(tag), props);
+  n.append(...children);
+  return n;
 };
 export class Editor {
-  constructor({ onApply, onError }) {
+  /**
+   * @param {object} o
+   * @param {(bytes: Uint8Array, count: number) => void} o.onApply installs the engine-written deck
+   * @param {(title: string, content: Node) => void} o.openDialog shows the record editor
+   * @param {() => void} o.closeDialog
+   */
+  constructor({ onApply, onError, openDialog, closeDialog }) {
     this.onApply = onApply;
     this.onError = onError;
+    this.openDialog = openDialog;
+    this.closeDialog = closeDialog;
     this.pending = new Map();
     this.seq = 0;
     this.edits = [];
@@ -117,6 +137,7 @@ export class Editor {
     const kind = $("objkind").value,
       key = this.key();
     const props = $("props");
+    if (recordKinds.includes(kind)) return this.showRecord(kind, key);
     const global = kind === "model" || kind === "options";
     if ((!global && !key) || (kind === "cell" && !this.summary?.cells)) {
       props.replaceChildren();
@@ -213,12 +234,151 @@ export class Editor {
     if (!edit) return;
     try {
       if (edit.bulk) throw new Error("A bulk cell edit cannot be undone; reload the project to discard it.");
-      await this.call("set", edit.path, edit.key, edit.before);
+      if (edit.op === "record") await this.call("setRecord", edit.kind, edit.key, edit.before);
+      else if (edit.op === "add") await this.call("deleteRecord", edit.kind, edit.key);
+      else if (edit.op === "rename") await this.call("renameRecord", edit.kind, edit.after, edit.before);
+      else if (edit.op === "delete") await this.call("restore", edit.token);
+      else await this.call("set", edit.path, edit.key, edit.before);
+      if (edit.op && edit.op !== "record") return this.refresh(edit.kind, edit.op === "add" ? null : edit.op === "rename" ? edit.before : edit.key);
       this.note();
     } catch (e) {
       this.fail(e);
     }
     this.show();
+  }
+  /** Reread the object lists after a record was added, renamed or deleted; select `select`. */
+  async refresh(kind, select) {
+    this.summary = await this.call("summary");
+    $("objkind").value = kind;
+    const keep = $("objid").value;
+    this.list();
+    const ids = [...$("objid").options].map((o) => o.value);
+    $("objid").value = select && ids.includes(select) ? select : ids.includes(keep) ? keep : ids[0] || "";
+    this.note();
+    this.show();
+  }
+  /** The inspector card of a time series, curve or pattern: its extent, a preview, its users and actions. */
+  async showRecord(kind, key) {
+    const props = $("props");
+    const noun = recordNoun[kind];
+    const card = node("div", { className: "record-card" });
+    const create = node("button", { type: "button", className: "tb ghost", textContent: "New " + noun });
+    create.onclick = () => this.newRecordForm(kind, card, create);
+    if (!key) {
+      card.append(node("p", { className: "hint", textContent: "This model has no " + noun + (kind === "timeseries" ? "" : "s") + "." }), create);
+      props.replaceChildren(card);
+      return;
+    }
+    let record, users;
+    try {
+      [record, users] = await Promise.all([this.call("record", kind, key), this.call("impact", kind, key)]);
+    } catch (e) {
+      props.replaceChildren();
+      return this.fail(e);
+    }
+    if (key !== this.key()) return; // another object was picked meanwhile
+    const preview = node("canvas", { width: 260, height: 64, className: "record-spark", ariaLabel: "Preview of " + record.id });
+    const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit values…" });
+    edit.disabled = !!record.file; // a FILE series is edited in its file
+    edit.onclick = () => this.openRecord(kind, record.id);
+    const name = node("input", { type: "text", value: record.id, ariaLabel: "Name of the " + noun });
+    name.onchange = () => this.rename(kind, record.id, name.value);
+    const remove = node("button", { type: "button", className: "tb ghost", textContent: "Delete" });
+    remove.onclick = () => this.confirmDelete(kind, record.id, users, card);
+    card.append(
+      node("p", { className: "record-desc", textContent: describeRecord(record) }),
+      preview,
+      node(
+        "p",
+        { className: "hint" },
+        users.length ? "Used by " + users.map((u) => u.object).join(", ") + "." : "Not used by any object.",
+      ),
+      node("label", { className: "prop" }, node("span", { textContent: "Name" }), name),
+      node("div", { className: "pair" }, edit, remove),
+      create,
+    );
+    props.replaceChildren(card);
+    drawRecord(preview, record);
+  }
+  /** Inline form for a new record: a name and, for curves and patterns, a type. */
+  newRecordForm(kind, card, button) {
+    const name = node("input", { type: "text", ariaLabel: "New " + recordNoun[kind] + " name", placeholder: "Name" });
+    const type = node("select", { ariaLabel: "New " + recordNoun[kind] + " type" });
+    const types = kind === "curve" ? curveTypes : kind === "pattern" ? Object.keys(patternLength) : [];
+    for (const t of types) type.add(new Option(t[0] + t.slice(1).toLowerCase(), t));
+    type.hidden = !types.length;
+    const ok = node("button", { type: "button", className: "tb primary", textContent: "Create" });
+    const form = node("div", { className: "record-new" }, name, type, ok);
+    ok.onclick = async () => {
+      try {
+        const r = await this.call("addRecord", kind, name.value, type.value);
+        this.edits.push({ op: "add", kind, key: r.id });
+        await this.refresh(kind, r.id);
+      } catch (e) {
+        this.fail(e);
+      }
+    };
+    name.onkeydown = (e) => {
+      if (e.key === "Enter") ok.click();
+    };
+    button.replaceWith(form);
+    name.focus();
+  }
+  async rename(kind, id, value) {
+    try {
+      const next = await this.call("renameRecord", kind, id, value);
+      if (next !== id) this.edits.push({ op: "rename", kind, before: id, after: next });
+      await this.refresh(kind, next);
+    } catch (e) {
+      this.fail(e);
+      this.show();
+    }
+  }
+  /** Delete after listing the references the engine will clear; undo reopens the model as it was. */
+  confirmDelete(kind, id, users, card) {
+    const run = async () => {
+      try {
+        const { token } = await this.call("deleteRecord", kind, id);
+        this.edits.push({ op: "delete", kind, key: id, token });
+        await this.refresh(kind, null);
+      } catch (e) {
+        this.fail(e);
+      }
+    };
+    if (!users.length) return run();
+    const yes = node("button", { type: "button", className: "tb danger", textContent: "Delete anyway" });
+    const no = node("button", { type: "button", className: "tb ghost", textContent: "Keep" });
+    yes.onclick = run;
+    no.onclick = () => this.show();
+    card.replaceChildren(
+      node("p", { className: "hint", textContent: "Deleting " + id + " clears these references: " + users.map((u) => u.object + " (" + u.field + ")").join(", ") + "." }),
+      node("div", { className: "pair" }, no, yes),
+    );
+  }
+  /** The record editor dialog; saving replaces the record's rows in the editing session. */
+  async openRecord(kind, id) {
+    let record;
+    try {
+      record = await this.call("record", kind, id);
+    } catch (e) {
+      return this.fail(e);
+    }
+    const units = { unitSystem: this.summary?.unitSystem, flowUnits: this.summary?.flowUnits };
+    this.openDialog(
+      recordTitle[kind] + " " + record.id,
+      recordEditor({
+        record,
+        units,
+        onSave: async (data) => {
+          const after = await this.call("setRecord", kind, record.id, data);
+          this.edits.push({ op: "record", kind, key: record.id, before: record, after });
+          this.closeDialog();
+          this.note();
+          this.show();
+        },
+        onCancel: () => this.closeDialog(),
+      }),
+    );
   }
   async apply() {
     try {

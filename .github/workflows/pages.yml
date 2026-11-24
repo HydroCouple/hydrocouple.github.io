@@ -58,7 +58,7 @@ jobs:
           npm pack jszip@3.10.2 --ignore-scripts
           mkdir zip && tar xzf jszip-3.10.2.tgz -C zip
           node website/openswmm/prepare.mjs --engine engine --mesh mesh --jszip zip/package --simd simd --threads threads
-          node --test website/openswmm/tests/model.test.mjs
+          node --test website/openswmm/tests/model.test.mjs website/openswmm/tests/records.test.mjs
           npm install --prefix website/openswmm/tests --no-save --package-lock=false playwright@1.55.0
           website/openswmm/tests/node_modules/.bin/playwright install --with-deps chromium
           node website/openswmm/tests/serve.mjs > /tmp/http.log 2>&1 &

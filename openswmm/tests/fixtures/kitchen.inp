@@ -1,0 +1,131 @@
+[OPTIONS]
+FLOW_UNITS           CFS
+FLOW_ROUTING         KINWAVE
+INFILTRATION         HORTON
+START_DATE           01/01/2026
+START_TIME           00:00:00
+END_DATE             01/01/2026
+END_TIME             02:00:00
+REPORT_STEP          00:05:00
+ROUTING_STEP         0:00:30
+
+[RAINGAGES]
+RG1  INTENSITY 0:05 1.0 TIMESERIES TS1
+
+[SUBCATCHMENTS]
+;;Name RainGage Outlet Area %Imperv Width Slope Curblen SnowPack
+S1  RG1  J1  10.0  50  500  0.5  0  SP1
+S2  RG1  J1  5.0   50  400  0.5  0
+
+[SUBAREAS]
+S1  0.01  0.1  0.05  0.05  25  OUTLET
+S2  0.01  0.1  0.05  0.05  25  OUTLET
+
+[INFILTRATION]
+S1  3.0  0.5  4.0  7  0
+S2  3.0  0.5  4.0  7  0
+
+[TIMESERIES]
+TS1  01/01/2026 00:00 1.0
+TS1  01/01/2026 01:00 0.0
+
+[JUNCTIONS]
+J1  100.0  10.0  0.0  0.0  0.0
+
+[OUTFALLS]
+O1  95.0  FREE
+
+[CONDUITS]
+C1  J1  O1  400.0  0.013  0  0
+C2  J1  O1  400.0  0.016  0  0
+
+[XSECTIONS]
+C1  CIRCULAR  1.5  0  0  0  1
+C2  STREET  ST1
+
+[STREETS]
+;;Name Tcrown Hcurb Sx nRoad a W Sides Tback Sback nBack
+ST1  20  0.5  4  0.016  0  0  1  20  4  0.016
+
+[INLETS]
+;;Name Type Length Width Grate
+IN1  GRATE  2  2  P_BAR-50
+
+[INLET_USAGE]
+;;Conduit Inlet Node
+C2  IN1  J1
+
+[POLLUTANTS]
+;;Name Units Crain Cgw Crdii Kdecay SnowOnly CoPollut CoFrac Cdwf Cinit
+TSS   MG/L  0  0  0  0  NO  *    0.0   0  0
+Lead  UG/L  0  0  0  0  NO  TSS  0.25  0  0
+
+[LANDUSES]
+Res  0  0  0
+Com  0  0  0
+
+[COVERAGES]
+S1  Res  60
+S1  Com  40
+
+[LOADINGS]
+S1  TSS  1.5
+S1  Lead  2.0
+
+[BUILDUP]
+Res  TSS  POW  100  0  1  AREA
+Com  TSS  POW  50   0  1  AREA
+
+[WASHOFF]
+Res  TSS  EXP  0.1  1.0  0  0
+
+[TREATMENT]
+J1  TSS  R = 0.5
+
+[PATTERNS]
+P1  MONTHLY  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+
+[DWF]
+J1  FLOW  1.0  P1
+
+[AQUIFERS]
+;;Name Por WP FC Ksat Kslope Tslope ETu ETs Seep Ebot Egw Umc ETpat
+AQ1  0.5  0.15  0.30  5.0  10  15  0.35  14  0.0  0.0  8.0  0.30  P1
+
+[GROUNDWATER]
+S1  AQ1  J1  10.0  0.1  1.5  0  0  0  0  *  0  0  *
+
+[SNOWPACKS]
+SP1  PLOWABLE    0.001  0.001  32  0.10  0  0  0.5
+SP1  IMPERVIOUS  0.001  0.001  32  0.10  0  0  0.0
+SP1  PERVIOUS    0.001  0.001  32  0.10  0  0  0.0
+SP1  REMOVAL     1.0  0  0  0  0  0  S2
+
+[LID_CONTROLS]
+L1  BC
+L1  SURFACE  6  0.25  0.1  1  5
+L1  SOIL     12  0.5  0.2  0.1  0.5  10  3.5
+L1  STORAGE  12  0.75  0.5  0
+L1  DRAIN    0  0.5  6  6  0  0
+
+[LID_USAGE]
+;;Subcatch LID Number Area Width InitSat FromImp ToPerv
+S1  L1  1  50  10  0  25  0
+
+[HYDROGRAPHS]
+UH1  RG1
+UH1  ALL  SHORT  0.033  1.0  2.0  0  0  0
+
+[RDII]
+J1  UH1  12.0
+
+[CONTROLS]
+RULE R1
+IF NODE J1 DEPTH > 2
+THEN CONDUIT C1 STATUS = CLOSED
+PRIORITY 1
+
+RULE R2
+IF SIMULATION TIME > 1
+THEN CONDUIT C2 STATUS = CLOSED
+PRIORITY 2

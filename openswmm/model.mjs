@@ -1,6 +1,6 @@
 // Engine-as-model: one solver kept in the OPENED state so edits go through the engine API
 // (catalog field paths) and the INP deck becomes a derived artifact written by the engine.
-import { Solver, FIELDS, catalog, NodeType, LinkType } from "./vendor/engine/index.js";
+import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape } from "./vendor/engine/index.js";
 import { localPath } from "./simulation.mjs";
 
 /** Sub-view path prefixes that only apply to one object type. */
@@ -13,7 +13,22 @@ const subviews = {
   "link.orifice.": "ORIFICE",
   "link.outlet.": "OUTLET",
 };
-export const objectKinds = ["options", "model", "node", "link", "subcatchment", "gage", "cell"];
+export const objectKinds = ["options", "model", "node", "link", "subcatchment", "gage", "cell", "timeseries", "curve", "pattern"];
+/** Record kinds: edited as whole tables in the record editor rather than as property rows. */
+export const recordKinds = ["timeseries", "curve", "pattern"];
+/** Factors per pattern type ([PATTERNS]). */
+export const patternLength = { MONTHLY: 12, DAILY: 7, HOURLY: 24, WEEKEND: 24 };
+const DAY_MS = 86400000;
+/** A UTC Date as a SWMM DateTime: whole days since 1899-12-30 plus the time of day, as the engine encodes it. */
+const oadate = (d) => {
+  const days = Math.floor(d.getTime() / DAY_MS);
+  return days + 25569 + (d.getTime() - days * DAY_MS) / DAY_MS;
+};
+const validName = (name) => {
+  const id = String(name ?? "").trim();
+  if (!id || /[\s;"]/.test(id)) throw new Error("A name needs at least one character and no spaces, quotes or semicolons.");
+  return id;
+};
 /** Known value sets of `[OPTIONS]` keys, for dropdowns; other keys edit as text and the engine validates. */
 const optionChoices = {
   FLOW_UNITS: ["CFS", "GPM", "MGD", "CMS", "LPS", "MLD"],
@@ -61,6 +76,21 @@ function parseCells(fs, entry) {
       cells.tag.push(row[n + 2] ?? "");
     }
   return cells;
+}
+/** Plain names of the engine's reference slots in impact entries. */
+const fieldNames = {
+  ts_index: "time series",
+  xsect_curve: "shape curve",
+  pat1: "monthly pattern",
+  pat2: "daily pattern",
+  pat3: "hourly pattern",
+  pat4: "weekend pattern",
+  upper_evap_pat: "upper evaporation pattern",
+};
+/** Time series that read their values from a file (`name FILE path`), keyed by upper-case name. */
+function fileSeries(fs, entry) {
+  const rows = sections(fs.readFile(entry, { encoding: "utf8" }))["[TIMESERIES]"] || [];
+  return new Map(rows.filter((r) => r[1]?.toUpperCase() === "FILE").map((r) => [r[0].toUpperCase(), r.slice(2).join(" ").replace(/^"|"$/g, "")]));
 }
 /** Settable through the API but simulation state rather than deck parameters; not shown. */
 const runtimeState = new Set([
@@ -117,6 +147,7 @@ export class ModelSession {
     this.unitSystem = solver.unitSystem;
     this.flowUnits = solver.flowUnits;
     this.cells = parseCells(fs, this.entry);
+    this.files = fileSeries(fs, this.entry);
     return this.summary();
   }
   summary() {
@@ -130,6 +161,7 @@ export class ModelSession {
       const l = s.links.get(id);
       return { id, type: LinkType[l.type], from: l.fromNode.id, to: l.toNode.id };
     });
+    const tables = Array.from({ length: s.tables.length }, (_, i) => ({ id: s.tables.getId(i), type: s.tables.getType(i) }));
     return {
       entry: this.entry,
       unitSystem: this.unitSystem,
@@ -141,8 +173,169 @@ export class ModelSession {
         link: links,
         subcatchment: s.subcatchments.ids.map((id) => ({ id })),
         gage: s.gages.ids.map((id) => ({ id })),
+        timeseries: tables.filter((t) => t.type === TableType.TIMESERIES).map((t) => ({ id: t.id })),
+        curve: tables
+          .filter((t) => t.type !== TableType.TIMESERIES)
+          .map((t) => ({ id: t.id, type: TableType[t.type].replace("CURVE_", "") })),
+        pattern: Array.from({ length: s.patterns.length }, (_, i) => {
+          const p = s.patterns.get(i);
+          return { id: p.id, type: PatternType[p.type] };
+        }),
       },
     };
+  }
+  /**
+   * One table record as plain data. Time series and curve points are raw `[x, y]` pairs; a time
+   * series x is a SWMM DateTime (days), its leading `relative.count` rows authored as elapsed time
+   * from `relative.anchor`. `start` is the model's start (SWMM DateTime) for new rows.
+   */
+  /**
+   * The index of a time series or curve by name, or -1. Names are unique per kind only (a time
+   * series and a curve may share one, as in legacy SWMM), so lookups go by kind and name.
+   */
+  findTable(kind, id) {
+    const t = this.solver.tables;
+    const key = String(id).toUpperCase();
+    for (let i = 0; i < t.length; i++)
+      if ((t.getType(i) === TableType.TIMESERIES) === (kind === "timeseries") && t.getId(i).toUpperCase() === key) return i;
+    return -1;
+  }
+  table(kind, id) {
+    const i = this.findTable(kind, id);
+    if (i < 0) throw new Error("No " + (kind === "timeseries" ? "time series" : "curve") + " named " + id + ".");
+    return i;
+  }
+  record(kind, id) {
+    const s = this.solver;
+    if (kind === "pattern") {
+      const p = s.patterns.get(id);
+      return { kind, id: p.id, type: PatternType[p.type], factors: p.factors };
+    }
+    const i = this.table(kind, id);
+    const record = { kind, id: s.tables.getId(i), type: TableType[s.tables.getType(i)].replace("CURVE_", ""), points: s.tables.get(i).points };
+    if (kind === "timeseries") {
+      const [count, anchor] = s.tables.asTimeseries(i).relativeInfo;
+      record.relative = { count, anchor };
+      record.file = this.files.get(record.id.toUpperCase()) ?? null;
+      record.start = oadate(s.editor.startDatetime);
+    }
+    return record;
+  }
+  /** Replace a record's rows (and a curve's or pattern's type) after the engine validates them; returns the stored record. */
+  setRecord(kind, id, data) {
+    const s = this.solver;
+    if (kind === "pattern") {
+      const type = PatternType[data.type];
+      if (type === undefined) throw new Error("Unknown pattern type " + data.type + ".");
+      const factors = data.factors.map(Number);
+      if (factors.length !== patternLength[data.type]) throw new Error(`A ${data.type.toLowerCase()} pattern has ${patternLength[data.type]} factors.`);
+      if (!factors.every(Number.isFinite)) throw new Error("Every factor must be a number.");
+      s.patterns.get(id).setFactors(factors, type);
+      return this.record(kind, id);
+    }
+    const current = this.record(kind, id);
+    if (current.file) throw new Error(id + " reads its values from " + current.file + "; edit that file instead.");
+    const rows = data.points.map((p) => p.map(Number));
+    if (!rows.length) throw new Error("A " + (kind === "timeseries" ? "time series" : "curve") + " needs at least one row.");
+    if (!rows.every((r) => r.length === 2 && r.every(Number.isFinite))) throw new Error("Every row needs two numbers.");
+    const options = kind === "timeseries" ? { relativeCount: data.relative?.count ?? 0, anchor: data.relative?.anchor ?? 0 } : {};
+    const type = kind === "curve" ? TableType["CURVE_" + data.type] : undefined;
+    if (kind === "curve" && type === undefined) throw new Error("Unknown curve type " + data.type + ".");
+    const i = this.table(kind, id);
+    const before = s.tables.getType(i);
+    if (type !== undefined && type !== before) s.tables.setType(i, type);
+    try {
+      s.tables.get(i).validatePoints(rows, options);
+    } catch (e) {
+      if (type !== undefined && type !== before) s.tables.setType(i, before);
+      throw e;
+    }
+    s.tables.get(i).replacePoints(rows, options); // no fileToken: the table keeps any FILE reference
+    return this.record(kind, id);
+  }
+  /** Add a record with one placeholder row (a pattern of ones); returns it. */
+  addRecord(kind, name, type) {
+    const s = this.solver;
+    const id = validName(name);
+    if (kind === "pattern") {
+      if (s.patterns.has(id)) throw new Error("A pattern named " + id + " exists.");
+      if (!(type in patternLength)) throw new Error("Unknown pattern type " + type + ".");
+      s.patterns.add(id, PatternType[type]).setFactors(Array(patternLength[type]).fill(1), PatternType[type]);
+      return this.record(kind, id);
+    }
+    if (this.findTable(kind, id) >= 0) throw new Error("A " + (kind === "timeseries" ? "time series" : "curve") + " named " + id + " exists.");
+    if (kind === "timeseries") s.tables.addTimeseries(id).replacePoints([[oadate(s.editor.startDatetime), 0]]);
+    else {
+      const code = TableType["CURVE_" + type];
+      if (code === undefined) throw new Error("Unknown curve type " + type + ".");
+      s.tables.addCurve(id, code); // the engine takes the TableType code
+      s.tables.get(this.table(kind, id)).replacePoints([[0, 0]]);
+    }
+    return this.record(kind, id);
+  }
+  renameRecord(kind, id, name) {
+    const s = this.solver;
+    const next = validName(name);
+    const taken = kind === "pattern" ? s.patterns.has(next) : this.findTable(kind, next) >= 0;
+    if (taken && next.toUpperCase() !== id.toUpperCase()) throw new Error(next + " is taken.");
+    if (kind === "pattern") s.patterns.rename(id, next);
+    else s.tables.rename(this.table(kind, id), next);
+    const file = kind === "timeseries" ? this.files.get(id.toUpperCase()) : undefined;
+    if (file !== undefined) {
+      this.files.delete(id.toUpperCase());
+      this.files.set(next.toUpperCase(), file);
+    }
+    return next;
+  }
+  /** The model objects that refer to a record and would lose the reference if it were deleted. */
+  impact(kind, id) {
+    const s = this.solver;
+    const entries = kind === "pattern" ? s.editor.analyzePatternImpact(id) : s.editor.analyzeTableImpact(this.table(kind, id));
+    const named = (list, i) => list.ids?.[i] ?? list.getId?.(i);
+    return entries
+      .filter((e) => {
+        // The engine also lists STREET and IRREGULAR links (their street/transect index sits in the
+        // same slot); only a CUSTOM cross-section refers to a curve.
+        if (e.field !== "xsect_curve") return true;
+        const link = s.links.get(s.links.ids[e.objIdx]);
+        return link.xsect.shape === XSectShape.CUSTOM;
+      })
+      .map((e) => {
+        const type = e.objTypeName;
+        let name;
+        if (type in { node: 1, link: 1, subcatchment: 1, gage: 1 }) name = named(s[type === "subcatchment" ? "subcatchments" : type + "s"], e.objIdx);
+        else if (type === "dwf_inflow") name = "dry-weather " + s.inflows.getDwf(e.objIdx)[1] + " at " + s.nodes.ids[s.inflows.getDwf(e.objIdx)[0]];
+        else if (type === "aquifer") name = s.aquifers.getId(e.objIdx);
+        return { object: (type.replaceAll("_", " ") + " " + (name ?? "#" + (e.objIdx + 1))).trim(), field: fieldNames[e.field] ?? e.field.replaceAll("_", " ") };
+      });
+  }
+  /**
+   * Delete a record (references to it are cleared by the engine); returns the impact and an undo
+   * token: the deck written just before, which `restore` reopens.
+   */
+  deleteRecord(kind, id) {
+    const impact = this.impact(kind, id);
+    const token = this.entry.replace(/[^/]*$/, "") + ".undo-" + (this.undoSeq = (this.undoSeq || 0) + 1) + ".inp";
+    this.solver.write(token);
+    if (kind === "pattern") this.solver.editor.deletePattern(id);
+    else this.solver.editor.deleteTable(this.table(kind, id));
+    if (kind === "timeseries") this.files.delete(String(id).toUpperCase());
+    return { impact, token };
+  }
+  /** Reopen the deck saved by `deleteRecord` (undo of a delete); returns the summary. */
+  restore(token) {
+    const fs = this.engine.FS;
+    const bytes = fs.readFile(token);
+    for (const step of ["close", "destroy"])
+      try {
+        this.solver[step]();
+      } catch {}
+    fs.writeFile(this.entry, bytes);
+    fs.unlink(token);
+    const solver = (this.solver = new Solver(this.engine));
+    solver.open(this.entry, "_edit/model.rpt", "_edit/model.out");
+    this.files = fileSeries(fs, this.entry);
+    return this.summary();
   }
   /** The settable catalog fields of one object (or of the model when kind is "model"). */
   fields(kind, key) {

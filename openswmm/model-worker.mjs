@@ -11,7 +11,7 @@ function session() {
 self.onmessage = async ({ data: { id, op, args } }) => {
   try {
     const s = await session();
-    if (!["open", "summary", "fields", "set", "setAll", "write", "close"].includes(op))
+    if (!["open", "summary", "fields", "set", "setAll", "write", "close", "record", "setRecord", "addRecord", "renameRecord", "impact", "deleteRecord", "restore"].includes(op))
       throw new Error("Unknown request " + op);
     postMessage({ id, result: s[op](...args) });
   } catch (error) {

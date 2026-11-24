@@ -25,6 +25,8 @@ try {
 } catch {}
 const view = new ModelView(config.mapboxPublicToken);
 const editor = new Editor({
+  openDialog: (title, content) => dialog(title, content),
+  closeDialog: () => $("dialog").close(),
   onApply(bytes, count) {
     install({ ...project, inputs: { ...project.inputs, [project.entry]: bytes } });
     persist();
