@@ -121,10 +121,72 @@ const cases = [
     },
     text: (t) => t.replace(/^(FRAC 0:00:00\.1234567 )9\.87654321012345/m, "$12.5").replace(/^(PAT MONTHLY 2 2 2 2 2 2 2 2 2 2 2 )2/m, "$13"),
   },
+  {
+    entry: "inflows.inp",
+    source: "inflows.inp",
+    edit(s) {
+      // Control rules: change a threshold and add a rule.
+      const rules = s.rules().map((r) => r.text);
+      rules[0] = rules[0].replace("DEPTH > 1.0", "DEPTH > 1.5");
+      rules.push("RULE R3\nIF NODE J3 DEPTH > 2\nTHEN CONDUIT C3 STATUS = OPEN\nPRIORITY 3");
+      s.setRules(rules);
+      // Inflows at J1 change in place; J2 gains a dry-weather row and a larger sewershed.
+      const j1 = s.inflows("J1");
+      assert.deepEqual(j1.external.map((r) => r.constituent), ["FLOW", "TSS"]);
+      j1.external[0].baseline = 0.2;
+      j1.external[0].sFactor = 1.5;
+      j1.dwf[0].average = 0.25;
+      s.setInflows("J1", j1);
+      const j2 = s.inflows("J2");
+      assert.deepEqual(j2.rdii, { hydrograph: "UH1", area: 5 });
+      j2.dwf.push({ constituent: "FLOW", average: 0.05, monthly: "", daily: "", hourly: "HOURLY_P", weekend: "" });
+      j2.rdii.area = 6;
+      s.setInflows("J2", j2);
+      // Unit hydrograph: change a response, drop January's long term, add February's short term.
+      const uh = s.record("hydrograph", "UH1");
+      assert.equal(uh.gage, "G1");
+      uh.entries.find((e) => e.month === -1 && e.response === 0).r = 0.025;
+      uh.entries = uh.entries.filter((e) => !(e.month === 0 && e.response === 2));
+      uh.entries.push({ month: 1, response: 0, r: 0.01, t: 2, k: 2, dmax: 0, drecov: 0, dinit: 0 });
+      s.setRecord("hydrograph", "UH1", uh);
+    },
+    text: (t) =>
+      t
+        .replace("IF NODE J2 DEPTH > 1.0", "IF NODE J2 DEPTH > 1.5")
+        .replace("PRIORITY 2\n", "PRIORITY 2\n\nRULE R3\nIF NODE J3 DEPTH > 2\nTHEN CONDUIT C3 STATUS = OPEN\nPRIORITY 3\n")
+        .replace(/^(J1\s+FLOW\s+INFLOW_TS\s+FLOW\s+1\.0\s+)1\.0(\s+)0\.1/m, "$11.5$20.2")
+        .replace(/^(J1\s+FLOW\s+)0\.2(\s+MONTHLY_P)/m, "$10.25$2")
+        .replace(/^(J1\s+TSS\s+50)$/m, '$1\nJ2 FLOW 0.05 "" "" HOURLY_P')
+        .replace(/^(J2\s+UH1\s+)5$/m, "$16")
+        .replace(/^(UH1\s+ALL\s+SHORT\s+)0\.02/m, "$10.025")
+        .replace(/^UH1\s+JAN\s+LONG.*\n/m, "")
+        .replace(/^(UH1\s+ALL\s+MEDIUM.*)$/m, "$1\nUH1 FEB SHORT 0.01 2 2 0 0 0"),
+  },
+  {
+    entry: "kitchen.inp",
+    source: "kitchen.inp",
+    run: false,
+    edit(s) {
+      s.setRules(s.rules().map((r) => r.text.replace("SIMULATION TIME > 1", "SIMULATION TIME > 1.5")));
+      const j1 = s.inflows("J1");
+      j1.dwf[0].average = 2;
+      j1.rdii.area = 10;
+      s.setInflows("J1", j1);
+      const uh = s.record("hydrograph", "UH1");
+      uh.entries[0].k = 3;
+      s.setRecord("hydrograph", "UH1", uh);
+    },
+    text: (t) =>
+      t
+        .replace("SIMULATION TIME > 1", "SIMULATION TIME > 1.5")
+        .replace(/^J1  FLOW  1\.0  P1$/m, "J1  FLOW  2  P1")
+        .replace(/^J1  UH1  12\.0$/m, "J1  UH1  10")
+        .replace(/^(UH1  ALL  SHORT  0\.033  1\.0  )2\.0/m, "$13"),
+  },
 ];
 
 for (const c of cases)
-  test(`${c.entry}: table and pattern edits in the session equal the same edits in the deck text`, async () => {
+  test(`${c.entry} (${c.source === c.entry ? "" : c.source + ", "}case ${cases.indexOf(c) + 1}): record edits in the session equal the same edits in the deck text`, async () => {
     const original = await deck(c.source);
     const edited = c.text(original);
     assert.notEqual(edited, original, "the text edit applies");
@@ -133,7 +195,7 @@ for (const c of cases)
     c.edit(session);
     const written = session.write();
     session.close();
-    await evidence(c.entry.replace(".inp", ".session.inp"), written);
+    await evidence(c.entry.replace(".inp", ".case" + (cases.indexOf(c) + 1) + ".session.inp"), written);
     const expected = await normalized(c.entry, edited);
     assert.equal(decoder.decode(written), decoder.decode(expected), "the engine writes the same deck");
     // An unchanged round trip keeps every table and pattern as read.
@@ -210,4 +272,44 @@ test("the editor's date and elapsed-time encoding matches the engine's reading o
   assert.deepEqual(ts.points.map(([x]) => elapsedText((x - ts.relative.anchor) * 86400)), ["0:00:00", "0:15:00", "0:30:00", "0:45:00", "1:00:00", "1:15:00", "1:30:00"]);
   assert.deepEqual(ts.points.map(([x]) => x), ["0:00", "0:15", "0:30", "0:45", "1:00", "1:15", "1.5"].map((t) => ts.relative.anchor + seconds(t) / 86400));
   network.close();
+});
+
+test("rules, inflows and unit hydrographs refuse what the engine would not read back", async () => {
+  const session = new ModelSession(await create());
+  session.open(project("inflows.inp", await deck("inflows.inp")));
+  // A rule naming a missing object is refused with the engine's message and the rule's id.
+  const rules = session.rules().map((r) => r.text);
+  assert.throws(() => session.setRules([...rules, "RULE BAD\nIF NODE NOPE DEPTH > 1\nTHEN CONDUIT C1 STATUS = OPEN"]), /Rule BAD, line 2: 'NOPE' is not the name of a defined NODE/);
+  assert.deepEqual(session.rules().map((r) => r.id), ["R1", "R2"], "the program is unchanged");
+  assert.deepEqual(session.ruleRefs("C2"), ["R1"]);
+  assert.deepEqual(session.ruleRefs("J1"), []);
+  // Inflow rows are checked against the model before the engine sees them.
+  const j3 = session.inflows("J3");
+  const bad = (change, pattern) => assert.throws(() => session.setInflows("J3", change(structuredClone(j3))), pattern);
+  bad((d) => (d.external.push({ constituent: "FLOW", series: "NOPE", type: "FLOW", mFactor: 1, sFactor: 1, baseline: 0, pattern: "" }), d), /No time series named NOPE/);
+  bad((d) => (d.external.push({ constituent: "TSS", series: "CONC_TS", type: "FLOW", mFactor: 1, sFactor: 1, baseline: 0, pattern: "" }), d), /CONCEN or MASS/);
+  bad((d) => (d.external.push({ constituent: "LEAD", series: "CONC_TS", type: "CONCEN", mFactor: 1, sFactor: 1, baseline: 0, pattern: "" }), d), /No pollutant named LEAD/);
+  bad((d) => (d.dwf.push({ ...d.dwf[0], constituent: "flow" }), d), /one dry-weather inflow per constituent/);
+  bad((d) => ((d.dwf[0].monthly = "HOURLY_P"), d), /No monthly pattern named HOURLY_P/);
+  bad((d) => ((d.rdii = { hydrograph: "NOPE", area: 1 }), d), /No unit hydrograph named NOPE/);
+  bad((d) => ((d.rdii = { hydrograph: "UH1", area: -1 }), d), /zero or more/);
+  assert.deepEqual(session.inflows("J3"), j3, "a refused edit changes nothing");
+  // Names are matched without case and stored as the model spells them.
+  const added = session.setInflows("J3", { ...j3, external: [{ constituent: "tss", series: "conc_ts", type: "mass", mFactor: 1, sFactor: 1, baseline: 0, pattern: "" }] });
+  assert.deepEqual(added.external[0], { constituent: "TSS", series: "CONC_TS", type: "MASS", mFactor: 1, sFactor: 1, baseline: 0, pattern: "" });
+  // Unit hydrographs: gage and ranges checked; a new group, a rename that follows the RDII rows, a delete and its undo.
+  const uh = session.record("hydrograph", "UH1");
+  assert.throws(() => session.setRecord("hydrograph", "UH1", { ...uh, gage: "NOGAGE" }), /No rain gage named NOGAGE/);
+  assert.throws(() => session.setRecord("hydrograph", "UH1", { ...uh, entries: [...uh.entries, { ...uh.entries[0] }] }), /one row per response/);
+  assert.throws(() => session.setRecord("hydrograph", "UH1", { ...uh, entries: [{ ...uh.entries[0], month: 12 }] }), /0 to 11/);
+  assert.deepEqual(session.addRecord("hydrograph", "UH2"), { kind: "hydrograph", id: "UH2", gage: "G1", entries: [] });
+  assert.equal(session.renameRecord("hydrograph", "UH1", "SEWER"), "SEWER");
+  assert.deepEqual(session.inflows("J2").rdii, { hydrograph: "SEWER", area: 5 });
+  assert.deepEqual(session.impact("hydrograph", "SEWER"), [{ object: "RDII at J2", field: "unit hydrograph" }]);
+  const before = decoder.decode(session.write());
+  const { token } = session.deleteRecord("hydrograph", "SEWER");
+  assert.equal(session.inflows("J2").rdii, null, "the RDII row went with it");
+  session.restore(token);
+  assert.equal(decoder.decode(session.write()), before);
+  session.close();
 });

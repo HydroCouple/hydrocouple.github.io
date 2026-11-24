@@ -1,8 +1,11 @@
 // Catalog-driven object editor in the inspector: object lists, generated property rows, record
-// cards (time series, curves, patterns) with the record editor dialog, edits sent to the model
-// worker, undo, and "Apply to model" which installs the engine-written deck.
+// cards (time series, curves, patterns, unit hydrographs) with their editor dialogs, the control
+// rule program, a node's inflows, edits sent to the model worker, undo, and "Apply to model" which
+// installs the engine-written deck.
 import { objectKinds, recordKinds, patternLength } from "./model.mjs";
 import { recordEditor, drawRecord, describeRecord, curveTypes } from "./records.mjs";
+import { rulesEditor } from "./rules.mjs";
+import { inflowsEditor, describeInflows, hydrographEditor, describeHydrograph, hydrographCurve, monthRows } from "./inflows.mjs";
 const $ = (id) => document.getElementById(id);
 const kindLabels = {
   options: "Simulation options",
@@ -15,9 +18,13 @@ const kindLabels = {
   timeseries: "Time series",
   curve: "Curves",
   pattern: "Time patterns",
+  hydrograph: "Unit hydrographs",
+  controls: "Control rules",
 };
-const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern" };
-const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern" };
+const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern", hydrograph: "unit hydrograph" };
+const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern", hydrograph: "Unit hydrograph" };
+/** Kinds edited as one whole (no object list). */
+const globalKinds = ["model", "options", "controls"];
 const node = (tag, props = {}, ...children) => {
   const n = Object.assign(document.createElement(tag), props);
   n.append(...children);
@@ -105,7 +112,7 @@ export class Editor {
   list() {
     const kind = $("objkind").value,
       select = $("objid");
-    const objects = kind === "model" ? [] : this.summary?.objects[kind] || [];
+    const objects = globalKinds.includes(kind) ? [] : this.summary?.objects[kind] || [];
     select.replaceChildren(
       ...objects.map(
         (o) =>
@@ -115,7 +122,7 @@ export class Editor {
           ),
       ),
     );
-    select.hidden = kind === "model" || kind === "options" || kind === "cell";
+    select.hidden = globalKinds.includes(kind) || kind === "cell";
     const cells = this.summary?.cells || 0;
     $("cellindex").hidden = kind !== "cell";
     $("cellindex").max = Math.max(0, cells - 1);
@@ -131,13 +138,14 @@ export class Editor {
   }
   key() {
     const kind = $("objkind").value;
-    return kind === "model" || kind === "options" ? null : kind === "cell" ? $("cellindex").value : $("objid").value;
+    return globalKinds.includes(kind) ? null : kind === "cell" ? $("cellindex").value : $("objid").value;
   }
   async show() {
     const kind = $("objkind").value,
       key = this.key();
     const props = $("props");
     if (recordKinds.includes(kind)) return this.showRecord(kind, key);
+    if (kind === "controls") return this.showRules();
     const global = kind === "model" || kind === "options";
     if ((!global && !key) || (kind === "cell" && !this.summary?.cells)) {
       props.replaceChildren();
@@ -147,9 +155,101 @@ export class Editor {
     try {
       const rows = await this.call("fields", kind, key);
       props.replaceChildren(...rows.map((row) => this.row(kind, key, row)));
+      if (kind === "node" || kind === "link") await this.showReferences(kind, key, props);
     } catch (e) {
       this.fail(e);
     }
+  }
+  /** Below a node's or link's properties: the rules that name it and, for a node, its inflows. */
+  async showReferences(kind, key, props) {
+    const [rules, inflows] = await Promise.all([this.call("ruleRefs", key), kind === "node" ? this.call("inflows", key) : null]);
+    if (key !== this.key()) return;
+    const extra = node("div", { className: "record-card" });
+    if (inflows) {
+      const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit inflows…" });
+      edit.onclick = () => this.openInflows(key);
+      extra.append(
+        node("p", { className: "record-desc", textContent: "Inflows" }),
+        ...describeInflows(inflows, this.summary).map((line) => node("p", { className: "hint", textContent: line })),
+        edit,
+      );
+    }
+    if (rules.length) extra.append(node("p", { className: "hint", textContent: "Named in control rule" + (rules.length > 1 ? "s " : " ") + rules.join(", ") + "." }));
+    if (extra.childElementCount) props.append(extra);
+  }
+  /** A node's external, dry-weather and RDII inflows in one dialog. */
+  async openInflows(key) {
+    let data, choices;
+    try {
+      [data, choices] = await Promise.all([this.call("inflows", key), this.call("inflowChoices")]);
+    } catch (e) {
+      return this.fail(e);
+    }
+    this.openDialog(
+      "Inflows at " + data.node,
+      inflowsEditor({
+        data,
+        choices,
+        units: { unitSystem: this.summary?.unitSystem, flowUnits: this.summary?.flowUnitsName },
+        onSave: async (rows) => {
+          const after = await this.call("setInflows", data.node, rows);
+          this.edits.push({ op: "inflows", kind: "node", key: data.node, before: data, after });
+          this.closeDialog();
+          this.note();
+          this.show();
+        },
+        onCancel: () => this.closeDialog(),
+      }),
+    );
+  }
+  /** The control rule card: the rule ids and the program editor. */
+  async showRules() {
+    const props = $("props");
+    let rules;
+    try {
+      rules = await this.call("rules");
+    } catch (e) {
+      props.replaceChildren();
+      return this.fail(e);
+    }
+    if ($("objkind").value !== "controls") return;
+    const ids = rules.map((r) => r.id);
+    const edit = node("button", { type: "button", className: "tb ghost", textContent: rules.length ? "Edit rules…" : "Write rules…" });
+    edit.onclick = () => this.openRules();
+    props.replaceChildren(
+      node(
+        "div",
+        { className: "record-card" },
+        node("p", {
+          className: "record-desc",
+          textContent: rules.length ? rules.length + " rule" + (rules.length > 1 ? "s" : "") + ": " + ids.slice(0, 12).join(", ") + (ids.length > 12 ? " …" : "") : "This model has no control rules.",
+        }),
+        edit,
+      ),
+    );
+  }
+  async openRules() {
+    let rules;
+    try {
+      rules = await this.call("rules");
+    } catch (e) {
+      return this.fail(e);
+    }
+    this.openDialog(
+      "Control rules",
+      rulesEditor({
+        rules,
+        onCheck: (blocks) => this.call("checkRules", blocks),
+        onSave: async (blocks) => {
+          const after = await this.call("setRules", blocks);
+          this.edits.push({ op: "rules", kind: "controls", before: rules.map((r) => r.text), after });
+          this.closeDialog();
+          this.note();
+          this.show();
+        },
+        onCancel: () => this.closeDialog(),
+      }),
+    );
   }
   row(kind, key, row) {
     const wrap = document.createElement("label");
@@ -235,11 +335,13 @@ export class Editor {
     try {
       if (edit.bulk) throw new Error("A bulk cell edit cannot be undone; reload the project to discard it.");
       if (edit.op === "record") await this.call("setRecord", edit.kind, edit.key, edit.before);
+      else if (edit.op === "rules") await this.call("setRules", edit.before);
+      else if (edit.op === "inflows") await this.call("setInflows", edit.key, edit.before);
       else if (edit.op === "add") await this.call("deleteRecord", edit.kind, edit.key);
       else if (edit.op === "rename") await this.call("renameRecord", edit.kind, edit.after, edit.before);
       else if (edit.op === "delete") await this.call("restore", edit.token);
       else await this.call("set", edit.path, edit.key, edit.before);
-      if (edit.op && edit.op !== "record") return this.refresh(edit.kind, edit.op === "add" ? null : edit.op === "rename" ? edit.before : edit.key);
+      if (["add", "rename", "delete"].includes(edit.op)) return this.refresh(edit.kind, edit.op === "add" ? null : edit.op === "rename" ? edit.before : edit.key);
       this.note();
     } catch (e) {
       this.fail(e);
@@ -286,7 +388,7 @@ export class Editor {
     const remove = node("button", { type: "button", className: "tb ghost", textContent: "Delete" });
     remove.onclick = () => this.confirmDelete(kind, record.id, users, card);
     card.append(
-      node("p", { className: "record-desc", textContent: describeRecord(record) }),
+      node("p", { className: "record-desc", textContent: kind === "hydrograph" ? describeHydrograph(record) : describeRecord(record) }),
       preview,
       node(
         "p",
@@ -298,7 +400,10 @@ export class Editor {
       create,
     );
     props.replaceChildren(card);
-    drawRecord(preview, record);
+    if (kind === "hydrograph") {
+      const months = record.entries.map((e) => e.month);
+      drawRecord(preview, { kind: "curve", points: hydrographCurve(monthRows(record, months.includes(-1) ? -1 : Math.min(...months))) });
+    } else drawRecord(preview, record);
   }
   /** Inline form for a new record: a name and, for curves and patterns, a type. */
   newRecordForm(kind, card, button) {
@@ -363,21 +468,26 @@ export class Editor {
     } catch (e) {
       return this.fail(e);
     }
-    const units = { unitSystem: this.summary?.unitSystem, flowUnits: this.summary?.flowUnits };
+    const units = { unitSystem: this.summary?.unitSystem, flowUnits: this.summary?.flowUnitsName };
+    const onSave = async (data) => {
+      const after = await this.call("setRecord", kind, record.id, data);
+      this.edits.push({ op: "record", kind, key: record.id, before: record, after });
+      this.closeDialog();
+      this.note();
+      this.show();
+    };
+    const onCancel = () => this.closeDialog();
     this.openDialog(
       recordTitle[kind] + " " + record.id,
-      recordEditor({
-        record,
-        units,
-        onSave: async (data) => {
-          const after = await this.call("setRecord", kind, record.id, data);
-          this.edits.push({ op: "record", kind, key: record.id, before: record, after });
-          this.closeDialog();
-          this.note();
-          this.show();
-        },
-        onCancel: () => this.closeDialog(),
-      }),
+      kind === "hydrograph"
+        ? hydrographEditor({
+            record,
+            gages: (this.summary?.objects.gage || []).map((g) => g.id),
+            draw: (canvas, points) => drawRecord(canvas, { kind: "curve", points }),
+            onSave,
+            onCancel,
+          })
+        : recordEditor({ record, units, onSave, onCancel }),
     );
   }
   async apply() {

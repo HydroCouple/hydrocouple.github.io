@@ -112,6 +112,43 @@ try {
   await page.getByRole("button", { name: "Edit INP" }).click();
   assert.match(await page.locator("#content textarea").inputValue(), /^TS1\s+0:30\s+1\.25\s*$/m);
   await page.getByRole("button", { name: "Close dialog" }).click();
+
+  // Control rules, a node's inflows and a unit hydrograph on the inflows fixture.
+  const { readFile } = await import("node:fs/promises");
+  await page.locator("#input").setInputFiles({ name: "inflows.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/inflows.inp", import.meta.url)) });
+  await page.waitForFunction(() => document.getElementById("modelname").textContent === "inflows.inp");
+  await choose("objkind", "controls");
+  await page.waitForFunction(() => document.querySelector(".record-card .record-desc")?.textContent === "2 rules: R1, R2");
+  await page.getByRole("button", { name: "Edit rules…" }).click();
+  const program = page.getByLabel("Control rules", { exact: true });
+  const original = await program.inputValue();
+  await program.fill(original.replace("NODE J2", "NODE J9"));
+  await page.waitForFunction(() => /J9/.test(document.querySelector(".rule-verdicts li.bad")?.textContent || ""));
+  await program.fill(original.replace("DEPTH > 1.0", "DEPTH > 1.5"));
+  await page.waitForFunction(() => document.querySelectorAll(".rule-verdicts li.ok").length === 2);
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("1 edit"));
+  await choose("objkind", "node");
+  await page.getByRole("button", { name: "Edit inflows…" }).click();
+  await page.getByLabel("External inflow 1 baseline", { exact: true }).fill("0.2");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("2 edits"));
+  await choose("objkind", "hydrograph");
+  await page.waitForFunction(() => /^Rain gage G1/.test(document.querySelector(".record-card .record-desc")?.textContent || ""));
+  await page.getByRole("button", { name: "Edit values…" }).click();
+  await page.getByLabel("Short term R", { exact: true }).fill("0.025");
+  await page.getByRole("button", { name: "Save to model" }).click();
+  await page.waitForFunction(() => document.getElementById("editnote").textContent.startsWith("3 edits"));
+  await page.getByRole("button", { name: "Apply to model" }).click();
+  await until(/^3 edits applied/);
+  await page.getByRole("button", { name: "Edit INP" }).click();
+  const deckText = await page.locator("#content textarea").inputValue();
+  assert.match(deckText, /^IF NODE J2 DEPTH > 1\.5$/m);
+  assert.match(deckText, /^J1\s+FLOW\s+INFLOW_TS\s+FLOW\s+1 1 0\.2/m);
+  assert.match(deckText, /^UH1\s+ALL\s+SHORT\s+0\.025/m);
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  await page.getByRole("button", { name: "Run model" }).click();
+  await until(/^Run complete/);
   assert.deepEqual(errors, []);
 } finally {
   await browser.close();

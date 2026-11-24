@@ -1437,3 +1437,55 @@ ol.warnings {
 .record-message:not(:empty) {
   color: var(--danger-ink);
 }
+
+/* Control rules, inflows and unit hydrographs */
+dialog:has(.inflows-editor) {
+  width: min(1040px, 96vw);
+}
+#content .record-editor h3 {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+#content textarea.rules-text {
+  min-height: 40vh;
+  font: 12.5px/1.5 var(--mono);
+  tab-size: 2;
+}
+.rule-verdicts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 18vh;
+  overflow: auto;
+  font-size: 12.5px;
+}
+.rule-verdicts li {
+  padding: 2px 0;
+  color: var(--ink-soft);
+}
+.rule-verdicts li.ok b {
+  color: var(--ok-ink);
+}
+.rule-verdicts li.bad {
+  color: var(--danger-ink);
+}
+.record-table td select {
+  width: 100%;
+  min-width: 110px;
+  height: 28px;
+  font-size: 12.5px;
+}
+.inflows-editor .record-table td input {
+  min-width: 70px;
+}
+.record-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.record-head label.inline > select {
+  flex: 0 1 200px;
+}
+.record-table.compact td input {
+  min-width: 56px;
+}
