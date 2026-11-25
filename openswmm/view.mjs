@@ -1,6 +1,7 @@
 import { symbols, markerOutline } from "./layers.mjs";
 import { pickAt, pickInRect, pickInPolygon, modeFor, describeSelection } from "./selection.mjs";
 import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, rampColor } from "./depth-style.mjs";
+import { Scene3D } from "./scene3d.mjs";
 /** Screen speed of a flow streak at the frame's reference speed (px/s). */
 const STREAK_SPEED = 45;
 /**
@@ -209,10 +210,15 @@ export class ModelView {
     el("fit").onclick = () => this.fit();
     el("zoomin").onclick = () => this.scale(1.4);
     el("zoomout").onclick = () => this.scale(1 / 1.4);
+    this.mode3d = false;
+    this.scene3d = new Scene3D(this);
+    el("view-3d").onclick = () => this.set3D(!this.mode3d);
+    el("view-north").onclick = () => this.resetView();
     layers.addEventListener("change", ({ detail }) => {
       if (detail.kind === "opacity" && detail.id === "basemaps")
         el("map").style.opacity = String(layers.opacity("basemaps"));
       if (["visible", "order", "opacity", "content"].includes(detail.kind)) this.draw();
+      if (detail.kind === "visible") this.syncBuildings();
     });
     new ResizeObserver(() => {
       this.map?.resize();
@@ -393,17 +399,23 @@ export class ModelView {
    * The mesh vertices on screen now, as [x0, y0, x1, y1, …]. On the basemap their lon/lat are kept
    * per geometry and placement, so a redraw only asks the map to project them.
    */
+  /** The mesh vertices' lon/lat as [lon0, lat0, …], kept per geometry and placement. */
+  vertexLonLat() {
+    const g = this.geo,
+      n = g.x.length;
+    if (this.lonLat?.geo !== g || this.lonLat.placement !== this.placement) {
+      const ll = new Float64Array(2 * n);
+      for (let k = 0; k < n; k++) [ll[2 * k], ll[2 * k + 1]] = this.placement.toLonLat(g.x[k], g.y[k]);
+      this.lonLat = { geo: g, placement: this.placement, ll };
+    }
+    return this.lonLat.ll;
+  }
   projectVertices() {
     const g = this.geo,
       n = g.x.length,
       V = new Float64Array(2 * n);
     if (this.map && this.placement) {
-      if (this.lonLat?.geo !== g || this.lonLat.placement !== this.placement) {
-        const ll = new Float64Array(2 * n);
-        for (let k = 0; k < n; k++) [ll[2 * k], ll[2 * k + 1]] = this.placement.toLonLat(g.x[k], g.y[k]);
-        this.lonLat = { geo: g, placement: this.placement, ll };
-      }
-      const ll = this.lonLat.ll;
+      const ll = this.vertexLonLat();
       for (let k = 0; k < n; k++) {
         const q = this.map.project([ll[2 * k], ll[2 * k + 1]]);
         V[2 * k] = q.x;
@@ -737,6 +749,7 @@ export class ModelView {
       this.underReady = false;
     }
     const reuse = streaksOnly && this.underReady;
+    if (this.mode3d && !streaksOnly) this.scene3d.sync();
     let c = under.getContext("2d");
     for (const x of [c, main]) x.setTransform(dpr, 0, 0, dpr, 0, 0);
     main.clearRect(0, 0, w, h);
@@ -919,6 +932,15 @@ export class ModelView {
     };
     for (const id of L.paintOrder()) {
       if (!paint[id]) continue; // the basemap is the Mapbox canvas underneath
+      if (this.mode3d) {
+        // In the 3D view the model is in Mapbox's scene (scene3d.mjs); the canvas keeps the streaks.
+        if (id === "outputs2d") {
+          copy();
+          c.globalAlpha = L.opacity(id);
+          if (L.visible("streaks")) this.drawStreaks(c);
+        }
+        continue;
+      }
       if (reuse && !copied && id !== "outputs2d") continue; // already in the image
       if (id !== "outputs2d") {
         c.globalAlpha = L.opacity(id);
@@ -979,8 +1001,65 @@ export class ModelView {
     }
     if (el("probe").textContent !== probe) el("probe").textContent = probe;
   }
+  /**
+   * The 3D view (basemap only): rotate and tilt gestures, the map tilted, the buildings raised. Off:
+   * flat, north up, no rotation (the map as before).
+   */
+  set3D(on) {
+    on = !!on && !!this.map;
+    if (this.mode3d === on) return;
+    this.mode3d = on;
+    const m = this.map;
+    if (m) {
+      for (const h of [m.dragRotate, m.touchPitch]) on ? h.enable() : h.disable();
+      for (const h of [m.touchZoomRotate, m.keyboard]) on ? h.enableRotation?.() : h.disableRotation?.();
+      m.easeTo(on ? { pitch: 60, duration: 800 } : { pitch: 0, bearing: 0, duration: 600 });
+    }
+    el("view-3d").setAttribute("aria-pressed", String(on));
+    el("view-north").hidden = !on;
+    this.syncBuildings();
+    if (on) this.scene3d.attach();
+    else this.scene3d.detach();
+    this.draw();
+  }
+  /** North up and flat; the 3D view stays on for the next tilt. */
+  resetView() {
+    this.map?.easeTo({ pitch: 0, bearing: 0, duration: 600 });
+  }
+  /** The style's buildings as extrusions, above the basemap's own layers but under its labels. */
+  addBuildings() {
+    const m = this.map;
+    if (!m || m.getLayer("osw-buildings") || !m.getSource("composite")) return;
+    const labels = m.getStyle().layers.find((l) => l.type === "symbol" && l.layout?.["text-field"])?.id;
+    m.addLayer(
+      {
+        id: "osw-buildings",
+        type: "fill-extrusion",
+        source: "composite",
+        "source-layer": "building",
+        filter: ["==", ["get", "extrude"], "true"],
+        minzoom: 14,
+        layout: { visibility: "none" },
+        paint: {
+          "fill-extrusion-color": "#cdd2d9",
+          "fill-extrusion-height": ["get", "height"],
+          "fill-extrusion-base": ["get", "min_height"],
+          "fill-extrusion-opacity": 0.85,
+        },
+      },
+      labels,
+    );
+    this.syncBuildings();
+  }
+  /** Buildings show in the 3D view when their layer row is on. */
+  syncBuildings() {
+    if (this.map?.getLayer("osw-buildings"))
+      this.map.setLayoutProperty("osw-buildings", "visibility", this.mode3d && this.layers.visible("buildings") ? "visible" : "none");
+  }
   async basemap(on) {
     if (!on) {
+      this.set3D(false);
+      el("viewtools").hidden = true;
       this.map?.remove();
       this.map = null;
       el("scene").classList.remove("geographic");
@@ -1029,13 +1108,29 @@ export class ModelView {
       accessToken: this.token,
       style: "mapbox://styles/mapbox/outdoors-v12",
       projection: "mercator",
-      pitchWithRotate: false,
+      // Rotation and tilt wait for the 3D view (set3D).
+      pitchWithRotate: true,
       dragRotate: false,
+      touchPitch: false,
+      maxPitch: 60,
       center: [(west + east) / 2, (south + north) / 2],
       zoom: 15,
     });
+    this.map.touchZoomRotate.disableRotation();
+    this.map.keyboard.disableRotation?.();
+    this.styleReady = false; // set on style.load: layers can be added from then on, while tiles still load
+    this.map.on("style.load", () => {
+      this.styleReady = true;
+      this.addBuildings();
+      if (this.mode3d) this.scene3d.attach();
+    });
     el("scene").classList.add("geographic");
-    this.map.on("move", () => this.draw());
+    el("viewtools").hidden = false;
+    this.map.on("move", () => {
+      // The compass points north as the map turns.
+      el("view-north").firstElementChild.style.transform = "rotate(" + -this.map.getBearing() + "deg)";
+      this.draw();
+    });
     this.map.on("click", (e) =>
       this.onPick ? this.onPick(e.lngLat) : this.click(e.point.x, e.point.y, e.originalEvent),
     );

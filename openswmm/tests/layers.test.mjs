@@ -142,3 +142,17 @@ test("default symbols are the desktop's", () => {
   assert.deepEqual(symbols.conduits, { width: 1, stroke: "#3232c8" });
   assert.deepEqual(symbols.subcatchments, { fill: "#b4dcb4", outline: "#003c00", width: 1.5 });
 });
+
+test("3D buildings sit with the basemap: always listed, not counted, switched with their category", () => {
+  const layers = new LayerTree();
+  layers.setContent({ cells: 0, junctions: 2 });
+  assert.deepEqual(layers.leaves("basemaps"), ["buildings", "basemap"], "above the basemap, as they paint");
+  assert.equal(layers.present("buildings"), true);
+  assert.equal(layers.count("buildings"), null);
+  assert.equal(layers.visible("buildings"), true, "on by default (raised in the 3D view only)");
+  layers.setVisible("basemaps", true);
+  assert.equal(layers.visible("basemap"), true);
+  layers.setVisible("basemaps", false);
+  assert.equal(layers.visible("buildings"), false);
+  assert.equal(layers.visible("basemap"), false);
+});

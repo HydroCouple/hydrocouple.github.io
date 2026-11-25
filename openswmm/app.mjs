@@ -93,6 +93,7 @@ selection.addEventListener("change", ({ detail }) => {
 const tokenNote = config.mapboxPublicToken ? "" : "Basemap token unconfigured · local view";
 if (!config.mapboxPublicToken) {
   layers.setEnabled("basemap", false);
+  layers.setEnabled("buildings", false);
   layers.setNote("basemap", tokenNote);
 }
 if ("serviceWorker" in navigator)

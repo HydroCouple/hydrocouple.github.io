@@ -45,6 +45,7 @@ const leafLabels = {
   meshfill: "Mesh fill",
   edges: "Mesh edges",
   basemap: "Mapbox outdoors",
+  buildings: "3D buildings",
 };
 /** Categories in the desktop's seed order; `groups` with a null label are rows without a heading. */
 const tree = [
@@ -60,8 +61,9 @@ const tree = [
     ],
   },
   { id: "meshes", label: "Meshes", groups: [{ id: null, label: null, rows: ["meshfill", "edges"] }] },
-  // The basemap is the Mapbox canvas under the drawing canvas, so it always paints at the bottom.
-  { id: "basemaps", label: "Basemaps", fixed: true, groups: [{ id: null, label: null, rows: ["basemap"] }] },
+  // The basemap is the Mapbox canvas under the drawing canvas, so it always paints at the bottom. Its
+  // 3D buildings are extruded in the 3D view only (view.mjs set3D).
+  { id: "basemaps", label: "Basemaps", fixed: true, groups: [{ id: null, label: null, rows: ["buildings", "basemap"] }] },
 ];
 const surfaceLeaves = new Set(["depth", "streaks", "meshfill", "edges"]);
 
@@ -108,13 +110,13 @@ export class LayerTree extends EventTarget {
   }
   /** Objects of a leaf kind in the displayed model (null for rows that are not counted). */
   count(leaf) {
-    if (leaf === "basemap") return null;
+    if (leaf === "basemap" || leaf === "buildings") return null;
     return surfaceLeaves.has(leaf) ? null : this.counts[leaf] || 0;
   }
   /** A leaf is listed when the model has something for it; a category or group when any leaf is. */
   present(id) {
     return this.leaves(id).some((leaf) =>
-      leaf === "basemap" ? true : surfaceLeaves.has(leaf) ? (this.counts.cells || 0) > 0 : (this.counts[leaf] || 0) > 0,
+      leaf === "basemap" || leaf === "buildings" ? true : surfaceLeaves.has(leaf) ? (this.counts.cells || 0) > 0 : (this.counts[leaf] || 0) > 0,
     );
   }
   /** Drawn: switched on and present. */

@@ -569,6 +569,10 @@ main {
   background: #fff;
   border: 1.5px solid #143347;
 }
+.sw.buildings {
+  background: linear-gradient(135deg, #d5dae1 50%, #a3acb7 50%);
+  border: 1px solid #7d8690;
+}
 .sw.map {
   background: #e2ebe0;
   border: 1px solid #b9c9c0;

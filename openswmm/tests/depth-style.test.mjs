@@ -2,7 +2,7 @@
 // line geometry on mesh triangles, checked against areas and interpolated values.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, rampColor, DepthStyle } from "../depth-style.mjs";
+import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, chainSegments, rampColor, DepthStyle } from "../depth-style.mjs";
 
 // A deterministic pseudo-random sequence.
 let seed = 12345;
@@ -104,3 +104,22 @@ test("the hide-water threshold: blank, negative or not a number means the model'
   assert.equal(s.get("hideBelow"), null, "Reset returns to the model's dry depth");
 });
 
+test("contour segments chain into polylines: a ring around a peak closes, a ridge line stays open", () => {
+  // A hexagon fan: center vertex 0 high, rim vertices 1..6 low → one closed ring at level 0.5.
+  const tris = Int32Array.from([1, 2, 3, 4, 5, 6].flatMap((k) => [0, k, (k % 6) + 1]));
+  const ring = isolines(tris, [1, 0, 0, 0, 0, 0, 0], [0.5])[0];
+  assert.equal(ring.length, 6);
+  const chains = chainSegments(ring);
+  assert.equal(chains.length, 1, "one polyline");
+  const key = ([a, b]) => [a, b].sort((x, y) => x - y).join(",");
+  assert.equal(chains[0].length, 7, "six segments, seven points");
+  assert.equal(key(chains[0][0]), key(chains[0][6]), "closed: ends on the edge it starts on");
+  // Shuffled segments chain the same way.
+  assert.equal(chainSegments([ring[3], ring[0], ring[5], ring[1], ring[4], ring[2]])[0].length, 7);
+  // An open line: a strip of two triangles crossed once by a level → one 3-point polyline.
+  const strip = Int32Array.from([0, 1, 2, 1, 3, 2]);
+  const open = chainSegments(isolines(strip, [0, 1, 0, 1], [0.5])[0]);
+  assert.equal(open.length, 1);
+  assert.equal(open[0].length, 3);
+  assert.notEqual(key(open[0][0]), key(open[0][2]), "open: different end edges");
+});

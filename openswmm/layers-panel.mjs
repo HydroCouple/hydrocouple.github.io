@@ -13,7 +13,7 @@ const el = (tag, props = {}, ...children) => {
 const svgNS = "http://www.w3.org/2000/svg";
 /** A 14 px swatch: the kind's marker, line or area symbol; CSS swatches for the surface rows. */
 function swatch(leaf) {
-  const css = { depth: "ramp", streaks: "streak", meshfill: "meshfill", edges: "mesh", basemap: "map" }[leaf];
+  const css = { depth: "ramp", streaks: "streak", meshfill: "meshfill", edges: "mesh", basemap: "map", buildings: "buildings" }[leaf];
   if (css) return el("span", { className: "sw " + css });
   const s = symbols[leaf];
   const svg = document.createElementNS(svgNS, "svg");

@@ -221,6 +221,41 @@ export function isolines(tris, values, levels) {
   });
 }
 
+/**
+ * Contour segments joined into polylines (for labels along a line): two segments join where they
+ * cross the same mesh edge. Each polyline is a list of [a, b, t] points; a closed one ends on the
+ * edge it starts on.
+ */
+export function chainSegments(segs) {
+  const key = ([a, b]) => (a < b ? a + "," + b : b + "," + a);
+  const at = new Map();
+  segs.forEach(([p, q], i) => {
+    for (const k of [key(p), key(q)]) {
+      if (!at.has(k)) at.set(k, []);
+      at.get(k).push(i);
+    }
+  });
+  const used = new Uint8Array(segs.length),
+    chains = [];
+  for (let i = 0; i < segs.length; i++) {
+    if (used[i]) continue;
+    used[i] = 1;
+    const ahead = [segs[i][1]],
+      behind = [segs[i][0]];
+    for (const side of [ahead, behind])
+      for (;;) {
+        const end = side[side.length - 1],
+          next = at.get(key(end)).find((j) => !used[j]);
+        if (next === undefined) break;
+        used[next] = 1;
+        const [p, q] = segs[next];
+        side.push(key(p) === key(end) ? q : p);
+      }
+    chains.push([...behind.reverse(), ...ahead]);
+  }
+  return chains;
+}
+
 const defaults = {
   display: "cells", // "cells" (flat cell colors) or "bands" (filled contours)
   method: "continuous", // continuous, equal, quantile, jenks, manual
