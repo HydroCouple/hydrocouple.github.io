@@ -290,6 +290,33 @@ try {
   await page.getByRole("button", { name: "Close dialog" }).click();
   await page.getByRole("button", { name: "Run model" }).click();
   await until(/^Run complete/);
+  // Selection (V1): a box over the network example takes its 4 nodes and 3 links and the inspector
+  // shows one; Alt + box removes them; a pick in the inspector selects it on the map; Esc clears.
+  await choose("example", "network");
+  await page.waitForFunction(() => document.getElementById("modelname").textContent === "network.inp");
+  await page.waitForTimeout(1500); // the editing session opens the model
+  const map = await page.locator("#plot").boundingBox();
+  const sweep = async (modifiers = []) => {
+    for (const m of modifiers) await page.keyboard.down(m);
+    await page.mouse.move(map.x + 10, map.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(map.x + map.width - 10, map.y + map.height - 10, { steps: 5 });
+    await page.mouse.up();
+    for (const m of modifiers) await page.keyboard.up(m);
+  };
+  await page.locator("#tool-box").click();
+  await sweep();
+  assert.equal(await page.locator("#probe").textContent(), "7 selected · 4 nodes, 3 links");
+  await page.waitForFunction(() => ["node", "link"].includes(document.getElementById("objkind").value));
+  await sweep(["Alt"]);
+  assert.equal(await page.locator("#probe").textContent(), "Select an object to inspect");
+  await page.locator("#tool-select").click();
+  await choose("objkind", "link");
+  await choose("objid", "C2");
+  await page.waitForFunction(() => document.getElementById("probe").textContent === "C2 · conduit");
+  await page.locator("#plot").click({ position: { x: 5, y: 5 }, modifiers: ["Shift"] });
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator("#probe").textContent(), "Select an object to inspect");
   // A model with a CRS is placed by it: the inspector names the system and the hand-placed map
   // reference is not offered; a model without one keeps the reference button.
   await page.locator("#input").setInputFiles({ name: "crs.inp", mimeType: "text/plain", buffer: await readFile(new URL("./fixtures/crs.inp", import.meta.url)) });

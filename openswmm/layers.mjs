@@ -69,8 +69,9 @@ const surfaceLeaves = new Set(["depth", "streaks", "meshfill", "edges"]);
 export function contentOf(geo) {
   const counts = { cells: geo?.cells?.length || 0 };
   const network = geo?.network;
-  if (network) for (const [kind, list] of Object.entries(network)) counts[kind] = list.length;
-  else counts.conduits = geo?.links?.length || 0;
+  if (network) {
+    for (const [kind, list] of Object.entries(network)) if (Array.isArray(list)) counts[kind] = list.length; // not network.ids
+  } else counts.conduits = geo?.links?.length || 0;
   return counts;
 }
 

@@ -754,6 +754,11 @@ main {
 #scene.geographic #plot {
   pointer-events: none;
 }
+/* Box and lasso select take the pointer, also over the basemap. */
+#scene.tool-band #plot {
+  pointer-events: auto;
+  cursor: crosshair;
+}
 #probe,
 .zoom {
   position: absolute;
@@ -797,6 +802,17 @@ main {
 .map-tool:hover {
   background: var(--mist);
   color: var(--deep);
+}
+.map-tool[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--deep);
+}
+.maptools {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 3px;
+  margin-bottom: 3px;
+  border-bottom: 1px solid var(--line);
 }
 
 /* Bottom: time browser and results */

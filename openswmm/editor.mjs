@@ -33,6 +33,8 @@ const kindLabels = {
 };
 const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern", hydrograph: "unit hydrograph", pollutant: "pollutant", landuse: "land use", transect: "transect", lid: "LID control" };
 const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern", hydrograph: "Unit hydrograph", pollutant: "Pollutant", landuse: "Land use", transect: "Transect", lid: "LID control" };
+/** Kinds the map can select (selection.mjs). */
+const pickKinds = ["node", "link", "subcatchment", "gage", "cell"];
 /** Kinds edited as one whole (no object list). */
 const globalKinds = ["model", "options", "controls"];
 const node = (tag, props = {}, ...children) => {
@@ -47,8 +49,9 @@ export class Editor {
    * @param {(title: string, content: Node) => void} o.openDialog shows the record editor
    * @param {() => void} o.closeDialog
    */
-  constructor({ onApply, onError, openDialog, closeDialog }) {
+  constructor({ onApply, onError, openDialog, closeDialog, onPick }) {
     this.onApply = onApply;
+    this.onPick = onPick; // an object picked in Edit object becomes the selection
     this.onError = onError;
     this.openDialog = openDialog;
     this.closeDialog = closeDialog;
@@ -66,9 +69,18 @@ export class Editor {
     $("objkind").replaceChildren(
       ...objectKinds.map((k) => new Option(kindLabels[k], k)),
     );
-    $("objkind").onchange = () => this.list();
-    $("objid").onchange = () => this.show();
-    $("cellindex").onchange = () => this.show();
+    $("objkind").onchange = () => {
+      this.list();
+      this.picked();
+    };
+    $("objid").onchange = () => {
+      this.show();
+      this.picked();
+    };
+    $("cellindex").onchange = () => {
+      this.show();
+      this.picked();
+    };
     $("undoedit").onclick = () => this.undo();
     $("applyedits").onclick = () => this.apply();
   }
@@ -108,18 +120,26 @@ export class Editor {
   async load(project) {
     const token = (this.token = {});
     this.edits = [];
+    this.loading = true; // a pick made meanwhile waits for the new model (reveal)
     this.note();
     try {
       this.ensureWorker();
       const summary = await this.call("open", project);
       if (token !== this.token) return;
       this.summary = summary;
-      this.list();
+      this.loading = false;
+      const waiting = this.waiting;
+      this.waiting = null;
+      if (waiting) this.reveal(waiting);
+      else this.list();
     } catch (e) {
-      if (token === this.token) this.fail(e);
+      if (token === this.token) {
+        this.loading = false;
+        this.fail(e);
+      }
     }
   }
-  list() {
+  list(pick) {
     const kind = $("objkind").value,
       select = $("objid");
     const objects = globalKinds.includes(kind) ? [] : this.summary?.objects[kind] || [];
@@ -132,6 +152,7 @@ export class Editor {
           ),
       ),
     );
+    if (pick !== undefined && objects.some((o) => o.id === pick)) select.value = pick;
     select.hidden = globalKinds.includes(kind) || kind === "cell";
     const cells = this.summary?.cells || 0;
     $("cellindex").hidden = kind !== "cell";
@@ -139,12 +160,27 @@ export class Editor {
     if (kind === "cell" && $("cellindex").value === "") $("cellindex").value = cells ? "0" : "";
     this.show();
   }
-  /** A cell picked on the map becomes the edited object. */
-  selectCell(index) {
-    if (!(index >= 0) || !this.summary?.cells) return;
-    $("objkind").value = "cell";
-    $("cellindex").value = String(index);
-    this.list();
+  /** Show an object selected elsewhere (the map) in Edit object: a node, link, subcatchment, gage or cell. */
+  reveal(item) {
+    if (!pickKinds.includes(item?.kind)) return;
+    if (this.loading || !this.summary) {
+      this.waiting = item; // shown when the editing session has the model
+      return;
+    }
+    if (item.kind === "cell") {
+      if (!this.summary.cells) return;
+      $("cellindex").value = item.id;
+    }
+    $("objkind").value = item.kind;
+    this.list(item.id);
+  }
+  /** Tell the controller which object Edit object now shows (when it is one the map can select). */
+  picked() {
+    const kind = $("objkind").value,
+      id = this.key();
+    if (!pickKinds.includes(kind) || id === null || id === "") return;
+    const type = this.summary?.objects[kind]?.find((o) => o.id === id)?.type;
+    this.onPick?.({ kind, id, ...(type ? { type: type.toLowerCase().replaceAll("_", " ") } : {}) });
   }
   key() {
     const kind = $("objkind").value;

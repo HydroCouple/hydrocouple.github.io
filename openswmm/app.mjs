@@ -8,6 +8,7 @@ import { Timeline, timelineBar, clock } from "./timeline.mjs";
 import { placement, anchorPlacement } from "./crs.mjs";
 import { pack, unpack, save, restore } from "./project.mjs";
 import { Editor } from "./editor.mjs";
+import { SelectionModel } from "./selection.mjs";
 import { scenarioPanel } from "./scenarios.mjs";
 const $ = (id) => document.getElementById(id),
   decoder = new TextDecoder(),
@@ -33,11 +34,16 @@ try {
 const layers = new LayerTree({ reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches });
 layersPanel($("layertree"), layers);
 const view = new ModelView(config.mapboxPublicToken, layers);
+// The selection (MVC): the map and the inspector both change it and both follow it.
+const selection = new SelectionModel();
+view.useSelection(selection);
 view.onMapError = (message) => layers.setNote("basemap", message);
 /** Show a geometry on the map and list what it holds in the layer tree. */
 function showGeometry(geo, place) {
   layers.setContent(contentOf(geo));
   view.geometry(geo, place);
+  // Keep what the new geometry still has (the same model after Apply); drop the rest.
+  selection.set(selection.items.filter((item) => view.shapeOf(item)), "app");
 }
 // Result playback: the time bar and the map both follow the timeline model.
 const timeline = new Timeline();
@@ -56,6 +62,7 @@ layers.addEventListener("change", ({ detail }) => {
 });
 const editor = new Editor({
   openDialog: (title, content) => dialog(title, content),
+  onPick: (item) => selection.set([item], "inspector"),
   closeDialog: () => $("dialog").close(),
   onApply(bytes, count) {
     install({ ...project, inputs: { ...project.inputs, [project.entry]: bytes } });
@@ -65,9 +72,9 @@ const editor = new Editor({
     );
   },
 });
-view.onSelect = (index) => {
-  if (index >= 0) editor.selectCell(index);
-};
+selection.addEventListener("change", ({ detail }) => {
+  if (detail.source !== "inspector" && selection.primary) editor.reveal(selection.primary);
+});
 const tokenNote = config.mapboxPublicToken ? "" : "Basemap token unconfigured · local view";
 if (!config.mapboxPublicToken) {
   layers.setEnabled("basemap", false);
