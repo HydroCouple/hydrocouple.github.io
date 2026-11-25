@@ -567,7 +567,7 @@ main {
 }
 .sw.streak {
   background: #fff;
-  border: 1.5px solid #e0a52a;
+  border: 1.5px solid #143347;
 }
 .sw.map {
   background: #e2ebe0;
@@ -1376,9 +1376,6 @@ pre {
   }
   .sw.mesh {
     background: repeating-linear-gradient(45deg, #152737 0 3px, #3b5a72 3px 4px);
-  }
-  .sw.streak {
-    background: #152737;
   }
   .ex svg rect:first-child {
     fill: #1d3447;

@@ -3,6 +3,16 @@ import { pickAt, pickInRect, pickInPolygon, modeFor, describeSelection } from ".
 import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, rampColor } from "./depth-style.mjs";
 /** Screen speed of a flow streak at the frame's reference speed (px/s). */
 const STREAK_SPEED = 45;
+/**
+ * Flow streak shape, after the desktop's defaults (FlowStreakStyle): a teardrop with a 2.5 px round
+ * head, a 1.5 px body tapering to a quarter of that at the tail, 85% white fading toward the tail,
+ * a half-pixel dark halo outside it, and a fade in and out over each particle's life (seconds).
+ */
+const STREAK = { trail: 1.5, body: 1.5, head: 2.5, alpha: 0.85, halo: 0.65, fade: 0.6, life: [3, 6] };
+const smoothstep = (x) => {
+  const t = Math.min(1, Math.max(0, x));
+  return t * t * (3 - 2 * t);
+};
 /** Highlight color of selected objects. */
 const SELECTED = "#e6007e";
 /** Filled contour bands start at this depth: below it a vertex counts as dry. */
@@ -218,7 +228,7 @@ export class ModelView {
       ) {
         this.advance(Math.min((t - last) / 1000, 0.15));
         last = t;
-        this.draw();
+        this.draw(true);
       }
       requestAnimationFrame(tick);
     };
@@ -315,6 +325,7 @@ export class ModelView {
       this.particles = [];
       return;
     }
+    const now = (this.clock = (this.clock || 0) + dt);
     const count = Math.min(1200, Math.max(30, this.wet.length * 3)),
       f = this.frame;
     // Particles move in screen space: at the reference speed about STREAK_SPEED px/s (faster cells
@@ -325,7 +336,8 @@ export class ModelView {
     const k = (STREAK_SPEED * dt) / ((Math.hypot(x1 - x0, y1 - y0) || 1) * this.speedRef);
     for (let i = 0; i < count; i++) {
       let p = this.particles[i];
-      if (!p || p.age > 3 || !(f.depth[p.cell] >= 0.001)) {
+      // A particle lives a few seconds; one that stopped on dry ground fades out first.
+      if (!p || now - p.born > p.life || (p.stopped !== null && now - p.stopped > STREAK.fade)) {
         const cell = this.wet[Math.floor(Math.random() * this.wet.length)],
           poly = this.polys[cell];
         const [a, b, c] = poly;
@@ -338,11 +350,20 @@ export class ModelView {
         p = {
           x: a[0] + s * (b[0] - a[0]) + t * (c[0] - a[0]),
           y: a[1] + s * (b[1] - a[1]) + t * (c[1] - a[1]),
-          age: Math.random(),
           cell,
+          born: now,
+          life: STREAK.life[0] + Math.random() * (STREAK.life[1] - STREAK.life[0]),
+          stopped: null,
           trail: [],
         };
         this.particles[i] = p;
+      }
+      // Samples older than the trail drop off, so a stopped particle's tail draws in to its head.
+      while (p.trail.length && now - p.trail[0][2] > STREAK.trail) p.trail.shift();
+      if (p.stopped !== null) continue;
+      if (!(f.depth[p.cell] >= 0.001)) {
+        p.stopped = now;
+        continue;
       }
       const u = f.u[p.cell],
         v = f.v[p.cell],
@@ -357,12 +378,11 @@ export class ModelView {
         !(f.depth[next] >= 0.001) ||
         !Number.isFinite(u + v)
       ) {
-        this.particles[i] = null;
+        p.stopped = now;
         continue;
       }
-      p.trail.push([p.x, p.y]);
-      if (p.trail.length > 20) p.trail.shift();
-      Object.assign(p, { x, y, cell: next, age: p.age + dt });
+      p.trail.push([p.x, p.y, now - dt]);
+      Object.assign(p, { x, y, cell: next });
     }
   }
   /**
@@ -388,9 +408,86 @@ export class ModelView {
     } else for (let k = 0; k < n; k++) [V[2 * k], V[2 * k + 1]] = this.project(g.x[k], g.y[k]);
     return V;
   }
+  /**
+   * The flow streaks as teardrops: per particle one outline (tail to head, its width from STREAK,
+   * a round cap at the head) filled with white fading toward the tail, and a half-pixel dark halo
+   * just outside it (an even-odd ring, so the body itself stays clean).
+   */
+  drawStreaks(c) {
+    const now = this.clock || 0,
+      S = STREAK;
+    const width = (f) => S.body * Math.max(0.25, f) + (S.head - S.body) * smoothstep((f - 0.75) * 4);
+    // On the basemap a trail sample keeps its lon/lat (s[3]), so a redraw only projects it.
+    const screen =
+      this.map && this.placement
+        ? (s) => {
+            const q = this.map.project(s[3] || (s[3] = this.placement.toLonLat(s[0], s[1])));
+            return [q.x, q.y];
+          }
+        : (s) => this.project(s[0], s[1]);
+    for (const p of this.particles) {
+      if (!p) continue;
+      const fade = Math.min(S.fade, p.life * 0.2),
+        age = now - p.born;
+      let a = smoothstep(age / fade) * smoothstep((p.life - age) / fade);
+      if (p.stopped !== null) a *= 1 - smoothstep((now - p.stopped) / S.fade);
+      if (!(a > 0.01)) continue;
+      // Screen points from the head back, skipping samples under half a pixel apart.
+      const head = screen([p.x, p.y]),
+        pts = [[head[0], head[1], now]];
+      for (let i = p.trail.length - 1; i >= 0; i--) {
+        const [x, y] = screen(p.trail[i]),
+          q = pts[pts.length - 1];
+        if (Math.hypot(x - q[0], y - q[1]) >= 0.5) pts.push([x, y, p.trail[i][2]]);
+      }
+      if (pts.length < 2) {
+        c.beginPath();
+        c.arc(head[0], head[1], S.head / 2, 0, 2 * Math.PI);
+        c.fillStyle = "rgba(255,255,255," + S.alpha * a + ")";
+        c.fill();
+        continue;
+      }
+      pts.reverse();
+      const n = pts.length,
+        span = Math.max(1e-6, Math.min(S.trail, now - pts[0][2]));
+      const sides = pts.map(([x, y, t], i) => {
+        const [ax, ay] = pts[Math.max(0, i - 1)],
+          [bx, by] = pts[Math.min(n - 1, i + 1)],
+          d = Math.hypot(bx - ax, by - ay) || 1;
+        return { x, y, nx: -(by - ay) / d, ny: (bx - ax) / d, r: width(1 - (now - t) / span) / 2 };
+      });
+      const outline = (grow) => {
+        sides.forEach(({ x, y, nx, ny, r }, i) => (i ? c.lineTo(x + nx * (r + grow), y + ny * (r + grow)) : c.moveTo(x + nx * (r + grow), y + ny * (r + grow))));
+        const h = sides[n - 1],
+          ang = Math.atan2(h.ny, h.nx);
+        c.arc(h.x, h.y, h.r + grow, ang, ang - Math.PI, true);
+        for (let i = n - 1; i >= 0; i--) {
+          const { x, y, nx, ny, r } = sides[i];
+          c.lineTo(x - nx * (r + grow), y - ny * (r + grow));
+        }
+        c.closePath();
+      };
+      const along = (rgb, alpha) => {
+        const g = c.createLinearGradient(pts[0][0], pts[0][1], head[0], head[1]);
+        g.addColorStop(0, "rgba(" + rgb + ",0)");
+        g.addColorStop(1, "rgba(" + rgb + "," + alpha + ")");
+        return g;
+      };
+      c.beginPath();
+      outline(0.5);
+      outline(0);
+      c.fillStyle = along("20,51,71", S.halo * S.alpha * a);
+      c.fill("evenodd");
+      c.beginPath();
+      outline(0);
+      c.fillStyle = along("255,255,255", S.alpha * a);
+      c.fill();
+    }
+  }
   /** A new placement for the same geometry (a CRS resolved after the model was shown). */
   setPlacement(placement) {
     this.placement = placement;
+    this.particles = []; // their samples keep lon/lat for the old placement
     if (this.map) this.fit();
     else this.draw();
   }
@@ -601,8 +698,13 @@ export class ModelView {
     }
     return null;
   }
-  draw() {
-    const c = this.ctx,
+  /**
+   * Draw the map. Everything under the flow streaks is painted into an offscreen image and copied to
+   * the map; a streak tick (`streaksOnly`) reuses that image and draws only the streaks and what lies
+   * above them.
+   */
+  draw(streaksOnly = false) {
+    const main = this.ctx,
       w = this.canvas.clientWidth,
       h = this.canvas.clientHeight,
       dpr = Math.min(devicePixelRatio, 2);
@@ -613,8 +715,17 @@ export class ModelView {
       this.canvas.width = Math.round(w * dpr);
       this.canvas.height = Math.round(h * dpr);
     }
-    c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    c.clearRect(0, 0, w, h);
+    const under = this.under || (this.under = document.createElement("canvas"));
+    if (under.width !== this.canvas.width || under.height !== this.canvas.height) {
+      under.width = this.canvas.width;
+      under.height = this.canvas.height;
+      this.underReady = false;
+    }
+    const reuse = streaksOnly && this.underReady;
+    let c = under.getContext("2d");
+    for (const x of [c, main]) x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    main.clearRect(0, 0, w, h);
+    if (!reuse) c.clearRect(0, 0, w, h);
     const f = this.frame,
       L = this.layers;
     const line = (points) => {
@@ -775,22 +886,36 @@ export class ModelView {
             }
           }
         }
-        if (L.visible("streaks")) {
-          c.strokeStyle = this.map ? "#ffe07a" : "#ffae3b";
-          c.lineWidth = 1.7;
-          for (const p of this.particles)
-            if (p?.trail.length) {
-              line([...p.trail, [p.x, p.y]]);
-              c.stroke();
-            }
-        }
       },
+    };
+    // Up to the water depth everything goes into the offscreen image; then the image is copied to
+    // the map, and the streaks and the categories above are drawn on top.
+    let copied = false;
+    const copy = () => {
+      if (copied) return;
+      copied = true;
+      main.setTransform(1, 0, 0, 1, 0, 0);
+      main.globalAlpha = 1;
+      main.drawImage(under, 0, 0);
+      main.setTransform(dpr, 0, 0, dpr, 0, 0);
+      c = main;
+      this.underReady = true;
     };
     for (const id of L.paintOrder()) {
       if (!paint[id]) continue; // the basemap is the Mapbox canvas underneath
+      if (reuse && !copied && id !== "outputs2d") continue; // already in the image
+      if (id !== "outputs2d") {
+        c.globalAlpha = L.opacity(id);
+        paint[id]();
+        continue;
+      }
       c.globalAlpha = L.opacity(id);
-      paint[id]();
+      if (!reuse) paint.outputs2d();
+      copy();
+      c.globalAlpha = L.opacity(id);
+      if (L.visible("streaks")) this.drawStreaks(c);
     }
+    copy();
     c.globalAlpha = 1;
     // The selection: a white halo under a magenta stroke reads on the basemap, the depth ramp and
     // both themes.
