@@ -84,7 +84,16 @@ try {
   assert.equal(await page.locator("#resume").isHidden(), true);
   // A network model has no surface frames: no time bar, and the status says where its results are.
   assert.equal(await page.locator("#timebar").isHidden(), true);
-  assert.match(await status(), /network results in Hydrograph and View report$/);
+  assert.match(await status(), /network results in Plot and View report$/);
+  // Plot (V2): a conduit picked in the inspector is plotted as flow in the docked panel.
+  await page.waitForTimeout(1500); // the editing session reopens after the run
+  await choose("objkind", "link");
+  await choose("objid", "C1");
+  await page.getByRole("button", { name: "Plot", exact: true }).click();
+  await page.waitForFunction(() => document.querySelectorAll(".plot-chip").length === 1);
+  await page.waitForFunction(() => document.querySelector(".plot-note").textContent === "", null, { timeout: 60000 });
+  assert.match(await page.locator(".plot-chip").textContent(), /^C1 flow/);
+  await page.getByRole("button", { name: "Close plots" }).click();
 
   await choose("example", "surface");
   await page.waitForFunction(() => document.getElementById("modelname").textContent === "surface.inp");

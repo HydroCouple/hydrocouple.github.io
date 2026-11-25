@@ -4,7 +4,11 @@
  * and its splitters, collapse buttons, toolbar toggles and rail button send changes to the layout.
  */
 export const widths = { min: 200, max: 640, left: 272, right: 300 };
-const sides = ["left", "bottom", "right"];
+/** The docked plot panel's height (plot-view.mjs). */
+export const heights = { min: 160, max: 640, plot: 320 };
+const sides = ["left", "bottom", "right", "plot"];
+/** The panels this chrome shows; the plot panel has its own view (plot-view.mjs). */
+const chromeSides = ["left", "bottom", "right"];
 
 export class PanelLayout extends EventTarget {
   /** @param {{storage?: Storage, key?: string}} [o] where the layout is remembered */
@@ -16,12 +20,13 @@ export class PanelLayout extends EventTarget {
     } catch {
       this.storage = null; // storage blocked: the layout lasts for this page only
     }
-    this.state = { left: true, bottom: true, right: true, leftWidth: widths.left, rightWidth: widths.right };
+    this.state = { left: true, bottom: true, right: true, plot: false, leftWidth: widths.left, rightWidth: widths.right, plotHeight: heights.plot };
     try {
       const saved = JSON.parse(this.storage?.getItem(key) || "{}");
       for (const side of sides) if (typeof saved[side] === "boolean") this.state[side] = saved[side];
       for (const side of ["left", "right"])
         if (Number.isFinite(saved[side + "Width"])) this.state[side + "Width"] = clamp(saved[side + "Width"]);
+      if (Number.isFinite(saved.plotHeight)) this.state.plotHeight = clampHeight(saved.plotHeight);
     } catch {}
   }
   isOpen(side) {
@@ -48,6 +53,16 @@ export class PanelLayout extends EventTarget {
   resetWidth(side) {
     this.setWidth(side, widths[side]);
   }
+  /** The plot panel's height in CSS pixels, kept within `heights.min` … `heights.max`. */
+  height() {
+    return this.state.plotHeight;
+  }
+  setHeight(px) {
+    const h = clampHeight(px);
+    if (this.state.plotHeight === h) return;
+    this.state.plotHeight = h;
+    this.save("plot");
+  }
   save(side) {
     try {
       this.storage?.setItem(this.key, JSON.stringify(this.state));
@@ -57,6 +72,9 @@ export class PanelLayout extends EventTarget {
 }
 function clamp(px) {
   return Math.round(Math.min(widths.max, Math.max(widths.min, Number(px))));
+}
+function clampHeight(px) {
+  return Math.round(Math.min(heights.max, Math.max(heights.min, Number(px))));
 }
 
 const $ = (id) => document.getElementById(id);
@@ -114,11 +132,11 @@ export function panelChrome(layout) {
     else panel.before(bar);
     separators[side] = bar;
   }
-  for (const side of sides) $("toggle" + side).onclick = () => layout.toggle(side);
+  for (const side of chromeSides) $("toggle" + side).onclick = () => layout.toggle(side);
   $("raillayers").onclick = () => layout.toggle("left");
 
   function show() {
-    for (const side of sides) {
+    for (const side of chromeSides) {
       const open = layout.isOpen(side);
       $(side).hidden = !open;
       const b = $("toggle" + side);

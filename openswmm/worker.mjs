@@ -1,4 +1,4 @@
-import { readHydrograph } from "./series.mjs";
+import { readHydrograph, readSeries } from "./series.mjs";
 import { simulate, runScenarios } from "./simulation.mjs";
 import { buildSurface } from "./surface.mjs";
 import { getTerrain } from "./terrain.mjs";
@@ -24,13 +24,10 @@ self.onmessage = async ({ data }) => {
     return;
   }
   try {
-    if (data.type === "series") {
+    if (data.type === "plot-series") {
       const { default: create } =
         await import("./vendor/engine/openswmm_engine.js");
-      postMessage({
-        type: "series",
-        result: readHydrograph(await create(), data.bytes, data.selection),
-      });
+      postMessage({ type: "plot-series", result: readSeries(await create(), data.bytes, data.requests) });
       return;
     }
     if (data.type === "series-many") {

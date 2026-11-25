@@ -9,6 +9,8 @@ import { placement, anchorPlacement } from "./crs.mjs";
 import { pack, unpack, save, restore } from "./project.mjs";
 import { Editor } from "./editor.mjs";
 import { SelectionModel } from "./selection.mjs";
+import { PlotModel, maxSeries } from "./plots.mjs";
+import { plotPanel } from "./plot-view.mjs";
 import { scenarioPanel } from "./scenarios.mjs";
 const $ = (id) => document.getElementById(id),
   decoder = new TextDecoder(),
@@ -37,6 +39,11 @@ const view = new ModelView(config.mapboxPublicToken, layers);
 // The selection (MVC): the map and the inspector both change it and both follow it.
 const selection = new SelectionModel();
 view.useSelection(selection);
+// Time series plots (MVC): the plot model; its panel view is made once the editor exists.
+const plots = new PlotModel();
+const panelLayout = new PanelLayout();
+let plotRead = null; // the worker reading series now
+let plotFlowUnits = "CFS"; // the current deck's FLOW_UNITS (SWMM's default when it has none)
 view.onMapError = (message) => layers.setNote("basemap", message);
 /** Show a geometry on the map and list what it holds in the layer tree. */
 function showGeometry(geo, place) {
@@ -161,6 +168,8 @@ $("close").onclick = () => $("dialog").close();
 function finishUI() {
   $("series").disabled =
     !run || !Object.keys(run.files).some((p) => p.endsWith("/model.out"));
+  plots.invalidate(); // a new run or model: the plotted series are read again
+  readPlots();
   $("report").disabled = !run?.files[run.report];
   const frames = run?.frames || [];
   $("insprunbackend").textContent = run?.backend || "—";
@@ -188,6 +197,8 @@ function finishUI() {
 }
 function install(p, r = null) {
   if (!p?.inputs?.[p.entry]) throw new Error("Missing model input");
+  if (p.name !== project?.name || p.entry !== project?.entry) plots.clear();
+  plotFlowUnits = /^\s*FLOW_UNITS\s+(\S+)/im.exec(decoder.decode(p.inputs[p.entry]))?.[1]?.toUpperCase() || "CFS";
   project = p;
   run = r;
   timeline.pause(); // finishUI loads this model's frames, if it has any
@@ -432,7 +443,7 @@ function launch(data) {
                     : " · a model with a 2D surface cannot yet continue from a stop"
                   : "") +
             // A model without a 2D surface has no frames, so no time bar: say where its results are.
-            (geometry?.cells?.length ? "" : " · network results in Hydrograph and View report"),
+            (geometry?.cells?.length ? "" : " · network results in Plot and View report"),
         );
         editor.load(project); // the run worker is gone; the editing engine may come back
         break;
@@ -827,109 +838,6 @@ $("locate").onclick = () => {
   };
   dialog("Map reference", form);
 };
-let chartWorker;
-$("dialog").addEventListener("close", () => {
-  if (!chartWorker) return;
-  chartWorker.terminate();
-  chartWorker = null;
-  if (!job) editor.load(project);
-});
-$("series").onclick = () => {
-  const box = document.createElement("div"),
-    select = document.createElement("select"),
-    plot = document.createElement("canvas"),
-    note = document.createElement("p"),
-    csv = document.createElement("button");
-  select.setAttribute("aria-label", "Node depth or link discharge");
-  plot.width = 570;
-  plot.height = 210;
-  plot.style.width = "100%";
-  csv.textContent = "Export CSV";
-  box.append(select, plot, note, csv);
-  dialog("Network hydrograph", box);
-  editor.suspend("Editing resumes when the hydrograph closes.");
-  const output = Object.keys(run.files).find((p) => p.endsWith("/model.out"));
-  const query = (selection) => {
-    chartWorker?.terminate();
-    chartWorker = new Worker("./worker.mjs", { type: "module" });
-    csv.disabled = true;
-    note.textContent = "Reading local binary output…";
-    chartWorker.onerror = (e) => {
-      note.textContent = e.message;
-    };
-    chartWorker.onmessage = ({ data }) => {
-      chartWorker.terminate();
-      chartWorker = null;
-      if (data.type === "error") {
-        note.textContent = data.message;
-        return;
-      }
-      const { nodes, links, kind, id, unit, times, values } = data.result;
-      if (!values.length) {
-        note.textContent = "No network time series in this result.";
-        return;
-      }
-      if (!select.options.length) {
-        for (const [group, ids] of [
-          ["node", nodes],
-          ["link", links],
-        ])
-          for (const key of ids) {
-            select.add(
-              new Option(
-                (group === "node" ? "Depth" : "Discharge") + " · " + key,
-                JSON.stringify({ kind: group, id: key }),
-              ),
-            );
-          }
-      }
-      const ctx = plot.getContext("2d"),
-        lo = values.reduce((a, b) => Math.min(a, b), Infinity),
-        hi = values.reduce((a, b) => Math.max(a, b), -Infinity);
-      ctx.clearRect(0, 0, plot.width, plot.height);
-      ctx.strokeStyle = "#0071bf";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      values.forEach((v, i) => {
-        const x = 10 + (i * 550) / Math.max(1, values.length - 1),
-          y = 195 - (180 * (v - lo)) / (hi - lo || 1);
-        if (i) ctx.lineTo(x, y);
-        else ctx.moveTo(x, y);
-      });
-      ctx.stroke();
-      note.textContent =
-        times[0].slice(0, 19) +
-        " to " +
-        times.at(-1).slice(0, 19) +
-        " · " +
-        lo.toPrecision(4) +
-        " to " +
-        hi.toPrecision(4) +
-        " " +
-        unit;
-      csv.disabled = false;
-      csv.onclick = () =>
-        download(
-          new Blob([
-            "model_time," +
-              (kind === "node" ? "depth" : "flow") +
-              " (" +
-              unit +
-              ")\n" +
-              times.map((t, i) => t.slice(0, 19) + "," + values[i]).join("\n"),
-          ]),
-          id + "-series.csv",
-        );
-    };
-    chartWorker.postMessage({
-      type: "series",
-      bytes: run.files[output],
-      selection,
-    });
-  };
-  select.onchange = () => query(JSON.parse(select.value));
-  query();
-};
 $("report").onclick = () => {
   const pre = document.createElement("pre");
   pre.textContent = decoder.decode(run.files[run.report]);
@@ -1085,7 +993,21 @@ $("study").onclick = () => {
 
 // Panels: open/closed and the side panels' widths are remembered in this browser (panels.mjs);
 // the map redraws through its canvas ResizeObserver when they change.
-panelChrome(new PanelLayout());
+panelChrome(panelLayout);
+const plotView = plotPanel({
+  root: $("plotpanel"),
+  model: plots,
+  layout: panelLayout,
+  timeline,
+  units: plotUnits,
+  selectedKinds: () => selection.items.map((i) => i.kind),
+  onAdd: addToPlot,
+});
+$("series").onclick = () => {
+  panelLayout.setOpen("plot", true);
+  plotView.preselect();
+  if (selection.count) plotView.addSelected();
+};
 
 // Popover menus sit under the button that opened them.
 for (const [button, pop] of [
@@ -1211,3 +1133,71 @@ try {
 $("wstartup").checked = welcomePref === "always";
 if (welcomePref === "always" || (welcomePref !== "never" && !saved))
   showWelcome();
+
+// ---- Time series plots: what the panel adds, and reading series ----------------------------------
+/** The current model's units: its flow units and the unit system they imply. */
+function plotUnits() {
+  return { unitSystem: ["CMS", "LPS", "MLD"].includes(plotFlowUnits) ? "SI" : "US", flowUnits: plotFlowUnits };
+}
+function addToPlot(kind, variable) {
+  const items = kind === "system" ? [{ kind: "system", id: "" }] : selection.items.filter((i) => i.kind === kind);
+  if (!items.length)
+    return plotView.note("Select " + { node: "nodes", link: "links", subcatchment: "subcatchments", cell: "a 2D cell" }[kind] + " on the map first.");
+  const { refused } = plots.add(items, variable);
+  if (refused) plotView.note(refused + " not added: a plot shows at most " + maxSeries + " series.");
+}
+plots.addEventListener("change", ({ detail }) => detail.kind === "series" && readPlots());
+/**
+ * Fill in the plotted series that have no values: 2D cells from the frames in memory, network and
+ * system series from the run's binary output in a worker. The editing engine is suspended while the
+ * worker reads (one engine at a time) and reopened after.
+ */
+function readPlots() {
+  const missing = plots.series.filter((s) => !plots.data.has(s.key));
+  if (!missing.length) return;
+  const frames = run?.frames || [];
+  for (const s of missing.filter((s) => s.kind === "cell")) {
+    const i = +s.id;
+    if (frames.length < 2) plots.setData(s.key, { error: "run a model with a 2D surface first" });
+    else
+      plots.setData(s.key, {
+        seconds: frames.map((f) => f.seconds),
+        values: frames.map((f) => (s.variable === "depth" ? f.depth[i] : Math.hypot(f.u[i], f.v[i]))),
+      });
+  }
+  const network = missing.filter((s) => s.kind !== "cell");
+  if (!network.length || plotRead || job) return; // a run owns the engine: finishUI reads after it
+  const output = run && Object.keys(run.files).find((p) => p.endsWith("/model.out"));
+  if (!output) {
+    for (const s of network) plots.setData(s.key, { error: "run the model first" });
+    return;
+  }
+  editor.suspend("Editing resumes when the plot has read its series.");
+  plotRead = new Worker("./worker.mjs", { type: "module" });
+  const fail = (message) => {
+    for (const s of network) plots.setData(s.key, { error: message });
+  };
+  const done = () => {
+    plotRead?.terminate();
+    plotRead = null;
+    if (!job) editor.load(project);
+    readPlots(); // series added meanwhile
+  };
+  plotRead.onerror = (e) => {
+    fail(e.message || "the series could not be read");
+    done();
+  };
+  plotRead.onmessage = ({ data }) => {
+    if (data.type === "error") fail(data.message);
+    else {
+      for (const r of data.result.series)
+        plots.setData(r.key, r.error ? { error: r.error } : { seconds: data.result.seconds, values: r.values });
+    }
+    done();
+  };
+  plotRead.postMessage({
+    type: "plot-series",
+    bytes: run.files[output],
+    requests: network.map(({ key, kind, id, variable }) => ({ key, kind, id, variable })),
+  });
+}

@@ -147,6 +147,8 @@
               <button class="map-tool" id="zoomout" aria-label="Zoom out"><svg aria-hidden="true"><use href="#i-minus" /></svg></button>
             </div>
           </div>
+          <!-- Built by plot-view.mjs from the plot model (plots.mjs). -->
+          <section id="plotpanel" class="plot-panel" aria-label="Time series plots" hidden></section>
         </section>
 
         <aside class="panel right" id="right" aria-label="Inspector">
@@ -211,7 +213,7 @@
             <div class="metric"><span>1D → 2D / 2D → 1D</span><b id="exchange">—</b></div>
           </div>
           <div class="actions">
-            <button class="tb ghost" id="series" disabled><svg aria-hidden="true"><use href="#i-chart" /></svg>Hydrograph</button>
+            <button class="tb ghost" id="series" disabled title="Plot the selected objects' results"><svg aria-hidden="true"><use href="#i-chart" /></svg>Plot</button>
             <button class="tb ghost" id="report" disabled><svg aria-hidden="true"><use href="#i-doc" /></svg>View report</button>
             <button class="tb ghost" id="archive"><svg aria-hidden="true"><use href="#i-download" /></svg>Export project</button>
           </div>

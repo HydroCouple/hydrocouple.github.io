@@ -3,6 +3,8 @@ import {
   FlowUnits,
   OutNodeVar,
   OutLinkVar,
+  OutSubcatchVar,
+  OutSystemVar,
 } from "./vendor/engine/index.js";
 
 export function readHydrograph(module, bytes, selection) {
@@ -34,5 +36,40 @@ export function readHydrograph(module, bytes, selection) {
   } finally {
     reader.close();
     module.FS.unlink("/result.out");
+  }
+}
+
+/**
+ * Result series for the plot panel (plots.mjs) from one binary output. `requests`:
+ * `[{key, kind: "node" | "link" | "subcatchment" | "system", id, variable}]`, variable named as in
+ * the engine's Out*Var enums (DEPTH, FLOW, RUNOFF, …). Returns the start (ISO), the reporting
+ * times as seconds after it, the flow units' name and, per request, its values or why it failed.
+ */
+export function readSeries(module, bytes, requests) {
+  module.FS.writeFile("/plot.out", bytes);
+  const reader = new OutputReader(module, "/plot.out");
+  try {
+    const start = reader.startDatetime;
+    // SWMM stamps report times 1 ms late: whole seconds.
+    const seconds = reader.periodTimes.map((t) => Math.round((t.getTime() - start.getTime()) / 1000));
+    const series = requests.map(({ key, kind, id, variable }) => {
+      try {
+        const read =
+          kind === "node"
+            ? reader.nodeSeries(id, OutNodeVar[variable])
+            : kind === "link"
+              ? reader.linkSeries(id, OutLinkVar[variable])
+              : kind === "subcatchment"
+                ? reader.subcatchmentSeries(id, OutSubcatchVar[variable])
+                : reader.systemSeries(OutSystemVar[variable]);
+        return { key, values: Array.from(read) };
+      } catch (e) {
+        return { key, error: e.message || String(e) };
+      }
+    });
+    return { start: start.toISOString(), seconds, flowUnits: FlowUnits[reader.flowUnits], series };
+  } finally {
+    reader.close();
+    module.FS.unlink("/plot.out");
   }
 }
