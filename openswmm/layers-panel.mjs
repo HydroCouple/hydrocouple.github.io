@@ -13,7 +13,7 @@ const el = (tag, props = {}, ...children) => {
 const svgNS = "http://www.w3.org/2000/svg";
 /** A 14 px swatch: the kind's marker, line or area symbol; CSS swatches for the surface rows. */
 function swatch(leaf) {
-  const css = { depth: "ramp", streaks: "streak", meshfill: "meshfill", edges: "mesh", basemap: "map", buildings: "buildings" }[leaf];
+  const css = leaf.startsWith("bm-") ? "map" : { depth: "ramp", streaks: "streak", meshfill: "meshfill", edges: "mesh", basemap: "map", buildings: "buildings" }[leaf];
   if (css) return el("span", { className: "sw " + css });
   const s = symbols[leaf];
   const svg = document.createElementNS(svgNS, "svg");
@@ -42,8 +42,11 @@ function swatch(leaf) {
  * @param {HTMLElement} root the container (emptied)
  * @param {import("./layers.mjs").LayerTree} layers
  */
-/** @param {{onStyle?: (leaf: string) => void}} [o] `onStyle` opens a layer's style (the water depth) */
-export function layersPanel(root, layers, { onStyle } = {}) {
+/**
+ * @param {{onStyle?: (leaf: string) => void, onAddBasemap?: () => void}} [o] `onStyle` opens a layer's
+ * style (the water depth); `onAddBasemap` opens the basemap picker
+ */
+export function layersPanel(root, layers, { onStyle, onAddBasemap } = {}) {
   const checks = new Map(), // id → checkbox (leaves, groups, categories)
     rows = new Map(), // leaf → row element
     groupBoxes = new Map(), // group id → element
@@ -57,7 +60,50 @@ export function layersPanel(root, layers, { onStyle } = {}) {
     checks.set(id, box);
     return box;
   };
-  let note, scale, legendRow, ramp, classes;
+  let note, scale, legendRow, ramp, classes, bmRows;
+  /** One leaf's row (and, for some leaves, what follows it) appended to `host`. */
+  function leafRow(leaf, host, nested) {
+    const count = el("small", { className: "layer-count" });
+    counts.set(leaf, count);
+    const row = el(
+      "div",
+      { className: "layer-row" + (nested ? " nested" : "") },
+      el("label", { className: "check" }, checkbox(leaf, leaf === "basemap" ? { id: "basemap" } : {}), swatch(leaf), el("span", { textContent: layers.label(leaf) })),
+      count,
+    );
+    rows.set(leaf, row);
+    host.append(row);
+    if (leaf === "depth") {
+      if (onStyle) {
+        const style = el("button", { type: "button", className: "tb ghost layer-style", textContent: "Style…", ariaLabel: "Water depth style" });
+        style.onclick = () => onStyle("depth");
+        row.append(style);
+      }
+      scale = el("span", { id: "scale" });
+      ramp = el("span", { className: "ramp" });
+      classes = el("ul", { className: "layer-classes", ariaLabel: "Water depth classes" });
+      legendRow = el("div", { className: "layer-legend" }, ramp, classes, scale);
+      host.append(legendRow);
+    }
+    if (leaf.startsWith("bm-")) {
+      // A stacked raster basemap: its order among the rasters, its own opacity, remove.
+      const name = layers.label(leaf),
+        b = layers.basemapRow(leaf);
+      const tool = (label, icon, onclick, cls = "") => {
+        const t = el("button", { type: "button", className: "tb icon ghost " + cls, ariaLabel: label, title: label });
+        t.innerHTML = '<svg aria-hidden="true"><use href="#' + icon + '" /></svg>';
+        t.onclick = onclick;
+        return t;
+      };
+      const up = tool("Move " + name + " up", "i-chevron", () => layers.moveBasemap(leaf, -1), "layer-move up"),
+        down = tool("Move " + name + " down", "i-chevron", () => layers.moveBasemap(leaf, 1), "layer-move");
+      up.disabled = !layers.canMoveBasemap(leaf, -1);
+      down.disabled = !layers.canMoveBasemap(leaf, 1);
+      const opacity = el("input", { type: "range", min: 0, max: 100, step: 5, value: Math.round(b.opacity * 100), ariaLabel: name + " opacity" });
+      opacity.oninput = () => layers.setBasemapOpacity(leaf, opacity.value / 100);
+      host.append(el("div", { className: "layer-bm" }, up, down, opacity, tool("Remove " + name, "i-close", () => layers.removeBasemap(leaf))));
+    }
+  }
   for (const cat of layers.categories()) {
     const head = el(
       "div",
@@ -85,42 +131,19 @@ export function layersPanel(root, layers, { onStyle } = {}) {
         box.append(
           el("label", { className: "check layer-sub" }, checkbox(group.id), el("span", { textContent: group.label })),
         );
-      for (const leaf of group.rows) {
-        const count = el("small", { className: "layer-count" });
-        counts.set(leaf, count);
-        const row = el(
-          "div",
-          { className: "layer-row" + (group.label ? " nested" : "") },
-          el(
-            "label",
-            { className: "check" },
-            checkbox(leaf, leaf === "basemap" ? { id: "basemap" } : {}),
-            swatch(leaf),
-            el("span", { textContent: layers.label(leaf) }),
-          ),
-          count,
-        );
-        rows.set(leaf, row);
-        box.append(row);
-        if (leaf === "depth") {
-          if (onStyle) {
-            const style = el("button", { type: "button", className: "tb ghost layer-style", textContent: "Style…", ariaLabel: "Water depth style" });
-            style.onclick = () => onStyle("depth");
-            row.append(style);
-          }
-          scale = el("span", { id: "scale" });
-          ramp = el("span", { className: "ramp" });
-          classes = el("ul", { className: "layer-classes", ariaLabel: "Water depth classes" });
-          legendRow = el("div", { className: "layer-legend" }, ramp, classes, scale);
-          box.append(legendRow);
-        }
-        if (leaf === "basemap") {
-          note = el("small", { id: "mapstatus" });
-          const locate = el("button", { type: "button", id: "locate", className: "tb ghost wide" });
-          locate.innerHTML = '<svg aria-hidden="true"><use href="#i-pin" /></svg>Set map reference';
-          box.append(note, locate);
-        }
-      }
+      if (cat.id === "basemaps") {
+        // The basemap stack is rebuilt when it changes (rows come and go); what follows it stays.
+        bmRows = el("div", { className: "layer-bmrows" });
+        box.append(bmRows);
+        for (const leaf of layers.leaves("basemaps")) leafRow(leaf, bmRows, false);
+        const add = el("button", { type: "button", className: "tb ghost wide", id: "addbasemap" });
+        add.innerHTML = '<svg aria-hidden="true"><use href="#i-plus" /></svg>Add basemap…';
+        add.onclick = () => onAddBasemap?.();
+        note = el("small", { id: "mapstatus" });
+        const locate = el("button", { type: "button", id: "locate", className: "tb ghost wide" });
+        locate.innerHTML = '<svg aria-hidden="true"><use href="#i-pin" /></svg>Set map reference';
+        box.append(add, note, locate);
+      } else for (const leaf of group.rows) leafRow(leaf, box, !!group.label);
       if (group.id) groupBoxes.set(group.id, box);
       section.append(box);
     }
@@ -179,6 +202,13 @@ export function layersPanel(root, layers, { onStyle } = {}) {
       scale.textContent = v(legend.min) + " — " + v(legend.max) + " " + legend.unit;
     }
   }
-  layers.addEventListener("change", update);
+  layers.addEventListener("change", ({ detail }) => {
+    if (detail.kind === "basemaps") {
+      for (const leaf of [...rows.keys()]) if (leaf === "buildings" || leaf === "basemap" || leaf.startsWith("bm-")) [rows, checks, counts].forEach((m) => m.delete(leaf));
+      bmRows.replaceChildren();
+      for (const leaf of layers.leaves("basemaps")) leafRow(leaf, bmRows, false);
+    }
+    update();
+  });
   update();
 }

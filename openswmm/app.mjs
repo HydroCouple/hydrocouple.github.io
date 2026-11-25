@@ -13,6 +13,7 @@ import { PlotModel, maxSeries } from "./plots.mjs";
 import { plotPanel } from "./plot-view.mjs";
 import { DepthStyle } from "./depth-style.mjs";
 import { depthStyleForm } from "./depth-style-view.mjs";
+import { basemapPicker } from "./basemaps-view.mjs";
 import { scenarioPanel } from "./scenarios.mjs";
 const $ = (id) => document.getElementById(id),
   decoder = new TextDecoder(),
@@ -39,6 +40,19 @@ const layers = new LayerTree({ reducedMotion: matchMedia("(prefers-reduced-motio
 layersPanel($("layertree"), layers, {
   onStyle: () =>
     dialog("Water depth style", depthStyleForm(depthStyle, { dry: view.modelDry(), onClose: () => $("dialog").close() })),
+  onAddBasemap: () =>
+    dialog(
+      "Add basemap",
+      basemapPicker({
+        current: layers.basemapRow("basemap").source,
+        center: view.previewCenter(),
+        token: config.mapboxPublicToken,
+        onPick: (source, custom) => {
+          $("dialog").close();
+          layers.addBasemap(source, custom);
+        },
+      }),
+    ),
 });
 const view = new ModelView(config.mapboxPublicToken, layers);
 // The selection (MVC): the map and the inspector both change it and both follow it.
@@ -66,12 +80,15 @@ timelineBar(timeline);
 timeline.addEventListener("change", ({ detail }) => {
   if (detail.kind === "frame") view.setFrame(timeline.current);
 });
-// The basemap follows its layer row; a failure switches it back off and says why.
+// The map shows while any basemap row is on; a failure switches them back off and says why.
 let basemapJob = Promise.resolve();
+/** Every basemap row off (the 3D buildings row keeps its setting). */
+const basemapsOff = () => layers.basemaps.forEach((b) => layers.setVisible(b.id, false));
 layers.addEventListener("change", ({ detail }) => {
-  if (detail.kind !== "visible" || !layers.leaves(detail.id ?? "").includes("basemap")) return;
-  basemapJob = view.basemap(layers.visible("basemap")).catch((e) => {
-    layers.setVisible("basemap", false);
+  const rows = layers.basemaps.map((b) => b.id);
+  if (detail.kind !== "basemaps" && !(detail.kind === "visible" && layers.leaves(detail.id ?? "").some((leaf) => rows.includes(leaf)))) return;
+  basemapJob = view.basemap(layers.anyBasemap()).catch((e) => {
+    basemapsOff();
     layers.setNote("basemap", e.message);
   });
 });
@@ -262,7 +279,7 @@ function install(p, r = null) {
   // hand-placed anchor does; otherwise it is shown in local coordinates.
   placed = preview.crs ? null : p.anchor ? anchorPlacement(p.anchor) : null;
   showPlacement(placed, preview.crs ? "Reading the coordinate system…" : "");
-  if (!placed && !preview.crs) layers.setVisible("basemap", false);
+  if (!placed && !preview.crs) basemapsOff();
   // A saved run's mesh with the deck's network (the run kept only plain links).
   showGeometry(r?.geometry ? { ...r.geometry, network: preview.network } : preview, placed);
   if (preview.crs) placeModel(preview.crs);
@@ -290,7 +307,7 @@ async function placeModel(crs) {
     showPlacement(place, "");
   } catch (e) {
     if (mine !== placeSeq) return;
-    layers.setVisible("basemap", false);
+    basemapsOff();
     showPlacement(null, e.message + " The model is shown in local coordinates.");
   }
 }
@@ -950,7 +967,7 @@ $("study").onclick = () => {
       const restoreView = () => {
         view.onPick = null;
         document.removeEventListener("keydown", cancel);
-        layers.setVisible("basemap", false);
+        basemapsOff();
         showGeometry(run?.geometry ? { ...run.geometry, network: preview.network } : preview, placed);
         busy(false);
         dialog("New surface study", form);
@@ -968,7 +985,7 @@ $("study").onclick = () => {
       $("stop").hidden = true;
       status("Select the southwest corner. Escape cancels.");
     } catch (e) {
-      layers.setVisible("basemap", false);
+      basemapsOff();
       await basemapJob;
       showGeometry(run?.geometry ? { ...run.geometry, network: preview.network } : preview, placed);
       dialog("New surface study", form);

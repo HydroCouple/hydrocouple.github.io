@@ -25,6 +25,60 @@ export const symbols = {
   subcatchments: { fill: "#b4dcb4", outline: "#003c00", width: 1.5 },
   gages: { shape: "diamond", size: 10, fill: "#00ffff" },
 };
+/**
+ * Basemaps (the desktop's built-in XYZ connections, basemapconnection.h, plus Mapbox's own). A `style`
+ * is a Mapbox vector style: one at a time, at the bottom of the stack (the `basemap` row). A `raster`
+ * is a tile layer stacked above it. Stadia and CARTO are left out: their tiles need an account key now
+ * (CARTO's answer an "API KEY REQUIRED" image); a keyed URL can be added as a custom XYZ layer.
+ */
+export const basemapSources = {
+  outdoors: { label: "Mapbox Outdoors", kind: "style", style: "mapbox://styles/mapbox/outdoors-v12" },
+  streets: { label: "Mapbox Streets", kind: "style", style: "mapbox://styles/mapbox/streets-v12" },
+  light: { label: "Mapbox Light", kind: "style", style: "mapbox://styles/mapbox/light-v11" },
+  dark: { label: "Mapbox Dark", kind: "style", style: "mapbox://styles/mapbox/dark-v11" },
+  "satellite-streets": { label: "Mapbox Satellite Streets", kind: "style", style: "mapbox://styles/mapbox/satellite-streets-v12" },
+  satellite: { label: "Mapbox Satellite", kind: "raster", url: "mapbox://mapbox.satellite", tileSize: 256, maxzoom: 22 },
+  osm: {
+    label: "OpenStreetMap",
+    kind: "raster",
+    tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+    tileSize: 256,
+    maxzoom: 19,
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  },
+  esri: {
+    label: "Esri World Imagery",
+    kind: "raster",
+    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+    tileSize: 256,
+    maxzoom: 19,
+    attribution: "Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+  },
+};
+/** A basemap row's source: a preset, or a custom XYZ layer `{label, url, maxzoom}`. */
+export function basemapSource(row) {
+  if (row.source !== "custom") return basemapSources[row.source];
+  return { label: row.label, kind: "raster", tiles: [row.url], tileSize: 256, maxzoom: row.maxzoom };
+}
+/** A custom XYZ URL must be http(s) with {z}, {x} and {y}. */
+export const validTileUrl = (url) => /^https?:\/\/\S+$/.test(url || "") && ["{z}", "{x}", "{y}"].every((k) => url.includes(k));
+const basemapKey = "openswmm.basemaps";
+/** The stack kept in this browser, top → bottom, the Mapbox style row last; unusable entries dropped. */
+function loadBasemaps(storage) {
+  let rows = [];
+  try {
+    rows = JSON.parse(storage?.getItem(basemapKey) || "[]");
+  } catch {}
+  const ok = (r) =>
+    r && typeof r.id === "string" && /^bm-\d+$/.test(r.id) && (r.source === "custom" ? validTileUrl(r.url) && !!r.label : basemapSources[r.source]?.kind === "raster");
+  const style = Array.isArray(rows) ? rows.find((r) => r?.id === "basemap" && basemapSources[r.source]?.kind === "style") : null;
+  const opacity = (v) => (Number.isFinite(+v) ? Math.min(1, Math.max(0, +v)) : 1);
+  return [
+    ...(Array.isArray(rows) ? rows.filter(ok) : []).map((r) => ({ ...r, opacity: opacity(r.opacity), maxzoom: r.source === "custom" ? Math.round(Math.min(24, Math.max(1, +r.maxzoom || 19))) : undefined })),
+    { id: "basemap", source: style?.source || "outdoors", opacity: 1 },
+  ];
+}
+
 /** Marker outline of every node and gage symbol (desktop SWMMElementSymbol: Qt::darkBlue, 1 px). */
 export const markerOutline = { stroke: "#000080", width: 1 };
 
@@ -78,13 +132,23 @@ export function contentOf(geo) {
 }
 
 export class LayerTree extends EventTarget {
-  /** @param {{reducedMotion?: boolean}} [o] flow streaks start off when the user asks for less motion */
-  constructor({ reducedMotion = false } = {}) {
+  /**
+   * @param {{reducedMotion?: boolean, storage?: Storage}} [o] flow streaks start off when the user asks
+   * for less motion; the basemap stack is kept in `storage` (this browser's by default)
+   */
+  constructor({ reducedMotion = false, storage } = {}) {
     super();
+    try {
+      this.storage = storage === undefined ? globalThis.localStorage : storage;
+    } catch {
+      this.storage = null;
+    }
+    this.basemaps = loadBasemaps(this.storage);
     this.order = tree.map((c) => c.id);
     this.on = Object.fromEntries(Object.keys(leafLabels).map((id) => [id, true]));
     this.on.streaks = !reducedMotion;
-    this.on.basemap = false;
+    this.on.basemap = false; // basemap rows start off: the map loads when the basemap is switched on
+    for (const b of this.basemaps) this.on[b.id] = false;
     this.alpha = Object.fromEntries(tree.map((c) => [c.id, 1]));
     this.counts = {};
     this.disabled = new Set();
@@ -98,25 +162,32 @@ export class LayerTree extends EventTarget {
   categories() {
     return this.order.map((id) => tree.find((c) => c.id === id));
   }
+  /** A leaf row: a fixed layer or a basemap row. */
+  isLeaf(id) {
+    return id in leafLabels || this.basemaps.some((b) => b.id === id);
+  }
   label(id) {
+    const b = this.basemaps.find((b) => b.id === id);
+    if (b) return basemapSource(b).label;
     return leafLabels[id] ?? tree.find((c) => c.id === id)?.label ?? tree.flatMap((c) => c.groups).find((g) => g.id === id)?.label;
   }
   /** The leaf rows under a category, a group or a leaf. */
   leaves(id) {
-    if (id in leafLabels) return [id];
+    if (this.isLeaf(id)) return [id];
+    if (id === "basemaps") return ["buildings", ...this.basemaps.map((b) => b.id)];
     const cat = tree.find((c) => c.id === id);
     if (cat) return cat.groups.flatMap((g) => g.rows);
     return tree.flatMap((c) => c.groups).find((g) => g.id === id)?.rows || [];
   }
   /** Objects of a leaf kind in the displayed model (null for rows that are not counted). */
   count(leaf) {
-    if (leaf === "basemap" || leaf === "buildings") return null;
+    if (leaf === "buildings" || this.basemaps.some((b) => b.id === leaf)) return null;
     return surfaceLeaves.has(leaf) ? null : this.counts[leaf] || 0;
   }
   /** A leaf is listed when the model has something for it; a category or group when any leaf is. */
   present(id) {
     return this.leaves(id).some((leaf) =>
-      leaf === "basemap" || leaf === "buildings" ? true : surfaceLeaves.has(leaf) ? (this.counts.cells || 0) > 0 : (this.counts[leaf] || 0) > 0,
+      leaf === "buildings" || this.basemaps.some((b) => b.id === leaf) ? true : surfaceLeaves.has(leaf) ? (this.counts.cells || 0) > 0 : (this.counts[leaf] || 0) > 0,
     );
   }
   /** Drawn: switched on and present. */
@@ -131,10 +202,10 @@ export class LayerTree extends EventTarget {
   }
   /** Switch a leaf, or every present leaf under a group or category. */
   setVisible(id, on) {
-    const leaves = id in leafLabels ? [id] : this.leaves(id).filter((leaf) => this.present(leaf));
+    const leaves = this.isLeaf(id) ? [id] : this.leaves(id).filter((leaf) => this.present(leaf));
     let changed = false;
     for (const leaf of leaves)
-      if (this.on[leaf] !== !!on && !this.disabled.has(leaf)) {
+      if (this.on[leaf] !== !!on && this.enabled(leaf)) {
         this.on[leaf] = !!on;
         changed = true;
       }
@@ -172,7 +243,9 @@ export class LayerTree extends EventTarget {
     this.counts = { ...counts };
     this.emit("content", null);
   }
+  /** Switchable; a raster basemap row follows the style row (no map without a token). */
   enabled(leaf) {
+    if (leaf.startsWith("bm-") && this.disabled.has("basemap")) return false;
     return !this.disabled.has(leaf);
   }
   setEnabled(leaf, on) {
@@ -187,6 +260,68 @@ export class LayerTree extends EventTarget {
     if ((this.notes[leaf] || "") === (text || "")) return;
     this.notes[leaf] = text || "";
     this.emit("note", leaf);
+  }
+  /** The map shows a basemap: any basemap row is on. */
+  anyBasemap() {
+    return this.basemaps.some((b) => this.visible(b.id));
+  }
+  basemapRow(id) {
+    return this.basemaps.find((b) => b.id === id) || null;
+  }
+  /**
+   * Add a basemap: a Mapbox style replaces the style row's; a raster (a preset key, or "custom" with
+   * `{label, url, maxzoom}`) goes on top of the stack. The new layer is switched on.
+   */
+  addBasemap(source, custom = {}) {
+    let id;
+    if (basemapSources[source]?.kind === "style") {
+      this.basemaps[this.basemaps.length - 1].source = source;
+      id = "basemap";
+    } else if (basemapSources[source]?.kind === "raster" || (source === "custom" && validTileUrl(custom.url) && custom.label)) {
+      const n = Math.max(0, ...this.basemaps.map((b) => +(b.id.split("-")[1] || 0))) + 1;
+      id = "bm-" + n;
+      const row = { id, source, opacity: 1 };
+      if (source === "custom") Object.assign(row, { label: String(custom.label), url: custom.url, maxzoom: Math.round(Math.min(24, Math.max(1, +custom.maxzoom || 19))) });
+      this.basemaps.unshift(row);
+    } else return null;
+    this.on[id] = this.enabled(id);
+    this.saveBasemaps();
+    this.emit("basemaps", id);
+    return id;
+  }
+  removeBasemap(id) {
+    const i = this.basemaps.findIndex((b) => b.id === id);
+    if (i < 0 || id === "basemap") return;
+    this.basemaps.splice(i, 1);
+    delete this.on[id];
+    this.saveBasemaps();
+    this.emit("basemaps", id);
+  }
+  /** Whether a raster row can move `delta` places (it stays above the style row). */
+  canMoveBasemap(id, delta) {
+    const i = this.basemaps.findIndex((b) => b.id === id);
+    return id !== "basemap" && i >= 0 && i + delta >= 0 && i + delta < this.basemaps.length - 1;
+  }
+  moveBasemap(id, delta) {
+    if (!this.canMoveBasemap(id, delta)) return;
+    const i = this.basemaps.findIndex((b) => b.id === id);
+    const [row] = this.basemaps.splice(i, 1);
+    this.basemaps.splice(i + delta, 0, row);
+    this.saveBasemaps();
+    this.emit("basemaps", id);
+  }
+  setBasemapOpacity(id, value) {
+    const b = this.basemapRow(id),
+      v = Math.min(1, Math.max(0, Number(value)));
+    if (!b || b.opacity === v) return;
+    b.opacity = v;
+    this.saveBasemaps();
+    this.emit("basemaps", id);
+  }
+  saveBasemaps() {
+    try {
+      this.storage?.setItem(basemapKey, JSON.stringify(this.basemaps));
+    } catch {}
   }
   /** A leaf's legend, e.g. the depth ramp's range `{min, max, unit}`. */
   legend(leaf) {

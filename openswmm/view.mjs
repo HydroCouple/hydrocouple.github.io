@@ -1,4 +1,4 @@
-import { symbols, markerOutline } from "./layers.mjs";
+import { symbols, markerOutline, basemapSource } from "./layers.mjs";
 import { pickAt, pickInRect, pickInPolygon, modeFor, describeSelection } from "./selection.mjs";
 import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, rampColor } from "./depth-style.mjs";
 import { Scene3D } from "./scene3d.mjs";
@@ -218,7 +218,10 @@ export class ModelView {
       if (detail.kind === "opacity" && detail.id === "basemaps")
         el("map").style.opacity = String(layers.opacity("basemaps"));
       if (["visible", "order", "opacity", "content"].includes(detail.kind)) this.draw();
-      if (detail.kind === "visible") this.syncBuildings();
+      if (detail.kind === "visible" || detail.kind === "basemaps") {
+        this.syncBuildings();
+        this.syncBasemaps();
+      }
     });
     new ResizeObserver(() => {
       this.map?.resize();
@@ -508,6 +511,19 @@ export class ModelView {
     else this.draw();
   }
   /** The model's bounds on the globe, `[[west, south], [east, north]]`, from its four corners. */
+  /**
+   * Where basemap previews look: the map's center and zoom when it is shown, else the model's middle at
+   * a zoom that fits it, else the whole world. `{lon, lat, zoom}`
+   */
+  previewCenter() {
+    if (this.map) {
+      const c = this.map.getCenter();
+      return { lon: c.lng, lat: c.lat, zoom: this.map.getZoom() };
+    }
+    if (!this.placement || !this.bounds) return { lon: 0, lat: 30, zoom: 1 };
+    const [[w, s], [e, n]] = this.lonLatBounds();
+    return { lon: (w + e) / 2, lat: (s + n) / 2, zoom: Math.max(1, Math.min(16, Math.log2(360 / Math.max(1e-6, e - w)) + 0.5)) };
+  }
   lonLatBounds() {
     const [l, b, r, t] = this.bounds;
     const corners = [
@@ -1026,16 +1042,19 @@ export class ModelView {
   resetView() {
     this.map?.easeTo({ pitch: 0, bearing: 0, duration: 600 });
   }
-  /** The style's buildings as extrusions, above the basemap's own layers but under its labels. */
+  /**
+   * Buildings as extrusions, above the basemap's own layers but under its labels. They come from their
+   * own Mapbox Streets source, so they stand over any basemap (imagery too).
+   */
   addBuildings() {
     const m = this.map;
-    if (!m || m.getLayer("osw-buildings") || !m.getSource("composite")) return;
-    const labels = m.getStyle().layers.find((l) => l.type === "symbol" && l.layout?.["text-field"])?.id;
+    if (!m || m.getLayer("osw-buildings")) return;
+    if (!m.getSource("osw-streets")) m.addSource("osw-streets", { type: "vector", url: "mapbox://mapbox.mapbox-streets-v8" });
     m.addLayer(
       {
         id: "osw-buildings",
         type: "fill-extrusion",
-        source: "composite",
+        source: "osw-streets",
         "source-layer": "building",
         filter: ["==", ["get", "extrude"], "true"],
         minzoom: 14,
@@ -1047,9 +1066,63 @@ export class ModelView {
           "fill-extrusion-opacity": 0.85,
         },
       },
-      labels,
+      this.labelLayer(),
     );
     this.syncBuildings();
+  }
+  /** The basemap style's first label layer (ours go under it), if any. */
+  labelLayer() {
+    return this.map.getStyle().layers.find((l) => l.type === "symbol" && l.layout?.["text-field"] && !l.id.startsWith("osw-"))?.id;
+  }
+  /**
+   * The basemap stack on the map (LayerTree basemap rows): the Mapbox style row's own layers shown or
+   * hidden (another style is loaded when it changes); each raster row a raster layer, bottom → top in
+   * the stack's order with its opacity, under the style's labels, the model (3D) and the buildings.
+   */
+  syncBasemaps() {
+    const m = this.map,
+      L = this.layers;
+    if (!m) return;
+    const style = basemapSource(L.basemapRow("basemap")).style;
+    if (style !== this.styleUrl) {
+      this.styleUrl = style;
+      this.styleReady = false;
+      m.setStyle(style); // style.load adds the buildings, the rasters and the 3D model again
+      return;
+    }
+    if (!this.styleReady) return;
+    const showStyle = L.visible("basemap");
+    if (this.styleShown !== showStyle) {
+      this.styleShown = showStyle;
+      for (const [id, visibility] of this.styleVisibility) if (m.getLayer(id)) m.setLayoutProperty(id, "visibility", showStyle ? visibility : "none");
+    }
+    const rasters = L.basemaps.filter((b) => b.id !== "basemap"),
+      wanted = new Set(rasters.map((b) => "osw-bm-" + b.id));
+    for (const layer of m.getStyle().layers)
+      if (layer.id.startsWith("osw-bm-") && !wanted.has(layer.id)) {
+        m.removeLayer(layer.id);
+        m.removeSource(layer.id);
+      }
+    const before = m.getLayer("osw-buildings") ? "osw-buildings" : this.labelLayer();
+    for (const b of [...rasters].reverse()) {
+      const id = "osw-bm-" + b.id,
+        src = basemapSource(b);
+      if (!m.getSource(id)) {
+        // Only the fields a source has: the style validator refuses an undefined attribution.
+        const spec = src.url ? { type: "raster", url: src.url, tileSize: src.tileSize } : { type: "raster", tiles: src.tiles, tileSize: src.tileSize, maxzoom: src.maxzoom };
+        if (src.attribution) spec.attribution = src.attribution;
+        m.addSource(id, spec);
+        m.addLayer({ id, type: "raster", source: id });
+      }
+      m.moveLayer(id, before);
+      m.setPaintProperty(id, "raster-opacity", b.opacity);
+      m.setLayoutProperty(id, "visibility", L.visible(b.id) ? "visible" : "none");
+    }
+    // The model's layers (3D view) go back above the rasters, right under the buildings.
+    if (this.scene3d.on && this.scene3d.keys) {
+      this.scene3d.keys.order = null;
+      this.scene3d.sync();
+    }
   }
   /** Buildings show in the 3D view when their layer row is on. */
   syncBuildings() {
@@ -1101,12 +1174,12 @@ export class ModelView {
         });
       await this.loader;
     }
-    if (!this.layers.visible("basemap") || !this.placement || this.map) return; // switched off, or another call made it
+    if (!this.layers.anyBasemap() || !this.placement || this.map) return; // switched off, or another call made it
     const [[west, south], [east, north]] = this.lonLatBounds();
     this.map = new window.mapboxgl.Map({
       container: "map",
       accessToken: this.token,
-      style: "mapbox://styles/mapbox/outdoors-v12",
+      style: (this.styleUrl = basemapSource(this.layers.basemapRow("basemap")).style),
       projection: "mercator",
       // Rotation and tilt wait for the 3D view (set3D).
       pitchWithRotate: true,
@@ -1121,7 +1194,11 @@ export class ModelView {
     this.styleReady = false; // set on style.load: layers can be added from then on, while tiles still load
     this.map.on("style.load", () => {
       this.styleReady = true;
+      // The style's own layers and how they were shown, for switching the style row off and on.
+      this.styleVisibility = new Map(this.map.getStyle().layers.map((l) => [l.id, l.layout?.visibility || "visible"]));
+      this.styleShown = true;
       this.addBuildings();
+      this.syncBasemaps();
       if (this.mode3d) this.scene3d.attach();
     });
     el("scene").classList.add("geographic");

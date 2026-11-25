@@ -156,3 +156,49 @@ test("3D buildings sit with the basemap: always listed, not counted, switched wi
   assert.equal(layers.visible("buildings"), false);
   assert.equal(layers.visible("basemap"), false);
 });
+
+test("the basemap stack: a Mapbox style row at the bottom, rasters added on top, moved, removed, remembered", () => {
+  const store = new Map();
+  const storage = { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, v) };
+  const layers = new LayerTree({ storage });
+  assert.deepEqual(layers.leaves("basemaps"), ["buildings", "basemap"]);
+  assert.equal(layers.label("basemap"), "Mapbox Outdoors");
+  assert.equal(layers.anyBasemap(), false, "basemaps start off");
+  const events = [];
+  layers.addEventListener("change", ({ detail }) => events.push(detail.kind));
+  // A style replaces the style row's; rasters stack on top, switched on.
+  assert.equal(layers.addBasemap("streets"), "basemap");
+  assert.equal(layers.label("basemap"), "Mapbox Streets");
+  const esri = layers.addBasemap("esri"),
+    osm = layers.addBasemap("osm");
+  assert.deepEqual(layers.leaves("basemaps"), ["buildings", osm, esri, "basemap"], "newest on top, style row last");
+  assert.equal(layers.visible(esri), true);
+  assert.equal(layers.anyBasemap(), true);
+  assert.ok(events.includes("basemaps"));
+  // Custom XYZ needs {z}/{x}/{y}.
+  assert.equal(layers.addBasemap("custom", { label: "Bad", url: "https://example.com/tiles.png" }), null);
+  const mine = layers.addBasemap("custom", { label: "Ortho", url: "https://tiles.example.com/{z}/{x}/{y}.png", maxzoom: 40 });
+  assert.equal(layers.label(mine), "Ortho");
+  assert.equal(layers.basemapRow(mine).maxzoom, 24, "max zoom kept in range");
+  // Rasters move among themselves, never below the style row.
+  assert.equal(layers.canMoveBasemap(esri, 1), false);
+  layers.moveBasemap(mine, 2);
+  assert.deepEqual(layers.leaves("basemaps"), ["buildings", osm, esri, mine, "basemap"]);
+  layers.setBasemapOpacity(esri, 0.4);
+  layers.removeBasemap("basemap");
+  layers.removeBasemap(osm);
+  assert.deepEqual(layers.leaves("basemaps"), ["buildings", esri, mine, "basemap"], "the style row stays");
+  // Remembered (rows and opacity; all start off again).
+  const again = new LayerTree({ storage });
+  assert.deepEqual(again.leaves("basemaps"), ["buildings", esri, mine, "basemap"]);
+  assert.equal(again.basemapRow(esri).opacity, 0.4);
+  assert.equal(again.label("basemap"), "Mapbox Streets");
+  assert.equal(again.anyBasemap(), false);
+  // The category switches every row; no token disables the rasters with the style row.
+  again.setVisible("basemaps", true);
+  assert.equal(again.visible(mine), true);
+  again.setVisible("basemaps", false);
+  again.setEnabled("basemap", false);
+  again.setVisible(mine, true);
+  assert.equal(again.visible(mine), false);
+});
