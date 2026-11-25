@@ -1,4 +1,6 @@
 import { symbols, markerOutline } from "./layers.mjs";
+/** Screen speed of a flow streak at the frame's reference speed (px/s). */
+const STREAK_SPEED = 45;
 const el = (id) => document.getElementById(id);
 function sections(inp) {
   const rows = {};
@@ -238,6 +240,10 @@ export class ModelView {
       if (d > peak) peak = d;
     });
     this.peak = peak;
+    // The frame's reference speed (95th percentile of the wet cells): streaks at this speed move
+    // a fixed distance on screen, whatever the mesh size or zoom.
+    const speeds = this.wet.map((i) => Math.hypot(frame.u[i], frame.v[i])).sort((a, b) => a - b);
+    this.speedRef = Math.max(1e-9, speeds[Math.floor(0.95 * (speeds.length - 1))] || 0);
     this.layers.setLegend("depth", frame ? { min: 0, max: peak, unit: "m" } : null);
     this.draw();
   }
@@ -246,8 +252,14 @@ export class ModelView {
       this.particles = [];
       return;
     }
-    const count = Math.min(360, Math.max(30, this.wet.length * 3)),
+    const count = Math.min(1200, Math.max(30, this.wet.length * 3)),
       f = this.frame;
+    // Particles move in screen space: at the reference speed about STREAK_SPEED px/s (faster cells
+    // up to twice that). Model units per step = speed × k, k from the current pixels per unit.
+    const [l, b, r, t] = this.bounds,
+      [x0, y0] = this.project((l + r) / 2, (b + t) / 2),
+      [x1, y1] = this.project((l + r) / 2 + 1, (b + t) / 2);
+    const k = (STREAK_SPEED * dt) / ((Math.hypot(x1 - x0, y1 - y0) || 1) * this.speedRef);
     for (let i = 0; i < count; i++) {
       let p = this.particles[i];
       if (!p || p.age > 3 || !(f.depth[p.cell] >= 0.001)) {
@@ -271,8 +283,9 @@ export class ModelView {
       }
       const u = f.u[p.cell],
         v = f.v[p.cell],
-        x = p.x + u * dt * 4,
-        y = p.y + v * dt * 4;
+        cap = Math.min(1, (2 * this.speedRef) / (Math.hypot(u, v) || 1)),
+        x = p.x + u * k * cap,
+        y = p.y + v * k * cap;
       const next = contains(this.polys[p.cell], x, y)
         ? p.cell
         : this.locate(x, y);

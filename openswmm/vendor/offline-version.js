@@ -1,1 +1,1 @@
-self.workbenchVersion = "05feb311b40453df";
+self.workbenchVersion = "bdd34f92dd9d1ead";

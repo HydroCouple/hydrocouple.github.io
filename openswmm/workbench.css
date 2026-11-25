@@ -1776,3 +1776,31 @@ dialog:has(.lid-usage-editor) {
 .lid-usage select {
   max-width: 140px;
 }
+/* Job progress beside the status line: empty while a job starts, then the run's share of simulated
+   time. */
+#jobprogress {
+  flex: 0 0 180px;
+  height: 6px;
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  appearance: none;
+  background: var(--line);
+  accent-color: var(--primary);
+}
+#jobprogress::-webkit-progress-bar {
+  background: var(--line);
+  border-radius: 3px;
+}
+#jobprogress::-webkit-progress-value {
+  background: var(--primary);
+  border-radius: 3px;
+}
+#jobprogress::-moz-progress-bar {
+  background: var(--primary);
+}
+@media (max-width: 760px) {
+  #jobprogress {
+    flex-basis: 100%;
+  }
+}

@@ -259,6 +259,9 @@ function busy(on) {
     b.disabled = on;
   $("stop").hidden = !on;
   $("run").hidden = on;
+  // Empty while a job starts; a run's progress reports fill it with simulated time.
+  $("jobprogress").hidden = !on;
+  $("jobprogress").removeAttribute("value");
   if (on) $("resume").hidden = true;
   if (!on) {
     $("pause").hidden = true;
@@ -363,6 +366,7 @@ function launch(data) {
       case "progress":
         at = m.seconds;
         if (timeline.live) timeline.progress(at);
+        if (m.total > 0) $("jobprogress").value = Math.min(1, m.seconds / m.total);
         status(
           sweepAt +
             "Running · " +
