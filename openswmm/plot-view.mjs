@@ -71,7 +71,9 @@ export function plotPanel({ root, model, layout, timeline, units, onAdd, selecte
     clear,
     close,
   );
-  root.replaceChildren(split, head, note, body);
+  // The time series page; profile tabs (profile-view.mjs) put theirs beside it.
+  const page = el("div", { className: "panel-page" }, head, note, body);
+  root.replaceChildren(split, page);
 
   // ---- panel state (layout model) -------------------------------------------------------------
   const place = () => {
@@ -136,7 +138,7 @@ export function plotPanel({ root, model, layout, timeline, units, onAdd, selecte
   const times = () => [...new Set(model.series.flatMap((s) => model.data.get(s.key)?.seconds || []))].sort((a, b) => a - b);
 
   function draw() {
-    if (root.hidden || canvas.hidden) return;
+    if (root.hidden || canvas.hidden || page.hidden) return;
     const c = canvas.getContext("2d"),
       w = canvas.clientWidth,
       h = canvas.clientHeight,
@@ -417,6 +419,9 @@ export function plotPanel({ root, model, layout, timeline, units, onAdd, selecte
   place();
   render();
   return {
+    /** The time series page (the bottom panel's first tab) and a redraw once it is shown again. */
+    page,
+    redraw: () => draw(),
     preselect,
     /** Add the selected objects as the chosen variable (the Plot button). */
     addSelected: () => add.onclick(),

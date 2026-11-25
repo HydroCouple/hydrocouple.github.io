@@ -43,6 +43,7 @@
       <symbol id="i-lasso" viewBox="0 0 16 16"><ellipse cx="8.5" cy="6.5" rx="5.5" ry="4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.2 1.8" /><path d="M5 10c-1 1.2-1 2.6.4 3.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></symbol>
       <symbol id="i-cube" viewBox="0 0 16 16"><path d="M8 1.8l5.4 3v6.4L8 14.2l-5.4-3V4.8zM2.6 4.8L8 7.8l5.4-3M8 7.8v6.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></symbol>
       <symbol id="i-north" viewBox="0 0 16 16"><path d="M8 1.5l3.2 6.5H4.8z" fill="currentColor" fill-opacity=".35" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M4.8 8h6.4L8 14.5z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></symbol>
+      <symbol id="i-profile" viewBox="0 0 16 16"><path d="M1.8 12.5l3.6-5.2 3 2.6 5-6.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /><path d="M1.5 14.5h13" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" /></symbol>
       <symbol id="i-check" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M5 8l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></symbol>
     </svg>
 
@@ -145,6 +146,7 @@
                 <button class="map-tool" id="tool-select" aria-label="Select" aria-pressed="true" title="Select: click an object (drag pans). Shift adds, Ctrl or ⌘ toggles, Alt removes; Esc clears."><svg aria-hidden="true"><use href="#i-pointer" /></svg></button>
                 <button class="map-tool" id="tool-box" aria-label="Box select" aria-pressed="false" title="Box select: drag a rectangle. Shift adds, Ctrl or ⌘ toggles, Alt removes."><svg aria-hidden="true"><use href="#i-box" /></svg></button>
                 <button class="map-tool" id="tool-lasso" aria-label="Lasso select" aria-pressed="false" title="Lasso select: drag around objects. Shift adds, Ctrl or ⌘ toggles, Alt removes."><svg aria-hidden="true"><use href="#i-lasso" /></svg></button>
+                <button class="map-tool" id="tool-line" aria-label="Profile line" aria-pressed="false" title="Profile line: click along a line across the surface; a double-click or Enter ends it, Esc cancels."><svg aria-hidden="true"><use href="#i-profile" /></svg></button>
               </div>
               <!-- Shown with the basemap (view.mjs): the 3D view and, in it, the compass. -->
               <div class="maptools" role="group" aria-label="View" id="viewtools" hidden>
@@ -222,6 +224,7 @@
           </div>
           <div class="actions">
             <button class="tb ghost" id="series" disabled title="Plot the selected objects' results"><svg aria-hidden="true"><use href="#i-chart" /></svg>Plot</button>
+            <button class="tb ghost" id="profile" disabled title="Pipe profile along the selected nodes, or draw a terrain profile line"><svg aria-hidden="true"><use href="#i-profile" /></svg>Profile</button>
             <button class="tb ghost" id="report" disabled><svg aria-hidden="true"><use href="#i-doc" /></svg>View report</button>
             <button class="tb ghost" id="archive"><svg aria-hidden="true"><use href="#i-download" /></svg>Export project</button>
           </div>

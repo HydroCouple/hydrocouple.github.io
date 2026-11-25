@@ -115,6 +115,7 @@ export function sketch(text, inputs = {}, dir = "") {
   return {
     x: vertices.map((v) => +v[0]),
     y: vertices.map((v) => +v[1]),
+    z: vertices.map((v) => +v[2]), // bed elevations (terrain profiles)
     cells: [
       ...(mesh["[2D_TRIANGLES]"] || []).map((v) => v.slice(0, 3).map(Number)),
       ...(mesh["[2D_QUADS]"] || []).map((v) => v.slice(0, 4).map(Number)),
@@ -154,11 +155,25 @@ export class ModelView {
     this.zoom = 1;
     this.pan = [0, 0];
     this.drag = null;
-    // Map tools: "select" (a click selects, a drag pans), "box" and "lasso" (a drag selects).
+    // Map tools: "select" (a click selects, a drag pans), "box" and "lasso" (a drag selects), "line"
+    // (clicks draw a terrain profile line; a double-click or Enter ends it).
     this.tool = "select";
     this.band = null; // the box or lasso being drawn, in screen pixels
-    for (const tool of ["select", "box", "lasso"]) el("tool-" + tool).onclick = () => this.setTool(tool);
+    this.trace = null; // the profile line being drawn: model points and the pointer
+    this.profileLine = null; // the shown profile's path or line, model coordinates
+    this.profileMarker = null; // the profile chart's crosshair on the map
+    for (const tool of ["select", "box", "lasso", "line"]) el("tool-" + tool).onclick = () => this.setTool(tool);
     this.canvas.onpointerdown = (e) => {
+      if (this.tool === "line") {
+        const m = this.unproject(e.offsetX, e.offsetY),
+          last = this.trace?.pts.at(-1);
+        if (!m) return;
+        this.trace ||= { pts: [] };
+        // A double-click's second press lands on the same point: keep one.
+        if (!last || Math.hypot(...this.project(...last).map((v, i) => v - [e.offsetX, e.offsetY][i])) > 3) this.trace.pts.push(m);
+        this.draw();
+        return;
+      }
       if (this.tool !== "select") {
         this.band = { pts: [[e.offsetX, e.offsetY]] };
         this.canvas.setPointerCapture(e.pointerId);
@@ -168,6 +183,11 @@ export class ModelView {
       this.canvas.setPointerCapture(e.pointerId);
     };
     this.canvas.onpointermove = (e) => {
+      if (this.tool === "line" && this.trace) {
+        this.trace.at = this.unproject(e.offsetX, e.offsetY);
+        this.draw();
+        return;
+      }
       if (this.band) {
         if (this.tool === "box") this.band.pts[1] = [e.offsetX, e.offsetY];
         else this.band.pts.push([e.offsetX, e.offsetY]);
@@ -195,10 +215,16 @@ export class ModelView {
       this.drag = this.band = null;
       this.draw();
     };
-    // Escape drops a box or lasso being drawn, else the selection.
+    this.canvas.ondblclick = () => this.tool === "line" && this.finishTrace();
+    // Escape drops a box, lasso or profile line being drawn, else the selection; Enter ends a line.
     document.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape" || e.target.closest?.("input, textarea, select, dialog")) return;
-      if (this.band) {
+      if (e.target.closest?.("input, textarea, select, dialog")) return;
+      if (e.key === "Enter" && this.trace) return this.finishTrace();
+      if (e.key !== "Escape") return;
+      if (this.trace) {
+        this.trace = null;
+        this.setTool("select");
+      } else if (this.band) {
         this.band = null;
         this.draw();
       } else this.selection?.clear("map");
@@ -660,10 +686,29 @@ export class ModelView {
   setTool(tool) {
     this.tool = tool;
     this.band = null;
+    if (tool !== "line") this.trace = null;
     // Box and lasso take the pointer from the basemap while they are active.
     el("scene").classList.toggle("tool-band", tool !== "select");
-    for (const t of ["select", "box", "lasso"]) el("tool-" + t).setAttribute("aria-pressed", String(t === tool));
+    for (const t of ["select", "box", "lasso", "line"]) el("tool-" + t).setAttribute("aria-pressed", String(t === tool));
     this.draw();
+  }
+  /** End the profile line being drawn: two points or more go to `onTrace`; the select tool returns. */
+  finishTrace() {
+    const pts = this.trace?.pts || [];
+    this.trace = null;
+    this.setTool("select");
+    if (pts.length >= 2) this.onTrace?.(pts);
+  }
+  /** The shown profile on the map: its path or line (model coordinates), or null. */
+  setProfileLine(line) {
+    this.profileLine = line?.length >= 2 ? line : null;
+    this.profileMarker = null;
+    this.draw();
+  }
+  /** The profile chart's crosshair as a point on the map (model coordinates), or null. */
+  setProfileMarker(point) {
+    this.profileMarker = point;
+    this.draw(true);
   }
   /** A click at screen (x, y): the object under it joins, leaves or replaces the selection by the event's modifiers. */
   click(x, y, e) {
@@ -990,6 +1035,50 @@ export class ModelView {
         }
         c.stroke();
       }
+    // The shown profile's path or line, the line being drawn, and the chart's crosshair (SWMM amber
+    // over a white halo, as the selection is magenta over white).
+    const flag = getComputedStyle(this.canvas).getPropertyValue("--flag").trim() || "#f29f38";
+    const polyline = (pts, width, color, dash = []) => {
+      c.beginPath();
+      pts.forEach((p, j) => {
+        const [x, y] = this.project(p[0], p[1]);
+        if (j) c.lineTo(x, y);
+        else c.moveTo(x, y);
+      });
+      c.setLineDash(dash);
+      c.lineWidth = width;
+      c.strokeStyle = color;
+      c.lineJoin = c.lineCap = "round";
+      c.stroke();
+      c.setLineDash([]);
+    };
+    if (this.profileLine) {
+      polyline(this.profileLine, 6, "rgba(255,255,255,0.85)");
+      polyline(this.profileLine, 3, flag);
+    }
+    if (this.trace?.pts.length) {
+      const pts = this.trace.at ? [...this.trace.pts, this.trace.at] : this.trace.pts;
+      polyline(pts, 5, "rgba(255,255,255,0.85)");
+      polyline(pts, 2.5, flag, [6, 4]);
+      for (const p of this.trace.pts) {
+        const [x, y] = this.project(p[0], p[1]);
+        c.beginPath();
+        c.arc(x, y, 3.5, 0, 2 * Math.PI);
+        c.fillStyle = flag;
+        c.fill();
+      }
+    }
+    if (this.profileMarker) {
+      const [x, y] = this.project(this.profileMarker[0], this.profileMarker[1]);
+      c.beginPath();
+      c.arc(x, y, 7, 0, 2 * Math.PI);
+      c.lineWidth = 4;
+      c.strokeStyle = "rgba(255,255,255,0.9)";
+      c.stroke();
+      c.lineWidth = 2.5;
+      c.strokeStyle = flag;
+      c.stroke();
+    }
     if (this.band) {
       const pts = this.band.pts;
       c.beginPath();

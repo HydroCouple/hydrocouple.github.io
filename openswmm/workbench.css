@@ -2083,6 +2083,98 @@ dialog:has(.lid-usage-editor) {
   overflow: auto;
   padding: 0 10px 10px;
 }
+/* Bottom panel pages and tabs: Time series and the profiles (interaction phase V3). */
+.panel-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.panel-page[hidden],
+.panel-tabs[hidden] {
+  display: none;
+}
+.panel-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 4px 10px 0;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+.panel-tab-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+.panel-tab,
+.panel-tab-close {
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font: 500 12px Inter, system-ui, sans-serif;
+  cursor: pointer;
+}
+.panel-tab {
+  height: 30px;
+  padding: 0 10px;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.panel-tab[aria-selected="true"] {
+  color: var(--deep);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+.panel-tab:hover {
+  color: var(--deep);
+}
+.panel-tab-wrap .panel-tab {
+  padding-right: 4px;
+}
+.panel-tab-close {
+  height: 22px;
+  width: 20px;
+  margin-right: 4px;
+  border-radius: 4px;
+  font-size: 15px;
+  line-height: 1;
+}
+.panel-tab-close:hover {
+  background: var(--mist);
+  color: var(--ink);
+}
+.profile-time {
+  display: flex;
+  align-items: center;
+}
+.profile-time input {
+  width: 180px;
+}
+.profile-clock {
+  min-width: 58px;
+  font: 600 12px var(--mono);
+  color: var(--ink-soft);
+}
+.profile-key {
+  width: 24px;
+  height: 10px;
+  margin-right: 2px;
+}
+.plot-table table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+}
+:root {
+  --ground: #9b7b55;
+  --ground-fill: #ece2d1;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #b59a74;
+    --ground-fill: #3a3125;
+  }
+}
 /* Water depth legend classes and the Style button (interaction phase V4a). */
 .layer-classes {
   list-style: none;

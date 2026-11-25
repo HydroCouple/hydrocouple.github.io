@@ -14,6 +14,9 @@ import { plotPanel } from "./plot-view.mjs";
 import { DepthStyle } from "./depth-style.mjs";
 import { depthStyleForm } from "./depth-style-view.mjs";
 import { basemapPicker } from "./basemaps-view.mjs";
+import { ProfileSet, networkOf, route, pipeProfile, peakIndex, lineSamples, atSamples } from "./profiles.mjs";
+import { profilePanel } from "./profile-view.mjs";
+import { vertexValues } from "./depth-style.mjs";
 import { scenarioPanel } from "./scenarios.mjs";
 const $ = (id) => document.getElementById(id),
   decoder = new TextDecoder(),
@@ -63,6 +66,8 @@ const depthStyle = new DepthStyle();
 view.useDepthStyle(depthStyle);
 // Time series plots (MVC): the plot model; its panel view is made once the editor exists.
 const plots = new PlotModel();
+// Profiles (MVC): the open pipe and terrain profiles, tabs of the bottom panel beside the plots.
+const profiles = new ProfileSet();
 const panelLayout = new PanelLayout();
 let plotRead = null; // the worker reading series now
 let plotFlowUnits = "CFS"; // the current deck's FLOW_UNITS (SWMM's default when it has none)
@@ -213,11 +218,19 @@ function dialog(title, node) {
   if (!$("dialog").open) $("dialog").showModal();
 }
 $("close").onclick = () => $("dialog").close();
+/** A run's geometry with the deck's network and, when the vertices match, the mesh's bed elevations. */
+function withBed(geometry) {
+  return { ...geometry, network: preview.network, z: geometry.z || (preview.z?.length === geometry.x.length ? preview.z : undefined) };
+}
 function finishUI() {
   $("series").disabled =
     !run || !Object.keys(run.files).some((p) => p.endsWith("/model.out"));
   plots.invalidate(); // a new run or model: the plotted series are read again
   readPlots();
+  $("profile").disabled = !(preview.nodes?.length || preview.cells?.length);
+  // Open profiles follow the new run: heads read again, terrain sampled again.
+  for (const pr of profiles.profiles) profiles.setData(pr.id, null);
+  readProfiles();
   $("report").disabled = !run?.files[run.report];
   const frames = run?.frames || [];
   $("insprunbackend").textContent = run?.backend || "—";
@@ -247,6 +260,7 @@ function install(p, r = null) {
   if (!p?.inputs?.[p.entry]) throw new Error("Missing model input");
   if (p.name !== project?.name || p.entry !== project?.entry) {
     plots.clear();
+    profiles.clear();
     depthStyle.set({ hideBelow: null }); // a depth threshold belongs to one model
   }
   const deck = decoder.decode(p.inputs[p.entry]);
@@ -281,7 +295,7 @@ function install(p, r = null) {
   showPlacement(placed, preview.crs ? "Reading the coordinate system…" : "");
   if (!placed && !preview.crs) basemapsOff();
   // A saved run's mesh with the deck's network (the run kept only plain links).
-  showGeometry(r?.geometry ? { ...r.geometry, network: preview.network } : preview, placed);
+  showGeometry(r?.geometry ? withBed(r.geometry) : preview, placed);
   if (preview.crs) placeModel(preview.crs);
   // Forcings stay set across runs while their gage or node exists.
   forcings = forcings.filter((f) => (f.kind === "rain" ? preview.gages : preview.nodes).includes(f.target));
@@ -968,7 +982,7 @@ $("study").onclick = () => {
         view.onPick = null;
         document.removeEventListener("keydown", cancel);
         basemapsOff();
-        showGeometry(run?.geometry ? { ...run.geometry, network: preview.network } : preview, placed);
+        showGeometry(run?.geometry ? withBed(run.geometry) : preview, placed);
         busy(false);
         dialog("New surface study", form);
       };
@@ -987,7 +1001,7 @@ $("study").onclick = () => {
     } catch (e) {
       basemapsOff();
       await basemapJob;
-      showGeometry(run?.geometry ? { ...run.geometry, network: preview.network } : preview, placed);
+      showGeometry(run?.geometry ? withBed(run.geometry) : preview, placed);
       dialog("New surface study", form);
       feedback(e);
     }
@@ -1062,9 +1076,129 @@ const plotView = plotPanel({
 });
 $("series").onclick = () => {
   panelLayout.setOpen("plot", true);
+  profiles.setActive("series");
   plotView.preselect();
   if (selection.count) plotView.addSelected();
 };
+
+const profileView = profilePanel({
+  root: $("plotpanel"),
+  series: plotView,
+  set: profiles,
+  timeline,
+  onClose: () => panelLayout.setOpen("plot", false),
+  onHover: (point) => view.setProfileMarker(point),
+});
+// The shown profile's path or line is drawn on the map while the panel is open.
+function showProfileLine() {
+  const pr = profiles.get(profiles.active);
+  view.setProfileLine(panelLayout.isOpen("plot") && pr ? (pr.kind === "pipe" ? pr.geometry.mapLine : pr.line) : null);
+}
+profiles.addEventListener("change", ({ detail }) => (detail.kind === "profiles" || detail.kind === "active") && showProfileLine());
+panelLayout.addEventListener("change", ({ detail }) => {
+  if (detail.side !== "plot") return;
+  showProfileLine();
+  profileView.render();
+});
+// Profile: a pipe profile along the selected nodes (or links); otherwise draw a terrain profile line.
+$("profile").onclick = () => {
+  const nodes = selection.items.filter((i) => i.kind === "node").map((i) => i.id),
+    links = selection.items.filter((i) => i.kind === "link").map((i) => i.id);
+  if (nodes.length >= 2 || links.length) return openPipeProfile(nodes, links);
+  if (view.geo.cells.length) {
+    view.setTool("line");
+    status("Profile line: click along a line across the surface; a double-click or Enter ends it, Esc cancels.");
+    return;
+  }
+  status("Select two nodes (Shift-click the second) for a pipe profile.");
+};
+view.onTrace = (line) => openTerrainProfile(line);
+/** A pipe profile routed through the selected nodes in order (or a selected link's ends). */
+function openPipeProfile(nodes, links) {
+  const net = networkOf(decoder.decode(project.inputs[project.entry]));
+  let waypoints = nodes;
+  if (waypoints.length < 2) {
+    const first = net.links.find((l) => l.id === links[0]),
+      last = net.links.find((l) => l.id === links[links.length - 1]);
+    if (!first || !last) return status("Select two nodes (Shift-click the second) for a pipe profile.");
+    waypoints = [first.from, links.length > 1 ? last.to : first.to];
+  }
+  const path = route(net, waypoints);
+  if (path.error) return status(path.error);
+  profiles.add({ kind: "pipe", title: path.nodes[0] + " → " + path.nodes[path.nodes.length - 1], geometry: pipeProfile(net, path) });
+  panelLayout.setOpen("plot", true);
+  readProfiles();
+}
+let terrainCount = 0;
+/** A terrain profile along a line drawn on the map. */
+function openTerrainProfile(line) {
+  profiles.add({ kind: "terrain", title: "Terrain profile " + ++terrainCount, line });
+  panelLayout.setOpen("plot", true);
+  readProfiles();
+}
+/**
+ * Fill in the open profiles that have no data: terrain profiles from the mesh and the frames in
+ * memory; pipe profiles' heads from the run's binary output in a worker (the editing engine waits,
+ * one engine at a time).
+ */
+let profileRead = null;
+function readProfiles() {
+  const missing = profiles.profiles.filter((pr) => !pr.data && !pr.error);
+  for (const pr of missing.filter((pr) => pr.kind === "terrain")) {
+    const geo = view.geo;
+    if (!(geo.z?.length === geo.x.length)) {
+      profiles.setError(pr.id, "This mesh has no vertex elevations to draw the bed.");
+      continue;
+    }
+    const { samples, length } = lineSamples(geo, (x, y) => view.locate(x, y), pr.line, 400);
+    if (!samples.some((sm) => sm.w)) {
+      profiles.setError(pr.id, "The line does not cross the 2D surface.");
+      continue;
+    }
+    const frames = run?.frames || [];
+    const depth = frames.map((f) => Float32Array.from(atSamples(samples, vertexValues(geo.cells, f.depth, geo.x.length))));
+    const max = Float64Array.from(samples, (_, k) => depth.reduce((m, d) => Math.max(m, d[k] || 0), 0));
+    profiles.setData(pr.id, { samples, length, bed: atSamples(samples, geo.z), depth, max, dry: view.dry(), note: frames.length ? "" : "Run the model for the water." });
+  }
+  const pipes = missing.filter((pr) => pr.kind === "pipe");
+  if (!pipes.length || profileRead || plotRead || job) return; // the engine is busy: read when it is free
+  const output = run && Object.keys(run.files).find((path) => path.endsWith("/model.out"));
+  if (!output) {
+    for (const pr of pipes) profiles.setData(pr.id, { seconds: [], heads: {}, max: {}, note: "Run the model for the hydraulic grade line." });
+    return;
+  }
+  editor.suspend("Editing resumes when the profile has read its heads.");
+  profileRead = new Worker("./worker.mjs", { type: "module" });
+  const ids = [...new Set(pipes.flatMap((pr) => pr.geometry.stations.map((st) => st.id)))];
+  const done = () => {
+    profileRead?.terminate();
+    profileRead = null;
+    if (!job) editor.load(project);
+    readPlots();
+    readProfiles(); // profiles opened meanwhile
+  };
+  profileRead.onerror = (e) => {
+    for (const pr of pipes) profiles.setError(pr.id, e.message || "The heads could not be read.");
+    done();
+  };
+  profileRead.onmessage = ({ data }) => {
+    if (data.type === "error") for (const pr of pipes) profiles.setError(pr.id, data.message);
+    else {
+      const heads = {};
+      for (const r of data.result.series) if (!r.error) heads[r.key] = Float32Array.from(r.values);
+      const seconds = data.result.seconds;
+      for (const pr of pipes) {
+        const own = Object.fromEntries(pr.geometry.stations.filter((st) => heads[st.id]).map((st) => [st.id, heads[st.id]]));
+        const max = Object.fromEntries(Object.entries(own).map(([k, v]) => [k, v.reduce((m, x) => Math.max(m, x), -Infinity)]));
+        const unreported = pr.geometry.stations.filter((st) => !own[st.id]).map((st) => st.id);
+        profiles.setData(pr.id, { seconds, heads: own, max, note: unreported.length ? "No heads reported for " + unreported.join(", ") + "." : "" });
+        profiles.setIndex(pr.id, peakIndex(pr.geometry.stations, new Map(Object.entries(own)), seconds.length));
+      }
+    }
+    done();
+  };
+  profileRead.postMessage({ type: "plot-series", bytes: run.files[output], requests: ids.map((id) => ({ key: id, kind: "node", id, variable: "HEAD" })) });
+}
 
 // Popover menus sit under the button that opened them.
 for (const [button, pop] of [
@@ -1263,7 +1397,7 @@ function readPlots() {
       });
   }
   const network = missing.filter((s) => s.kind !== "cell");
-  if (!network.length || plotRead || job) return; // a run owns the engine: finishUI reads after it
+  if (!network.length || plotRead || profileRead || job) return; // a run owns the engine: finishUI reads after it
   const output = run && Object.keys(run.files).find((p) => p.endsWith("/model.out"));
   if (!output) {
     for (const s of network) plots.setData(s.key, { error: "run the model first" });
@@ -1279,6 +1413,7 @@ function readPlots() {
     plotRead = null;
     if (!job) editor.load(project);
     readPlots(); // series added meanwhile
+    readProfiles();
   };
   plotRead.onerror = (e) => {
     fail(e.message || "the series could not be read");
