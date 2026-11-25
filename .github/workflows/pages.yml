@@ -1,0 +1,32 @@
+name: Publish the site
+# The site is static: Pages publishes the repository as committed. This job only writes the public
+# Mapbox token (repository secret MAPBOX_TOKEN) into the SWMM2D workbench's config.json and deploys.
+# Nothing is built or tested here.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write the public Mapbox token
+        env:
+          MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+        run: node .github/scripts/mapbox-token.mjs
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
