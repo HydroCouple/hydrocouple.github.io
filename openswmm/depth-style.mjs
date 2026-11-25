@@ -238,6 +238,7 @@ const defaults = {
   base: 0,
   indexEvery: 5,
   labels: false,
+  hideBelow: null, // hide water no deeper than this (m); null: the model's DRY_DEPTH
 };
 export class DepthStyle extends EventTarget {
   /** @param {{storage?: Storage, key?: string}} [o] where the style is remembered */
@@ -291,6 +292,7 @@ function check(s) {
     base: num(s.base, defaults.base),
     indexEvery: Math.round(num(s.indexEvery, defaults.indexEvery, 0, 50)),
     labels: !!s.labels,
+    hideBelow: s.hideBelow == null || s.hideBelow === "" || !(Number.isFinite(+s.hideBelow) && +s.hideBelow >= 0) ? null : +s.hideBelow,
   };
   if (!(out.max > out.min)) out.max = out.min + 1;
   return out;

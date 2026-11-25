@@ -38,7 +38,7 @@ try {
 const layers = new LayerTree({ reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches });
 layersPanel($("layertree"), layers, {
   onStyle: () =>
-    dialog("Water depth style", depthStyleForm(depthStyle, { unit: view.lengthUnit || "m", onClose: () => $("dialog").close() })),
+    dialog("Water depth style", depthStyleForm(depthStyle, { dry: view.modelDry(), onClose: () => $("dialog").close() })),
 });
 const view = new ModelView(config.mapboxPublicToken, layers);
 // The selection (MVC): the map and the inspector both change it and both follow it.
@@ -205,9 +205,15 @@ function finishUI() {
 }
 function install(p, r = null) {
   if (!p?.inputs?.[p.entry]) throw new Error("Missing model input");
-  if (p.name !== project?.name || p.entry !== project?.entry) plots.clear();
-  plotFlowUnits = /^\s*FLOW_UNITS\s+(\S+)/im.exec(decoder.decode(p.inputs[p.entry]))?.[1]?.toUpperCase() || "CFS";
-  view.lengthUnit = ["CMS", "LPS", "MLD"].includes(plotFlowUnits) ? "m" : "ft";
+  if (p.name !== project?.name || p.entry !== project?.entry) {
+    plots.clear();
+    depthStyle.set({ hideBelow: null }); // a depth threshold belongs to one model
+  }
+  const deck = decoder.decode(p.inputs[p.entry]);
+  plotFlowUnits = /^\s*FLOW_UNITS\s+(\S+)/im.exec(deck)?.[1]?.toUpperCase() || "CFS";
+  // [2D_OPTIONS] DRY_DEPTH (m): cells no deeper are dry and not drawn; the engine's default otherwise.
+  const dry = Number(/^\s*DRY_DEPTH\s+(\S+)/im.exec(deck)?.[1]);
+  view.dryDepth = Number.isFinite(dry) && dry >= 0 ? dry : undefined;
   project = p;
   run = r;
   timeline.pause(); // finishUI loads this model's frames, if it has any

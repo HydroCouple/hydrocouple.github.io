@@ -92,3 +92,15 @@ test("ramps and the style model (kept in range, remembered)", () => {
   assert.equal(events, 1, "no event without a change");
   assert.equal(new DepthStyle({ storage }).get("method"), "jenks", "remembered");
 });
+test("the hide-water threshold: blank, negative or not a number means the model's dry depth", () => {
+  const s = new DepthStyle({ storage: null });
+  assert.equal(s.get("hideBelow"), null, "the model's DRY_DEPTH by default");
+  for (const [value, kept] of [[0.005, 0.005], ["0.01", 0.01], [0, 0], ["", null], [-1, null], ["abc", null], [Infinity, null], [null, null]]) {
+    s.set({ hideBelow: value });
+    assert.equal(s.get("hideBelow"), kept, String(value));
+  }
+  s.set({ hideBelow: 0.02 });
+  s.reset();
+  assert.equal(s.get("hideBelow"), null, "Reset returns to the model's dry depth");
+});
+

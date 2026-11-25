@@ -15,7 +15,10 @@ const smoothstep = (x) => {
 };
 /** Highlight color of selected objects. */
 const SELECTED = "#e6007e";
-/** Filled contour bands start at this depth: below it a vertex counts as dry. */
+/**
+ * The engine's default dry depth (m). A model's [2D_OPTIONS] DRY_DEPTH replaces it (`dryDepth`): cells
+ * no deeper are dry and not drawn, as in the desktop GUI, and streaks keep to the wet cells.
+ */
 const DRY = 1e-3;
 const nodeKinds = ["junctions", "outfalls", "storage", "dividers"],
   linkKinds = ["conduits", "pumps", "orifices", "weirs", "outlets"];
@@ -307,7 +310,7 @@ export class ModelView {
     this.wet = [];
     let peak = 0.001;
     frame?.depth.forEach((d, i) => {
-      if (d >= 0.001 && Number.isFinite(frame.u[i] + frame.v[i]))
+      if (d > this.dry() && Number.isFinite(frame.u[i] + frame.v[i]))
         this.wet.push(i);
       if (d > peak) peak = d;
     });
@@ -325,7 +328,8 @@ export class ModelView {
       this.particles = [];
       return;
     }
-    const now = (this.clock = (this.clock || 0) + dt);
+    const now = (this.clock = (this.clock || 0) + dt),
+      dry = this.dry();
     const count = Math.min(1200, Math.max(30, this.wet.length * 3)),
       f = this.frame;
     // Particles move in screen space: at the reference speed about STREAK_SPEED px/s (faster cells
@@ -361,7 +365,7 @@ export class ModelView {
       // Samples older than the trail drop off, so a stopped particle's tail draws in to its head.
       while (p.trail.length && now - p.trail[0][2] > STREAK.trail) p.trail.shift();
       if (p.stopped !== null) continue;
-      if (!(f.depth[p.cell] >= 0.001)) {
+      if (!(f.depth[p.cell] > dry)) {
         p.stopped = now;
         continue;
       }
@@ -375,7 +379,7 @@ export class ModelView {
         : this.locate(x, y);
       if (
         next === undefined ||
-        !(f.depth[next] >= 0.001) ||
+        !(f.depth[next] > dry) ||
         !Number.isFinite(u + v)
       ) {
         p.stopped = now;
@@ -541,9 +545,20 @@ export class ModelView {
     this.depthStyle = style;
     style.addEventListener("change", () => {
       this.contours = null;
-      this.depthLegend();
-      this.draw();
+      if (this.frame) this.setFrame(this.frame); // the wet cells follow the display threshold
+      else {
+        this.depthLegend();
+        this.draw();
+      }
     });
+  }
+  /** The model's dry depth (m): its DRY_DEPTH, or the engine's default. */
+  modelDry() {
+    return this.dryDepth ?? DRY;
+  }
+  /** Water no deeper than this (m) is not drawn: the style's threshold, or the model's dry depth. */
+  dry() {
+    return this.depthStyle?.state.hideBelow ?? this.modelDry();
   }
   /**
    * How depth is colored now: the range (per frame, whole run or fixed), the class breaks (none for
@@ -553,7 +568,7 @@ export class ModelView {
   depthScheme() {
     const st = this.depthStyle?.state || { method: "continuous", range: "frame", ramp: "blues", display: "cells" };
     const f = this.frame;
-    const key = this.peak + "|" + this.runPeak + "|" + JSON.stringify(st);
+    const key = this.peak + "|" + this.runPeak + "|" + this.dry() + "|" + JSON.stringify(st);
     if (this.scheme?.frame === f && this.scheme.key === key) return this.scheme;
     let lo = 0,
       hi = this.peak || 0.001;
@@ -563,8 +578,8 @@ export class ModelView {
     let breaks = null;
     if (st.method !== "continuous" || bands) {
       const method = st.method === "continuous" ? "equal" : st.method;
-      const wet = f ? Array.from(f.depth).filter((d) => d > DRY) : [];
-      breaks = classBreaks(wet, method, st.method === "continuous" ? 8 : st.classes, Math.max(lo, bands ? DRY : lo), hi, st.manual);
+      const wet = f ? Array.from(f.depth).filter((d) => d > this.dry()) : [];
+      breaks = classBreaks(wet, method, st.method === "continuous" ? 8 : st.classes, Math.max(lo, this.dry()), hi, st.manual);
     }
     const n = breaks ? breaks.length - 1 : 0;
     const classColor = (k) => rampColor(st.ramp, n > 1 ? k / (n - 1) : 1, st.invert);
@@ -583,7 +598,7 @@ export class ModelView {
     this.layers.setLegend("depth", {
       min: lo,
       max: hi,
-      unit: this.lengthUnit || "m",
+      unit: "m", // 2D depths are in meters whatever the deck's units
       ramp: Array.from({ length: 7 }, (_, i) => rampColor(st.ramp, i / 6, st.invert)),
       classes: breaks ? breaks.slice(0, -1).map((from, k) => ({ from, to: breaks[k + 1], color: classColor(k), last: k === breaks.length - 2 })) : null,
     });
@@ -592,10 +607,10 @@ export class ModelView {
   contourGeometry(scheme) {
     const st = scheme.st,
       f = this.frame;
-    const key = JSON.stringify(st) + "|" + scheme.lo + "|" + scheme.hi + "|" + (scheme.breaks || []).join(",");
+    const key = JSON.stringify(st) + "|" + this.dry() + "|" + scheme.lo + "|" + scheme.hi + "|" + (scheme.breaks || []).join(",");
     if (this.contours?.frame === f && this.contours.key === key) return this.contours;
     const values = vertexValues(this.geo.cells, f.depth, this.geo.x.length);
-    const levels = st.lines ? contourLevels(Math.max(scheme.lo, DRY), scheme.hi, { mode: st.levelMode, count: st.levelCount, interval: st.interval, base: st.base }) : [];
+    const levels = st.lines ? contourLevels(Math.max(scheme.lo, this.dry()), scheme.hi, { mode: st.levelMode, count: st.levelCount, interval: st.interval, base: st.base }) : [];
     const index = levels.map((v, i) =>
       st.indexEvery > 0 && (st.levelMode === "interval" ? Math.round((v - st.base) / st.interval) % st.indexEvery === 0 : (i + 1) % st.indexEvery === 0),
     );
@@ -810,6 +825,7 @@ export class ModelView {
       },
       outputs2d: () => {
         if (f && L.visible("depth")) {
+          const dry = this.dry();
           const scheme = this.depthScheme();
           const geom = scheme.st.display === "bands" || scheme.st.lines ? this.contourGeometry(scheme) : null;
           // Band and line points lie along mesh edges: [a, b, t] between projected vertices.
@@ -840,7 +856,7 @@ export class ModelView {
           else
             this.geo.cells.forEach((cell, i) => {
               const d = f.depth[i];
-              if (!(d > 0.00001)) return;
+              if (!(d > dry)) return;
               c.beginPath();
               cell.forEach((v, j) => (j ? c.lineTo(V[2 * v], V[2 * v + 1]) : c.moveTo(V[2 * v], V[2 * v + 1])));
               c.closePath();

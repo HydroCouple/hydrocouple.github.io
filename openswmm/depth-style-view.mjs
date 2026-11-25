@@ -21,9 +21,10 @@ const part = (legend, ...children) => el("fieldset", { className: "quality-part"
 
 /**
  * @param {import("./depth-style.mjs").DepthStyle} style
- * @param {{unit: string, onClose: () => void}} o the length unit for labels
+ * @param {{dry: number, onClose: () => void}} o the model's dry depth (m), for the hint
  */
-export function depthStyleForm(style, { unit, onClose }) {
+export function depthStyleForm(style, { dry, onClose }) {
+  const unit = "m"; // 2D depths are in meters whatever the deck's units
   const st = () => style.state;
   const display = select([["cells", "Cell colors"], ["bands", "Filled contours"]], st().display, "Display");
   const method = select(Object.entries(methodNames), st().method, "Classes");
@@ -42,6 +43,7 @@ export function depthStyleForm(style, { unit, onClose }) {
   const base = el("input", { inputMode: "decimal", value: st().base, ariaLabel: "Contour base" });
   const indexEvery = el("input", { type: "number", min: 0, max: 50, step: 1, value: st().indexEvery, ariaLabel: "Index contour every" });
   const labels = el("input", { type: "checkbox", checked: st().labels, ariaLabel: "Contour labels" });
+  const hideBelow = el("input", { inputMode: "decimal", value: st().hideBelow ?? "", placeholder: String(dry), ariaLabel: "Hide water no deeper than" });
 
   const rows = {
     classes: field("Number of classes", classes),
@@ -81,6 +83,7 @@ export function depthStyleForm(style, { unit, onClose }) {
   base.onchange = () => set({ base: +base.value });
   indexEvery.oninput = () => indexEvery.value !== "" && set({ indexEvery: +indexEvery.value });
   labels.onchange = () => set({ labels: labels.checked });
+  hideBelow.onchange = () => set({ hideBelow: hideBelow.value.trim() === "" ? null : +hideBelow.value });
   rows.levels.append(field("Levels", levelMode), rows.count, rows.interval, field("Index contour every (0: none)", indexEvery), el("label", { className: "check" }, labels, el("span", { textContent: "Label the lines" })));
 
   const reset = el("button", { type: "button", textContent: "Reset" });
@@ -97,11 +100,15 @@ export function depthStyleForm(style, { unit, onClose }) {
     el(
       "div",
       { className: "quality-forms" },
-      part("Fill", field("Display", display), field("Classes", method), rows.classes, rows.manual),
+      part("Fill", field("Display", display), field("Classes", method), rows.classes, rows.manual, field("Hide water no deeper than (" + unit + ")", hideBelow)),
       part("Colors", field("Color ramp", ramp), preview, el("label", { className: "check" }, invert, el("span", { textContent: "Invert" })), field("Range", range), rows.fixed),
       part("Contour lines", el("label", { className: "check" }, lines, el("span", { textContent: "Draw contour lines" })), rows.levels),
     ),
-    el("p", { className: "hint", textContent: "Filled contours interpolate the cells' depths to the mesh vertices; depths under 0.001 " + unit + " are dry. Changes show on the map at once." }),
+    el("p", {
+      className: "hint",
+      textContent:
+        "Water no deeper than the threshold is not drawn and the streaks keep to the water shown; left blank, the threshold is the model's dry depth (DRY_DEPTH, " + dry + " m), and it clears when another model opens. Filled contours interpolate the cells' depths to the mesh vertices. Changes show on the map at once.",
+    }),
     el("div", { className: "actions end" }, reset, done),
   );
 }
