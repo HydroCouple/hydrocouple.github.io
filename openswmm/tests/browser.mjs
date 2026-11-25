@@ -61,6 +61,8 @@ try {
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.context().setOffline(true);
   await page.reload();
+  // A reload shows the welcome screen and opens nothing; Continue reopens the project kept here.
+  await page.locator("#wcontinue").click();
   await page.waitForFunction(() =>
     document.getElementById("volume").textContent.includes("250"),
   );

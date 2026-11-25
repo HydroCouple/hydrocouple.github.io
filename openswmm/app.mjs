@@ -99,7 +99,29 @@ if (!config.mapboxPublicToken) {
 if ("serviceWorker" in navigator)
   navigator.serviceWorker
     .register("./sw.js", { updateViaCache: "none" })
+    .then(update)
     .catch(() => {});
+/**
+ * A newer version of the workbench, downloaded and waiting: it takes over and the page loads again to
+ * run it — at once while nothing is open yet (a reload), otherwise when "Update ready" is clicked.
+ */
+function update(reg) {
+  if (!navigator.serviceWorker.controller) return; // the first install: this page is already current
+  const takeOver = () => {
+    if (!reg.waiting) return;
+    navigator.serviceWorker.addEventListener("controllerchange", () => location.reload(), { once: true });
+    reg.waiting.postMessage("skip-waiting");
+  };
+  const ready = () => {
+    if (!project) return takeOver();
+    $("update").hidden = false;
+    $("update").onclick = takeOver;
+  };
+  const watch = (sw) => sw?.addEventListener("statechange", () => sw.state === "installed" && ready());
+  if (reg.waiting) return ready();
+  watch(reg.installing);
+  reg.addEventListener("updatefound", () => watch(reg.installing));
+}
 /** "h:mm" or "h:mm:ss" elapsed from the start of the run → seconds; "" → 0; NaN if malformed. */
 function parseElapsed(text) {
   const t = text.trim();
@@ -704,6 +726,8 @@ $("input").onchange = async () => {
     feedback(e);
   } finally {
     $("input").value = "";
+    choosing = false;
+    if (!project) openDefault(); // nothing opened from the welcome screen's Open
   }
 };
 function download(blob, name) {
@@ -1049,8 +1073,37 @@ $("open").addEventListener("click", closeMenus);
 const welcomeKey = "openswmm.welcome";
 function showWelcome() {
   closeMenus();
+  $("wcontinue").hidden = !!project || !saved; // at startup, before anything is open
   if (!$("welcome").open) $("welcome").showModal();
 }
+/** The project kept in this browser (read at startup), or null. */
+let saved = null;
+/** A choice on the welcome screen is loading a project (an example or files). */
+let choosing = false;
+let opening = null;
+/** Nothing else chosen: the project kept in this browser, else the Bellinge example. */
+function openDefault() {
+  if (project) return Promise.resolve();
+  return (opening ??= (async () => {
+    busy(true);
+    try {
+      if (saved) install(saved.project, saved.run);
+      else await example("bellinge");
+    } catch {
+      try {
+        await example("bellinge");
+      } catch (second) {
+        feedback(second);
+      }
+    }
+    busy(false);
+  })().finally(() => (opening = null)));
+}
+// Leaving the welcome screen at startup without a choice (Continue, Esc) opens the default project.
+$("welcome").addEventListener("close", () => {
+  if (!project && !choosing) openDefault();
+});
+$("wcontinue").onclick = () => $("welcome").close();
 $("welcomebtn").onclick = showWelcome;
 $("wclose").onclick = () => $("welcome").close();
 $("wstartup").onchange = () => {
@@ -1061,13 +1114,23 @@ $("wstartup").onchange = () => {
     );
   } catch {}
 };
+$("wopen").onclick = () => {
+  choosing = !project; // the file picker loads the project; cancelling it opens the default
+  $("welcome").close();
+  $("open").click();
+};
+$("input").addEventListener("cancel", () => {
+  choosing = false;
+  if (!project) openDefault();
+});
+// A surface study and a coupling start from a model in the workbench.
 for (const [id, target] of [
-  ["wopen", "open"],
   ["wstudy", "study"],
   ["wattach", "attach"],
 ])
-  $(id).onclick = () => {
+  $(id).onclick = async () => {
     $("welcome").close();
+    await openDefault();
     $(target).click();
   };
 for (const card of document.querySelectorAll("#welcome .ex"))
@@ -1075,8 +1138,15 @@ for (const card of document.querySelectorAll("#welcome .ex"))
     if (job) return;
     const key = card.dataset.example;
     $("example").value = key;
+    choosing = true;
     $("welcome").close();
-    example(key).then(persist).catch(feedback);
+    example(key)
+      .then(persist)
+      .catch((e) => {
+        feedback(e);
+        if (!project) openDefault();
+      })
+      .finally(() => (choosing = false));
   };
 
 // Help and keyboard shortcuts.
@@ -1127,28 +1197,22 @@ if (crossOriginIsolated && config.threads)
 if (crossOriginIsolated && config.webgpu && "gpu" in navigator)
   $("compute").append(new Option("GPU · WebGPU 2D (experimental)", "webgpu"));
 
-busy(true);
 $("stop").hidden = true;
-let saved = null;
-try {
-  saved = await restore().catch(() => null);
-  if (saved) install(saved.project, saved.run);
-  else await example("bellinge");
-} catch (e) {
-  try {
-    await example("bellinge");
-  } catch (second) {
-    feedback(second);
-  }
+// Startup: the welcome screen, and nothing opens until a choice there; Continue (or Esc) reopens the
+// project kept in this browser (on a first visit, the Bellinge example). With "Show at startup" off,
+// that project reopens at once.
+saved = await restore().catch(() => null);
+if (saved) {
+  $("wlastname").textContent = saved.project.name;
+  if (saved.run) $("wlastnote").textContent = "Reopen the project kept in this browser, with its last run's results";
 }
-busy(false);
 let welcomePref = null;
 try {
   welcomePref = localStorage.getItem(welcomeKey);
 } catch {}
-$("wstartup").checked = welcomePref === "always";
-if (welcomePref === "always" || (welcomePref !== "never" && !saved))
-  showWelcome();
+$("wstartup").checked = welcomePref !== "never";
+if (welcomePref === "never") await openDefault();
+else showWelcome();
 
 // ---- Time series plots: what the panel adds, and reading series ----------------------------------
 /** The current model's units: its flow units and the unit system they imply. */

@@ -21,6 +21,11 @@ self.addEventListener("install", (event) => {
     })(),
   );
 });
+// The page asks a waiting version to take over (app.mjs update): a reload is then enough to update,
+// instead of closing every workbench tab.
+self.addEventListener("message", (event) => {
+  if (event.data === "skip-waiting") self.skipWaiting();
+});
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {

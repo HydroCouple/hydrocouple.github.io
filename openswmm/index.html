@@ -55,6 +55,7 @@
         <span class="chip project" id="modelname">Opening example…</span>
         <span class="chip soft device" id="backend">Local solver</span>
         <span class="chip ok" id="offline" hidden>● Offline ready</span>
+        <button class="chip ok update" id="update" type="button" hidden title="A newer version of the workbench is ready">↻ Update ready · reload</button>
         <button class="tb icon" id="help" aria-label="Keyboard shortcuts and help"><svg aria-hidden="true"><use href="#i-help" /></svg></button>
         <a class="tb" href="https://github.com/HydroCouple"><svg aria-hidden="true"><use href="#i-code" /></svg>Source</a>
       </header>
@@ -249,6 +250,7 @@
           <img src="./vendor/brand/hydrocouple.png" alt="" />
           <div><h2 id="welcometitle">OpenSWMM</h2><small>Browser workbench · HydroCouple</small></div>
         </div>
+        <button class="act" id="wcontinue" hidden><span class="ic"><svg aria-hidden="true"><use href="#i-play" /></svg></span><div><b>Continue <span id="wlastname"></span></b><span id="wlastnote">Reopen the project kept in this browser</span></div></button>
         <button class="act" id="wopen"><span class="ic"><svg aria-hidden="true"><use href="#i-folder" /></svg></span><div><b>Open model files</b><span>An INP with its rainfall, time series, mesh and hot-start files, or a project ZIP exported earlier</span></div></button>
         <button class="act" id="wstudy"><span class="ic"><svg aria-hidden="true"><use href="#i-terrain" /></svg></span><div><b>New surface study</b><span>Pick an area, fetch terrain, build a 2D mesh and a design storm</span></div></button>
         <button class="act" id="wattach"><span class="ic flag"><svg aria-hidden="true"><use href="#i-link" /></svg></span><div><b>Couple a 1D network</b><span>Open a surface model, then connect a drainage network with reviewed exchanges</span></div></button>
