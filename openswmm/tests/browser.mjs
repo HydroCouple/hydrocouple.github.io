@@ -29,6 +29,17 @@ try {
   await page.keyboard.press(" "); // Space plays
   await page.waitForFunction(() => !/^1 \//.test(document.getElementById("step").textContent));
   assert.match(await page.locator("#volume").innerText(), /250/);
+  // Water depth style (V4a): filled contours in 4 equal classes list 4 classes in the legend; Reset
+  // returns to the continuous ramp.
+  await page.getByRole("button", { name: "Water depth style" }).click();
+  await page.locator('select[aria-label="Display"]').selectOption("bands");
+  await page.locator('select[aria-label="Classes"]').selectOption("equal");
+  await page.locator('input[aria-label="Number of classes"]').fill("4");
+  await page.getByRole("button", { name: "Done" }).click();
+  await page.waitForFunction(() => document.querySelectorAll(".layer-classes li").length === 4);
+  await page.getByRole("button", { name: "Water depth style" }).click();
+  await page.getByRole("button", { name: "Reset" }).click();
+  await page.waitForFunction(() => document.querySelectorAll(".layer-classes li").length === 0);
   await page.getByRole("button", { name: "View report" }).click();
   assert.ok((await page.locator("#content pre").innerText()).length > 200);
   await page.getByRole("button", { name: "Close dialog" }).click();

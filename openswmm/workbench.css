@@ -1996,3 +1996,37 @@ dialog:has(.lid-usage-editor) {
   overflow: auto;
   padding: 0 10px 10px;
 }
+/* Water depth legend classes and the Style button (interaction phase V4a). */
+.layer-classes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.layer-classes li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.layer-classes .sw {
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  flex: none;
+}
+.layer-row .layer-style {
+  height: 24px;
+  padding: 0 7px;
+  font-size: 11.5px;
+  margin-left: auto;
+}
+.depth-style .ramp-preview {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  margin: 2px 0 4px;
+}

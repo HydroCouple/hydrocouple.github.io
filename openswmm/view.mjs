@@ -1,9 +1,12 @@
 import { symbols, markerOutline } from "./layers.mjs";
 import { pickAt, pickInRect, pickInPolygon, modeFor, describeSelection } from "./selection.mjs";
+import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, rampColor } from "./depth-style.mjs";
 /** Screen speed of a flow streak at the frame's reference speed (px/s). */
 const STREAK_SPEED = 45;
 /** Highlight color of selected objects. */
 const SELECTED = "#e6007e";
+/** Filled contour bands start at this depth: below it a vertex counts as dry. */
+const DRY = 1e-3;
 const nodeKinds = ["junctions", "outfalls", "storage", "dividers"],
   linkKinds = ["conduits", "pumps", "orifices", "weirs", "outlets"];
 const typeNames = { junctions: "junction", outfalls: "outfall", storage: "storage unit", dividers: "divider", conduits: "conduit", pumps: "pump", orifices: "orifice", weirs: "weir", outlets: "outlet" };
@@ -249,6 +252,9 @@ export class ModelView {
     );
     if (!points.length) this.bounds = [0, 0, 100, 100];
     this.polys = geo.cells.map((cell) => cell.map((v) => [geo.x[v], geo.y[v]]));
+    this.tris = triangles(geo.cells);
+    this.runPeak = 0;
+    this.contours = null; // cached band and line geometry for one frame and style
     this.bins = new Map();
     const [l, b, r, t] = this.bounds;
     this.binSize =
@@ -300,7 +306,8 @@ export class ModelView {
     // a fixed distance on screen, whatever the mesh size or zoom.
     const speeds = this.wet.map((i) => Math.hypot(frame.u[i], frame.v[i])).sort((a, b) => a - b);
     this.speedRef = Math.max(1e-9, speeds[Math.floor(0.95 * (speeds.length - 1))] || 0);
-    this.layers.setLegend("depth", frame ? { min: 0, max: peak, unit: "m" } : null);
+    this.runPeak = Math.max(this.runPeak || 0, peak);
+    this.depthLegend();
     this.draw();
   }
   advance(dt) {
@@ -358,6 +365,29 @@ export class ModelView {
       Object.assign(p, { x, y, cell: next, age: p.age + dt });
     }
   }
+  /**
+   * The mesh vertices on screen now, as [x0, y0, x1, y1, …]. On the basemap their lon/lat are kept
+   * per geometry and placement, so a redraw only asks the map to project them.
+   */
+  projectVertices() {
+    const g = this.geo,
+      n = g.x.length,
+      V = new Float64Array(2 * n);
+    if (this.map && this.placement) {
+      if (this.lonLat?.geo !== g || this.lonLat.placement !== this.placement) {
+        const ll = new Float64Array(2 * n);
+        for (let k = 0; k < n; k++) [ll[2 * k], ll[2 * k + 1]] = this.placement.toLonLat(g.x[k], g.y[k]);
+        this.lonLat = { geo: g, placement: this.placement, ll };
+      }
+      const ll = this.lonLat.ll;
+      for (let k = 0; k < n; k++) {
+        const q = this.map.project([ll[2 * k], ll[2 * k + 1]]);
+        V[2 * k] = q.x;
+        V[2 * k + 1] = q.y;
+      }
+    } else for (let k = 0; k < n; k++) [V[2 * k], V[2 * k + 1]] = this.project(g.x[k], g.y[k]);
+    return V;
+  }
   /** A new placement for the same geometry (a CRS resolved after the model was shown). */
   setPlacement(placement) {
     this.placement = placement;
@@ -408,6 +438,79 @@ export class ModelView {
     if (this.map) this.map.zoomTo(this.map.getZoom() + Math.log2(f));
     else this.zoom = Math.min(100, Math.max(0.1, this.zoom * f));
     this.draw();
+  }
+  /** Observe the water depth style (depth-style.mjs): classes, colors, range, contours. */
+  useDepthStyle(style) {
+    this.depthStyle = style;
+    style.addEventListener("change", () => {
+      this.contours = null;
+      this.depthLegend();
+      this.draw();
+    });
+  }
+  /**
+   * How depth is colored now: the range (per frame, whole run or fixed), the class breaks (none for
+   * a continuous ramp) and the color of a value. Kept until the frame or the style changes (the
+   * streak animation redraws many times a frame).
+   */
+  depthScheme() {
+    const st = this.depthStyle?.state || { method: "continuous", range: "frame", ramp: "blues", display: "cells" };
+    const f = this.frame;
+    const key = this.peak + "|" + this.runPeak + "|" + JSON.stringify(st);
+    if (this.scheme?.frame === f && this.scheme.key === key) return this.scheme;
+    let lo = 0,
+      hi = this.peak || 0.001;
+    if (st.range === "run") hi = Math.max(this.runPeak || 0, hi);
+    if (st.range === "fixed") [lo, hi] = [st.min, st.max];
+    const bands = st.display === "bands";
+    let breaks = null;
+    if (st.method !== "continuous" || bands) {
+      const method = st.method === "continuous" ? "equal" : st.method;
+      const wet = f ? Array.from(f.depth).filter((d) => d > DRY) : [];
+      breaks = classBreaks(wet, method, st.method === "continuous" ? 8 : st.classes, Math.max(lo, bands ? DRY : lo), hi, st.manual);
+    }
+    const n = breaks ? breaks.length - 1 : 0;
+    const classColor = (k) => rampColor(st.ramp, n > 1 ? k / (n - 1) : 1, st.invert);
+    const colorOf = (d) => {
+      if (!breaks) return rampColor(st.ramp, (d - lo) / (hi - lo || 1), st.invert);
+      let k = 0;
+      while (k < n - 1 && d >= breaks[k + 1]) k++;
+      return classColor(k);
+    };
+    return (this.scheme = { frame: f, key, st, lo, hi, breaks, classColor, colorOf });
+  }
+  /** The layer panel's depth legend: the classes, or the ramp with its range. */
+  depthLegend() {
+    if (!this.frame) return this.layers.setLegend("depth", null);
+    const { st, lo, hi, breaks, classColor } = this.depthScheme();
+    this.layers.setLegend("depth", {
+      min: lo,
+      max: hi,
+      unit: this.lengthUnit || "m",
+      ramp: Array.from({ length: 7 }, (_, i) => rampColor(st.ramp, i / 6, st.invert)),
+      classes: breaks ? breaks.slice(0, -1).map((from, k) => ({ from, to: breaks[k + 1], color: classColor(k), last: k === breaks.length - 2 })) : null,
+    });
+  }
+  /** Band and line geometry for the current frame and style, made once and kept until either changes. */
+  contourGeometry(scheme) {
+    const st = scheme.st,
+      f = this.frame;
+    const key = JSON.stringify(st) + "|" + scheme.lo + "|" + scheme.hi + "|" + (scheme.breaks || []).join(",");
+    if (this.contours?.frame === f && this.contours.key === key) return this.contours;
+    const values = vertexValues(this.geo.cells, f.depth, this.geo.x.length);
+    const levels = st.lines ? contourLevels(Math.max(scheme.lo, DRY), scheme.hi, { mode: st.levelMode, count: st.levelCount, interval: st.interval, base: st.base }) : [];
+    const index = levels.map((v, i) =>
+      st.indexEvery > 0 && (st.levelMode === "interval" ? Math.round((v - st.base) / st.interval) % st.indexEvery === 0 : (i + 1) % st.indexEvery === 0),
+    );
+    this.contours = {
+      frame: f,
+      key,
+      bands: st.display === "bands" && scheme.breaks ? contourBands(this.tris, values, scheme.breaks) : null,
+      levels,
+      index,
+      lines: levels.length ? isolines(this.tris, values, levels) : [],
+    };
+    return this.contours;
   }
   /** Observe a selection model (selection.mjs): the map draws it and changes it. */
   useSelection(selection) {
@@ -546,6 +649,8 @@ export class ModelView {
       c.stroke();
     };
     const n = this.network || {};
+    let PV = null;
+    const vertices = () => PV || (PV = this.projectVertices());
     // Each category's own paint order; the categories go bottom → top as the tree says.
     const paint = {
       meshes: () => {
@@ -555,8 +660,10 @@ export class ModelView {
         c.fillStyle = "rgba(74,100,128,.12)";
         c.strokeStyle = "rgba(47,93,134,.6)";
         c.lineWidth = 0.75;
-        for (const p of this.polys || []) {
-          line(p);
+        const V = vertices();
+        for (const cell of this.geo.cells) {
+          c.beginPath();
+          cell.forEach((v, j) => (j ? c.lineTo(V[2 * v], V[2 * v + 1]) : c.moveTo(V[2 * v], V[2 * v + 1])));
           c.closePath();
           if (fill) c.fill();
           if (edges) c.stroke();
@@ -591,19 +698,83 @@ export class ModelView {
           if (L.visible(kind)) for (const p of n[kind] || []) marker(kind, p);
       },
       outputs2d: () => {
-        if (f && L.visible("depth"))
-          (this.polys || []).forEach((p, i) => {
-            const d = f.depth[i];
-            if (!(d > 0.00001)) return;
-            const a = Math.min(1, d / this.peak);
-            line(p);
-            c.closePath();
-            c.fillStyle =
-              "rgba(" +
-              [Math.round(217 - 217 * a), Math.round(237 - 156 * a), Math.round(255 - 115 * a), 0.9].join(",") +
-              ")";
-            c.fill();
-          });
+        if (f && L.visible("depth")) {
+          const scheme = this.depthScheme();
+          const geom = scheme.st.display === "bands" || scheme.st.lines ? this.contourGeometry(scheme) : null;
+          // Band and line points lie along mesh edges: [a, b, t] between projected vertices.
+          const V = vertices();
+          const point = ([a, b, t]) => [V[2 * a] + t * (V[2 * b] - V[2 * a]), V[2 * a + 1] + t * (V[2 * b + 1] - V[2 * a + 1])];
+          c.globalAlpha *= 0.9;
+          if (geom?.bands)
+            geom.bands.forEach((polys, k) => {
+              c.beginPath();
+              // Each polygon is closed with a line back to its start: closePath on a path of many
+              // thousand polygons took seconds in Chrome.
+              for (const poly of polys) {
+                poly.forEach((q, j) => {
+                  const [x, y] = point(q);
+                  if (j) c.lineTo(x, y);
+                  else c.moveTo(x, y);
+                });
+                const [x0, y0] = point(poly[0]);
+                c.lineTo(x0, y0);
+              }
+              c.fillStyle = scheme.classColor(k);
+              c.fill();
+              // A hairline of the same color closes the seams between neighboring triangles.
+              c.strokeStyle = c.fillStyle;
+              c.lineWidth = 0.6;
+              c.stroke();
+            });
+          else
+            this.geo.cells.forEach((cell, i) => {
+              const d = f.depth[i];
+              if (!(d > 0.00001)) return;
+              c.beginPath();
+              cell.forEach((v, j) => (j ? c.lineTo(V[2 * v], V[2 * v + 1]) : c.moveTo(V[2 * v], V[2 * v + 1])));
+              c.closePath();
+              c.fillStyle = scheme.colorOf(d);
+              c.fill();
+            });
+          c.globalAlpha /= 0.9;
+          if (geom?.lines.length) {
+            const ink = getComputedStyle(this.canvas).getPropertyValue("--ink").trim() || "#0a1c2e";
+            c.strokeStyle = ink;
+            geom.lines.forEach((segs, i) => {
+              c.lineWidth = geom.index[i] ? 1.6 : 0.8;
+              c.beginPath();
+              for (const [p, q] of segs) {
+                const [x0, y0] = point(p),
+                  [x1, y1] = point(q);
+                c.moveTo(x0, y0);
+                c.lineTo(x1, y1);
+              }
+              c.stroke();
+            });
+            if (scheme.st.labels) {
+              // A few labels per level, on segments long enough to read, with a halo.
+              const surface = getComputedStyle(this.canvas).getPropertyValue("--surface").trim() || "#fff";
+              c.font = "10px Inter, system-ui, sans-serif";
+              c.textAlign = "center";
+              c.textBaseline = "middle";
+              c.lineJoin = "round";
+              geom.lines.forEach((segs, i) => {
+                const text = String(+geom.levels[i].toPrecision(3));
+                const every = Math.max(1, Math.floor(segs.length / 3));
+                for (let s2 = Math.floor(every / 2); s2 < segs.length; s2 += every) {
+                  const [x0, y0] = point(segs[s2][0]),
+                    [x1, y1] = point(segs[s2][1]);
+                  if (Math.hypot(x1 - x0, y1 - y0) < 3) continue;
+                  c.lineWidth = 3;
+                  c.strokeStyle = surface;
+                  c.strokeText(text, (x0 + x1) / 2, (y0 + y1) / 2);
+                  c.fillStyle = ink;
+                  c.fillText(text, (x0 + x1) / 2, (y0 + y1) / 2);
+                }
+              });
+            }
+          }
+        }
         if (L.visible("streaks")) {
           c.strokeStyle = this.map ? "#ffe07a" : "#ffae3b";
           c.lineWidth = 1.7;

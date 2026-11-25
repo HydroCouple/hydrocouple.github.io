@@ -11,6 +11,8 @@ import { Editor } from "./editor.mjs";
 import { SelectionModel } from "./selection.mjs";
 import { PlotModel, maxSeries } from "./plots.mjs";
 import { plotPanel } from "./plot-view.mjs";
+import { DepthStyle } from "./depth-style.mjs";
+import { depthStyleForm } from "./depth-style-view.mjs";
 import { scenarioPanel } from "./scenarios.mjs";
 const $ = (id) => document.getElementById(id),
   decoder = new TextDecoder(),
@@ -34,11 +36,17 @@ try {
 } catch {}
 // The layer tree is the one model the Layers panel and the map both read.
 const layers = new LayerTree({ reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches });
-layersPanel($("layertree"), layers);
+layersPanel($("layertree"), layers, {
+  onStyle: () =>
+    dialog("Water depth style", depthStyleForm(depthStyle, { unit: view.lengthUnit || "m", onClose: () => $("dialog").close() })),
+});
 const view = new ModelView(config.mapboxPublicToken, layers);
 // The selection (MVC): the map and the inspector both change it and both follow it.
 const selection = new SelectionModel();
 view.useSelection(selection);
+// Water depth styling (MVC): classes, colors, range and contours; the map and legend follow it.
+const depthStyle = new DepthStyle();
+view.useDepthStyle(depthStyle);
 // Time series plots (MVC): the plot model; its panel view is made once the editor exists.
 const plots = new PlotModel();
 const panelLayout = new PanelLayout();
@@ -199,6 +207,7 @@ function install(p, r = null) {
   if (!p?.inputs?.[p.entry]) throw new Error("Missing model input");
   if (p.name !== project?.name || p.entry !== project?.entry) plots.clear();
   plotFlowUnits = /^\s*FLOW_UNITS\s+(\S+)/im.exec(decoder.decode(p.inputs[p.entry]))?.[1]?.toUpperCase() || "CFS";
+  view.lengthUnit = ["CMS", "LPS", "MLD"].includes(plotFlowUnits) ? "m" : "ft";
   project = p;
   run = r;
   timeline.pause(); // finishUI loads this model's frames, if it has any

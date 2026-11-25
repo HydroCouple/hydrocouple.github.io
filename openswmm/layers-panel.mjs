@@ -42,7 +42,8 @@ function swatch(leaf) {
  * @param {HTMLElement} root the container (emptied)
  * @param {import("./layers.mjs").LayerTree} layers
  */
-export function layersPanel(root, layers) {
+/** @param {{onStyle?: (leaf: string) => void}} [o] `onStyle` opens a layer's style (the water depth) */
+export function layersPanel(root, layers, { onStyle } = {}) {
   const checks = new Map(), // id → checkbox (leaves, groups, categories)
     rows = new Map(), // leaf → row element
     groupBoxes = new Map(), // group id → element
@@ -56,7 +57,7 @@ export function layersPanel(root, layers) {
     checks.set(id, box);
     return box;
   };
-  let note, scale, legendRow;
+  let note, scale, legendRow, ramp, classes;
   for (const cat of layers.categories()) {
     const head = el(
       "div",
@@ -102,8 +103,15 @@ export function layersPanel(root, layers) {
         rows.set(leaf, row);
         box.append(row);
         if (leaf === "depth") {
+          if (onStyle) {
+            const style = el("button", { type: "button", className: "tb ghost layer-style", textContent: "Style…", ariaLabel: "Water depth style" });
+            style.onclick = () => onStyle("depth");
+            row.append(style);
+          }
           scale = el("span", { id: "scale" });
-          legendRow = el("div", { className: "layer-legend" }, el("span", { className: "ramp" }), scale);
+          ramp = el("span", { className: "ramp" });
+          classes = el("ul", { className: "layer-classes", ariaLabel: "Water depth classes" });
+          legendRow = el("div", { className: "layer-legend" }, ramp, classes, scale);
           box.append(legendRow);
         }
         if (leaf === "basemap") {
@@ -155,7 +163,21 @@ export function layersPanel(root, layers) {
     note.textContent = layers.note("basemap");
     const legend = layers.legend("depth");
     legendRow.hidden = !layers.visible("depth") || !legend;
-    if (legend) scale.textContent = legend.min + " — " + legend.max.toPrecision(3) + " " + legend.unit;
+    if (legend) {
+      const v = (x) => String(+x.toPrecision(3));
+      // Classes: a swatch and its range each; a continuous ramp: the gradient and its range.
+      ramp.hidden = !!legend.classes;
+      if (legend.ramp) ramp.style.background = "linear-gradient(to right, " + legend.ramp.join(", ") + ")";
+      classes.replaceChildren(
+        ...(legend.classes || []).map((k) => {
+          const sw = el("span", { className: "sw" });
+          sw.style.background = k.color;
+          return el("li", {}, sw, el("span", { textContent: v(k.from) + (k.last ? "+" : " – " + v(k.to)) + " " + legend.unit }));
+        }),
+      );
+      scale.hidden = !!legend.classes;
+      scale.textContent = v(legend.min) + " — " + v(legend.max) + " " + legend.unit;
+    }
   }
   layers.addEventListener("change", update);
   update();

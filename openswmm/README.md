@@ -20,6 +20,8 @@ The inspector's **Edit object** block edits the model through the engine itself:
 
 **Plots.** **Plot** (below the map) opens the time series panel and adds the selected objects; in the panel, **Add selection as** adds them as any variable of their kind (node depth, head, volume, inflows, flooding; link flow, depth, velocity, volume, capacity; subcatchment runoff, rainfall, infiltration, evaporation, snow and groundwater; a 2D cell's depth and speed) or adds a system series. Each variable gets its own chart row on a shared time axis (never two y-axes), up to eight series in all, each keeping its color. A crosshair lists every series at the time under the pointer (the arrow keys move it on a focused chart), the time bar's current time is marked, and a click on a chart moves the time bar there. **Table** shows the values, **CSV** and **PNG** export them, and the panel resizes from its top edge. Network and system series are read from the run's binary output (for the objects the model reports) while the editing engine waits; 2D cells come from the frames in memory.
 
+**Water depth style.** **Style…** on the Water depth layer sets how depths are drawn. **Display** colors each cell, or draws filled contours: the cells' depths are averaged to the mesh vertices and each triangle is cut into bands between class breaks. **Classes** are a continuous ramp (the default) or equal intervals, quantiles, natural breaks or a list of breaks; the **color ramp** is Blues (the default), Viridis, Cividis, Magma, Inferno or Plasma, optionally inverted, stretched over each frame's range, the whole run's or a fixed range. **Contour lines** follow a number of levels or an interval from a base, with every Nth an index line and optional labels. The legend lists the classes, and the style is remembered in this browser. In filled contours and contour lines, depths under 0.001 m (or ft) count as dry and stay clear.
+
 Edits through these editors mean the same as the same edits in the deck text: the engine writes the same deck and the run writes the same binary output.
 
 Open a bundled example, an INP and its companion files, or a previously exported project ZIP. Select **Run model** to create local native reports and binary outputs. A running model can be **paused** and resumed between report steps; **Stop job** ends it at the next report step and keeps the report and outputs written so far (a second press, offered after eight seconds, kills the worker instead).
@@ -69,7 +71,7 @@ Build the runtimes locally from the engine revision engine.wasm pins: its TypeSc
 
 ```sh
 node openswmm/prepare.mjs --engine /path/to/openswmm.engine.wasm --mesh /path/to/MeshKit --jszip /path/to/jszip-package --proj4 /path/to/proj4-package --epsg /path/to/epsg-index-package
-node --test openswmm/tests/model.test.mjs openswmm/tests/records.test.mjs openswmm/tests/crs.test.mjs openswmm/tests/layers.test.mjs openswmm/tests/panels.test.mjs openswmm/tests/timeline.test.mjs openswmm/tests/selection.test.mjs openswmm/tests/plots.test.mjs
+node --test openswmm/tests/model.test.mjs openswmm/tests/records.test.mjs openswmm/tests/crs.test.mjs openswmm/tests/layers.test.mjs openswmm/tests/panels.test.mjs openswmm/tests/timeline.test.mjs openswmm/tests/selection.test.mjs openswmm/tests/plots.test.mjs openswmm/tests/depth-style.test.mjs
 node openswmm/tests/serve.mjs
 node openswmm/tests/browser.mjs   # with the server running and Playwright installed in openswmm/tests
 ```
