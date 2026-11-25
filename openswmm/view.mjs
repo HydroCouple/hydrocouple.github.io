@@ -2,12 +2,14 @@ import { symbols, markerOutline, basemapSource } from "./layers.mjs";
 import { pickAt, pickInRect, pickInPolygon, modeFor, describeSelection } from "./selection.mjs";
 import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, rampColor } from "./depth-style.mjs";
 import { Scene3D } from "./scene3d.mjs";
+import { rgbOf, isLight } from "./streak-style.mjs";
 /** Screen speed of a flow streak at the frame's reference speed (px/s). */
 const STREAK_SPEED = 45;
 /**
  * Flow streak shape, after the desktop's defaults (FlowStreakStyle): a teardrop with a 2.5 px round
  * head, a 1.5 px body tapering to a quarter of that at the tail, 85% white fading toward the tail,
- * a half-pixel dark halo outside it, and a fade in and out over each particle's life (seconds).
+ * a half-pixel dark halo outside it, and a fade in and out over each particle's life (seconds). The
+ * streak style model (streak-style.mjs) sets the density, color, width, trail and speed.
  */
 const STREAK = { trail: 1.5, body: 1.5, head: 2.5, alpha: 0.85, halo: 0.65, fade: 0.6, life: [3, 6] };
 const smoothstep = (x) => {
@@ -356,6 +358,7 @@ export class ModelView {
     this.speedRef = Math.max(1e-9, speeds[Math.floor(0.95 * (speeds.length - 1))] || 0);
     this.runPeak = Math.max(this.runPeak || 0, peak);
     this.depthLegend();
+    this.streakLegend();
     this.draw();
   }
   advance(dt) {
@@ -365,14 +368,16 @@ export class ModelView {
     }
     const now = (this.clock = (this.clock || 0) + dt),
       dry = this.dry();
-    const count = Math.min(1200, Math.max(30, this.wet.length * 3)),
-      f = this.frame;
+    const S = this.streak(),
+      count = Math.round(Math.min(1200 * S.density, Math.max(30, this.wet.length * 3 * S.density)));
+    if (this.particles.length > count) this.particles.length = count; // a lower density drops the rest
+    const f = this.frame;
     // Particles move in screen space: at the reference speed about STREAK_SPEED px/s (faster cells
     // up to twice that). Model units per step = speed × k, k from the current pixels per unit.
     const [l, b, r, t] = this.bounds,
       [x0, y0] = this.project((l + r) / 2, (b + t) / 2),
       [x1, y1] = this.project((l + r) / 2 + 1, (b + t) / 2);
-    const k = (STREAK_SPEED * dt) / ((Math.hypot(x1 - x0, y1 - y0) || 1) * this.speedRef);
+    const k = (STREAK_SPEED * S.speed * dt) / ((Math.hypot(x1 - x0, y1 - y0) || 1) * this.speedRef);
     for (let i = 0; i < count; i++) {
       let p = this.particles[i];
       // A particle lives a few seconds; one that stopped on dry ground fades out first.
@@ -398,7 +403,7 @@ export class ModelView {
         this.particles[i] = p;
       }
       // Samples older than the trail drop off, so a stopped particle's tail draws in to its head.
-      while (p.trail.length && now - p.trail[0][2] > STREAK.trail) p.trail.shift();
+      while (p.trail.length && now - p.trail[0][2] > S.trail) p.trail.shift();
       if (p.stopped !== null) continue;
       if (!(f.depth[p.cell] > dry)) {
         p.stopped = now;
@@ -460,7 +465,19 @@ export class ModelView {
    */
   drawStreaks(c) {
     const now = this.clock || 0,
-      S = STREAK;
+      S = this.streak(),
+      f = this.frame;
+    // Colors: one for all, or each particle's from its cell's speed on the ramp (cached in 64 steps);
+    // the edge is dark under light colors and white under dark ones.
+    const tone = (rgb) => ({ rgb: rgb.join(","), halo: isLight(rgb) ? "20,51,71" : "255,255,255" });
+    const single = tone(rgbOf(S.color)),
+      tones = new Map();
+    const colorOf = (p) => {
+      if (S.mode !== "speed" || !f) return single;
+      const step = Math.round(Math.min(1, Math.hypot(f.u[p.cell], f.v[p.cell]) / (2 * (this.speedRef || 1))) * 63);
+      if (!tones.has(step)) tones.set(step, tone(rgbOf(rampColor(S.ramp, step / 63, S.invert))));
+      return tones.get(step);
+    };
     const width = (f) => S.body * Math.max(0.25, f) + (S.head - S.body) * smoothstep((f - 0.75) * 4);
     // On the basemap a trail sample keeps its lon/lat (s[3]), so a redraw only projects it.
     const screen =
@@ -469,7 +486,7 @@ export class ModelView {
             const q = this.map.project(s[3] || (s[3] = this.placement.toLonLat(s[0], s[1])));
             return [q.x, q.y];
           }
-        : (s) => this.project(s[0], s[1]);
+        : ((P) => (s) => P(s[0], s[1]))(this.projector());
     for (const p of this.particles) {
       if (!p) continue;
       const fade = Math.min(S.fade, p.life * 0.2),
@@ -480,15 +497,18 @@ export class ModelView {
       // Screen points from the head back, skipping samples under half a pixel apart.
       const head = screen([p.x, p.y]),
         pts = [[head[0], head[1], now]];
-      for (let i = p.trail.length - 1; i >= 0; i--) {
+      // A long trail is drawn from every other sample (its oldest kept): still smooth, half the work.
+      const stride = p.trail.length > 24 ? 2 : 1;
+      for (let i = p.trail.length - 1; i >= 0; i = i > 0 && i - stride < 0 ? 0 : i - stride) {
         const [x, y] = screen(p.trail[i]),
           q = pts[pts.length - 1];
         if (Math.hypot(x - q[0], y - q[1]) >= 0.5) pts.push([x, y, p.trail[i][2]]);
       }
+      const col = colorOf(p);
       if (pts.length < 2) {
         c.beginPath();
         c.arc(head[0], head[1], S.head / 2, 0, 2 * Math.PI);
-        c.fillStyle = "rgba(255,255,255," + S.alpha * a + ")";
+        c.fillStyle = "rgba(" + col.rgb + "," + S.alpha * a + ")";
         c.fill();
         continue;
       }
@@ -521,11 +541,11 @@ export class ModelView {
       c.beginPath();
       outline(0.5);
       outline(0);
-      c.fillStyle = along("20,51,71", S.halo * S.alpha * a);
+      c.fillStyle = along(col.halo, S.halo * S.alpha * a);
       c.fill("evenodd");
       c.beginPath();
       outline(0);
-      c.fillStyle = along("255,255,255", S.alpha * a);
+      c.fillStyle = along(col.rgb, S.alpha * a);
       c.fill();
     }
   }
@@ -536,7 +556,26 @@ export class ModelView {
     if (this.map) this.fit();
     else this.draw();
   }
-  /** The model's bounds on the globe, `[[west, south], [east, north]]`, from its four corners. */
+  /**
+   * Model → screen for one draw: the same as project(), with the canvas size and scale read once
+   * (project() reads the layout on every call, which thousands of streak points a frame notice).
+   */
+  projector() {
+    if (this.map && this.placement)
+      return (x, y) => {
+        const q = this.map.project(this.placement.toLonLat(x, y));
+        return [q.x, q.y];
+      };
+    const [l, b, r, t] = this.bounds || [0, 0, 100, 100],
+      w = this.canvas.clientWidth,
+      h = this.canvas.clientHeight;
+    const k = Math.min(w / Math.max(1, r - l), h / Math.max(1, t - b)) * 0.76 * this.zoom,
+      cx = (r + l) / 2,
+      cy = (b + t) / 2,
+      ox = w / 2 + this.pan[0],
+      oy = h / 2 + this.pan[1];
+    return (x, y) => [ox + (x - cx) * k, oy - (y - cy) * k];
+  }
   /**
    * Where basemap previews look: the map's center and zoom when it is shown, else the model's middle at
    * a zoom that fits it, else the whole world. `{lon, lat, zoom}`
@@ -550,6 +589,7 @@ export class ModelView {
     const [[w, s], [e, n]] = this.lonLatBounds();
     return { lon: (w + e) / 2, lat: (s + n) / 2, zoom: Math.max(1, Math.min(16, Math.log2(360 / Math.max(1e-6, e - w)) + 0.5)) };
   }
+  /** The model's bounds on the globe, `[[west, south], [east, north]]`, from its four corners. */
   lonLatBounds() {
     const [l, b, r, t] = this.bounds;
     const corners = [
@@ -606,6 +646,30 @@ export class ModelView {
       }
     });
   }
+  /** Observe a streak style model (streak-style.mjs): the streaks and their legend follow it. */
+  useStreakStyle(style) {
+    this.streakStyle = style;
+    style.addEventListener("change", () => {
+      this.streakLegend();
+      this.draw();
+    });
+  }
+  /** The streaks' drawing parameters now: STREAK with the style's density, width, trail and speed. */
+  streak() {
+    const st = this.streakStyle?.state || {};
+    const body = st.width ?? STREAK.body;
+    return { ...STREAK, body, head: body + 1, trail: st.trail ?? STREAK.trail, speed: st.speed ?? 1, density: st.density ?? 1, mode: st.mode || "single", color: st.color || "#ffffff", ramp: st.ramp || "viridis", invert: !!st.invert };
+  }
+  /** The streaks' legend: the single color, or the speed ramp over 0 … twice the reference speed. */
+  streakLegend() {
+    const S = this.streak();
+    this.layers.setLegend(
+      "streaks",
+      S.mode === "speed" && this.frame
+        ? { ramp: Array.from({ length: 7 }, (_, i) => rampColor(S.ramp, i / 6, S.invert)), min: 0, max: 2 * (this.speedRef || 0), unit: "m/s" }
+        : { color: S.color },
+    );
+  }
   /** The model's dry depth (m): its DRY_DEPTH, or the engine's default. */
   modelDry() {
     return this.dryDepth ?? DRY;
@@ -629,8 +693,10 @@ export class ModelView {
     if (st.range === "run") hi = Math.max(this.runPeak || 0, hi);
     if (st.range === "fixed") [lo, hi] = [st.min, st.max];
     const bands = st.display === "bands";
+    // No water deeper than the threshold (all of it hidden): no classes, nothing to draw.
+    const empty = !(hi > Math.max(lo, this.dry()));
     let breaks = null;
-    if (st.method !== "continuous" || bands) {
+    if (!empty && (st.method !== "continuous" || bands)) {
       const method = st.method === "continuous" ? "equal" : st.method;
       const wet = f ? Array.from(f.depth).filter((d) => d > this.dry()) : [];
       breaks = classBreaks(wet, method, st.method === "continuous" ? 8 : st.classes, Math.max(lo, this.dry()), hi, st.manual);
@@ -643,12 +709,13 @@ export class ModelView {
       while (k < n - 1 && d >= breaks[k + 1]) k++;
       return classColor(k);
     };
-    return (this.scheme = { frame: f, key, st, lo, hi, breaks, classColor, colorOf });
+    return (this.scheme = { frame: f, key, st, lo, hi, breaks, classColor, colorOf, empty });
   }
   /** The layer panel's depth legend: the classes, or the ramp with its range. */
   depthLegend() {
     if (!this.frame) return this.layers.setLegend("depth", null);
-    const { st, lo, hi, breaks, classColor } = this.depthScheme();
+    const { st, lo, hi, breaks, classColor, empty } = this.depthScheme();
+    if (empty) return this.layers.setLegend("depth", { empty: true, min: this.dry(), unit: "m" });
     this.layers.setLegend("depth", {
       min: lo,
       max: hi,

@@ -11,8 +11,10 @@ import { Editor } from "./editor.mjs";
 import { SelectionModel } from "./selection.mjs";
 import { PlotModel, maxSeries } from "./plots.mjs";
 import { plotPanel } from "./plot-view.mjs";
-import { DepthStyle } from "./depth-style.mjs";
+import { DepthStyle, depthStyleDefaults } from "./depth-style.mjs";
 import { depthStyleForm } from "./depth-style-view.mjs";
+import { StreakStyle } from "./streak-style.mjs";
+import { streakStyleForm } from "./streak-style-view.mjs";
 import { basemapPicker } from "./basemaps-view.mjs";
 import { ProfileSet, networkOf, route, pipeProfile, peakIndex, lineSamples, atSamples } from "./profiles.mjs";
 import { profilePanel } from "./profile-view.mjs";
@@ -41,8 +43,10 @@ try {
 // The layer tree is the one model the Layers panel and the map both read.
 const layers = new LayerTree({ reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches });
 layersPanel($("layertree"), layers, {
-  onStyle: () =>
-    dialog("Water depth style", depthStyleForm(depthStyle, { dry: view.modelDry(), onClose: () => $("dialog").close() })),
+  onStyle: (leaf) =>
+    leaf === "streaks"
+      ? dialog("Flow streaks style", streakStyleForm(streakStyle, { onClose: () => $("dialog").close() }))
+      : dialog("Water depth style", depthStyleForm(depthStyle, { dry: view.modelDry(), onClose: () => $("dialog").close() })),
   onAddBasemap: () =>
     dialog(
       "Add basemap",
@@ -64,6 +68,9 @@ view.useSelection(selection);
 // Water depth styling (MVC): classes, colors, range and contours; the map and legend follow it.
 const depthStyle = new DepthStyle();
 view.useDepthStyle(depthStyle);
+// Flow streak styling (MVC): density, color or color by speed, width, trail, speed.
+const streakStyle = new StreakStyle();
+view.useStreakStyle(streakStyle);
 // Time series plots (MVC): the plot model; its panel view is made once the editor exists.
 const plots = new PlotModel();
 // Profiles (MVC): the open pipe and terrain profiles, tabs of the bottom panel beside the plots.
@@ -261,7 +268,7 @@ function install(p, r = null) {
   if (p.name !== project?.name || p.entry !== project?.entry) {
     plots.clear();
     profiles.clear();
-    depthStyle.set({ hideBelow: null }); // a depth threshold belongs to one model
+    depthStyle.set({ hideBelow: depthStyleDefaults.hideBelow }); // a depth threshold belongs to one model
   }
   const deck = decoder.decode(p.inputs[p.entry]);
   plotFlowUnits = /^\s*FLOW_UNITS\s+(\S+)/im.exec(deck)?.[1]?.toUpperCase() || "CFS";

@@ -29,17 +29,20 @@ try {
   await page.keyboard.press(" "); // Space plays
   await page.waitForFunction(() => !/^1 \//.test(document.getElementById("step").textContent));
   assert.match(await page.locator("#volume").innerText(), /250/);
-  // Water depth style (V4a): filled contours in 4 equal classes list 4 classes in the legend; Reset
-  // returns to the continuous ramp.
+  // Water depth style (V4a): by default filled contours hide water no deeper than 0.05 m, and this
+  // millimeter-deep plane has none; with the threshold cleared (the model's dry depth), 4 equal classes
+  // list 4 classes in the legend; Reset returns to the default.
+  await page.waitForFunction(() => /^No water deeper than 0.05 m$/.test(document.getElementById("scale").textContent));
   await page.getByRole("button", { name: "Water depth style" }).click();
-  await page.locator('select[aria-label="Display"]').selectOption("bands");
+  await page.locator('input[aria-label="Hide water no deeper than"]').fill("");
+  await page.locator('input[aria-label="Hide water no deeper than"]').dispatchEvent("change");
   await page.locator('select[aria-label="Classes"]').selectOption("equal");
   await page.locator('input[aria-label="Number of classes"]').fill("4");
   await page.getByRole("button", { name: "Done" }).click();
   await page.waitForFunction(() => document.querySelectorAll(".layer-classes li").length === 4);
   await page.getByRole("button", { name: "Water depth style" }).click();
   await page.getByRole("button", { name: "Reset" }).click();
-  await page.waitForFunction(() => document.querySelectorAll(".layer-classes li").length === 0);
+  await page.waitForFunction(() => document.querySelectorAll(".layer-classes li").length === 0 && /^No water deeper/.test(document.getElementById("scale").textContent));
   await page.getByRole("button", { name: "View report" }).click();
   assert.ok((await page.locator("#content pre").innerText()).length > 200);
   await page.getByRole("button", { name: "Close dialog" }).click();

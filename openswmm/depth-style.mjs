@@ -256,8 +256,9 @@ export function chainSegments(segs) {
   return chains;
 }
 
-const defaults = {
-  display: "cells", // "cells" (flat cell colors) or "bands" (filled contours)
+/** The default style (owner 2026-11-25: filled contours, water no deeper than 0.05 m hidden). */
+export const depthStyleDefaults = {
+  display: "bands", // "cells" (flat cell colors) or "bands" (filled contours)
   method: "continuous", // continuous, equal, quantile, jenks, manual
   classes: 6,
   manual: [],
@@ -273,11 +274,13 @@ const defaults = {
   base: 0,
   indexEvery: 5,
   labels: false,
-  hideBelow: null, // hide water no deeper than this (m); null: the model's DRY_DEPTH
+  hideBelow: 0.05, // hide water no deeper than this (m); null: the model's DRY_DEPTH
 };
+const defaults = depthStyleDefaults;
 export class DepthStyle extends EventTarget {
   /** @param {{storage?: Storage, key?: string}} [o] where the style is remembered */
-  constructor({ storage, key = "openswmm.depthStyle" } = {}) {
+  // A new key when the defaults change, so every browser starts from them once.
+  constructor({ storage, key = "openswmm.depthStyle2" } = {}) {
     super();
     this.key = key;
     try {

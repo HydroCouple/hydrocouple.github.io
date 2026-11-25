@@ -60,7 +60,7 @@ export function layersPanel(root, layers, { onStyle, onAddBasemap } = {}) {
     checks.set(id, box);
     return box;
   };
-  let note, scale, legendRow, ramp, classes, bmRows;
+  let note, scale, legendRow, ramp, classes, bmRows, streakLegend, streakRamp, streakScale;
   /** One leaf's row (and, for some leaves, what follows it) appended to `host`. */
   function leafRow(leaf, host, nested) {
     const count = el("small", { className: "layer-count" });
@@ -73,12 +73,19 @@ export function layersPanel(root, layers, { onStyle, onAddBasemap } = {}) {
     );
     rows.set(leaf, row);
     host.append(row);
+    if ((leaf === "depth" || leaf === "streaks") && onStyle) {
+      const style = el("button", { type: "button", className: "tb ghost layer-style", textContent: "Style…", ariaLabel: layers.label(leaf) + " style" });
+      style.onclick = () => onStyle(leaf);
+      row.append(style);
+    }
+    if (leaf === "streaks") {
+      // Colored by speed: the ramp and its range.
+      streakRamp = el("span", { className: "ramp" });
+      streakScale = el("span", { className: "scale" });
+      streakLegend = el("div", { className: "layer-legend" }, streakRamp, streakScale);
+      host.append(streakLegend);
+    }
     if (leaf === "depth") {
-      if (onStyle) {
-        const style = el("button", { type: "button", className: "tb ghost layer-style", textContent: "Style…", ariaLabel: "Water depth style" });
-        style.onclick = () => onStyle("depth");
-        row.append(style);
-      }
       scale = el("span", { id: "scale" });
       ramp = el("span", { className: "ramp" });
       classes = el("ul", { className: "layer-classes", ariaLabel: "Water depth classes" });
@@ -184,12 +191,23 @@ export function layersPanel(root, layers, { onStyle, onAddBasemap } = {}) {
       }
     }
     note.textContent = layers.note("basemap");
+    const sl = layers.legend("streaks");
+    if (streakLegend) {
+      streakLegend.hidden = !layers.visible("streaks") || !sl?.ramp;
+      if (sl?.ramp) {
+        streakRamp.style.background = "linear-gradient(to right, " + sl.ramp.join(", ") + ")";
+        streakScale.textContent = "0 — " + String(+sl.max.toPrecision(3)) + " " + sl.unit;
+      }
+      const sw = rows.get("streaks")?.querySelector(".sw");
+      if (sw) sw.style.background = sl?.color || "";
+    }
     const legend = layers.legend("depth");
     legendRow.hidden = !layers.visible("depth") || !legend;
     if (legend) {
       const v = (x) => String(+x.toPrecision(3));
-      // Classes: a swatch and its range each; a continuous ramp: the gradient and its range.
-      ramp.hidden = !!legend.classes;
+      // Classes: a swatch and its range each; a continuous ramp: the gradient and its range; or a note
+      // that no water is deeper than the threshold.
+      ramp.hidden = !!legend.classes || !!legend.empty;
       if (legend.ramp) ramp.style.background = "linear-gradient(to right, " + legend.ramp.join(", ") + ")";
       classes.replaceChildren(
         ...(legend.classes || []).map((k) => {
@@ -199,7 +217,7 @@ export function layersPanel(root, layers, { onStyle, onAddBasemap } = {}) {
         }),
       );
       scale.hidden = !!legend.classes;
-      scale.textContent = v(legend.min) + " — " + v(legend.max) + " " + legend.unit;
+      scale.textContent = legend.empty ? "No water deeper than " + v(legend.min) + " " + legend.unit : v(legend.min) + " — " + v(legend.max) + " " + legend.unit;
     }
   }
   layers.addEventListener("change", ({ detail }) => {

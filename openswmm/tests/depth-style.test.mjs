@@ -2,7 +2,7 @@
 // line geometry on mesh triangles, checked against areas and interpolated values.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, chainSegments, rampColor, DepthStyle } from "../depth-style.mjs";
+import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, chainSegments, rampColor, DepthStyle, depthStyleDefaults } from "../depth-style.mjs";
 
 // A deterministic pseudo-random sequence.
 let seed = 12345;
@@ -92,16 +92,18 @@ test("ramps and the style model (kept in range, remembered)", () => {
   assert.equal(events, 1, "no event without a change");
   assert.equal(new DepthStyle({ storage }).get("method"), "jenks", "remembered");
 });
-test("the hide-water threshold: blank, negative or not a number means the model's dry depth", () => {
+test("the hide-water threshold: 0.05 m by default; blank, negative or not a number means the model's dry depth", () => {
   const s = new DepthStyle({ storage: null });
-  assert.equal(s.get("hideBelow"), null, "the model's DRY_DEPTH by default");
+  assert.equal(s.get("hideBelow"), 0.05, "water no deeper than 0.05 m hidden by default");
+  assert.equal(s.get("display"), "bands", "filled contours by default");
+  assert.equal(depthStyleDefaults.hideBelow, 0.05);
   for (const [value, kept] of [[0.005, 0.005], ["0.01", 0.01], [0, 0], ["", null], [-1, null], ["abc", null], [Infinity, null], [null, null]]) {
     s.set({ hideBelow: value });
     assert.equal(s.get("hideBelow"), kept, String(value));
   }
   s.set({ hideBelow: 0.02 });
   s.reset();
-  assert.equal(s.get("hideBelow"), null, "Reset returns to the model's dry depth");
+  assert.equal(s.get("hideBelow"), 0.05, "Reset returns to the default threshold");
 });
 
 test("contour segments chain into polylines: a ring around a peak closes, a ridge line stays open", () => {
