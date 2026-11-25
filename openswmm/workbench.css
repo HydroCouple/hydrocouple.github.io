@@ -2117,3 +2117,276 @@ dialog:has(.lid-usage-editor) {
   border-radius: 4px;
   margin: 2px 0 4px;
 }
+
+/* =================================================================================================
+   HydroCouple flavor (owner 2026-11-25: "align more with the hydrocouple.org website … keep the
+   layout"). The site's signatures (css/site.css): the deep-water gradient band with a wave edge
+   (.hero, .hero-wave), Sora display type, uppercase tracked kickers in bright water blue
+   (.section-kicker), a left accent bar on the active item (.article-index a.active), SWMM amber for
+   the flagship (.card.flagship), Sora stat numbers (.stat .num), the timeline's dots (.phase).
+   ================================================================================================= */
+:root {
+  --band: linear-gradient(160deg, #00518c 0%, #0071bf 55%, #2ea8ff 100%);
+  --band-ink: #f2fafd;
+  --band-soft: #9ed1ff;
+  --kicker: #0096ff;
+  --flag-strong: #e58b1c;
+  --flag-on: #3d2400;
+  /* The site's hero wave (index.html .hero-wave), as a mask. */
+  --wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 70' preserveAspectRatio='none'%3E%3Cpath d='M0,40 C240,70 480,8 720,30 C960,52 1200,20 1440,44 L1440,70 L0,70 Z'/%3E%3C/svg%3E");
+  /* Bathymetric contour lines behind a model shown without a basemap (tile 360 × 240). */
+  --contours: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240' fill='none' stroke='%23cfdbe5' stroke-width='1'%3E%3Cpath d='M0 20C45 8 135 8 180 20S315 32 360 20'/%3E%3Cpath d='M0 62C60 74 120 50 180 58S300 70 360 62'/%3E%3Cpath d='M0 100C45 88 135 86 180 98S315 112 360 100'/%3E%3Cpath d='M0 142C60 154 120 128 180 136S300 150 360 142'/%3E%3Cpath d='M0 180C45 170 135 166 180 178S315 190 360 180'/%3E%3Cpath d='M0 222C60 232 120 210 180 216S300 230 360 222'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --band: linear-gradient(160deg, #04294a 0%, #0a4a80 55%, #1672b8 100%);
+    --band-ink: #e6f3ff;
+    --band-soft: #8cc6f5;
+    --kicker: #4fb2ff;
+    --contours: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='240' fill='none' stroke='%23203a4f' stroke-width='1'%3E%3Cpath d='M0 20C45 8 135 8 180 20S315 32 360 20'/%3E%3Cpath d='M0 62C60 74 120 50 180 58S300 70 360 62'/%3E%3Cpath d='M0 100C45 88 135 86 180 98S315 112 360 100'/%3E%3Cpath d='M0 142C60 154 120 128 180 136S300 150 360 142'/%3E%3Cpath d='M0 180C45 170 135 166 180 178S315 190 360 180'/%3E%3Cpath d='M0 222C60 232 120 210 180 216S300 230 360 222'/%3E%3C/svg%3E");
+  }
+}
+
+/* Top bar: the site's hero band, its wave edge into the toolbar, white Sora type, glass chips. */
+.top {
+  position: relative;
+  background: var(--band);
+  border-bottom: 0;
+  color: var(--band-ink);
+}
+.top::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 13px;
+  background: var(--surface);
+  -webkit-mask: var(--wave) bottom / 100% 100% no-repeat;
+  mask: var(--wave) bottom / 100% 100% no-repeat;
+  pointer-events: none;
+}
+.top .brand,
+.top h1 {
+  color: #fff;
+}
+.top .brand img {
+  padding: 3px;
+  border-radius: 8px;
+  background: #fff;
+}
+.top h1 small {
+  color: var(--band-soft);
+}
+.top .divider {
+  background: rgba(255, 255, 255, 0.32);
+}
+.top .chip,
+.top .chip.project,
+.top .chip.soft {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--band-ink);
+}
+.top .chip.ok {
+  background: rgba(46, 139, 87, 0.34);
+  border: 1px solid rgba(143, 214, 171, 0.5);
+  color: #e3f7eb;
+}
+.top .chip.update {
+  background: var(--flag);
+  border: 1px solid var(--flag);
+  color: var(--flag-on);
+  cursor: pointer;
+}
+.top .tb,
+.top a.tb {
+  color: var(--band-ink);
+}
+.top .tb:hover:enabled,
+.top a.tb:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+/* The flagship action in SWMM amber, as the site's flagship cards. */
+#run.tb.primary {
+  background: var(--flag);
+  border-color: var(--flag);
+  color: var(--flag-on);
+  font-family: Sora, system-ui, sans-serif;
+  font-weight: 700;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+#run.tb.primary:hover:enabled {
+  background: var(--flag-strong);
+  border-color: var(--flag-strong);
+  color: #2b1900;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(242, 159, 56, 0.35);
+}
+#run.tb.primary kbd {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(74, 44, 0, 0.22);
+  color: #4a2c00;
+}
+
+/* Panel titles in Sora; section titles as the site's kickers. */
+.panel-h h2 {
+  font: 700 14px Sora, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+.sect h3 {
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  color: var(--kicker);
+}
+.layer-head .check b {
+  font-family: Sora, system-ui, sans-serif;
+}
+
+/* The active item carries the site's left accent bar. */
+.rail-btn.on,
+.map-tool[aria-pressed="true"] {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* Result numbers as the site's stat numbers; their labels as kickers. */
+.metric b {
+  font: 800 18px Sora, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--primary);
+}
+.metric span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* The time bar as the site's timeline: an accent line up to now, a ringed dot at now. */
+.time #clock {
+  font-family: Sora, system-ui, sans-serif;
+  font-weight: 700;
+}
+.time #time {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  background: transparent;
+  cursor: pointer;
+}
+.time #time::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent) var(--done, 0%), var(--line) var(--done, 0%));
+}
+.time #time::-moz-range-track {
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent) var(--done, 0%), var(--line) var(--done, 0%));
+}
+.time #time::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  margin-top: -6px;
+  border: 3px solid var(--paper);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.time #time::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: 3px solid var(--paper);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* A model without a basemap sits on bathymetric contours instead of a grid. */
+#scene {
+  background-image: var(--contours);
+  background-size: 360px 240px;
+}
+
+/* Dialogs open under a strip of the band. */
+.dialoghead {
+  background:
+    var(--band) top / 100% 4px no-repeat,
+    var(--surface);
+  padding-top: 18px;
+}
+.dialoghead h2 {
+  font-weight: 700;
+}
+
+/* The welcome screen's start column is the site's hero: the band, glass cards, Continue in amber. */
+.wcol.start {
+  background: var(--band);
+  border-right: 0;
+  color: #fff;
+}
+.wcol.start .wbrand img {
+  padding: 3px;
+  border-radius: 9px;
+  background: #fff;
+}
+.wcol.start .wbrand h2 {
+  color: #fff;
+  font-weight: 800;
+}
+.wcol.start .wbrand small {
+  color: var(--band-soft);
+}
+.wcol.start .act {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #fff;
+}
+.wcol.start .act:hover:enabled {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.wcol.start .act b {
+  font-family: Sora, system-ui, sans-serif;
+}
+.wcol.start .act span:not(.ic) {
+  color: #d6ebff;
+}
+.wcol.start .act .ic {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+.wcol.start .act .ic.flag {
+  background: var(--flag);
+  color: var(--flag-on);
+}
+.wcol.start #wcontinue {
+  background: var(--flag);
+  border-color: var(--flag);
+  color: var(--flag-on);
+}
+.wcol.start #wcontinue:hover:enabled {
+  background: var(--flag-strong);
+  border-color: var(--flag-strong);
+}
+.wcol.start #wcontinue span:not(.ic) {
+  color: #5a3600;
+}
+.wcol.start #wcontinue .ic {
+  background: rgba(255, 255, 255, 0.4);
+  color: var(--flag-on);
+}
+.wcol.start .wnote {
+  background: rgba(10, 28, 46, 0.24);
+  color: #d6ebff;
+}
+.wcol.start .wnote b {
+  color: #fff;
+}
+.whead h2 {
+  font-weight: 700;
+}

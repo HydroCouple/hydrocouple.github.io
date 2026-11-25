@@ -114,6 +114,7 @@ export function timelineBar(timeline) {
     bar.hidden = !ready;
     slider.max = String(Math.max(0, n - 1));
     slider.value = String(Math.max(0, timeline.index));
+    slider.style.setProperty("--done", (n > 1 ? (100 * Math.max(0, timeline.index)) / (n - 1) : 0) + "%"); // the track up to now
     for (const control of [slider, play, $("first"), $("last")]) control.disabled = !ready;
     $("clock").value = clock(timeline.seconds);
     $("step").value = ready ? timeline.index + 1 + " / " + n : "—";
