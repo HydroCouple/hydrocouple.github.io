@@ -914,6 +914,87 @@ main {
   margin-bottom: 3px;
   border-bottom: 1px solid var(--line);
 }
+/* Map editing: the Add palette opens beside the tools; the hint says what a click does. */
+.maptools {
+  position: relative;
+}
+.add-palette {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 10px);
+  width: 184px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  z-index: 5;
+}
+.add-group small {
+  display: block;
+  padding: 6px 8px 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--kicker);
+}
+.add-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.add-item:hover,
+.add-item:focus-visible {
+  background: var(--mist);
+  outline: none;
+}
+.add-item .sw {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+/* The virtual junction's swatch: the junction dot inside a dotted ring, as on the map. */
+.add-item.virtual .sw {
+  border-radius: 50%;
+  outline: 1.2px dotted #0078ff;
+  outline-offset: 1px;
+}
+#edithint {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(560px, calc(100% - 32px));
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+#scene.tool-add #plot,
+#scene.tool-add .mapboxgl-canvas-container.mapboxgl-interactive {
+  cursor: crosshair;
+}
+@media (prefers-color-scheme: dark) {
+  #edithint {
+    background: rgba(21, 39, 55, 0.94);
+  }
+}
 
 /* Bottom: time browser and results */
 .bottom {

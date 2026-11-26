@@ -1,6 +1,6 @@
 // Engine-as-model: one solver kept in the OPENED state so edits go through the engine API
 // (catalog field paths) and the INP deck becomes a derived artifact written by the engine.
-import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField, InletType, GrateType, ThroatType } from "./vendor/engine/index.js";
+import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField, InletType, GrateType, ThroatType, OutfallType, DividerType, OrificeType, WeirType, OutletRatingType, GageRainType, WeirView } from "./vendor/engine/index.js";
 import { localPath } from "./simulation.mjs";
 
 /** Sub-view path prefixes that only apply to one object type. */
@@ -47,6 +47,31 @@ export function snowpackDefaults(unitSystem) {
 }
 /** Water-quality objects: property rows plus a name, new and delete like a record. */
 export const qualityKinds = ["pollutant", "landuse"];
+/** Name prefixes of objects placed on the map (the desktop's defaults); a new name takes the first free number. */
+export const namePrefixes = { JUNCTION: "J", VIRTUAL: "VJ", OUTFALL: "O", STORAGE: "S", DIVIDER: "D", CONDUIT: "C", PUMP: "Pu", ORIFICE: "Or", WEIR: "W", OUTLET: "Ou", GAGE: "RG" };
+/**
+ * Creation values of objects placed on the map: the desktop's object defaults (US customary, with
+ * the SI set's lengths, areas and unit-dependent coefficients). Junctions keep the engine's zeros.
+ */
+export function objectDefaults(unitSystem) {
+  const si = unitSystem === "SI";
+  return {
+    storageMaxDepth: si ? 4.5 : 15,
+    storageArea: si ? 100 : 1000, // FUNCTIONAL constant, ft² or m²
+    conduitDiameter: si ? 0.3 : 1,
+    conduitRoughness: 0.013,
+    conduitLength: si ? 120 : 400, // when the traced length is unknown
+    orificeDiameter: si ? 0.3 : 1,
+    orificeCd: 0.65,
+    weirHeight: si ? 1 : 3,
+    weirLength: si ? 1 : 3,
+    weirCd: si ? 1.84 : 3.33,
+    outletCoeff: si ? 0.5 : 10,
+    outletExponent: 0.5,
+    gageInterval: 900, // seconds (15 minutes)
+    gageSnowCatch: 1,
+  };
+}
 /** Buildup functions, normalizers and washoff functions by their engine codes ([BUILDUP], [WASHOFF]). */
 export const buildupFuncs = ["NONE", "POW", "EXP", "SAT", "EXT"];
 export const normalizers = ["AREA", "CURB"];
@@ -1711,6 +1736,182 @@ export class ModelSession {
       Object.assign(c, { adjustTemperature: a.temperature, adjustEvaporation: a.evaporation, adjustRainfall: a.rainfall, adjustConductivity: a.conductivity });
     }
     return this.climate();
+  }
+  // ---- Map editing (V6): objects placed, traced, inserted and deleted on the map, as the desktop's
+  // map tools do (names, creation defaults, refusals). Each returns what its undo needs.
+  /** The first free name `<prefix><n>` among the nodes, links or gages. */
+  nextName(prefix, kind) {
+    const list = this.solver[collections[kind]];
+    for (let n = 1; ; n++) if (!list.has(prefix + n)) return prefix + n;
+  }
+  /** The name of a conduit's second piece after a split: `<link>_B`, then `<link>_B1`, … */
+  splitName(link) {
+    const links = this.solver.links;
+    for (let n = 0; ; n++) if (!links.has(link + "_B" + (n || ""))) return link + "_B" + (n || "");
+  }
+  /** A new node's type-specific values (the desktop's creation defaults). */
+  nodeDefaults(id, type) {
+    const d = objectDefaults(this.unitSystem),
+      n = this.solver.nodes.get(id);
+    if (type === "STORAGE") {
+      n.maxDepth = d.storageMaxDepth;
+      n.storage.functional = [0, 0, d.storageArea];
+    } else if (type === "OUTFALL") n.outfall.type = OutfallType.FREE;
+    else if (type === "DIVIDER") n.divider.type = DividerType.OVERFLOW;
+  }
+  /** Place a junction, outfall, storage unit or divider at (x, y); returns its name. */
+  addNode(type, x, y) {
+    const code = NodeType[type];
+    if (code === undefined || typeof code !== "number") throw new Error("Unknown node type " + type + ".");
+    const id = this.nextName(namePrefixes[type], "node");
+    this.solver.nodes.add(id, code);
+    this.solver.spatial.setNodeCoord(id, x, y);
+    this.nodeDefaults(id, type);
+    return { id };
+  }
+  /**
+   * Insert a node on a conduit at fraction `t` of its length: the conduit ends there and a new one
+   * (`<link>_B`) carries on. A virtual junction keeps the two pieces as one conduit. Outfalls end a
+   * network, so they are refused (as in the desktop).
+   */
+  insertNode(type, link, t, virtual = false) {
+    const s = this.solver;
+    if (type === "OUTFALL") throw new Error("Outfalls end a network, so they cannot be inserted on a conduit.");
+    if (s.links.get(link).type !== LinkType.CONDUIT) throw new Error(link + " is not a conduit.");
+    const id = this.nextName(virtual ? namePrefixes.VIRTUAL : namePrefixes[type], "node"),
+      piece = this.splitName(link);
+    s.editor.splitConduit(link, Math.min(0.99, Math.max(0.01, t)), id, piece, virtual);
+    if (!virtual && type !== "JUNCTION") {
+      s.editor.convertNode(id, NodeType[type]);
+      this.nodeDefaults(id, type);
+    }
+    return { id, link: piece };
+  }
+  /** Undo an insert: the node goes and its two conduits fuse back into one (the desktop's inverse). */
+  removeInserted(id) {
+    const s = this.solver;
+    if (s.nodes.get(id).type !== NodeType.JUNCTION) s.editor.convertNode(id, NodeType.JUNCTION);
+    if (!s.nodes.get(id).isVirtual) s.editor.setNodeVirtual(id, true);
+    s.editor.fuseVirtualJunction(id);
+  }
+  /**
+   * Trace a link from one node to another through `vertices` (its bends); `length` is the traced
+   * length in the model's units (conduits). Virtual and inlet junctions keep the two conduits they
+   * split, so a link cannot end at one (as in the desktop). A divider without a diversion link
+   * diverts into the first link drawn out of it (SWMM refuses a divider without one).
+   */
+  addLink(type, from, to, vertices = [], length = 0) {
+    const s = this.solver,
+      code = LinkType[type];
+    if (code === undefined || typeof code !== "number") throw new Error("Unknown link type " + type + ".");
+    if (same(from, to)) throw new Error("A link needs two different nodes.");
+    for (const n of [from, to])
+      if (s.nodes.get(n).isVirtual) throw new Error(n + " is a virtual junction: it keeps the two conduits it splits.");
+    const id = this.nextName(namePrefixes[type], "link");
+    const l = s.links.add(id, code);
+    l.setNodes(from, to);
+    if (vertices.length) s.spatial.setLinkVertices(id, vertices);
+    const d = objectDefaults(this.unitSystem),
+      link = s.links.get(id);
+    if (type === "CONDUIT") {
+      link.xsect = [XSectShape.CIRCULAR, d.conduitDiameter, 0, 0, 0];
+      link.roughness = d.conduitRoughness;
+      link.length = length > 0 ? length : d.conduitLength;
+    } else if (type === "PUMP") link.pump.initState = true;
+    else if (type === "ORIFICE") {
+      link.orifice.type = OrificeType.SIDE;
+      link.xsect = [XSectShape.CIRCULAR, d.orificeDiameter, 0, 0, 0];
+      new WeirView(link).dischargeCoeff = d.orificeCd; // one discharge coefficient setter serves every regulator
+    } else if (type === "WEIR") {
+      link.weir.type = WeirType.TRANSVERSE;
+      link.xsect = [XSectShape.RECT_OPEN, d.weirHeight, d.weirLength, 0, 0];
+      link.weir.dischargeCoeff = d.weirCd;
+    } else if (type === "OUTLET") {
+      link.outlet.ratingType = OutletRatingType.FUNCTIONAL_DEPTH;
+      new WeirView(link).dischargeCoeff = d.outletCoeff;
+      link.outlet.expon = d.outletExponent;
+    }
+    const node = s.nodes.get(from);
+    if (node.type === NodeType.DIVIDER) {
+      const p = node.divider.params;
+      if (p.diversion_link < 0) node.divider.params = { ...p, diversion_link: link.index };
+    }
+    return { id };
+  }
+  /** Place a rain gage at (x, y); returns its name. Its data source is chosen in its properties. */
+  addGage(x, y) {
+    const s = this.solver,
+      d = objectDefaults(this.unitSystem);
+    const id = this.nextName(namePrefixes.GAGE, "gage");
+    const g = s.gages.add(id);
+    g.rainType = GageRainType.INTENSITY;
+    g.rainInterval = d.gageInterval;
+    g.snowFactor = d.gageSnowCatch;
+    s.spatial.setGageCoord(id, x, y);
+    return { id };
+  }
+  /** Undo a placement or a trace: the object goes again. */
+  removeAdded(kind, id) {
+    const e = this.solver.editor;
+    ({ node: () => e.deleteNode(id), link: () => e.deleteLink(id), gage: () => e.deleteGage(id) })[kind]();
+  }
+  /**
+   * What deleting map objects would also remove or clear: links that end at a deleted node go with it;
+   * other references (a subcatchment's outlet, inflows, controls, …) are cleared.
+   */
+  objectImpact(items) {
+    const s = this.solver,
+      names = { node: "nodes", link: "links", subcatchment: "subcatchments", gage: "gages" };
+    const chosen = new Set(items.map((i) => i.kind + ":" + String(i.id).toUpperCase()));
+    const removed = new Map(),
+      cleared = new Map();
+    for (const { kind, id } of items) {
+      const entries = { node: "analyzeNodeImpact", link: "analyzeLinkImpact", subcatchment: "analyzeSubcatchImpact", gage: "analyzeGageImpact" }[kind];
+      for (const e of s.editor[entries](id)) {
+        const list = s[names[e.objTypeName]];
+        const name = list ? e.objTypeName + " " + list.getId(e.objIdx) : e.objTypeName.replaceAll("_", " ") + " #" + (e.objIdx + 1);
+        if (list && chosen.has(e.objTypeName + ":" + list.getId(e.objIdx).toUpperCase())) continue;
+        (e.cascaded ? removed : cleared).set(name, e.cascaded ? name : name + " (" + (fieldNames[e.field] ?? e.field.replaceAll("_", " ")) + ")");
+      }
+    }
+    return { removed: [...removed.values()], cleared: [...cleared.values()].filter((c) => !removed.has(c.replace(/ \(.*$/, ""))) };
+  }
+  /**
+   * Delete map objects (links first, then nodes, subcatchments and gages); returns the impact and an
+   * undo token for `restoreDeleted` (the engine's recorded deletes: every row and reference back).
+   */
+  deleteObjects(items) {
+    const impact = this.objectImpact(items),
+      e = this.solver.editor,
+      records = [];
+    for (const [kind, call] of [["link", "deleteLinksRecorded"], ["node", "deleteNodesRecorded"], ["subcatchment", "deleteSubcatchmentsRecorded"], ["gage", "deleteGagesRecorded"]]) {
+      const keys = items.filter((i) => i.kind === kind).map((i) => i.id);
+      if (keys.length) records.push(e[call](keys)[1]);
+    }
+    this.deleted ??= new Map();
+    const token = "delete-" + (this.undoSeq = (this.undoSeq || 0) + 1);
+    this.deleted.set(token, records);
+    return { impact, token };
+  }
+  /** Undo `deleteObjects`: the recorded deletes restore in reverse order. */
+  restoreDeleted(token) {
+    const records = this.deleted?.get(token);
+    if (!records) throw new Error("That delete can no longer be undone.");
+    for (const r of [...records].reverse()) {
+      r.restore();
+      r.close();
+    }
+    this.deleted.delete(token);
+  }
+  /** What would keep the written deck from opening again (Apply refuses while any remain). */
+  problems() {
+    const s = this.solver;
+    return s.nodes.ids
+      .filter((id) => {
+        const n = s.nodes.get(id);
+        return n.type === NodeType.DIVIDER && n.divider.params.diversion_link < 0;
+      })
+      .map((id) => "Divider " + id + " needs a diversion link: trace a link out of it.");
   }
   /** Reopen the deck saved by `deleteRecord` (undo of a delete); returns the summary. */
   restore(token) {

@@ -3,6 +3,10 @@ import { pickAt, pickInRect, pickInPolygon, modeFor, describeSelection } from ".
 import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, rampColor } from "./depth-style.mjs";
 import { Scene3D } from "./scene3d.mjs";
 import { rgbOf, isLight } from "./streak-style.mjs";
+import { addHint } from "./edit-tools.mjs";
+/** Snap distances of the add tools (px): a node under the pointer, a conduit to insert on. */
+const SNAP_NODE = 10,
+  SNAP_LINK = 6;
 /** Screen speed of a flow streak at the frame's reference speed (px/s). */
 const STREAK_SPEED = 45;
 /**
@@ -52,19 +56,15 @@ function sections(inp) {
   return rows;
 }
 /**
- * What a deck's text says about its geometry and the objects the forcings can address. A deck that
- * keeps its mesh in a `[2D_MESH_FILE]` sidecar gets it from `inputs` (the project's files by name,
- * the sidecar's path relative to the deck's folder `dir`).
+ * A deck's network as the map draws it (per kind, as the layer tree lists them, with each kind's
+ * object names in `ids`) and every link as a polyline. Virtual junctions draw with the junctions and
+ * are named in `virtual`. The map editor refreshes this alone after an edit (the mesh is untouched).
  */
-export function sketch(text, inputs = {}, dir = "") {
-  const s = sections(text);
-  const sidecar = s["[2D_MESH_FILE]"]?.find((row) => /^FILE$/i.test(row[0]))?.[1]?.replace(/^"(.*)"$/, "$1");
-  const bytes = sidecar && (inputs[dir + sidecar] || inputs[sidecar]);
-  const mesh = bytes ? sections(new TextDecoder().decode(bytes)) : s;
-  const vertices = mesh["[2D_VERTICES]"] || [],
-    nodes = new Map(
-      (s["[COORDINATES]"] || []).map(([id, x, y]) => [id, [+x, +y]]),
-    );
+export function deckNetwork(text) {
+  return networkOf(sections(text));
+}
+function networkOf(s) {
+  const nodes = new Map((s["[COORDINATES]"] || []).map(([id, x, y]) => [id, [+x, +y]]));
   /** Rows of a map section grouped by object, in file order: id → [[x, y], …]. */
   const points = (name) => {
     const map = new Map();
@@ -79,15 +79,16 @@ export function sketch(text, inputs = {}, dir = "") {
     symbolsAt = points("[SYMBOLS]");
   // Each kind's shapes, with their object names in `ids` (same order) for selection.
   const ids = {};
-  const shapes = (kind, section, shape) => {
+  const shapes = (kind, names, shape) => {
     const out = [];
     ids[kind] = [];
-    for (const row of s["[" + section + "]"] || []) {
-      const g = shape(row);
-      if (!g) continue;
-      out.push(g);
-      ids[kind].push(row[0]);
-    }
+    for (const section of [].concat(names))
+      for (const row of s["[" + section + "]"] || []) {
+        const g = shape(row);
+        if (!g) continue;
+        out.push(g);
+        ids[kind].push(row[0]);
+      }
     return out;
   };
   const at = (kind, section) => shapes(kind, section, (row) => nodes.get(row[0]));
@@ -97,7 +98,7 @@ export function sketch(text, inputs = {}, dir = "") {
       nodes.has(row[1]) && nodes.has(row[2]) ? [nodes.get(row[1]), ...(bends.get(row[0]) || []), nodes.get(row[2])] : null,
     );
   const network = {
-    junctions: at("junctions", "JUNCTIONS"),
+    junctions: at("junctions", ["JUNCTIONS", "VIRTUAL_JUNCTIONS"]),
     outfalls: at("outfalls", "OUTFALLS"),
     storage: at("storage", "STORAGE"),
     dividers: at("dividers", "DIVIDERS"),
@@ -112,8 +113,25 @@ export function sketch(text, inputs = {}, dir = "") {
     }),
     gages: shapes("gages", "RAINGAGES", (row) => symbolsAt.get(row[0])?.[0]),
     ids,
+    virtual: new Set((s["[VIRTUAL_JUNCTIONS]"] || []).map((row) => row[0])),
   };
   const links = ["conduits", "pumps", "weirs", "orifices", "outlets"].flatMap((k) => network[k]);
+  // [MAP] UNITS: what a coordinate unit is (FEET, METERS, DEGREES or NONE), for traced lengths.
+  const mapUnits = ((s["[MAP]"] || []).find((row) => /^UNITS$/i.test(row[0]))?.[1] || "NONE").toUpperCase();
+  return { network, links, mapUnits };
+}
+/**
+ * What a deck's text says about its geometry and the objects the forcings can address. A deck that
+ * keeps its mesh in a `[2D_MESH_FILE]` sidecar gets it from `inputs` (the project's files by name,
+ * the sidecar's path relative to the deck's folder `dir`).
+ */
+export function sketch(text, inputs = {}, dir = "") {
+  const s = sections(text);
+  const sidecar = s["[2D_MESH_FILE]"]?.find((row) => /^FILE$/i.test(row[0]))?.[1]?.replace(/^"(.*)"$/, "$1");
+  const bytes = sidecar && (inputs[dir + sidecar] || inputs[sidecar]);
+  const mesh = bytes ? sections(new TextDecoder().decode(bytes)) : s;
+  const vertices = mesh["[2D_VERTICES]"] || [];
+  const { network, links, mapUnits } = networkOf(s);
   return {
     x: vertices.map((v) => +v[0]),
     y: vertices.map((v) => +v[1]),
@@ -124,6 +142,7 @@ export function sketch(text, inputs = {}, dir = "") {
     ],
     links, // every link as a polyline (saved with a run's geometry)
     network, // per kind, as the layer tree (layers.mjs) lists them
+    mapUnits,
     // What the live forcings can address, and the units their values are in.
     gages: (s["[RAINGAGES]"] || []).map((row) => row[0]),
     nodes: ["JUNCTIONS", "OUTFALLS", "STORAGE", "DIVIDERS"].flatMap((k) =>
@@ -164,7 +183,17 @@ export class ModelView {
     this.trace = null; // the profile line being drawn: model points and the pointer
     this.profileLine = null; // the shown profile's path or line, model coordinates
     this.profileMarker = null; // the profile chart's crosshair on the map
+    // "add" (map editing): `adding` is what (edit-tools.mjs addKinds), `hover` what a click would hit,
+    // `tracing` the link being drawn (its start node, bends and the pointer).
+    this.adding = null;
+    this.hover = null;
+    this.tracing = null;
     for (const tool of ["select", "box", "lasso", "line"]) el("tool-" + tool).onclick = () => this.setTool(tool);
+    this.canvas.oncontextmenu = (e) => {
+      if (this.tool !== "add") return;
+      e.preventDefault();
+      this.addBack();
+    };
     this.canvas.onpointerdown = (e) => {
       if (this.tool === "line") {
         const m = this.unproject(e.offsetX, e.offsetY),
@@ -176,7 +205,7 @@ export class ModelView {
         this.draw();
         return;
       }
-      if (this.tool !== "select") {
+      if (this.tool !== "select" && this.tool !== "add") {
         this.band = { pts: [[e.offsetX, e.offsetY]] };
         this.canvas.setPointerCapture(e.pointerId);
         return;
@@ -185,6 +214,7 @@ export class ModelView {
       this.canvas.setPointerCapture(e.pointerId);
     };
     this.canvas.onpointermove = (e) => {
+      if (this.tool === "add" && !this.drag) return this.addMove(e.offsetX, e.offsetY);
       if (this.tool === "line" && this.trace) {
         this.trace.at = this.unproject(e.offsetX, e.offsetY);
         this.draw();
@@ -209,8 +239,10 @@ export class ModelView {
       if (
         this.drag &&
         Math.hypot(e.clientX - this.drag[0], e.clientY - this.drag[1]) < 4
-      )
-        this.click(e.offsetX, e.offsetY, e);
+      ) {
+        if (this.tool !== "add") this.click(e.offsetX, e.offsetY, e);
+        else if (e.button === 0) this.addClick(e.offsetX, e.offsetY);
+      }
       this.drag = null;
     };
     this.canvas.onpointercancel = () => {
@@ -222,6 +254,26 @@ export class ModelView {
     document.addEventListener("keydown", (e) => {
       if (e.target.closest?.("input, textarea, select, dialog")) return;
       if (e.key === "Enter" && this.trace) return this.finishTrace();
+      // Adding: Backspace drops the last bend; Escape drops the link being drawn, then the tool.
+      if (this.tool === "add") {
+        if (e.key === "Backspace" && this.tracing) {
+          e.preventDefault();
+          this.addBack();
+        } else if (e.key === "Escape") {
+          if (this.tracing) {
+            this.tracing = null;
+            this.hint(addHint(this.adding));
+            this.draw();
+          } else this.setTool("select");
+        }
+        return;
+      }
+      // Delete (or Backspace) deletes the selected network objects, after a confirmation.
+      if ((e.key === "Delete" || e.key === "Backspace") && this.selection?.items.some((i) => i.kind !== "cell")) {
+        e.preventDefault();
+        this.onDelete?.(this.selection.items.filter((i) => i.kind !== "cell"));
+        return;
+      }
       if (e.key !== "Escape") return;
       if (this.trace) {
         this.trace = null;
@@ -329,6 +381,15 @@ export class ModelView {
         }
     });
     this.fit();
+  }
+  /**
+   * Show an edited network (deckNetwork) in place: the view keeps its extent and the mesh, so objects
+   * placed or deleted on the map appear where they were drawn.
+   */
+  setNetwork(network) {
+    this.network = network;
+    this.geo = { ...this.geo, network };
+    this.draw();
   }
   locate(x, y) {
     const [l, b] = this.bounds;
@@ -750,13 +811,144 @@ export class ModelView {
     this.selection = selection;
     selection.addEventListener("change", () => this.draw());
   }
-  setTool(tool) {
+  /**
+   * Arm a map tool; "add" takes what to add (edit-tools.mjs addKinds). While adding, a drag still pans
+   * the map and the wheel zooms; a click places, inserts or traces.
+   */
+  setTool(tool, adding = null) {
     this.tool = tool;
     this.band = null;
     if (tool !== "line") this.trace = null;
-    // Box and lasso take the pointer from the basemap while they are active.
-    el("scene").classList.toggle("tool-band", tool !== "select");
-    for (const t of ["select", "box", "lasso", "line"]) el("tool-" + t).setAttribute("aria-pressed", String(t === tool));
+    this.adding = tool === "add" ? adding : null;
+    this.hover = this.tracing = null;
+    // Box and lasso take the pointer from the basemap while they are active; adding leaves it to the
+    // basemap (its clicks and moves come from the map) so a drag still pans.
+    el("scene").classList.toggle("tool-band", tool !== "select" && tool !== "add");
+    el("scene").classList.toggle("tool-add", tool === "add");
+    for (const t of ["select", "box", "lasso", "line", "add"]) el("tool-" + t).setAttribute("aria-pressed", String(t === tool));
+    el("tool-add").title = tool === "add" ? "Adding: " + adding.label.toLowerCase() + " (Esc ends)" : "Add objects to the model";
+    if (this.map) this.map.doubleClickZoom[tool === "add" ? "disable" : "enable"]();
+    this.hint(tool === "add" ? addHint(adding) : "");
+    this.draw();
+  }
+  /** The add tools' line on the map (what a click does, or why it was refused); empty hides it. */
+  hint(text) {
+    const h = el("edithint");
+    h.textContent = text;
+    h.hidden = !text;
+  }
+  /** The visible node nearest screen (x, y) within `SNAP_NODE` px: {id, point, virtual}, or null. */
+  nodeAt(x, y) {
+    const n = this.network || {},
+      ids = n.ids || {};
+    let best = null,
+      bestD = SNAP_NODE;
+    for (const k of nodeKinds) {
+      if (!this.layers.visible(k)) continue;
+      (n[k] || []).forEach((p, i) => {
+        const [px, py] = this.project(p[0], p[1]),
+          d = Math.hypot(px - x, py - y);
+        if (d <= bestD && ids[k]?.[i] !== undefined) {
+          bestD = d;
+          best = { id: ids[k][i], point: p, virtual: !!n.virtual?.has(ids[k][i]) };
+        }
+      });
+    }
+    return best;
+  }
+  /**
+   * The visible conduit nearest screen (x, y) within `SNAP_LINK` px: {id, t, point}, `t` the fraction
+   * of its length (model units) at the nearest point, as the engine's split takes it.
+   */
+  conduitAt(x, y) {
+    const n = this.network || {};
+    if (!this.layers.visible("conduits")) return null;
+    let best = null,
+      bestD = SNAP_LINK;
+    (n.conduits || []).forEach((pts, i) => {
+      const id = n.ids?.conduits?.[i];
+      if (id === undefined || pts.length < 2) return;
+      const P = pts.map((p) => this.project(p[0], p[1]));
+      let total = 0;
+      const lengths = pts.slice(1).map((p, j) => {
+        const d = Math.hypot(p[0] - pts[j][0], p[1] - pts[j][1]);
+        total += d;
+        return d;
+      });
+      let before = 0;
+      for (let j = 0; j < P.length - 1; j++) {
+        const [ax, ay] = P[j],
+          [bx, by] = P[j + 1],
+          dx = bx - ax,
+          dy = by - ay,
+          f = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1))),
+          d = Math.hypot(ax + f * dx - x, ay + f * dy - y);
+        if (d <= bestD && total > 0) {
+          bestD = d;
+          const a = pts[j],
+            b = pts[j + 1];
+          best = { id, t: (before + f * lengths[j]) / total, point: [a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1])] };
+        }
+        before += lengths[j];
+      }
+    });
+    return best;
+  }
+  /** The pointer moved with an add tool armed: what a click would hit, for the preview. */
+  addMove(x, y) {
+    const a = this.adding;
+    if (!a) return;
+    const node = a.kind === "gage" ? null : this.nodeAt(x, y);
+    this.hover = { at: this.unproject(x, y), node, conduit: a.kind === "node" && !node ? this.conduitAt(x, y) : null };
+    this.draw();
+  }
+  /** A click with an add tool armed: place, insert, or trace (desktop rules); `onAdd` makes the edit. */
+  addClick(x, y) {
+    const a = this.adding,
+      at = this.unproject(x, y);
+    if (!a || !at) return;
+    this.hint(this.tracing ? this.traceHint() : addHint(a)); // a refusal below says why instead
+    if (a.kind === "gage") return this.onAdd?.({ op: "gage", x: at[0], y: at[1] });
+    const node = this.nodeAt(x, y);
+    if (a.kind === "node") {
+      if (node) return this.hint(node.id + " is already there: click a free spot" + (a.type === "OUTFALL" ? "." : " or a conduit."));
+      const conduit = this.conduitAt(x, y);
+      if (a.virtual) {
+        if (!conduit) return this.hint("Virtual junctions are inserted on a conduit — click a conduit.");
+        return this.onAdd?.({ op: "insert", type: "JUNCTION", link: conduit.id, t: conduit.t, virtual: true });
+      }
+      if (conduit) {
+        if (a.type === "OUTFALL") return this.hint("This tool requires a free location; select another point away from " + conduit.id + ".");
+        return this.onAdd?.({ op: "insert", type: a.type, link: conduit.id, t: conduit.t });
+      }
+      return this.onAdd?.({ op: "node", type: a.type, x: at[0], y: at[1] });
+    }
+    // Links: start on a node, bend on a free spot, end on another node; the next link starts there.
+    if (node?.virtual) return this.hint(node.id + " is a virtual junction: it keeps the two conduits it splits.");
+    const t = this.tracing;
+    if (!t) {
+      if (!node) return this.hint("Start the " + a.noun + " on a node.");
+      this.tracing = { from: node.id, start: node.point, bends: [] };
+      this.hint(this.traceHint());
+    } else if (node && node.id !== t.from) {
+      this.onAdd?.({ op: "link", type: a.type, from: t.from, to: node.id, vertices: t.bends, line: [t.start, ...t.bends, node.point] });
+      this.tracing = { from: node.id, start: node.point, bends: [] };
+      this.hint(this.traceHint());
+    } else if (!node) t.bends.push(at);
+    this.draw();
+  }
+  traceHint() {
+    return "From " + this.tracing.from + ": click to add bends, click another node to end. Backspace drops a bend; Esc stops.";
+  }
+  /** Right-click or Backspace while tracing: drop the last bend, or the link when it has none. */
+  addBack() {
+    const t = this.tracing;
+    if (!t) return;
+    if (t.bends.length) t.bends.pop();
+    else {
+      this.tracing = null;
+      this.hint(addHint(this.adding));
+    }
     this.draw();
   }
   /** End the profile line being drawn: two points or more go to `onTrace`; the select tool returns. */
@@ -963,6 +1155,21 @@ export class ModelView {
         c.lineWidth = markerOutline.width;
         for (const kind of ["junctions", "dividers", "storage", "outfalls", "gages"])
           if (L.visible(kind)) for (const p of n[kind] || []) marker(kind, p);
+        // A virtual junction is the junction dot with a dotted ring around it (as in the desktop).
+        if (L.visible("junctions") && n.virtual?.size) {
+          c.save();
+          c.setLineDash([1.5, 2]);
+          c.lineWidth = 1.2;
+          c.strokeStyle = symbols.junctions.fill;
+          (n.ids?.junctions || []).forEach((id, i) => {
+            if (!n.virtual.has(id)) return;
+            const [x, y] = this.project(...n.junctions[i]);
+            c.beginPath();
+            c.arc(x, y, symbols.junctions.size / 2 + 3, 0, 2 * Math.PI);
+            c.stroke();
+          });
+          c.restore();
+        }
       },
       outputs2d: () => {
         if (f && L.visible("depth")) {
@@ -1145,6 +1352,56 @@ export class ModelView {
       c.lineWidth = 2.5;
       c.strokeStyle = flag;
       c.stroke();
+    }
+    if (this.tool === "add" && this.adding) {
+      const a = this.adding,
+        h = this.hover,
+        ring = (p, r, color, dash = []) => {
+          const [x, y] = this.project(p[0], p[1]);
+          c.beginPath();
+          c.arc(x, y, r, 0, 2 * Math.PI);
+          c.setLineDash(dash);
+          c.lineWidth = 4;
+          c.strokeStyle = "rgba(255,255,255,0.85)";
+          c.stroke();
+          c.lineWidth = 2;
+          c.strokeStyle = color;
+          c.stroke();
+          c.setLineDash([]);
+        };
+      const color = (symbols[a.leaf]?.fill || symbols[a.leaf]?.stroke || flag);
+      if (this.tracing) {
+        const t = this.tracing,
+          end = h?.node && h.node.id !== t.from && !h.node.virtual ? h.node.point : h?.at;
+        polyline([t.start, ...t.bends, ...(end ? [end] : [])], 5, "rgba(255,255,255,0.85)");
+        polyline([t.start, ...t.bends, ...(end ? [end] : [])], 2.5, symbols[a.leaf]?.stroke || flag, [6, 4]);
+        for (const p of t.bends) {
+          const [x, y] = this.project(p[0], p[1]);
+          c.beginPath();
+          c.arc(x, y, 3, 0, 2 * Math.PI);
+          c.fillStyle = symbols[a.leaf]?.stroke || flag;
+          c.fill();
+        }
+        ring(t.start, 8, flag);
+      }
+      // A node under the pointer: a solid ring where a link can snap, dotted where it cannot.
+      if (h?.node) ring(h.node.point, 8, flag, a.kind === "node" || h.node.virtual ? [2, 3] : []);
+      // A conduit under the pointer: where the click inserts (a ring and a cross; dotted when refused).
+      else if (h?.conduit) {
+        const refused = a.type === "OUTFALL" && !a.virtual;
+        ring(h.conduit.point, 7, color, refused ? [2, 3] : []);
+        if (!refused) {
+          const [x, y] = this.project(...h.conduit.point);
+          c.beginPath();
+          c.moveTo(x - 11, y);
+          c.lineTo(x + 11, y);
+          c.moveTo(x, y - 11);
+          c.lineTo(x, y + 11);
+          c.lineWidth = 1.5;
+          c.strokeStyle = color;
+          c.stroke();
+        }
+      }
     }
     if (this.band) {
       const pts = this.band.pts;
@@ -1365,8 +1622,18 @@ export class ModelView {
       this.draw();
     });
     this.map.on("click", (e) =>
-      this.onPick ? this.onPick(e.lngLat) : this.click(e.point.x, e.point.y, e.originalEvent),
+      this.onPick
+        ? this.onPick(e.lngLat)
+        : this.tool === "add"
+          ? this.addClick(e.point.x, e.point.y)
+          : this.click(e.point.x, e.point.y, e.originalEvent),
     );
+    this.map.on("mousemove", (e) => this.tool === "add" && this.addMove(e.point.x, e.point.y));
+    this.map.on("contextmenu", (e) => {
+      if (this.tool !== "add") return;
+      e.originalEvent.preventDefault();
+      this.addBack();
+    });
     this.map.on("error", (e) =>
       this.onMapError?.(
         e.error?.status === 403

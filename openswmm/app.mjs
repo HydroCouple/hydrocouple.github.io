@@ -1,6 +1,7 @@
 import { attachNetwork, networkInfo } from "./coupling.mjs";
 import { lonLat, domainFromGeoJSON, linesFromGeoJSON } from "./surface.mjs";
-import { sketch, ModelView } from "./view.mjs";
+import { sketch, deckNetwork, ModelView } from "./view.mjs";
+import { addPalette } from "./edit-tools.mjs";
 import { LayerTree, contentOf } from "./layers.mjs";
 import { layersPanel } from "./layers-panel.mjs";
 import { PanelLayout, panelChrome } from "./panels.mjs";
@@ -108,6 +109,9 @@ const editor = new Editor({
   openDialog: (title, content) => dialog(title, content),
   onPick: (item) => selection.set([item], "inspector"),
   closeDialog: () => $("dialog").close(),
+  onNetwork: (bytes, select) => showNetwork(deckNetwork(decoder.decode(bytes)), select),
+  // The editing session went with map edits not applied: the map shows the project's network again.
+  onDiscard: () => project && showNetwork(deckNetwork(decoder.decode(project.inputs[project.entry])), null),
   onApply(bytes, count) {
     install({ ...project, inputs: { ...project.inputs, [project.entry]: bytes } });
     persist();
@@ -119,6 +123,45 @@ const editor = new Editor({
 selection.addEventListener("change", ({ detail }) => {
   if (detail.source !== "inspector" && selection.primary) editor.reveal(selection.primary);
 });
+// Map editing: the Add palette arms the map's add tool; what it places, inserts or traces and what
+// Delete removes go through the editing session (editor.mjs), which hands the network back.
+addPalette({ root: $("addpalette"), button: $("tool-add"), onPick: (spec) => view.setTool("add", spec) });
+view.onAdd = (spec) =>
+  editor.mapEdit(spec.op === "link" ? { ...spec, length: tracedLength(spec.line) } : spec).catch((e) => view.hint(e.message));
+view.onDelete = (items) => editor.deleteObjects(items);
+/** The editing session's network on the map: the view keeps its extent and mesh; `select` is the new object. */
+function showNetwork({ network, links, mapUnits }, select) {
+  preview = { ...preview, network, links, mapUnits };
+  view.setNetwork(network);
+  layers.setContent(contentOf(view.geo));
+  selection.set(select ? [select] : selection.items.filter((item) => view.shapeOf(item)), "app");
+}
+/**
+ * A traced link's length in the model's units (feet or meters): on the globe when the model is placed
+ * (great-circle meters from longitude and latitude), else from [MAP] UNITS (FEET, METERS, DEGREES);
+ * without map units the coordinates are taken to be in the model's own units.
+ */
+function tracedLength(line) {
+  const us = editor.summary?.unitSystem !== "SI",
+    sum = (f) => line.slice(1).reduce((total, p, i) => total + f(line[i], p), 0);
+  const greatCircle = ([lon1, lat1], [lon2, lat2]) => {
+    const r = Math.PI / 180,
+      a = Math.sin(((lat2 - lat1) * r) / 2) ** 2 + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin(((lon2 - lon1) * r) / 2) ** 2;
+    return 6378137 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+  let meters;
+  const place = view.placement;
+  if (place) meters = sum((a, b) => greatCircle(place.toLonLat(a[0], a[1]), place.toLonLat(b[0], b[1])));
+  else {
+    const plain = sum((a, b) => Math.hypot(b[0] - a[0], b[1] - a[1])),
+      units = preview?.mapUnits;
+    if (units === "FEET") meters = plain * 0.3048;
+    else if (units === "METERS") meters = plain;
+    else if (units === "DEGREES") meters = sum(greatCircle);
+    else return plain;
+  }
+  return us ? meters / 0.3048 : meters;
+}
 const tokenNote = config.mapboxPublicToken ? "" : "Basemap token unconfigured · local view";
 if (!config.mapboxPublicToken) {
   layers.setEnabled("basemap", false);

@@ -2,8 +2,8 @@
 // cards (time series, curves, patterns, unit hydrographs) with their editor dialogs, the control
 // rule program, a node's inflows and treatment, pollutants and land uses (buildup, washoff), a
 // subcatchment's land uses and loadings, the climate, transects, LID controls and their placement,
-// edits sent to the model worker, undo, and
-// "Apply to model" which installs the engine-written deck.
+// edits sent to the model worker, map edits (objects placed, inserted, traced and deleted on the map),
+// undo, and "Apply to model" which installs the engine-written deck.
 import { objectKinds, recordKinds, qualityKinds, patternLength, concentrationUnits, lidTypes, lidDefaults, inletTypes } from "./model.mjs";
 import { recordEditor, drawRecord, describeRecord, curveTypes } from "./records.mjs";
 import { rulesEditor } from "./rules.mjs";
@@ -56,9 +56,13 @@ export class Editor {
    * @param {(bytes: Uint8Array, count: number) => void} o.onApply installs the engine-written deck
    * @param {(title: string, content: Node) => void} o.openDialog shows the record editor
    * @param {() => void} o.closeDialog
+   * @param {(bytes: Uint8Array, select: object|null) => void} o.onNetwork shows the session's network
+   *   on the map after a map edit (the deck the engine writes), selecting `select`
    */
-  constructor({ onApply, onError, openDialog, closeDialog, onPick }) {
+  constructor({ onApply, onError, openDialog, closeDialog, onPick, onNetwork, onDiscard }) {
     this.onApply = onApply;
+    this.onNetwork = onNetwork;
+    this.onDiscard = onDiscard; // the session went with map edits not applied
     this.onPick = onPick; // an object picked in Edit object becomes the selection
     this.onError = onError;
     this.openDialog = openDialog;
@@ -112,7 +116,9 @@ export class Editor {
     for (const p of this.pending.values()) p.reject(new Error(reason));
     this.pending.clear();
     this.token = {};
+    const mapped = this.edits.some((e) => e.op === "map");
     this.edits = [];
+    if (mapped) this.onDiscard?.();
     $("props").replaceChildren();
     this.note(reason);
   }
@@ -736,7 +742,10 @@ export class Editor {
       else if (edit.op === "add") await this.call("deleteRecord", edit.kind, edit.key);
       else if (edit.op === "rename") await this.call("renameRecord", edit.kind, edit.after, edit.before);
       else if (edit.op === "delete") await this.call("restore", edit.token);
-      else await this.call("set", edit.path, edit.key, edit.before);
+      else if (edit.op === "map") {
+        await this.call(...edit.undo);
+        return this.afterMapEdit(null);
+      } else await this.call("set", edit.path, edit.key, edit.before);
       if (["add", "rename", "delete"].includes(edit.op)) return this.refresh(edit.kind, edit.op === "add" ? null : edit.op === "rename" ? edit.before : edit.key);
       this.note();
     } catch (e) {
@@ -929,8 +938,103 @@ export class Editor {
         : recordEditor({ record, units, onSave, onCancel }),
     );
   }
+  /**
+   * A map edit (view.mjs add tool): `{op: "node" | "insert" | "link" | "gage", …}` goes to the editing
+   * session; its undo joins the edit log, the new object is selected and the map shows the result.
+   * Returns what the session made; a refusal throws (its reason also goes to the inspector note).
+   */
+  async mapEdit(spec) {
+    let made, undo, select, message;
+    try {
+      // The selection's type reads as the map's picks do ("J12 · junction").
+      const type = spec.virtual ? "virtual junction" : spec.op === "gage" ? "rain gage" : spec.type.toLowerCase();
+      if (spec.op === "node") {
+        made = await this.call("addNode", spec.type, spec.x, spec.y);
+        undo = ["removeAdded", "node", made.id];
+        select = { kind: "node", id: made.id, type };
+      } else if (spec.op === "insert") {
+        made = await this.call("insertNode", spec.type, spec.link, spec.t, !!spec.virtual);
+        undo = ["removeInserted", made.id];
+        select = { kind: "node", id: made.id, type };
+        message = "Inserted " + made.id + ", splitting " + spec.link + " into " + spec.link + " and " + made.link + ".";
+      } else if (spec.op === "link") {
+        made = await this.call("addLink", spec.type, spec.from, spec.to, spec.vertices, spec.length);
+        undo = ["removeAdded", "link", made.id];
+        select = { kind: "link", id: made.id, type };
+      } else if (spec.op === "gage") {
+        made = await this.call("addGage", spec.x, spec.y);
+        undo = ["removeAdded", "gage", made.id];
+        select = { kind: "gage", id: made.id, type };
+      } else throw new Error("Unknown map edit " + spec.op + ".");
+    } catch (e) {
+      this.fail(e);
+      throw e; // the map's hint line says why too
+    }
+    this.edits.push({ op: "map", kind: select.kind, key: made.id, undo });
+    await this.afterMapEdit(select, message);
+    return made;
+  }
+  /**
+   * Delete objects selected on the map. When the delete takes or clears anything else, the dialog
+   * lists it first (links that end at a deleted node go too); undo puts everything back.
+   */
+  async deleteObjects(items) {
+    let impact;
+    try {
+      impact = await this.call("objectImpact", items);
+    } catch (e) {
+      return this.fail(e);
+    }
+    const run = async () => {
+      try {
+        const { token } = await this.call("deleteObjects", items);
+        this.edits.push({ op: "map", kind: items[0].kind, undo: ["restoreDeleted", token] });
+        await this.afterMapEdit(null, "Deleted " + items.map((i) => i.id).join(", ") + (impact.removed.length ? " and " + impact.removed.join(", ") : "") + ".");
+      } catch (e) {
+        this.fail(e);
+      }
+    };
+    if (!impact.removed.length && !impact.cleared.length) return run();
+    const yes = node("button", { type: "button", className: "tb danger", textContent: "Delete" });
+    const no = node("button", { type: "button", className: "tb ghost", textContent: "Keep" });
+    yes.onclick = () => {
+      this.closeDialog();
+      run();
+    };
+    no.onclick = () => this.closeDialog();
+    const line = (text, list) => (list.length ? node("p", { className: "hint", textContent: text + list.join(", ") + "." }) : "");
+    const names = items.map((i) => i.id);
+    this.openDialog(
+      "Delete " + (names.length === 1 ? names[0] : names.length + " objects"),
+      node(
+        "div",
+        { className: "confirm-delete" },
+        node("p", { textContent: "Delete " + names.join(", ") + " from the model?" }),
+        line("Also deleted, as they end at a deleted node: ", impact.removed),
+        line("These references are cleared: ", impact.cleared),
+        node("div", { className: "pair" }, no, yes),
+      ),
+    );
+    yes.focus();
+  }
+  /** After a map edit or its undo: the object lists again, then the map from the deck the engine writes. */
+  async afterMapEdit(select, message) {
+    try {
+      this.summary = await this.call("summary");
+      if (select) $("objkind").value = select.kind;
+      this.list(select?.id);
+      this.note(message);
+      const bytes = await this.call("write");
+      this.onNetwork?.(bytes, select);
+    } catch (e) {
+      this.fail(e);
+    }
+  }
   async apply() {
     try {
+      // A deck the engine could not open again would leave the project unopenable: say what is missing.
+      const problems = await this.call("problems");
+      if (problems.length) throw new Error(problems.join(" "));
       const bytes = await this.call("write");
       const count = this.edits.length;
       this.edits = [];
