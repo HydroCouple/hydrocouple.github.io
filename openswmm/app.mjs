@@ -592,7 +592,17 @@ function runSettings() {
     webgpu: $("compute").value === "webgpu",
   };
 }
-function start(resume) {
+let starting = false;
+async function start(resume) {
+  if (starting) return;
+  // A run uses the model as edited: edits not yet applied are applied first. A resumed run continues
+  // the model it saved, so it waits until they are applied (which starts over) or undone.
+  if (editor.edits.length) {
+    if (resume) return status("Apply or undo the model edits first: a resumed run continues the model it saved.");
+    starting = true;
+    const applied = await editor.apply().finally(() => (starting = false));
+    if (!applied) return status("The model edits were not applied, so the run did not start: " + $("editnote").textContent);
+  }
   const settings = runSettings();
   if (!settings) return;
   const until = settings.until;

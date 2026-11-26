@@ -1030,6 +1030,7 @@ export class Editor {
       this.fail(e);
     }
   }
+  /** Install the edited deck in the project; true when it was applied (else the note says why). */
   async apply() {
     try {
       // A deck the engine could not open again would leave the project unopenable: say what is missing.
@@ -1039,8 +1040,10 @@ export class Editor {
       const count = this.edits.length;
       this.edits = [];
       this.onApply(bytes, count);
+      return true;
     } catch (e) {
       this.fail(e);
+      return false;
     }
   }
   setBusy(on) {
