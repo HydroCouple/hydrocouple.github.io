@@ -21,9 +21,13 @@ const $ = (id) => document.getElementById(id);
 const kindLabels = {
   options: "Simulation options",
   model: "Climate and model settings",
+  options2d: "2D options",
   title: "Title and notes",
   report: "Report",
   files: "Files",
+  transport: "Transport (ARD)",
+  ueb: "Snow (UEB)",
+  components: "Process components",
   node: "Nodes",
   link: "Links",
   subcatchment: "Subcatchments",
@@ -52,9 +56,9 @@ const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time 
 /** Kinds the map can select (selection.mjs). */
 const pickKinds = ["node", "link", "subcatchment", "gage", "cell"];
 /** Kinds edited as one whole (no object list). */
-const globalKinds = ["model", "options", "title", "report", "files", "controls", "events"];
+const globalKinds = ["model", "options", "options2d", "title", "report", "files", "transport", "ueb", "components", "controls", "events"];
 /** Kinds that are one section card (sections.mjs). */
-const sectionKinds = ["title", "report", "files"];
+const sectionKinds = ["options2d", "title", "report", "files", "transport", "ueb", "components"];
 const node = (tag, props = {}, ...children) => {
   const n = Object.assign(document.createElement(tag), props);
   n.append(...children);

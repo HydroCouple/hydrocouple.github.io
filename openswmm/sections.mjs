@@ -8,9 +8,43 @@
  */
 import { withCString, withCStrings } from "./vendor/engine/mem.js";
 import { raiseForCode } from "./vendor/engine/errors.js";
+import { TransportDispersionMode, catalog } from "./vendor/engine/index.js";
+import { options2dGroups, applyOptions2d } from "./options2d.mjs";
 
-/** Edit object kinds that are one section of the deck. */
-export const sectionKinds = ["title", "report", "files"];
+/** Edit object kinds that are one section of the deck (E3c) or one settings card (E3d-1). */
+export const sectionKinds = ["options2d", "title", "report", "files", "transport", "ueb", "components"];
+/** The ARD transport component; its settings are saved only in its file ([PROCESS_COMPONENTS]). */
+const ARD = "org.hydrocouple.openswmm.transport.ard";
+/** The desktop's UEB parameters (openswmm.gui snowclimatesettings.h uebFields): key, label, group, range. */
+const uebFields = [
+  ["Z0", "Roughness length (m)", "Turbulence", 0.000001, 10],
+  ["ZM", "Measurement height (m)", "Turbulence", 0.000001, 1000],
+  ["FSTAB", "Stability weighting", "Turbulence", 0, 1],
+  ["RHO_S", "Snow density (kg/m³)", "Snow and soil", 1, 916.999],
+  ["RHO_G", "Soil density (kg/m³)", "Snow and soil", 1, 10000],
+  ["CG", "Soil heat capacity (kJ/kg/K)", "Snow and soil", 0.000001, 100],
+  ["DE", "Active soil depth (m)", "Snow and soil", 0.000001, 100],
+  ["LC", "Liquid retention fraction", "Snow and soil", 0, 1],
+  ["KSAT", "Saturated snow drainage (m/h)", "Snow and soil", 0, 1e6],
+  ["KS", "Equilibrium conductance (m/h)", "Temperature scheme", 0.000001, 100],
+  ["LAMBDA_S", "Snow conductivity (kJ/m/K/h)", "Temperature scheme", 0.000001, 1000],
+  ["LAMBDA_G", "Soil conductivity (kJ/m/K/h)", "Temperature scheme", 0.000001, 1000],
+  ["OMEGA_LF", "Low frequency (rad/h)", "Temperature scheme", 0.000001, 100],
+  ["R", "Damping amplitude", "Temperature scheme", 0.000001, 100],
+  ["TR", "All-rain temperature (°C)", "Precipitation", -99, 70],
+  ["TB", "All-snow temperature (°C)", "Precipitation", -100, 69],
+  ["EPSILON", "Snow emissivity", "Albedo and radiation", 0, 1],
+  ["ABG", "Ground albedo", "Albedo and radiation", 0, 1],
+  ["ALPHA_VO", "Fresh visible albedo", "Albedo and radiation", 0, 1],
+  ["ALPHA_IRO", "Fresh infrared albedo", "Albedo and radiation", 0, 1],
+  ["DNEWS", "Fresh-snow reset depth (m)", "Albedo and radiation", 0, 10],
+  ["R3", "Dust aging coefficient", "Albedo and radiation", 0, 100],
+  ["CV", "Visible albedo aging coefficient", "Albedo and radiation", 0, 1],
+  ["CIR", "Infrared albedo aging coefficient", "Albedo and radiation", 0, 1],
+  ["BC_A", "Bristow–Campbell maximum transmissivity", "Albedo and radiation", 0.000001, 1],
+  ["BC_C", "Bristow–Campbell exponent", "Albedo and radiation", 0.000001, 100],
+];
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 /** Simulation options rows the Report card shows instead. */
 export const reportOptions = ["RPT_DISABLED", "RPT_INPUT", "RPT_CONTINUITY", "RPT_FLOWSTATS", "RPT_CONTROLS", "RPT_AVERAGES", "RPT_LINK_STEPS", "REPORT_SIGNED_HEADS", "RPT_SUBCATCHMENTS", "RPT_NODES", "RPT_LINKS"];
 
@@ -69,6 +103,7 @@ function projectFile(session, path) {
 /** The one card of a section kind. */
 export function sectionGroups(session, kind) {
   const x = session.solver;
+  if (kind === "options2d") return options2dGroups(session);
   if (kind === "title")
     return [{ key: "title", title: "Title and notes", fields: [{ name: "text", label: "Title and notes", type: "textarea", value: titleLines(session).join("\n") }], note: "The first line is the title the report shows. Blank lines are not kept." }];
   if (kind === "report") {
@@ -108,12 +143,64 @@ export function sectionGroups(session, kind) {
     ];
     return [{ key: "files", title: "Files", fields, note: note.filter(Boolean).join(" ") }];
   }
+  if (kind === "transport") {
+    const t = x.transport,
+      len = catalog.unitLabel("length", session.unitSystem, session.flowUnits),
+      registered = ardRow(x);
+    const fields = [
+      { name: "dispersion", label: "Dispersion", type: "choice", value: TransportDispersionMode[t.dispersionMode] ?? "OFF", choices: [["OFF", "Off"], ["FISCHER", "Fischer (from the hydraulics)"], ["VALUE", "Fixed coefficient"]] },
+      { name: "coefficient", label: "Coefficient", unit: len + "²/s", type: "number", value: t.dispersionValue, when: { name: "dispersion", in: ["VALUE"] } },
+      { name: "spacing", label: "Transport cell spacing", unit: len, type: "number", value: t.targetDx },
+      { name: "detailed", label: "Detailed output file (CSV)", type: "text", value: t.detailedOutput },
+    ];
+    return [
+      {
+        key: "transport",
+        title: "Transport (ARD)",
+        fields,
+        restore: { registered: !!registered, values: Object.fromEntries(fields.map((f) => [f.name, f.value])) },
+        note:
+          "Eulerian advection–reaction–dispersion on the conduits ([TRANSPORT_OPTIONS]); the quality solver is a simulation option. A spacing of 0 lets the engine choose; a blank file name means no detailed output. " +
+          (registered ? "Saved in " + registered.config + " (a process component)." : "The first change registers the transport component with " + stem(session) + ".ard, as the desktop does; Apply saves that file with the deck."),
+      },
+    ];
+  }
+  if (kind === "ueb") {
+    const snow = x.snow,
+      ranges = snow.monthlyRanges;
+    const fields = [
+      { name: "SURFACE_TEMP", label: "Surface temperature", type: "choice", value: snow.option("SURFACE_TEMP"), choices: [["MODIFIED_FORCE_RESTORE", "Modified force-restore"], ["EQUILIBRIUM", "Equilibrium (1996 reference)"]] },
+      { name: "PRECIP_SPLIT", label: "Rain / snow partition", type: "choice", value: snow.option("PRECIP_SPLIT"), choices: [["UEB", "UEB linear temperature transition"], ["DIVT", "Legacy division temperature"]] },
+      ...uebFields.map(([key, label]) => ({ name: key, label, type: "number", value: +snow.option(key) })),
+      ...months.map((m, i) => ({ name: "range" + i, label: m + " temperature range (°C)", type: "number", value: ranges[i] })),
+    ];
+    return [{ key: "ueb", title: "Snow (UEB)", fields, note: "The Utah Energy Balance snow parameters ([UEB_OPTIONS]), used when the snowmelt model is UEB. A monthly range of 0 takes the range from the temperature source." }];
+  }
+  if (kind === "components") {
+    const rows = [...x.processComponents];
+    return [
+      {
+        key: "components",
+        title: "Process components",
+        fields: rows.map((c, i) => {
+          const args = x.processComponents.arguments(c.id).map(([n, v]) => n + "=" + v);
+          return { name: "c" + i, label: c.id, type: "text", value: [c.config, ...args].filter(Boolean).join(" "), readonly: true };
+        }),
+        note: rows.length ? "Components the model registers ([PROCESS_COMPONENTS]) and their files; the transport card registers its own." : "This model registers no process components ([PROCESS_COMPONENTS]).",
+      },
+    ];
+  }
   throw new Error("No section " + kind + ".");
 }
+/** The model's file name without its folder and extension (for a component's file). */
+const stem = (session) => session.entry.replace(/^.*\//, "").replace(/\.[^.]*$/, "");
+/** The ARD component's row, or null. */
+const ardRow = (x) => [...x.processComponents].find((c) => c.id === ARD) ?? null;
 
 /** Check a section's card as a run would and write it through the engine. */
 export function applySection(session, kind, key, values) {
   const x = session.solver;
+  if (kind === "options2d") return applyOptions2d(session, key, values);
   const need = (cond, message) => {
     if (!cond) throw new Error(message);
   };
@@ -163,6 +250,46 @@ export function applySection(session, kind, key, values) {
       writes.push([key, p]);
     }
     for (const [k, v] of writes) filesSet(x, k, v);
+  } else if (kind === "transport" && key === "transport") {
+    const t = x.transport,
+      v = values.restore ? values.restore.values : values;
+    const mode = TransportDispersionMode[v.dispersion];
+    need(mode !== undefined, "Choose off, Fischer or a fixed coefficient for the dispersion.");
+    const coefficient = Number(v.coefficient),
+      spacing = Number(v.spacing),
+      detailed = String(v.detailed ?? "").trim();
+    if (v.dispersion === "VALUE") need(v.coefficient !== "" && Number.isFinite(coefficient) && coefficient >= 0, "The dispersion coefficient must be 0 or more.");
+    need(v.spacing !== "" && Number.isFinite(spacing) && spacing >= 0, "The transport cell spacing must be 0 (the engine chooses) or more.");
+    need(!/["\r\n]/.test(detailed), "The detailed output file name cannot hold quotes or line breaks.");
+    // The settings live in the component's file: register it first (the desktop does the same).
+    if (!ardRow(x)) x.processComponents.register(ARD, stem(session) + ".ard");
+    // The coefficient is kept whatever the mode (undo puts it back too); the mode is set after it.
+    if (v.coefficient !== "" && Number.isFinite(coefficient) && coefficient >= 0) t.dispersionValue = coefficient;
+    t.dispersionMode = mode;
+    t.targetDx = spacing;
+    t.detailedOutput = detailed;
+    // Undo of the first change: the component goes again.
+    if (values.restore && !values.restore.registered) x.processComponents.remove(ARD);
+  } else if (kind === "ueb" && key === "ueb") {
+    const snow = x.snow;
+    need(["MODIFIED_FORCE_RESTORE", "EQUILIBRIUM"].includes(values.SURFACE_TEMP), "Choose the surface temperature scheme.");
+    need(["UEB", "DIVT"].includes(values.PRECIP_SPLIT), "Choose how rain and snow are partitioned.");
+    const numbers = uebFields.map(([key, label, , lo, hi]) => {
+      const n = Number(values[key]);
+      need(values[key] !== "" && Number.isFinite(n) && n >= lo && n <= hi, label + " is between " + lo + " and " + hi + ".");
+      return [key, n];
+    });
+    const ranges = months.map((m, i) => {
+      const n = Number(values["range" + i]);
+      need(values["range" + i] !== "" && Number.isFinite(n) && n >= 0 && n <= 100, m + "'s temperature range is between 0 and 100 °C.");
+      return n;
+    });
+    snow.setOption("SURFACE_TEMP", values.SURFACE_TEMP);
+    snow.setOption("PRECIP_SPLIT", values.PRECIP_SPLIT);
+    for (const [k, n] of numbers) snow.setOption(k, n);
+    snow.monthlyRanges = ranges;
+  } else if (kind === "components") {
+    throw new Error("Process components are listed here; the transport card registers its own.");
   } else throw new Error("No section card " + key + " for " + kind + ".");
   return sectionGroups(session, kind).find((g) => g.key === key);
 }

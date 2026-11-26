@@ -6,7 +6,7 @@ import { test } from "node:test";
 import { readFile } from "node:fs/promises";
 import create from "../vendor/engine/openswmm_engine.js";
 import { ModelSession } from "../model.mjs";
-import { groupValues } from "../properties.mjs";
+import { groupValues, undoValues } from "../properties.mjs";
 
 const decoder = new TextDecoder();
 const fixture = (name) => readFile(new URL("./fixtures/" + name, import.meta.url), "utf8");
@@ -96,4 +96,50 @@ test("files: use (a project file only) and save rows, inflows, outflows, hot sta
   deck = await reopened(s);
   assert.deepEqual(lines(deck, "[FILES]"), []);
   assert.deepEqual(values(s, "files"), before);
+});
+
+test("transport (ARD): the first change registers <stem>.ard, Apply writes it, reopen keeps it, undo removes it", async () => {
+  const s = await open(await fixture("example1.inp"));
+  // The lossy rows left the model settings (owner 2026-11-26).
+  assert.ok(!s.fields("model", null).some((r) => /^(transport|heat)\./.test(r.path)));
+  const shown = s.groups("transport", null)[0],
+    before = groupValues(shown);
+  assert.deepEqual(before, { dispersion: "OFF", coefficient: 0, spacing: 0, detailed: "" });
+  assert.equal(shown.restore.registered, false);
+  assert.match(shown.note, /registers the transport component with m\.ard/);
+  const refuse = (v, re) => assert.throws(() => s.setGroup("transport", null, "transport", { ...before, ...v }), re);
+  refuse({ dispersion: "VALUE", coefficient: -1 }, /coefficient must be 0 or more/);
+  refuse({ spacing: -2 }, /spacing must be 0/);
+  refuse({ detailed: 'a"b.csv' }, /cannot hold quotes/);
+  assert.equal([...s.solver.processComponents].length, 0, "a refusal registers nothing");
+  s.setGroup("transport", null, "transport", { dispersion: "VALUE", coefficient: 0.25, spacing: 12, detailed: "cells.csv" });
+  const files = s.writeAll();
+  assert.deepEqual(Object.keys(files).sort(), ["m.ard", "m.inp"]);
+  const ard = lines(decoder.decode(files["m.ard"]), "[TRANSPORT_OPTIONS]");
+  assert.ok(ard.includes("DISPERSION 0.25") && ard.includes("TARGET_DX 12"), ard.join(" | "));
+  assert.ok(lines(decoder.decode(files["m.inp"]), "[PROCESS_COMPONENTS]")[0].startsWith("org.hydrocouple.openswmm.transport.ard"));
+  const t = await open(decoder.decode(files["m.inp"]), { "m.ard": decoder.decode(files["m.ard"]) });
+  assert.deepEqual(values(t, "transport"), { dispersion: "VALUE", coefficient: 0.25, spacing: 12, detailed: "cells.csv" });
+  assert.deepEqual(t.groups("components", null)[0].fields.map((f) => [f.label, f.readonly]), [["org.hydrocouple.openswmm.transport.ard", true]]);
+  // Undo of the first change: values back and the component gone.
+  s.setGroup("transport", null, "transport", undoValues(shown));
+  assert.deepEqual(values(s, "transport"), before);
+  assert.deepEqual(Object.keys(s.writeAll()), ["m.inp"]);
+});
+
+test("snow (UEB): parameters with the desktop's ranges, schemes, monthly ranges; written, reopened, undo", async () => {
+  const s = await open(await fixture("example1.inp"));
+  const before = values(s, "ueb");
+  assert.deepEqual([before.SURFACE_TEMP, before.PRECIP_SPLIT, before.ZM, before.range0], ["MODIFIED_FORCE_RESTORE", "UEB", 2, 0]);
+  assert.throws(() => s.setGroup("ueb", null, "ueb", { ...before, ZM: 0 }), /Measurement height \(m\) is between 0.000001 and 1000/);
+  assert.throws(() => s.setGroup("ueb", null, "ueb", { ...before, range3: 120 }), /April's temperature range is between 0 and 100/);
+  s.setGroup("ueb", null, "ueb", { ...before, ZM: 3, PRECIP_SPLIT: "DIVT", range0: 8.5 });
+  const deck = decoder.decode(s.writeAll()["m.inp"]);
+  const ueb = lines(deck, "[UEB_OPTIONS]");
+  assert.ok(ueb.includes("ZM 3") && ueb.includes("PRECIP_SPLIT DIVT"), ueb.join(" | "));
+  const t = await open(deck);
+  const back = values(t, "ueb");
+  assert.deepEqual([back.ZM, back.PRECIP_SPLIT, back.range0], [3, "DIVT", 8.5]);
+  s.setGroup("ueb", null, "ueb", before); // undo
+  assert.deepEqual(values(s, "ueb"), before);
 });
