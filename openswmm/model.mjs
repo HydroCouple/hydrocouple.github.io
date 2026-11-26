@@ -1,10 +1,11 @@
 // Engine-as-model: one solver kept in the OPENED state so edits go through the engine API
 // (catalog field paths) and the INP deck becomes a derived artifact written by the engine.
-import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField, InletType, GrateType, ThroatType, OutfallType, DividerType, OrificeType, WeirType, OutletRatingType, GageRainType, WeirView, InfilModel, InletPlacement } from "./vendor/engine/index.js";
+import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField, InletType, GrateType, ThroatType, OutfallType, DividerType, OrificeType, WeirType, OutletRatingType, GageRainType, WeirView, InfilModel, InletPlacement, UserFlagType } from "./vendor/engine/index.js";
 import { localPath } from "./simulation.mjs";
 import { parseLabels, labelsText } from "./labels.mjs";
 import { propertyGroups, applyGroup, replacedRows } from "./properties.mjs";
 import { sectionKinds, sectionGroups, applySection, reportOptions } from "./sections.mjs";
+import { scopedRows, setScopedRows } from "./surface-sections.mjs";
 
 /** Sub-view path prefixes that only apply to one object type. */
 const subviews = {
@@ -16,7 +17,7 @@ const subviews = {
   "link.orifice.": "ORIFICE",
   "link.outlet.": "OUTLET",
 };
-export const objectKinds = ["options", "model", "options2d", "title", "report", "files", "transport", "ueb", "components", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet", "controls", "events"];
+export const objectKinds = ["options", "model", "options2d", "quality2d", "title", "report", "files", "transport", "ueb", "components", "userflags", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet", "controls", "events"];
 /** Record kinds: edited as whole tables in the record editor rather than as property rows. */
 export const recordKinds = ["timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet"];
 /** A new street cross-section (SWMM 5.2 [STREETS]); slopes in percent, gutter depression in in or mm. */
@@ -769,6 +770,67 @@ export class ModelSession {
     ev.clear();
     for (const r of rows) ev.append({ start: parseStamp(r.start), end: parseStamp(r.end) });
     return this.events();
+  }
+  // ---- Scoped 2D section rows (surface-sections.mjs): all cells, a tag or one cell.
+  /** A scoped 2D section's columns and rows. */
+  scopedRows(name) {
+    return scopedRows(this, name);
+  }
+  /** Replace a scoped 2D section's rows (checked first); returns the rows there were. */
+  setScopedRows(name, rows) {
+    return setScopedRows(this, name, rows);
+  }
+  // ---- User flags ([USER_FLAGS], OpenSWMM): named, typed values on nodes, links, subcatchments and
+  // rain gages (as the desktop's User Flags Manager and its per-object rows).
+  /** The flag definitions: `{name, type: "BOOLEAN" | "INTEGER" | "REAL" | "STRING", description}`. */
+  userFlags() {
+    return this.solver.userflags.definitions().map((d) => ({ name: d.name, type: UserFlagType[d.type], description: d.description }));
+  }
+  /** Every value some flags hold, as `[objType, objName, flag, value]` (what undo puts back). */
+  userFlagValues(names) {
+    const s = this.solver,
+      uf = s.userflags,
+      out = [];
+    if (!names.length) return out;
+    for (const [type, list] of [["NODE", s.nodes.ids], ["LINK", s.links.ids], ["SUBCATCHMENT", s.subcatchments.ids], ["GAGE", s.gages.ids]])
+      for (const id of list)
+        for (const flag of names) {
+          const v = uf.getValue(type, id, flag);
+          if (v !== null) out.push([type, id, flag, v]);
+        }
+    return out;
+  }
+  /**
+   * Replace the flag definitions: names unique, without spaces, ';' or quotes, and a type. A flag left
+   * out goes with its values; a flag with values keeps its type. `values` are set afterwards (undo).
+   * Returns the flags and what puts them back (the definitions and the values that went).
+   */
+  setUserFlags(defs, values = []) {
+    const errors = [],
+      seen = new Set();
+    defs.forEach((d, i) => {
+      const name = String(d.name ?? "").trim();
+      if (!name) errors.push("Flag " + (i + 1) + " needs a name.");
+      else if (/[\s;"]/.test(name)) errors.push("Flag " + name + ": a name cannot hold spaces, ';' or quotes.");
+      else if (seen.has(name.toUpperCase())) errors.push("Flag " + name + " is defined twice.");
+      seen.add(name.toUpperCase());
+      if (UserFlagType[d.type] === undefined || typeof d.type !== "string") errors.push("Flag " + (name || i + 1) + ": choose its type.");
+      if (/[\r\n]/.test(d.description ?? "")) errors.push("Flag " + name + ": the description is one line.");
+    });
+    const before = this.userFlags();
+    for (const d of before) {
+      const next = defs.find((x) => same(String(x.name).trim(), d.name));
+      if (next && next.type !== d.type && !values.length && this.userFlagValues([d.name]).length)
+        errors.push("Flag " + d.name + " has values on objects; clear them before changing its type.");
+    }
+    if (errors.length) throw new Error(errors.join(" "));
+    const gone = before.filter((d) => !defs.some((x) => same(String(x.name).trim(), d.name))).map((d) => d.name);
+    const restore = { definitions: before, values: this.userFlagValues(gone) };
+    const uf = this.solver.userflags;
+    for (const name of gone) uf.undefine(name);
+    for (const d of defs) uf.define(String(d.name).trim(), UserFlagType[d.type], String(d.description ?? "").trim());
+    for (const [type, obj, flag, v] of values) uf.setValue(type, obj, flag, v);
+    return { flags: this.userFlags(), restore };
   }
   // ---- Streets ([STREETS]) and inlets ([INLETS]), SWMM 5.2: street cross-sections that STREET links
   // use, and inlet designs that [INLET_USAGE] places on street links.

@@ -160,11 +160,55 @@ function meshBottomAllowed(s, id) {
   }
 }
 
+const responses = ["Short-term", "Medium-term", "Long-term"];
+/** A unit hydrograph group's RDII decay row for one response (0–2), or null. */
+function decayRow(s, group, response) {
+  for (let i = 0; i < s.inflows.rdiiDecayCount; i++) {
+    const r = s.inflows.getRdiiDecay(i);
+    if (same(r.uhName, group) && r.response === response) return r;
+  }
+  return null;
+}
+/**
+ * The RDII decay of a unit hydrograph group ([RDII_DECAY]), as the desktop's hydrograph editor: one
+ * card per response, none (the linear initial abstraction above), exponential decay, or exponential
+ * decay with a degree-day snow store.
+ */
+function decayGroups(s, u, group) {
+  const depth = u("rain_depth");
+  return responses.map((label, r) => {
+    const row = decayRow(s, group, r);
+    const mode = !row ? "" : row.snow_on ? "EXP_SNOW" : "EXP";
+    const on = { name: "mode", in: ["EXP", "EXP_SNOW"] };
+    return {
+      key: "decay" + r,
+      title: label + " RDII decay",
+      fields: [
+        { name: "mode", label: "Decay", type: "choice", value: mode, choices: [["", "None (linear initial abstraction)"], ["EXP", "Exponential"], ["EXP_SNOW", "Exponential with snow"]] },
+        { name: "k_dep", label: "Depletion rate k_dep", unit: "1/" + depth, type: "number", value: row?.k_dep ?? 0, when: on },
+        { name: "k_0", label: "Base recovery rate k_0", unit: "1/h", type: "number", value: row?.k_0 ?? 0, when: on },
+        { name: "k_T", label: "Thermal recovery rate k_T", unit: "1/h", type: "number", value: row?.k_T ?? 0, when: on },
+        { name: "T_ref", label: "Reference temperature T_ref", unit: "°C", type: "number", value: row?.T_ref ?? 0, when: on },
+        { name: "theta_rec", label: "Temperature sensitivity theta_rec", unit: "1/°C", type: "number", value: row?.theta_rec ?? 0, when: on },
+        { name: "T_freeze", label: "Freezing temperature T_freeze", unit: "°C", type: "number", value: row?.T_freeze ?? 0, when: on },
+        { name: "snow_T", label: "Snow temperature snow_T", unit: "°C", type: "number", value: row?.snow_T ?? 1, when: { name: "mode", in: ["EXP_SNOW"] } },
+        { name: "snow_ddf", label: "Melt factor snow_ddf", unit: depth + "/°C/day", type: "number", value: row?.snow_ddf ?? 0, when: { name: "mode", in: ["EXP_SNOW"] } },
+      ],
+      note:
+        r === 0
+          ? "Year-round: depletion as the soil store fills, recovery by drainage (k_0) and by evaporation at T_ref (k_T, theta_rec), none at or below T_freeze. Snow holds precipitation at or below snow_T and melts it above; it needs a climate temperature source."
+          : undefined,
+    };
+  });
+}
+
 /** The property groups of a node, link or subcatchment (`session` a ModelSession). */
 export function propertyGroups(session, kind, id) {
   const s = session.solver,
     u = (units) => catalog.unitLabel(units, session.unitSystem, session.flowUnits);
   const groups = [];
+  if (kind === "hydrograph") return decayGroups(s, u, id);
+  if (kind === "gage") return [flagGroup(session, kind, id)].filter(Boolean);
   if (kind === "link") {
     const l = s.links.get(id),
       type = LinkType[l.type];
@@ -392,7 +436,26 @@ export function propertyGroups(session, kind, id) {
     const q = qualityGroup(session, kind, id);
     if (q) groups.push(q);
   }
+  const flags = flagGroup(session, kind, id);
+  if (flags) groups.push(flags);
   return groups;
+}
+const flagObject = { node: "NODE", link: "LINK", subcatchment: "SUBCATCHMENT", gage: "GAGE" };
+/** The user flags' values on one object ([USER_FLAGS] rows); none when no flag is defined. */
+function flagGroup(session, kind, id) {
+  const defs = flagObject[kind] ? session.userFlags() : [];
+  if (!defs.length) return null;
+  const uf = session.solver.userflags;
+  return {
+    key: "userflags",
+    title: "User flags",
+    fields: defs.map((d) => {
+      const v = uf.getValue(flagObject[kind], id, d.name) ?? "";
+      const base = { name: "flag:" + d.name, label: d.name };
+      return d.type === "BOOLEAN" ? { ...base, type: "choice", value: v.toUpperCase(), choices: [["", "— unset —"], ["YES", "Yes"], ["NO", "No"]] } : { ...base, type: "text", value: v };
+    }),
+    note: "Blank leaves a flag unset. " + defs.filter((d) => d.description).map((d) => d.name + ": " + d.description + ".").join(" "),
+  };
 }
 
 /** Check a group's values as legacy SWMM 5.2.4 does and write them through the engine. */
@@ -650,6 +713,40 @@ export function applyGroup(session, kind, id, key, values) {
       need(Number.isInteger(layer) && layer >= 0 && layer <= count, "Choose a layer of " + end + "'s LID (1 to " + count + ") or none.");
       need(values.position === "TOP" || values.position === "BOTTOM", "Choose the layer's top or bottom.");
       lids.setOutletAnchor(id, layer, { position: values.position });
+    }
+  } else if (key === "userflags" && flagObject[kind]) {
+    const uf = s.userflags,
+      writes = [];
+    for (const d of session.userFlags()) {
+      if (!("flag:" + d.name in values)) continue;
+      const v = String(values["flag:" + d.name] ?? "").trim();
+      if (!v) {
+        writes.push([d.name, null]);
+        continue;
+      }
+      if (d.type === "BOOLEAN") need(/^(YES|NO)$/i.test(v), d.name + " is yes, no or unset.");
+      if (d.type === "INTEGER") need(/^[-+]?\d+$/.test(v) && Math.abs(Number(v)) <= 2147483647, d.name + " takes a whole number.");
+      if (d.type === "REAL") need(Number.isFinite(Number(v)), d.name + " takes a number.");
+      if (d.type === "STRING") need(!/[\r\n"]/.test(v), d.name + " is one line without quotes.");
+      writes.push([d.name, v]);
+    }
+    for (const [name, v] of writes) v === null ? uf.clearValue(flagObject[kind], id, name) : uf.setValue(flagObject[kind], id, name, v);
+  } else if (kind === "hydrograph" && /^decay[012]$/.test(key)) {
+    const r = Number(key.slice(5)),
+      row = decayRow(s, id, r),
+      mode = values.mode;
+    need(["", "EXP", "EXP_SNOW"].includes(mode), "Choose none, exponential or exponential with snow.");
+    if (!mode) {
+      if (row) s.inflows.removeRdiiDecay(row.uhName, r);
+    } else {
+      const p = {};
+      for (const k of ["k_dep", "k_0", "k_T", "T_ref", "theta_rec", "T_freeze", "snow_T", "snow_ddf"]) p[k] = num(values[k], k);
+      // The engine's checks (swmm_rdii_decay_add): rates and the melt factor are not negative.
+      need(p.k_dep >= 0 && p.k_0 >= 0 && p.k_T >= 0, "The rates k_dep, k_0 and k_T cannot be negative.");
+      need(p.snow_ddf >= 0, "The melt factor cannot be negative.");
+      p.snow_on = mode === "EXP_SNOW";
+      if (row) s.inflows.setRdiiDecay(row.uhName, r, p);
+      else s.inflows.addRdiiDecay(id, r, p);
     }
   } else throw new Error("No property group " + key + " for this " + kind + ".");
   return propertyGroups(session, kind, id).find((g) => g.key === key);

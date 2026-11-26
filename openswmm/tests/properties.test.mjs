@@ -303,3 +303,59 @@ test("storage-node LIDs: control, saturation and bottom; layer anchors on links;
   assert.deepEqual([s.solver.links.get("V_BR").offsetUp, s.solver.links.get("V_BR").offsetDn], vbr);
   assert.deepEqual(groupValues(group(s, "node", "B", "lid")), groupValues(b));
 });
+
+test("RDII decay of a unit hydrograph: none, exponential, with snow; the engine's checks; written, reopened, undo", async () => {
+  const s = await open(await fixture("inflows.inp"));
+  const uh = s.solver.inflows.getHydrographGroupId(0);
+  const cards = s.groups("hydrograph", uh);
+  assert.deepEqual(cards.map((g) => g.title), ["Short-term RDII decay", "Medium-term RDII decay", "Long-term RDII decay"]);
+  const before = groupValues(cards[1]);
+  assert.equal(before.mode, "");
+  const on = { ...before, mode: "EXP_SNOW", k_dep: 0.5, k_0: 0.01, k_T: 0.02, T_ref: 20, theta_rec: 0.05, T_freeze: 0, snow_T: 1, snow_ddf: 2 };
+  assert.throws(() => s.setGroup("hydrograph", uh, "decay1", { ...on, k_0: -1 }), /k_dep, k_0 and k_T cannot be negative/);
+  assert.throws(() => s.setGroup("hydrograph", uh, "decay1", { ...on, snow_ddf: -1 }), /melt factor cannot be negative/);
+  s.setGroup("hydrograph", uh, "decay1", on);
+  let deck = await reopened(s);
+  const row = rows(deck, "[RDII_DECAY]").find((r) => r[0] === uh);
+  assert.ok(row, "[RDII_DECAY] row: " + JSON.stringify(rows(deck, "[RDII_DECAY]")));
+  assert.deepEqual(groupValues(s.groups("hydrograph", uh)[1]), on);
+  s.setGroup("hydrograph", uh, "decay1", { ...on, mode: "EXP" }); // snow off
+  assert.equal(groupValues(s.groups("hydrograph", uh)[1]).mode, "EXP");
+  s.setGroup("hydrograph", uh, "decay1", before); // undo: no row
+  deck = await reopened(s);
+  assert.equal(rows(deck, "[RDII_DECAY]").length, 0);
+});
+
+test("user flags: definitions checked, values on objects by type, written and reopened, removal undone with its values", async () => {
+  const s = await open(await fixture("example1.inp"));
+  assert.deepEqual(s.userFlags(), []);
+  assert.deepEqual(s.groups("node", "J1").filter((g) => g.key === "userflags"), [], "no flags, no card");
+  assert.throws(() => s.setUserFlags([{ name: "has space", type: "STRING" }]), /cannot hold spaces/);
+  assert.throws(() => s.setUserFlags([{ name: "A", type: "STRING" }, { name: "a", type: "REAL" }]), /defined twice/);
+  assert.throws(() => s.setUserFlags([{ name: "B", type: "NOPE" }]), /choose its type/);
+  s.setUserFlags([{ name: "Owner", type: "STRING", description: "Who maintains it" }, { name: "Inspected", type: "BOOLEAN" }, { name: "Year", type: "INTEGER" }, { name: "Score", type: "REAL" }]);
+  const card = group(s, "node", "J1", "userflags");
+  assert.deepEqual(card.fields.map((f) => [f.label, f.type]), [["OWNER", "text"], ["INSPECTED", "choice"], ["YEAR", "text"], ["SCORE", "text"]]);
+  assert.match(card.note, /OWNER: Who maintains it/);
+  const v = groupValues(card);
+  const refuse = (x, re) => assert.throws(() => s.setGroup("node", "J1", "userflags", { ...v, ...x }), re);
+  refuse({ "flag:YEAR": "1999.5" }, /YEAR takes a whole number/);
+  refuse({ "flag:SCORE": "high" }, /SCORE takes a number/);
+  refuse({ "flag:INSPECTED": "maybe" }, /yes, no or unset/);
+  s.setGroup("node", "J1", "userflags", { ...v, "flag:OWNER": "City", "flag:INSPECTED": "YES", "flag:YEAR": "1999", "flag:SCORE": "7.5" });
+  s.setGroup("gage", "RainGage", "userflags", { ...groupValues(group(s, "gage", "RainGage", "userflags")), "flag:OWNER": "NOAA" });
+  const deck = await reopened(s);
+  const t = await open(deck);
+  assert.deepEqual(groupValues(group(t, "node", "J1", "userflags")), { "flag:OWNER": "City", "flag:INSPECTED": "YES", "flag:YEAR": "1999", "flag:SCORE": "7.5" });
+  assert.equal(groupValues(group(t, "gage", "RainGage", "userflags"))["flag:OWNER"], "NOAA");
+  // Names are kept in capitals (the engine). A type change while the flag has values is refused; removal takes the values; undo brings them back.
+  assert.throws(() => s.setUserFlags(s.userFlags().map((d) => (d.name === "YEAR" ? { ...d, type: "STRING" } : d))), /YEAR has values on objects/);
+  const { restore } = s.setUserFlags(s.userFlags().filter((d) => d.name !== "OWNER"));
+  assert.equal(s.userFlags().length, 3);
+  assert.deepEqual(restore.values.sort(), [["GAGE", "RainGage", "OWNER", "NOAA"], ["NODE", "J1", "OWNER", "City"]].sort());
+  s.setUserFlags(restore.definitions, restore.values); // undo
+  assert.equal(groupValues(group(s, "node", "J1", "userflags"))["flag:OWNER"], "City");
+  // Clearing a value: blank.
+  s.setGroup("node", "J1", "userflags", { ...groupValues(group(s, "node", "J1", "userflags")), "flag:SCORE": "" });
+  assert.equal(groupValues(group(s, "node", "J1", "userflags"))["flag:SCORE"], "");
+});

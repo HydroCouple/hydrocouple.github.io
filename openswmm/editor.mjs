@@ -16,18 +16,21 @@ import { aquiferEditor, describeAquifer } from "./aquifers.mjs";
 import { snowpackEditor, describeSnowpack } from "./snowpacks.mjs";
 import { streetEditor, describeStreet, inletEditor, describeInlet, inletNames } from "./streets.mjs";
 import { groupCard } from "./groups-view.mjs";
+import { scopedTable } from "./scoped-table.mjs";
 import { groupValues, undoValues } from "./properties.mjs";
 const $ = (id) => document.getElementById(id);
 const kindLabels = {
   options: "Simulation options",
   model: "Climate and model settings",
   options2d: "2D options",
+  quality2d: "2D surface quality",
   title: "Title and notes",
   report: "Report",
   files: "Files",
   transport: "Transport (ARD)",
   ueb: "Snow (UEB)",
   components: "Process components",
+  userflags: "User flags",
   node: "Nodes",
   link: "Links",
   subcatchment: "Subcatchments",
@@ -56,7 +59,7 @@ const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time 
 /** Kinds the map can select (selection.mjs). */
 const pickKinds = ["node", "link", "subcatchment", "gage", "cell"];
 /** Kinds edited as one whole (no object list). */
-const globalKinds = ["model", "options", "options2d", "title", "report", "files", "transport", "ueb", "components", "controls", "events"];
+const globalKinds = ["model", "options", "options2d", "quality2d", "title", "report", "files", "transport", "ueb", "components", "userflags", "controls", "events"];
 /** Kinds that are one section card (sections.mjs). */
 const sectionKinds = ["options2d", "title", "report", "files", "transport", "ueb", "components"];
 const node = (tag, props = {}, ...children) => {
@@ -230,6 +233,8 @@ export class Editor {
     if (recordKinds.includes(kind)) return this.showRecord(kind, key, current);
     if (kind === "controls") return this.showRules();
     if (kind === "events") return this.showEvents();
+    if (kind === "userflags") return this.showUserFlags();
+    if (kind === "quality2d") return this.showScoped(kind, ["coverage", "loading", "curb"]);
     if (qualityKinds.includes(kind) && !key) return this.showQuality(kind, null, props, current);
     const global = kind === "model" || kind === "options" || sectionKinds.includes(kind);
     if ((!global && !key) || (kind === "cell" && !this.summary?.cells)) {
@@ -241,7 +246,7 @@ export class Editor {
       const rows = await this.call("fields", kind, key);
       if (mine !== this.showSeq) return;
       props.replaceChildren(...rows.map((row) => this.row(kind, key, row)));
-      if (kind === "node" || kind === "link" || kind === "subcatchment" || sectionKinds.includes(kind)) await this.showGroups(kind, key, props, current);
+      if (kind === "node" || kind === "link" || kind === "subcatchment" || kind === "gage" || sectionKinds.includes(kind)) await this.showGroups(kind, key, props, current);
       if (kind === "node" || kind === "link") this.showConvert(kind, key, props);
       if (kind === "node" || kind === "link") await this.showReferences(kind, key, props, current);
       if (kind === "subcatchment") await this.showSubLinks(key, props, current);
@@ -591,6 +596,130 @@ export class Editor {
       ),
     );
   }
+  /** Scoped 2D section tables (surface-sections.mjs): a line per section and its table dialog. */
+  async showScoped(kind, names) {
+    const props = $("props");
+    let sections;
+    try {
+      sections = await Promise.all(names.map((n) => this.call("scopedRows", n)));
+    } catch (e) {
+      props.replaceChildren(node("div", { className: "record-card" }, node("p", { className: "hint", textContent: e.message || String(e) })));
+      return;
+    }
+    if ($("objkind").value !== kind) return;
+    const scopeText = (r) => (r.scope === "GLOBAL" ? "all cells" : r.scope === "TAG" ? "tag " + r.target : "cell " + r.target);
+    props.replaceChildren(
+      ...sections.map((d) => {
+        const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit " + d.title.replace(/^2D /, "").toLowerCase() + "…" });
+        edit.onclick = () => this.openScoped(d);
+        return node(
+          "div",
+          { className: "record-card" },
+          node("h4", { className: "group-title", textContent: d.title }),
+          node("p", { className: "record-desc", textContent: d.rows.length ? d.rows.length + " row" + (d.rows.length > 1 ? "s" : "") + ": " + d.rows.slice(0, 4).map(scopeText).join(", ") + (d.rows.length > 4 ? " …" : "") : "None." }),
+          edit,
+        );
+      }),
+    );
+  }
+  openScoped(data) {
+    this.openDialog(
+      data.title,
+      scopedTable(data, {
+        onCancel: () => this.closeDialog(),
+        onSave: async (rows) => {
+          const before = await this.call("setScopedRows", data.name, rows);
+          this.edits.push({ op: "scoped", kind: "quality2d", name: data.name, before });
+          this.closeDialog();
+          this.note();
+          this.show();
+        },
+      }),
+    );
+  }
+  /** User flag definitions ([USER_FLAGS]): a summary and the flags dialog. */
+  async showUserFlags() {
+    const props = $("props");
+    let flags;
+    try {
+      flags = await this.call("userFlags");
+    } catch (e) {
+      props.replaceChildren();
+      return this.fail(e);
+    }
+    if ($("objkind").value !== "userflags") return;
+    const edit = node("button", { type: "button", className: "tb ghost", textContent: flags.length ? "Edit flags…" : "Add flags…" });
+    edit.onclick = () => this.openUserFlags(flags);
+    const typeName = { BOOLEAN: "yes/no", INTEGER: "integer", REAL: "real", STRING: "text" };
+    props.replaceChildren(
+      node(
+        "div",
+        { className: "record-card" },
+        node("p", { className: "record-desc", textContent: flags.length ? flags.map((f) => f.name + " (" + typeName[f.type] + ")").join(", ") : "No user flags." }),
+        node("p", { className: "hint", textContent: "Named values you attach to nodes, links, subcatchments and rain gages ([USER_FLAGS]); each object's card has a User flags group." }),
+        edit,
+      ),
+    );
+  }
+  /** The flags dialog, as the desktop's User Flags Manager: name, type and description per flag. */
+  openUserFlags(before) {
+    const work = before.map((f) => ({ ...f }));
+    const message = node("p", { className: "hint record-message", role: "status" });
+    const body = node("tbody");
+    const types = [["BOOLEAN", "Yes/no"], ["INTEGER", "Integer"], ["REAL", "Real"], ["STRING", "Text"]];
+    const render = () =>
+      body.replaceChildren(
+        ...work.map((f, i) => {
+          const name = node("input", { value: f.name, ariaLabel: "Name of flag " + (i + 1) });
+          name.oninput = () => (f.name = name.value);
+          const type = node("select", { ariaLabel: "Type of flag " + (i + 1) });
+          for (const [v, label] of types) type.add(new Option(label, v));
+          type.value = f.type;
+          type.onchange = () => (f.type = type.value);
+          const description = node("input", { value: f.description, ariaLabel: "Description of flag " + (i + 1) });
+          description.oninput = () => (f.description = description.value);
+          const drop = node("button", { type: "button", className: "tb ghost", textContent: "Remove", ariaLabel: "Remove flag " + (i + 1) });
+          drop.onclick = () => {
+            work.splice(i, 1);
+            render();
+          };
+          return node("tr", {}, node("td", {}, name), node("td", {}, type), node("td", {}, description), node("td", {}, drop));
+        }),
+      );
+    render();
+    const add = node("button", { type: "button", className: "tb ghost", textContent: "Add flag" });
+    add.onclick = () => {
+      work.push({ name: "", type: "STRING", description: "" });
+      render();
+      body.querySelector("tr:last-child input")?.focus();
+    };
+    const save = node("button", { type: "button", className: "primary", textContent: "Save to model" });
+    const cancel = node("button", { type: "button", textContent: "Cancel" });
+    cancel.onclick = () => this.closeDialog();
+    save.onclick = async () => {
+      try {
+        const { restore } = await this.call("setUserFlags", work);
+        this.edits.push({ op: "userflags", kind: "userflags", before: restore });
+        this.closeDialog();
+        this.note();
+        this.show();
+      } catch (e) {
+        message.textContent = e.message || String(e);
+      }
+    };
+    this.openDialog(
+      "User flags",
+      node(
+        "div",
+        { className: "record-editor" },
+        node("table", { className: "events-table" }, node("thead", {}, node("tr", {}, node("th", { textContent: "Name" }), node("th", { textContent: "Type" }), node("th", { textContent: "Description" }), node("th"))), body),
+        add,
+        node("p", { className: "hint", textContent: "Names are kept in capitals. A removed or renamed flag takes its values with it (Undo brings them back). A flag that has values keeps its type." }),
+        message,
+        node("div", { className: "actions end" }, cancel, save),
+      ),
+    );
+  }
   openEvents(before) {
     const work = before.map((r) => ({ ...r }));
     const message = node("p", { className: "hint record-message", role: "status" });
@@ -754,6 +883,8 @@ export class Editor {
       if (edit.op === "record") await this.call("setRecord", edit.kind, edit.key, edit.before);
       else if (edit.op === "rules") await this.call("setRules", edit.before);
       else if (edit.op === "events") await this.call("setEvents", edit.before);
+      else if (edit.op === "userflags") await this.call("setUserFlags", edit.before.definitions, edit.before.values);
+      else if (edit.op === "scoped") await this.call("setScopedRows", edit.name, edit.before);
       else if (edit.op === "inflows") await this.call("setInflows", edit.key, edit.before);
       else if (edit.op === "co") await this.call("setCoPollutant", edit.key, edit.before);
       else if (edit.op === "landuse") await this.call("setLanduse", edit.key, edit.before);
@@ -851,6 +982,7 @@ export class Editor {
       create,
     );
     props.replaceChildren(card);
+    if (kind === "hydrograph") this.showGroups(kind, record.id, props, current); // RDII decay cards
     if (kind === "transect") drawTransect(preview, record);
     else if (noPreview) return;
     else if (kind === "hydrograph") {

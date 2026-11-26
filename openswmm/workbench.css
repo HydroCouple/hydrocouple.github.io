@@ -2684,3 +2684,12 @@ dialog:has(.lid-usage-editor) {
 .whead h2 {
   font-weight: 700;
 }
+/* Scoped 2D section tables (scoped-table.mjs): a coverage row has a column per land use. */
+.scoped-table .scoped-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.scoped-table td input,
+.scoped-table td select {
+  min-width: 84px;
+}
