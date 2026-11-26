@@ -3,6 +3,7 @@
 import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField, InletType, GrateType, ThroatType, OutfallType, DividerType, OrificeType, WeirType, OutletRatingType, GageRainType, WeirView, InfilModel, InletPlacement } from "./vendor/engine/index.js";
 import { localPath } from "./simulation.mjs";
 import { parseLabels, labelsText } from "./labels.mjs";
+import { propertyGroups, applyGroup, replacedRows } from "./properties.mjs";
 
 /** Sub-view path prefixes that only apply to one object type. */
 const subviews = {
@@ -2155,6 +2156,14 @@ export class ModelSession {
   removeInlet(id) {
     this.solver.editor.fuseInletJunction(id);
   }
+  /** Property groups beyond the catalog rows (properties.mjs): cross-section, outfall, storage, … */
+  groups(kind, id) {
+    return propertyGroups(this, kind, id);
+  }
+  /** Write one property group (checked as legacy SWMM does); returns it as the engine now holds it. */
+  setGroup(kind, id, key, values) {
+    return applyGroup(this, kind, id, key, values);
+  }
   /** The map labels ([LABELS]): `{x, y, text, anchor, font, size, bold, italic}` in deck order. */
   labels() {
     return parseLabels(this.solver.spatial.getAnnotation("LABELS"));
@@ -2299,7 +2308,7 @@ export class ModelSession {
       if (kind === "model" && path.startsWith("climate.")) continue; // edited in the climate dialog
       const sub = Object.keys(subviews).find((prefix) => path.startsWith(prefix));
       if (sub && subviews[sub] !== type) continue;
-      if (path.includes(".stats.") || runtimeState.has(path)) continue;
+      if (path.includes(".stats.") || runtimeState.has(path) || replacedRows.has(path)) continue;
       let value;
       try {
         value = s.fields.get(path, kind === "model" ? undefined : key);

@@ -577,6 +577,21 @@ main {
   background: #e2ebe0;
   border: 1px solid #b9c9c0;
 }
+/* Property group cards (groups-view.mjs): a titled block of rows under an object's properties. */
+.group-card .group-title {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--kicker);
+}
+.group-card .group-status:empty {
+  display: none;
+}
+.group-card .group-status {
+  color: var(--danger-ink);
+}
 /* Map labels: a letter, drawn as the labels are (ink on a light halo). */
 .sw.label::before {
   content: "A";

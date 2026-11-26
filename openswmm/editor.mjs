@@ -15,6 +15,8 @@ import { lidEditor, describeLid, lidNames, lidUsageEditor, describeLidUsage } fr
 import { aquiferEditor, describeAquifer } from "./aquifers.mjs";
 import { snowpackEditor, describeSnowpack } from "./snowpacks.mjs";
 import { streetEditor, describeStreet, inletEditor, describeInlet, inletNames } from "./streets.mjs";
+import { groupCard } from "./groups-view.mjs";
+import { groupValues } from "./properties.mjs";
 const $ = (id) => document.getElementById(id);
 const kindLabels = {
   options: "Simulation options",
@@ -229,6 +231,7 @@ export class Editor {
       const rows = await this.call("fields", kind, key);
       if (mine !== this.showSeq) return;
       props.replaceChildren(...rows.map((row) => this.row(kind, key, row)));
+      if (kind === "node" || kind === "link" || kind === "subcatchment") await this.showGroups(kind, key, props, current);
       if (kind === "node" || kind === "link") this.showConvert(kind, key, props);
       if (kind === "node" || kind === "link") await this.showReferences(kind, key, props, current);
       if (kind === "subcatchment") await this.showSubLinks(key, props, current);
@@ -755,6 +758,7 @@ export class Editor {
         for (const step of Array.isArray(edit.undo[0]) ? edit.undo : [edit.undo]) await this.call(...step);
         return this.afterMapEdit(null);
       } else if (edit.op === "sublinks") await this.call("setSubcatchLinks", edit.key, edit.before);
+      else if (edit.op === "group") await this.call("setGroup", edit.kind, edit.key, edit.group, edit.before);
       else await this.call("set", edit.path, edit.key, edit.before);
       if (["add", "rename", "delete"].includes(edit.op)) return this.refresh(edit.kind, edit.op === "add" ? null : edit.op === "rename" ? edit.before : edit.key);
       this.note();
@@ -1175,6 +1179,26 @@ export class Editor {
       ),
     );
     (yes.disabled ? no : yes).focus();
+  }
+  /**
+   * Property groups the catalog has no rows for (properties.mjs): a link's cross-section and losses,
+   * an outfall's, storage unit's or divider's parameters, a subcatchment's infiltration and
+   * groundwater. A change writes the whole group (one undo step).
+   */
+  async showGroups(kind, key, props, current) {
+    const groups = await this.call("groups", kind, key);
+    if (!current()) return;
+    for (const g of groups) {
+      let shown = g;
+      const onApply = async (values) => {
+        const after = await this.call("setGroup", kind, key, g.key, values);
+        this.edits.push({ op: "group", kind, key, group: g.key, before: groupValues(shown), after: groupValues(after) });
+        shown = after;
+        this.note();
+        return after;
+      };
+      props.append(groupCard(g, onApply));
+    }
   }
   /** Conduit lengths `{id: length}` measured on the map (none when no measure is given). */
   lengths(conduits) {
