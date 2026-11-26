@@ -84,6 +84,11 @@ export var NodeType;
     NodeType[NodeType["STORAGE"] = 2] = "STORAGE";
     NodeType[NodeType["DIVIDER"] = 3] = "DIVIDER";
 })(NodeType || (NodeType = {}));
+export var BackendSolver;
+(function (BackendSolver) {
+    BackendSolver[BackendSolver["FV_NETWORK"] = 0] = "FV_NETWORK";
+    BackendSolver[BackendSolver["SURFACE_2D"] = 1] = "SURFACE_2D";
+})(BackendSolver || (BackendSolver = {}));
 export var LinkType;
 (function (LinkType) {
     LinkType[LinkType["CONDUIT"] = 0] = "CONDUIT";

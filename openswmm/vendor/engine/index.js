@@ -33,7 +33,7 @@
 // ---------------------------------------------------------------------------
 // Solver (main lifecycle controller)
 // ---------------------------------------------------------------------------
-export { Solver, abiTag, run, runWithCallback } from "./Solver.js";
+export { Solver, abiTag, backendInfo, run, runWithCallback } from "./Solver.js";
 // ---------------------------------------------------------------------------
 // Model builder (programmatic model construction)
 // ---------------------------------------------------------------------------
@@ -62,7 +62,7 @@ export { GeoPackage, registerGeoPackage, isGeoPackageRegistered } from "./GeoPac
 export { Climate } from "./Climate.js";
 export { Statistics } from "./Statistics.js";
 export { Inflows } from "./Inflows.js";
-export { HotStart, SaveSchedule } from "./HotStart.js";
+export { HotStart, RestartSettings, SaveSchedule, inspectRestartFile, probeRestartFile, } from "./HotStart.js";
 export { Checkpoints } from "./Checkpoints.js";
 export { Gages, Gage } from "./Gages.js";
 export { Controls } from "./Controls.js";
