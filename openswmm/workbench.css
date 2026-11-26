@@ -592,6 +592,16 @@ main {
 .group-card .group-status {
   color: var(--danger-ink);
 }
+.group-card textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.group-card label.check {
+  min-height: 26px;
+  font-size: 12.5px;
+}
 /* Map labels: a letter, drawn as the labels are (ink on a light halo). */
 .sw.label::before {
   content: "A";

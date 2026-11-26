@@ -21,6 +21,9 @@ const $ = (id) => document.getElementById(id);
 const kindLabels = {
   options: "Simulation options",
   model: "Climate and model settings",
+  title: "Title and notes",
+  report: "Report",
+  files: "Files",
   node: "Nodes",
   link: "Links",
   subcatchment: "Subcatchments",
@@ -49,7 +52,9 @@ const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time 
 /** Kinds the map can select (selection.mjs). */
 const pickKinds = ["node", "link", "subcatchment", "gage", "cell"];
 /** Kinds edited as one whole (no object list). */
-const globalKinds = ["model", "options", "controls", "events"];
+const globalKinds = ["model", "options", "title", "report", "files", "controls", "events"];
+/** Kinds that are one section card (sections.mjs). */
+const sectionKinds = ["title", "report", "files"];
 const node = (tag, props = {}, ...children) => {
   const n = Object.assign(document.createElement(tag), props);
   n.append(...children);
@@ -221,7 +226,7 @@ export class Editor {
     if (kind === "controls") return this.showRules();
     if (kind === "events") return this.showEvents();
     if (qualityKinds.includes(kind) && !key) return this.showQuality(kind, null, props, current);
-    const global = kind === "model" || kind === "options";
+    const global = kind === "model" || kind === "options" || sectionKinds.includes(kind);
     if ((!global && !key) || (kind === "cell" && !this.summary?.cells)) {
       props.replaceChildren();
       if (kind === "cell") this.note("This model has no 2D surface cells.");
@@ -231,7 +236,7 @@ export class Editor {
       const rows = await this.call("fields", kind, key);
       if (mine !== this.showSeq) return;
       props.replaceChildren(...rows.map((row) => this.row(kind, key, row)));
-      if (kind === "node" || kind === "link" || kind === "subcatchment") await this.showGroups(kind, key, props, current);
+      if (kind === "node" || kind === "link" || kind === "subcatchment" || sectionKinds.includes(kind)) await this.showGroups(kind, key, props, current);
       if (kind === "node" || kind === "link") this.showConvert(kind, key, props);
       if (kind === "node" || kind === "link") await this.showReferences(kind, key, props, current);
       if (kind === "subcatchment") await this.showSubLinks(key, props, current);

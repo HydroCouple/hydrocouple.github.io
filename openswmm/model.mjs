@@ -4,6 +4,7 @@ import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XS
 import { localPath } from "./simulation.mjs";
 import { parseLabels, labelsText } from "./labels.mjs";
 import { propertyGroups, applyGroup, replacedRows } from "./properties.mjs";
+import { sectionKinds, sectionGroups, applySection, reportOptions } from "./sections.mjs";
 
 /** Sub-view path prefixes that only apply to one object type. */
 const subviews = {
@@ -15,7 +16,7 @@ const subviews = {
   "link.orifice.": "ORIFICE",
   "link.outlet.": "OUTLET",
 };
-export const objectKinds = ["options", "model", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet", "controls", "events"];
+export const objectKinds = ["options", "model", "title", "report", "files", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet", "controls", "events"];
 /** Record kinds: edited as whole tables in the record editor rather than as property rows. */
 export const recordKinds = ["timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet"];
 /** A new street cross-section (SWMM 5.2 [STREETS]); slopes in percent, gutter depression in in or mm. */
@@ -282,6 +283,7 @@ export class ModelSession {
     empty(fs, "/edit");
     fs.chdir("/edit");
     this.entry = localPath(project.entry);
+    this.inputNames = Object.keys(project.inputs); // the files a [FILES] USE row may name
     for (const [name, data] of Object.entries(project.inputs)) {
       localPath(name);
       if (name.includes("/")) fs.mkdirTree(name.slice(0, name.lastIndexOf("/")));
@@ -2156,13 +2158,16 @@ export class ModelSession {
   removeInlet(id) {
     this.solver.editor.fuseInletJunction(id);
   }
-  /** Property groups beyond the catalog rows (properties.mjs): cross-section, outfall, storage, … */
+  /**
+   * Property groups beyond the catalog rows (properties.mjs): cross-section, outfall, storage, …; for
+   * a section kind (title, report, files) its one card (sections.mjs).
+   */
   groups(kind, id) {
-    return propertyGroups(this, kind, id);
+    return sectionKinds.includes(kind) ? sectionGroups(this, kind) : propertyGroups(this, kind, id);
   }
   /** Write one property group (checked as legacy SWMM does); returns it as the engine now holds it. */
   setGroup(kind, id, key, values) {
-    return applyGroup(this, kind, id, key, values);
+    return sectionKinds.includes(kind) ? applySection(this, kind, key, values) : applyGroup(this, kind, id, key, values);
   }
   /** The map labels ([LABELS]): `{x, y, text, anchor, font, size, bold, italic}` in deck order. */
   labels() {
@@ -2266,9 +2271,11 @@ export class ModelSession {
   /** The settable catalog fields of one object (or of the model when kind is "model"). */
   fields(kind, key) {
     const s = this.solver;
+    if (sectionKinds.includes(kind)) return []; // one card each (sections.mjs)
     if (kind === "options") {
       const rows = [];
       for (const name of s.options) {
+        if (reportOptions.includes(name)) continue; // on the Report card
         const value = s.options.get(name);
         const choices = optionChoices[name] || (yesNo.test(name) ? ["YES", "NO"] : null);
         rows.push({
