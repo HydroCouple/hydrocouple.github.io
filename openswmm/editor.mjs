@@ -39,6 +39,9 @@ const kindLabels = {
   controls: "Control rules",
   events: "Events",
 };
+/** Type names in "Convert to", in the desktop's order. */
+const nodeTypeLabels = { JUNCTION: "Junction", OUTFALL: "Outfall", STORAGE: "Storage unit", DIVIDER: "Divider" };
+const linkTypeLabels = { CONDUIT: "Conduit", PUMP: "Pump", ORIFICE: "Orifice", WEIR: "Weir", OUTLET: "Outlet" };
 const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern", hydrograph: "unit hydrograph", pollutant: "pollutant", landuse: "land use", transect: "transect", lid: "LID control", aquifer: "aquifer", snowpack: "snowpack", street: "street", inlet: "inlet" };
 const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern", hydrograph: "Unit hydrograph", pollutant: "Pollutant", landuse: "Land use", transect: "Transect", lid: "LID control", aquifer: "Aquifer", snowpack: "Snowpack", street: "Street", inlet: "Inlet" };
 /** Kinds the map can select (selection.mjs). */
@@ -58,9 +61,13 @@ export class Editor {
    * @param {() => void} o.closeDialog
    * @param {(bytes: Uint8Array, select: object|null) => void} o.onNetwork shows the session's network
    *   on the map after a map edit (the deck the engine writes), selecting `select`
+   * @param {{length: (points: number[][]) => number}} o.measure a polyline's length on the map in the
+   *   model's units (a moved node's or reshaped link's conduits take it, as with the desktop's auto-length)
    */
-  constructor({ onApply, onError, openDialog, closeDialog, onPick, onNetwork, onDiscard }) {
+  constructor({ onApply, onError, openDialog, closeDialog, onPick, onNetwork, onDiscard, measure, selected }) {
     this.onApply = onApply;
+    this.selected = selected; // the map's selection: "Convert to" acts on its objects of the shown kind
+    this.measure = measure;
     this.onNetwork = onNetwork;
     this.onDiscard = onDiscard; // the session went with map edits not applied
     this.onPick = onPick; // an object picked in Edit object becomes the selection
@@ -222,7 +229,9 @@ export class Editor {
       const rows = await this.call("fields", kind, key);
       if (mine !== this.showSeq) return;
       props.replaceChildren(...rows.map((row) => this.row(kind, key, row)));
+      if (kind === "node" || kind === "link") this.showConvert(kind, key, props);
       if (kind === "node" || kind === "link") await this.showReferences(kind, key, props, current);
+      if (kind === "subcatchment") await this.showSubLinks(key, props, current);
       if (kind === "subcatchment") await this.showSubQuality(key, props, current);
       if (kind === "subcatchment") await this.showSubLids(key, props, current);
       if (qualityKinds.includes(kind)) await this.showQuality(kind, key, props, current);
@@ -743,9 +752,10 @@ export class Editor {
       else if (edit.op === "rename") await this.call("renameRecord", edit.kind, edit.after, edit.before);
       else if (edit.op === "delete") await this.call("restore", edit.token);
       else if (edit.op === "map") {
-        await this.call(...edit.undo);
+        for (const step of Array.isArray(edit.undo[0]) ? edit.undo : [edit.undo]) await this.call(...step);
         return this.afterMapEdit(null);
-      } else await this.call("set", edit.path, edit.key, edit.before);
+      } else if (edit.op === "sublinks") await this.call("setSubcatchLinks", edit.key, edit.before);
+      else await this.call("set", edit.path, edit.key, edit.before);
       if (["add", "rename", "delete"].includes(edit.op)) return this.refresh(edit.kind, edit.op === "add" ? null : edit.op === "rename" ? edit.before : edit.key);
       this.note();
     } catch (e) {
@@ -947,9 +957,9 @@ export class Editor {
     let made, undo, select, message;
     try {
       // The selection's type reads as the map's picks do ("J12 · junction").
-      const type = spec.virtual ? "virtual junction" : spec.op === "gage" ? "rain gage" : spec.type.toLowerCase();
+      const type = spec.virtual ? "virtual junction" : spec.op === "gage" ? "rain gage" : String(spec.type || "").toLowerCase();
       if (spec.op === "node") {
-        made = await this.call("addNode", spec.type, spec.x, spec.y);
+        made = await this.call("addNode", spec.type, spec.x, spec.y, spec.invert);
         undo = ["removeAdded", "node", made.id];
         select = { kind: "node", id: made.id, type };
       } else if (spec.op === "insert") {
@@ -965,6 +975,28 @@ export class Editor {
         made = await this.call("addGage", spec.x, spec.y);
         undo = ["removeAdded", "gage", made.id];
         select = { kind: "gage", id: made.id, type };
+      } else if (spec.op === "subcatchment") {
+        made = await this.call("addSubcatchment", spec.ring, spec.area);
+        undo = ["removeAdded", "subcatchment", made.id];
+        select = { kind: "subcatchment", id: made.id, type: "subcatchment" };
+        // It takes the nearest gage and node (SWMM needs both); the note says so.
+        message =
+          made.gage && made.outlet
+            ? made.id + " drains to " + made.outlet + " with rain from " + made.gage + " (the nearest); change them in its properties."
+            : made.id + " needs " + [!made.gage && "a rain gage", !made.outlet && "an outlet"].filter(Boolean).join(" and ") + ": set it in its properties.";
+      } else if (spec.op === "move") {
+        // A moved node's conduits take their new length on the map (the desktop's auto-length).
+        const r = await this.call("moveObject", spec.kind, spec.id, spec.x, spec.y);
+        const before = await this.call("setLengths", this.lengths(r.conduits));
+        made = { id: spec.id };
+        undo = [["moveObject", spec.kind, spec.id, r.x, r.y], ["setLengths", before]];
+        select = { kind: spec.kind, id: spec.id };
+      } else if (spec.op === "vertices") {
+        const r = await this.call("setVertices", spec.link, spec.vertices);
+        const before = r.conduit ? await this.call("setLengths", this.lengths([{ id: spec.link, points: r.points }])) : {};
+        made = { id: spec.link };
+        undo = [["setVertices", spec.link, r.before], ["setLengths", before]];
+        select = { kind: "link", id: spec.link };
       } else throw new Error("Unknown map edit " + spec.op + ".");
     } catch (e) {
       this.fail(e);
@@ -973,6 +1005,119 @@ export class Editor {
     this.edits.push({ op: "map", kind: select.kind, key: made.id, undo });
     await this.afterMapEdit(select, message);
     return made;
+  }
+  /**
+   * "Convert to" on a node's or link's card (the desktop's type conversion): it acts on the selected
+   * objects of that kind when this one is among them, else on this one; a preview lists what converts,
+   * what already is that type and what the engine refuses (and why) before anything changes.
+   */
+  showConvert(kind, key, props) {
+    const types = kind === "node" ? nodeTypeLabels : linkTypeLabels;
+    const target = node("select", { ariaLabel: "Convert " + key + " to" });
+    target.add(new Option("— choose a type —", ""));
+    for (const [type, label] of Object.entries(types)) target.add(new Option(label, type));
+    const go = node("button", { type: "button", className: "tb ghost", textContent: "Convert…", disabled: true });
+    target.onchange = () => (go.disabled = !target.value);
+    go.onclick = () => this.confirmConvert(kind, key, target.value);
+    props.append(node("div", { className: "prop convert-row" }, node("span", { textContent: "Convert to" }), node("div", { className: "pair" }, target, go)));
+  }
+  async confirmConvert(kind, key, type) {
+    const picked = (this.selected?.() || []).filter((i) => i.kind === kind).map((i) => i.id);
+    const ids = picked.includes(key) ? picked : [key];
+    const label = (kind === "node" ? nodeTypeLabels : linkTypeLabels)[type];
+    let preview;
+    try {
+      preview = await this.call("convertObjects", kind, ids, type);
+    } catch (e) {
+      return this.fail(e);
+    }
+    const by = (state) => preview.rows.filter((r) => r.state === state);
+    const yes = node("button", { type: "button", className: "tb primary", textContent: "Convert" });
+    const no = node("button", { type: "button", className: "tb ghost", textContent: "Keep" });
+    yes.disabled = !by("convert").length;
+    no.onclick = () => this.closeDialog();
+    yes.onclick = async () => {
+      this.closeDialog();
+      try {
+        const done = await this.call("convertObjects", kind, ids, type, true);
+        const converted = done.rows.filter((r) => r.state === "convert");
+        this.edits.push({ op: "map", kind, key, undo: ["unconvertObjects", kind, done.undo] });
+        const cleared = converted.filter((r) => r.cleared.length).map((r) => r.id + " (" + r.cleared.join(", ") + ")");
+        await this.afterMapEdit(
+          { kind, id: converted.some((r) => r.id === key) ? key : converted[0].id, type: label.toLowerCase() },
+          "Converted " + converted.map((r) => r.id).join(", ") + " to " + label.toLowerCase() + "." + (cleared.length ? " Cleared, which undo cannot restore: " + cleared.join("; ") + "." : ""),
+        );
+      } catch (e) {
+        this.fail(e);
+      }
+    };
+    const line = (text, rows, why) => (rows.length ? node("p", { className: "hint", textContent: text + rows.map((r) => r.id + (why ? " — " + r.reason : "")).join(why ? "; " : ", ") + "." }) : "");
+    this.openDialog(
+      "Convert to " + label.toLowerCase(),
+      node(
+        "div",
+        { className: "confirm-convert" },
+        node("p", { textContent: "To convert: " + by("convert").length + " · already this type: " + by("same").length + " · refused: " + by("refused").length + "." }),
+        line("Converts: ", by("convert")),
+        line("Already this type: ", by("same")),
+        line("Refused: ", by("refused"), true),
+        node("p", { className: "hint", textContent: "Values only the old type has are cleared; undo brings the type back with the common values." }),
+        node("div", { className: "pair" }, no, yes),
+      ),
+    );
+    (yes.disabled ? no : yes).focus();
+  }
+  /** Conduit lengths `{id: length}` measured on the map (none when no measure is given). */
+  lengths(conduits) {
+    const out = {};
+    for (const c of conduits) {
+      const length = this.measure?.length(c.points);
+      if (length > 0) out[c.id] = length;
+    }
+    return out;
+  }
+  /**
+   * At the top of a subcatchment's properties: its rain gage and outlet (a node or another
+   * subcatchment), which SWMM needs; a change is one undo step.
+   */
+  async showSubLinks(key, props, current) {
+    const links = await this.call("subcatchLinks", key);
+    if (!current()) return;
+    const objects = this.summary?.objects || {};
+    const gage = node("select", { ariaLabel: "Rain gage of " + key });
+    if (!links.gage) gage.add(new Option("— choose —", ""));
+    for (const g of objects.gage || []) gage.add(new Option(g.id, g.id));
+    gage.value = links.gage;
+    const outlet = node("select", { ariaLabel: "Outlet of " + key });
+    if (!links.outlet) outlet.add(new Option("— choose —", ""));
+    const group = (label, kind, list) => {
+      const g = node("optgroup", { label });
+      for (const o of list) if (!(kind === "subcatchment" && o.id === key)) g.append(new Option(o.id, kind + ":" + o.id));
+      outlet.append(g);
+    };
+    group("Nodes", "node", objects.node || []);
+    group("Subcatchments", "subcatchment", objects.subcatchment || []);
+    outlet.value = links.outlet ? links.outlet.kind + ":" + links.outlet.id : "";
+    const save = async () => {
+      const [kind, ...id] = outlet.value.split(":");
+      const next = { gage: gage.value, outlet: outlet.value ? { kind, id: id.join(":") } : null };
+      try {
+        const before = { ...links, outlet: links.outlet && { ...links.outlet } }; // links changes below
+        const after = await this.call("setSubcatchLinks", key, next);
+        this.edits.push({ op: "sublinks", kind: "subcatchment", key, before, after });
+        Object.assign(links, after);
+        this.note();
+      } catch (e) {
+        this.fail(e);
+        this.show();
+      }
+    };
+    gage.onchange = outlet.onchange = save;
+    const row = (label, input, title) => node("label", { className: "prop", title }, node("span", { textContent: label }), input);
+    props.prepend(
+      row("Rain gage", gage, "The rain gage whose rainfall the subcatchment receives."),
+      row("Outlet", outlet, "The node or subcatchment that receives the subcatchment's runoff."),
+    );
   }
   /**
    * Delete objects selected on the map. When the delete takes or clears anything else, the dialog

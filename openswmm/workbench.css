@@ -990,6 +990,11 @@ main {
 #scene.tool-add .mapboxgl-canvas-container.mapboxgl-interactive {
   cursor: crosshair;
 }
+/* Move and Edit vertices: over something that can be dragged. */
+#scene.tool-add.over-target #plot,
+#scene.tool-add.over-target .mapboxgl-canvas-container.mapboxgl-interactive {
+  cursor: move;
+}
 @media (prefers-color-scheme: dark) {
   #edithint {
     background: rgba(21, 39, 55, 0.94);

@@ -190,3 +190,114 @@ test("the map's network after an edit (deckNetwork) is sketch's network; virtual
   assert.deepEqual(piece("C2_B")[0], at);
   assert.deepEqual(network.storage[network.ids.storage.indexOf("S1")], [3, 4]);
 });
+
+test("subcatchments drawn on the map: desktop values per unit system and INFILTRATION option, nearest gage and outlet", async () => {
+  const text = await fixture("example1.inp");
+  const s = await open(text);
+  // A square next to J1 (648.5, 1043.7): its nearest node is J1, the only gage RainGage.
+  const ring = [[600, 1000], [700, 1000], [700, 1100], [600, 1100]];
+  assert.deepEqual(s.addSubcatchment(ring, 3.25), { id: "Sub1", gage: "RainGage", outlet: "J1" });
+  let deck = await reopened(s);
+  const row = (section, id = "Sub1") => rows(deck, section).find((r) => r[0] === id);
+  assert.deepEqual(row("[SUBCATCHMENTS]").slice(1, 3), ["RainGage", "J1"]);
+  assert.deepEqual(row("[SUBCATCHMENTS]").slice(3, 7).map(Number), [3.25, 25, 500, 0.5]);
+  assert.deepEqual(row("[SUBAREAS]").slice(1, 6).map(Number), [0.012, 0.15, 0.06, 0.15, 25]);
+  assert.deepEqual(row("[INFILTRATION]").slice(1, 5).map(Number), [3, 0.5, 4, 7]);
+  assert.deepEqual(rows(deck, "[POLYGONS]").filter((r) => r[0] === "Sub1").map((r) => r.slice(1).map(Number)).slice(0, 4), ring);
+  assert.deepEqual(s.problems(), []);
+  s.removeAdded("subcatchment", "Sub1");
+  assert.equal(rows(decoder.decode(s.write()), "[SUBCATCHMENTS]").find((r) => r[0] === "Sub1"), undefined);
+  // SI, Green-Ampt: the SI values and the Green-Ampt family; no area → the default 2 ha.
+  // (The fixture's own subcatchments get Green-Ampt rows too: its Horton values are no Green-Ampt set.)
+  const greenAmpt = text
+    .replace(/^(FLOW_UNITS\s+)CFS/m, "$1CMS")
+    .replace(/^(INFILTRATION\s+)HORTON/m, "$1GREEN_AMPT")
+    .replace(/(\[INFILTRATION\][^[]*)/, (block) => block.replace(/^(S\d+)\s+.*$/gm, "$1 89 13 0.26"));
+  const si = await open(greenAmpt);
+  si.addSubcatchment(ring);
+  deck = await reopened(si);
+  near(row("[SUBCATCHMENTS]")[3], 2);
+  near(row("[SUBCATCHMENTS]")[5], 150);
+  near(row("[SUBAREAS]")[3], 1.5);
+  near(row("[SUBAREAS]")[4], 3.8);
+  const ga = row("[INFILTRATION]");
+  near(ga[1], 89);
+  near(ga[2], 13);
+  near(ga[3], 0.26);
+  // No rain gage in the model: Apply waits until one is set.
+  const bare = await open(text);
+  bare.deleteObjects([{ kind: "gage", id: "RainGage" }]);
+  assert.equal(bare.addSubcatchment(ring).gage, null);
+  assert.deepEqual(bare.problems().filter((p) => p.includes("Sub1")), ["Subcatchment Sub1 needs a rain gage: set it in its properties."]);
+});
+
+test("a subcatchment's rain gage and outlet (a node or another subcatchment) are set in its properties", async () => {
+  const s = await open(await fixture("example1.inp"));
+  assert.deepEqual(s.subcatchLinks("S1"), { id: "S1", gage: "RainGage", outlet: { kind: "node", id: "J1" } });
+  s.addGage(0, 0);
+  assert.deepEqual(s.setSubcatchLinks("S1", { gage: "RG1", outlet: { kind: "subcatchment", id: "S2" } }), { id: "S1", gage: "RG1", outlet: { kind: "subcatchment", id: "S2" } });
+  const deck = await reopened(s);
+  assert.deepEqual(rows(deck, "[SUBCATCHMENTS]").find((r) => r[0] === "S1").slice(1, 3), ["RG1", "S2"]);
+  assert.throws(() => s.setSubcatchLinks("S1", { outlet: { kind: "subcatchment", id: "s1" } }), /cannot drain to itself/);
+  assert.throws(() => s.setSubcatchLinks("S1", { gage: "Nope" }), /No rain gage Nope/);
+});
+
+test("moving a node carries its conduits' ends; vertices are replaced; lengths set and restored; inverts from the ground", async () => {
+  const s = await open(await fixture("example1.inp"));
+  const before = s.moveObject("node", "J1", 700, 1100);
+  assert.deepEqual([before.x, before.y], [648.532, 1043.713]);
+  assert.deepEqual(before.conduits.map((c) => c.id).sort(), ["C1"]);
+  assert.deepEqual(before.conduits[0].points[0], [700, 1100]); // C1 starts at J1
+  const old = s.setLengths({ C1: 222 });
+  assert.deepEqual(old, { C1: 185 });
+  let deck = decoder.decode(s.write());
+  assert.deepEqual(rows(deck, "[COORDINATES]").find((r) => r[0] === "J1").slice(1).map(Number), [700, 1100]);
+  assert.equal(+rows(deck, "[CONDUITS]").find((r) => r[0] === "C1")[3], 222);
+  s.moveObject("node", "J1", before.x, before.y);
+  s.setLengths(old);
+  assert.equal(+rows(decoder.decode(s.write()), "[CONDUITS]").find((r) => r[0] === "C1")[3], 185);
+  // Gages move too (no conduits).
+  assert.deepEqual(s.moveObject("gage", "RainGage", 1, 2), { x: -175.841, y: 1212.778, conduits: [] });
+  // Link vertices: replaced, and back.
+  const v = s.setVertices("C2", [[1300, 700]]);
+  assert.deepEqual(v.before, [[1321.339, 774.591], [1374.819, 652.105], [1366.193, 588.275]]);
+  assert.equal(v.points.length, 3);
+  deck = await reopened(s);
+  assert.deepEqual(rows(deck, "[VERTICES]").filter((r) => r[0] === "C2").map((r) => r.slice(1).map(Number)), [[1300, 700]]);
+  s.setVertices("C2", v.before);
+  assert.equal(rows(decoder.decode(s.write()), "[VERTICES]").filter((r) => r[0] === "C2").length, 3);
+  // A node placed over the ground takes its elevation as the invert.
+  s.addNode("JUNCTION", 5, 5, 812.5);
+  assert.equal(+rows(decoder.decode(s.write()), "[JUNCTIONS]").find((r) => r[0] === "J12")[1], 812.5);
+});
+
+test("nodes and links converted to another type: a preview, the new type's values, refusals, undo", async () => {
+  const s = await open(await fixture("example1.inp"));
+  const before = decoder.decode(s.write());
+  const preview = s.convertObjects("node", ["J2", "O1"], "STORAGE");
+  assert.deepEqual(preview.rows.map((r) => [r.id, r.from, r.state]), [["J2", "JUNCTION", "convert"], ["O1", "OUTFALL", "convert"]]);
+  assert.equal(decoder.decode(s.write()), before, "a preview changes nothing");
+  const done = s.convertObjects("node", ["J2"], "STORAGE", true);
+  let deck = await reopened(s);
+  const j2 = rows(before, "[JUNCTIONS]").find((r) => r[0] === "J2");
+  const st = rows(deck, "[STORAGE]").find((r) => r[0] === "J2");
+  assert.deepEqual([+st[1], +st[2]], [+j2[1], +j2[2]], "invert and depth kept");
+  assert.deepEqual(st.slice(4, 8).map((v, i) => (i ? +v : v)), ["FUNCTIONAL", 0, 0, 1000]);
+  assert.equal(s.convertObjects("node", ["J2"], "STORAGE").rows[0].state, "same");
+  s.unconvertObjects("node", done.undo);
+  deck = decoder.decode(s.write());
+  assert.deepEqual(rows(deck, "[JUNCTIONS]").find((r) => r[0] === "J2"), j2);
+  assert.equal(rows(deck, "[STORAGE]").find((r) => r[0] === "J2"), undefined);
+  // A conduit to a weir: the weir's values; and back.
+  const link = s.convertObjects("link", ["C3"], "WEIR", true);
+  deck = await reopened(s);
+  assert.equal(rows(deck, "[WEIRS]").find((r) => r[0] === "C3")[3], "TRANSVERSE");
+  s.unconvertObjects("link", link.undo);
+  deck = decoder.decode(s.write());
+  assert.deepEqual(rows(deck, "[CONDUITS]").find((r) => r[0] === "C3"), rows(before, "[CONDUITS]").find((r) => r[0] === "C3"));
+  assert.deepEqual(rows(deck, "[XSECTIONS]").find((r) => r[0] === "C3"), rows(before, "[XSECTIONS]").find((r) => r[0] === "C3"));
+  // A divider takes the first link out of it as its diversion link, so the deck opens again.
+  s.convertObjects("node", ["J3"], "DIVIDER", true);
+  assert.deepEqual(s.problems(), []);
+  await reopened(s);
+});

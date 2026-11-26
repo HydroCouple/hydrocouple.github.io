@@ -28,17 +28,29 @@ export const addKinds = [
       { kind: "link", type: "OUTLET", label: "Outlet", noun: "outlet", leaf: "outlets" },
     ],
   },
+  { group: "Areas", items: [{ kind: "subcatchment", type: "SUBCATCHMENT", label: "Subcatchment", noun: "subcatchment", leaf: "subcatchments" }] },
   { group: "Other", items: [{ kind: "gage", type: "GAGE", label: "Rain gage", noun: "rain gage", leaf: "gages" }] },
 ];
 
 /** What a click does with an add tool armed (the desktop's status text). */
 export function addHint(spec) {
   if (spec.kind === "gage") return "Click to place a rain gage. Esc ends.";
+  if (spec.kind === "subcatchment")
+    return "Click the corners of the subcatchment; a double-click or Enter closes it. Backspace drops a corner; Esc ends.";
   if (spec.kind === "link")
     return "Click a node to start the " + spec.noun + ", click to add bends, click another node to end it. Backspace drops a bend; Esc ends.";
   if (spec.virtual) return "Click a conduit to insert a virtual junction at that point. Esc ends.";
   if (spec.type === "OUTFALL") return "Click to place an outfall. Outfalls end a network, so they cannot be inserted on a conduit. Esc ends.";
   return "Click to place a " + spec.noun + ", or click a conduit to split it and insert the " + spec.noun + " there. Esc ends.";
+}
+
+/** The Move tool's line (the desktop's Move Node tool: nodes and rain gages). */
+export const moveHint = "Drag a node or rain gage to move it; a conduit that ends at a moved node takes its new length. Esc ends.";
+/** The Edit vertices tool's line, before and after a link is chosen. */
+export function vertexHint(link) {
+  return link
+    ? "Editing " + link + ": drag a vertex; right-click the line to add one, right-click a vertex to remove it. Esc ends."
+    : "Click a link to edit its vertices. Esc ends.";
 }
 
 const el = (tag, props = {}, ...children) => {

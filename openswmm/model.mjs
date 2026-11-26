@@ -1,6 +1,6 @@
 // Engine-as-model: one solver kept in the OPENED state so edits go through the engine API
 // (catalog field paths) and the INP deck becomes a derived artifact written by the engine.
-import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField, InletType, GrateType, ThroatType, OutfallType, DividerType, OrificeType, WeirType, OutletRatingType, GageRainType, WeirView } from "./vendor/engine/index.js";
+import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField, InletType, GrateType, ThroatType, OutfallType, DividerType, OrificeType, WeirType, OutletRatingType, GageRainType, WeirView, InfilModel } from "./vendor/engine/index.js";
 import { localPath } from "./simulation.mjs";
 
 /** Sub-view path prefixes that only apply to one object type. */
@@ -47,8 +47,20 @@ export function snowpackDefaults(unitSystem) {
 }
 /** Water-quality objects: property rows plus a name, new and delete like a record. */
 export const qualityKinds = ["pollutant", "landuse"];
+/** Why the engine refuses a type change: the desktop's wording of the virtual and inlet junction rules. */
+const conversionRules = {
+  609: "A virtual junction must connect exactly two conduits (no pumps, orifices, weirs or outlets).",
+  611: "The two conduits must have identical cross sections (shape, dimensions and barrels).",
+  613: "Both conduit offsets at the node must be zero (invert continuity).",
+  615: "The conduit inverts do not agree at the node.",
+  617: "A virtual junction cannot be coupled to a 2D surface mesh (it has no opening).",
+  619: "Virtual junctions require dynamic-wave (DYNWAVE) flow routing.",
+  623: "An inlet junction sits between two STREET conduits (RECT_OPEN or TRAPEZOIDAL for a drop inlet).",
+  627: "The capture node must be an existing node other than the inlet itself, and not a virtual or inlet junction.",
+  635: "This conduit hosts an inlet usage. Remove the assignment first.",
+};
 /** Name prefixes of objects placed on the map (the desktop's defaults); a new name takes the first free number. */
-export const namePrefixes = { JUNCTION: "J", VIRTUAL: "VJ", OUTFALL: "O", STORAGE: "S", DIVIDER: "D", CONDUIT: "C", PUMP: "Pu", ORIFICE: "Or", WEIR: "W", OUTLET: "Ou", GAGE: "RG" };
+export const namePrefixes = { JUNCTION: "J", VIRTUAL: "VJ", OUTFALL: "O", STORAGE: "S", DIVIDER: "D", CONDUIT: "C", PUMP: "Pu", ORIFICE: "Or", WEIR: "W", OUTLET: "Ou", GAGE: "RG", SUBCATCHMENT: "Sub" };
 /**
  * Creation values of objects placed on the map: the desktop's object defaults (US customary, with
  * the SI set's lengths, areas and unit-dependent coefficients). Junctions keep the engine's zeros.
@@ -70,6 +82,19 @@ export function objectDefaults(unitSystem) {
     outletExponent: 0.5,
     gageInterval: 900, // seconds (15 minutes)
     gageSnowCatch: 1,
+    // Subcatchments (area when the drawn one has none; depths in in or mm, rates in in/h or mm/h).
+    subcatchArea: si ? 2 : 5, // ha or ac
+    subcatchWidth: si ? 150 : 500,
+    subcatchSlope: 0.5,
+    subcatchImperv: 25,
+    nImperv: 0.012,
+    nPerv: 0.15,
+    dsImperv: si ? 1.5 : 0.06,
+    dsPerv: si ? 3.8 : 0.15,
+    zeroImperv: 25,
+    horton: si ? [76, 13, 4, 7] : [3, 0.5, 4, 7],
+    greenAmpt: si ? [89, 13, 0.26] : [3.5, 0.5, 0.26],
+    curveNumber: [80, 7],
   };
 }
 /** Buildup functions, normalizers and washoff functions by their engine codes ([BUILDUP], [WASHOFF]). */
@@ -1759,14 +1784,19 @@ export class ModelSession {
     } else if (type === "OUTFALL") n.outfall.type = OutfallType.FREE;
     else if (type === "DIVIDER") n.divider.type = DividerType.OVERFLOW;
   }
-  /** Place a junction, outfall, storage unit or divider at (x, y); returns its name. */
-  addNode(type, x, y) {
+  /**
+   * Place a junction, outfall, storage unit or divider at (x, y); returns its name. `invert` (the
+   * ground under it, when the map knows it) is its invert elevation, as the desktop's terrain
+   * assistance sets it; otherwise the engine's 0.
+   */
+  addNode(type, x, y, invert) {
     const code = NodeType[type];
     if (code === undefined || typeof code !== "number") throw new Error("Unknown node type " + type + ".");
     const id = this.nextName(namePrefixes[type], "node");
     this.solver.nodes.add(id, code);
     this.solver.spatial.setNodeCoord(id, x, y);
     this.nodeDefaults(id, type);
+    if (Number.isFinite(invert)) this.solver.nodes.get(id).invertElev = invert;
     return { id };
   }
   /**
@@ -1811,8 +1841,22 @@ export class ModelSession {
     const l = s.links.add(id, code);
     l.setNodes(from, to);
     if (vertices.length) s.spatial.setLinkVertices(id, vertices);
+    this.linkDefaults(id, type, length);
+    this.divertFrom(from, id);
+    return { id };
+  }
+  /** A divider without a diversion link diverts into `link`, a link drawn or converted out of it. */
+  divertFrom(node, link) {
+    const s = this.solver,
+      n = s.nodes.get(node);
+    if (n.type !== NodeType.DIVIDER) return;
+    const p = n.divider.params;
+    if (p.diversion_link < 0) n.divider.params = { ...p, diversion_link: s.links.get(link).index };
+  }
+  /** A new link's type-specific values (the desktop's creation defaults); `length` for a conduit. */
+  linkDefaults(id, type, length) {
     const d = objectDefaults(this.unitSystem),
-      link = s.links.get(id);
+      link = this.solver.links.get(id);
     if (type === "CONDUIT") {
       link.xsect = [XSectShape.CIRCULAR, d.conduitDiameter, 0, 0, 0];
       link.roughness = d.conduitRoughness;
@@ -1831,12 +1875,95 @@ export class ModelSession {
       new WeirView(link).dischargeCoeff = d.outletCoeff;
       link.outlet.expon = d.outletExponent;
     }
-    const node = s.nodes.get(from);
-    if (node.type === NodeType.DIVIDER) {
-      const p = node.divider.params;
-      if (p.diversion_link < 0) node.divider.params = { ...p, diversion_link: link.index };
+  }
+  /** What undo of a conversion puts back besides the type (type-specific values are not kept). */
+  typeSnapshot(family, id) {
+    const s = this.solver;
+    if (family === "node") {
+      const n = s.nodes.get(id);
+      return { type: NodeType[n.type], invert: n.invertElev, maxDepth: n.maxDepth, storageArea: n.storageArea, tag: n.tag };
     }
-    return { id };
+    const l = s.links.get(id);
+    return { type: LinkType[l.type], length: l.length, roughness: l.roughness, xsect: l.xsect.asTuple(), offsetUp: l.offsetUp, offsetDn: l.offsetDn, tag: l.tag };
+  }
+  /**
+   * Preview (`apply` false) or convert nodes (`family` "node") or links to `target` (a NodeType or
+   * LinkType name). One row per object: {id, from, state: "convert" | "same" | "refused", reason,
+   * cleared, warnings}. A converted object takes the new type's creation values; applying also returns
+   * `undo` for `unconvertObjects`.
+   */
+  convertObjects(family, ids, target, apply = false) {
+    const s = this.solver,
+      nodes = family === "node",
+      list = nodes ? s.nodes : s.links,
+      types = nodes ? NodeType : LinkType;
+    const code = types[target];
+    if (typeof code !== "number") throw new Error("Unknown " + family + " type " + target + ".");
+    const snapshots = ids.map((id) => this.typeSnapshot(family, id));
+    const changes = s.editor.convertTypes(nodes, code, ids.map((id) => list.get(id).index), { apply });
+    const rows = changes.map((c, i) => ({
+      id: ids[i],
+      from: types[c.sourceType],
+      state: c.status ? "refused" : c.sourceType === code ? "same" : "convert",
+      reason: c.status ? (c.status === 609 && !nodes && c.dependencyNode >= 0 ? "Junction " + s.nodes.getId(c.dependencyNode) + " requires two conduits (rule 609)." : conversionRules[c.status] || s.errorMessage(c.status) || "Engine error " + c.status + ".") : "",
+      cleared: c.details?.clearedFields || [],
+      warnings: c.details?.warnings || [],
+    }));
+    if (!apply) return { rows };
+    for (const r of rows) {
+      if (r.state !== "convert") continue;
+      if (nodes) this.convertedNodeValues(r.id, target);
+      else {
+        this.linkDefaults(r.id, target, s.links.get(r.id).length);
+        this.divertFrom(s.links.get(r.id).fromNode.id, r.id);
+      }
+    }
+    return { rows, undo: rows.map((r, i) => (r.state === "convert" ? { id: r.id, ...snapshots[i] } : null)).filter(Boolean) };
+  }
+  /**
+   * A converted node keeps its invert and depth; it takes only what its new type needs and lacks: a
+   * storage unit's area (and a depth when it has none), an outfall's FREE type, a divider's OVERFLOW
+   * type and the first link out of it as its diversion link.
+   */
+  convertedNodeValues(id, type) {
+    const s = this.solver,
+      d = objectDefaults(this.unitSystem),
+      n = s.nodes.get(id);
+    if (type === "STORAGE") {
+      if (n.storage.functional.every((v) => !v)) n.storage.functional = [0, 0, d.storageArea];
+      if (!(n.maxDepth > 0)) n.maxDepth = d.storageMaxDepth;
+    } else if (type === "OUTFALL") n.outfall.type = OutfallType.FREE;
+    else if (type === "DIVIDER") {
+      n.divider.type = DividerType.OVERFLOW;
+      const out = s.links.ids.find((l) => same(s.links.get(l).fromNode.id, id));
+      if (out) this.divertFrom(id, out);
+    }
+  }
+  /** Undo a conversion: each object back to its type, with its common values. */
+  unconvertObjects(family, rows) {
+    const s = this.solver,
+      nodes = family === "node";
+    for (const r of rows) {
+      const list = nodes ? s.nodes : s.links;
+      s.editor.convertTypes(nodes, (nodes ? NodeType : LinkType)[r.type], [list.get(r.id).index], { apply: true });
+      if (nodes) {
+        const n = s.nodes.get(r.id);
+        n.invertElev = r.invert;
+        n.maxDepth = r.maxDepth;
+        if (r.type === "JUNCTION") n.storageArea = r.storageArea;
+        n.tag = r.tag;
+      } else {
+        const l = s.links.get(r.id);
+        if (r.type === "CONDUIT") {
+          l.length = r.length;
+          l.roughness = r.roughness;
+        }
+        if (r.type !== "PUMP") l.xsect = r.xsect;
+        l.offsetUp = r.offsetUp;
+        l.offsetDn = r.offsetDn;
+        l.tag = r.tag;
+      }
+    }
   }
   /** Place a rain gage at (x, y); returns its name. Its data source is chosen in its properties. */
   addGage(x, y) {
@@ -1850,10 +1977,135 @@ export class ModelSession {
     s.spatial.setGageCoord(id, x, y);
     return { id };
   }
+  /**
+   * Draw a subcatchment: `ring` its outline (model coordinates), `area` its area in acres or hectares
+   * from the map (the default when unknown). It takes the desktop's creation values, with the
+   * infiltration parameters of the model's INFILTRATION option, rain from the nearest rain gage and
+   * runoff to the nearest node (SWMM refuses a deck with a subcatchment that has neither).
+   */
+  addSubcatchment(ring, area) {
+    const s = this.solver,
+      d = objectDefaults(this.unitSystem);
+    if (ring.length < 3) throw new Error("A subcatchment needs three corners or more.");
+    const id = this.nextName(namePrefixes.SUBCATCHMENT, "subcatchment");
+    s.subcatchments.add(id);
+    const closed = same(ring[0].join(), ring.at(-1).join()) ? ring : [...ring, ring[0]];
+    s.spatial.setSubcatchmentPolygon(id, closed);
+    const set = (field, v) => s.fields.set("subcatchment." + field, id, v);
+    set("area", area > 0 ? area : d.subcatchArea);
+    set("width", d.subcatchWidth);
+    set("slope", d.subcatchSlope);
+    set("imperv_pct", d.subcatchImperv);
+    const sub = s.subcatchments.get(id);
+    sub.nImperv = d.nImperv;
+    sub.nPerv = d.nPerv;
+    sub.dsImperv = d.dsImperv;
+    sub.dsPerv = d.dsPerv;
+    sub.zeroImpervPct = d.zeroImperv;
+    // Only the family of the model's INFILTRATION option, as the desktop writes it.
+    const option = String(s.options.get("INFILTRATION") || "HORTON").toUpperCase();
+    const infil = s.subcatchments.get(id).infiltration;
+    if (option.includes("CURVE")) infil.setCurveNumber(...d.curveNumber);
+    else if (option.includes("GREEN")) infil.setGreenAmpt(...d.greenAmpt);
+    else infil.setHorton(...d.horton);
+    if (option.startsWith("MOD")) infil.model = option.includes("GREEN") ? InfilModel.MOD_GREEN_AMPT : InfilModel.MOD_HORTON;
+    // The nearest rain gage and node to the outline's center.
+    const cx = closed.slice(0, -1).reduce((a, p) => a + p[0], 0) / (closed.length - 1),
+      cy = closed.slice(0, -1).reduce((a, p) => a + p[1], 0) / (closed.length - 1);
+    const nearest = (ids, at) => {
+      let best = null,
+        bestD = Infinity;
+      for (const i of ids) {
+        const [x, y] = at(i),
+          dd = Math.hypot(x - cx, y - cy);
+        if (Number.isFinite(dd) && dd < bestD) [best, bestD] = [i, dd];
+      }
+      return best;
+    };
+    const gage = nearest(s.gages.ids, (g) => s.spatial.gageCoord(g));
+    const outlet = nearest(s.nodes.ids, (n) => s.spatial.nodeCoord(n));
+    if (gage) sub.gage = gage;
+    if (outlet) s.subcatchments.get(id).setOutletNode(outlet);
+    return { id, gage, outlet };
+  }
+  /** A subcatchment's rain gage and outlet: `{gage, outlet: {kind: "node" | "subcatchment", id} | null}`. */
+  subcatchLinks(id) {
+    const s = this.solver,
+      sub = s.subcatchments.get(id);
+    const node = sub.outletNodeIndex,
+      out = node >= 0 ? null : sub.outlet;
+    return {
+      id: sub.id,
+      gage: sub.gageIndex >= 0 ? s.gages.getId(sub.gageIndex) : "",
+      outlet: node >= 0 ? { kind: "node", id: s.nodes.getId(node) } : out ? { kind: "subcatchment", id: out.id } : null,
+    };
+  }
+  /** Set a subcatchment's rain gage and outlet (a node or another subcatchment); returns them. */
+  setSubcatchLinks(id, { gage, outlet }) {
+    const s = this.solver,
+      sub = s.subcatchments.get(id);
+    if (gage) {
+      if (!s.gages.has(gage)) throw new Error("No rain gage " + gage + ".");
+      sub.gage = gage;
+    }
+    if (outlet?.id) {
+      if (outlet.kind === "subcatchment") {
+        if (same(outlet.id, id)) throw new Error("A subcatchment cannot drain to itself.");
+        s.subcatchments.get(id).setOutletSubcatchment(outlet.id);
+      } else s.subcatchments.get(id).setOutletNode(outlet.id);
+    }
+    return this.subcatchLinks(id);
+  }
+  /** Conduits ending at a node, with their polylines (for lengths after a move). */
+  conduitsAt(node) {
+    const s = this.solver;
+    return s.links.ids
+      .filter((l) => {
+        const link = s.links.get(l);
+        return link.type === LinkType.CONDUIT && (same(link.fromNode.id, node) || same(link.toNode.id, node));
+      })
+      .map((l) => ({ id: l, points: this.polyline(l) }));
+  }
+  polyline(link) {
+    const v = this.solver.spatial.linkVertices(link);
+    return Array.from({ length: v.shape[0] }, (_, i) => [v.data[2 * i], v.data[2 * i + 1]]);
+  }
+  /**
+   * Move a node or rain gage to (x, y); returns where it was and, for a node, the conduits that end at
+   * it with their new polylines (the controller sets their lengths from the map, as the desktop's
+   * auto-length does).
+   */
+  moveObject(kind, id, x, y) {
+    const sp = this.solver.spatial;
+    if (kind === "gage") {
+      const [x0, y0] = sp.gageCoord(id);
+      sp.setGageCoord(id, x, y);
+      return { x: x0, y: y0, conduits: [] };
+    }
+    const [x0, y0] = sp.nodeCoord(id);
+    sp.setNodeCoord(id, x, y);
+    return { x: x0, y: y0, conduits: this.conduitsAt(id) };
+  }
+  /** Replace a link's interior vertices; returns the ones it had and its new polyline. */
+  setVertices(link, vertices) {
+    const before = this.polyline(link).slice(1, -1);
+    this.solver.spatial.setLinkVertices(link, vertices);
+    return { before, points: this.polyline(link), conduit: this.solver.links.get(link).type === LinkType.CONDUIT };
+  }
+  /** Set conduit lengths `{id: length}`; returns the lengths they had. */
+  setLengths(lengths) {
+    const before = {};
+    for (const [id, length] of Object.entries(lengths)) {
+      const link = this.solver.links.get(id);
+      before[id] = link.length;
+      if (length > 0) link.length = length;
+    }
+    return before;
+  }
   /** Undo a placement or a trace: the object goes again. */
   removeAdded(kind, id) {
     const e = this.solver.editor;
-    ({ node: () => e.deleteNode(id), link: () => e.deleteLink(id), gage: () => e.deleteGage(id) })[kind]();
+    ({ node: () => e.deleteNode(id), link: () => e.deleteLink(id), gage: () => e.deleteGage(id), subcatchment: () => e.deleteSubcatch(id) })[kind]();
   }
   /**
    * What deleting map objects would also remove or clear: links that end at a deleted node go with it;
@@ -1906,12 +2158,18 @@ export class ModelSession {
   /** What would keep the written deck from opening again (Apply refuses while any remain). */
   problems() {
     const s = this.solver;
-    return s.nodes.ids
+    const dividers = s.nodes.ids
       .filter((id) => {
         const n = s.nodes.get(id);
         return n.type === NodeType.DIVIDER && n.divider.params.diversion_link < 0;
       })
       .map((id) => "Divider " + id + " needs a diversion link: trace a link out of it.");
+    const subs = s.subcatchments.ids.flatMap((id) => {
+      const sub = s.subcatchments.get(id),
+        missing = [sub.gageIndex < 0 && "a rain gage", !sub.outlet && "an outlet"].filter(Boolean);
+      return missing.length ? ["Subcatchment " + id + " needs " + missing.join(" and ") + ": set it in its properties."] : [];
+    });
+    return [...dividers, ...subs];
   }
   /** Reopen the deck saved by `deleteRecord` (undo of a delete); returns the summary. */
   restore(token) {

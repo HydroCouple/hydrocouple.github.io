@@ -110,6 +110,8 @@ const editor = new Editor({
   onPick: (item) => selection.set([item], "inspector"),
   closeDialog: () => $("dialog").close(),
   onNetwork: (bytes, select) => showNetwork(deckNetwork(decoder.decode(bytes)), select),
+  measure: { length: (points) => tracedLength(points) },
+  selected: () => selection.items,
   // The editing session went with map edits not applied: the map shows the project's network again.
   onDiscard: () => project && showNetwork(deckNetwork(decoder.decode(project.inputs[project.entry])), null),
   onApply(bytes, count) {
@@ -127,8 +129,51 @@ selection.addEventListener("change", ({ detail }) => {
 // Delete removes go through the editing session (editor.mjs), which hands the network back.
 addPalette({ root: $("addpalette"), button: $("tool-add"), onPick: (spec) => view.setTool("add", spec) });
 view.onAdd = (spec) =>
-  editor.mapEdit(spec.op === "link" ? { ...spec, length: tracedLength(spec.line) } : spec).catch((e) => view.hint(e.message));
+  editor
+    .mapEdit(
+      spec.op === "link"
+        ? { ...spec, length: tracedLength(spec.line) }
+        : spec.op === "subcatchment"
+          ? { ...spec, area: tracedArea(spec.ring) }
+          : spec.op === "node"
+            ? { ...spec, invert: groundInvert(spec.bed) }
+            : spec,
+    )
+    .catch((e) => view.hint(e.message));
+view.onEdit = (spec) => editor.mapEdit(spec).catch((e) => view.hint(e.message));
 view.onDelete = (items) => editor.deleteObjects(items);
+/**
+ * A node's invert from the ground under it (the 2D mesh's bed), as the desktop's terrain assistance
+ * sets it with its default offset 0. The mesh is in the model's length units unless it says
+ * `;; UNITS: SI (m)` on a US model.
+ */
+function groundInvert(bed) {
+  if (!Number.isFinite(bed)) return undefined;
+  return preview?.meshSI && editor.summary?.unitSystem !== "SI" ? bed / 0.3048 : bed;
+}
+/**
+ * A drawn subcatchment's area in acres or hectares: on the globe when the model is placed (a local
+ * flat projection around the outline), else from [MAP] UNITS; without map units the coordinates are
+ * taken to be in the model's own units.
+ */
+function tracedArea(ring) {
+  const us = editor.summary?.unitSystem !== "SI";
+  const shoelace = (pts) => Math.abs(pts.reduce((a, p, i) => a + p[0] * pts[(i + 1) % pts.length][1] - pts[(i + 1) % pts.length][0] * p[1], 0)) / 2;
+  const onGlobe = (lonLat) => {
+    const lat0 = (lonLat.reduce((a, p) => a + p[1], 0) / lonLat.length) * (Math.PI / 180),
+      r = 6378137 * (Math.PI / 180);
+    return shoelace(lonLat.map(([lon, lat]) => [lon * r * Math.cos(lat0), lat * r]));
+  };
+  let m2;
+  const place = view.placement,
+    units = preview?.mapUnits;
+  if (place) m2 = onGlobe(ring.map((p) => place.toLonLat(p[0], p[1])));
+  else if (units === "FEET") m2 = shoelace(ring) * 0.09290304;
+  else if (units === "METERS") m2 = shoelace(ring);
+  else if (units === "DEGREES") m2 = onGlobe(ring);
+  else return us ? shoelace(ring) / 43560 : shoelace(ring) / 10000; // model units squared
+  return us ? m2 / 0.09290304 / 43560 : m2 / 10000;
+}
 /** The editing session's network on the map: the view keeps its extent and mesh; `select` is the new object. */
 function showNetwork({ network, links, mapUnits }, select) {
   preview = { ...preview, network, links, mapUnits };

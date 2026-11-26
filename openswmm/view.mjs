@@ -3,7 +3,7 @@ import { pickAt, pickInRect, pickInPolygon, modeFor, describeSelection } from ".
 import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, rampColor } from "./depth-style.mjs";
 import { Scene3D } from "./scene3d.mjs";
 import { rgbOf, isLight } from "./streak-style.mjs";
-import { addHint } from "./edit-tools.mjs";
+import { addHint, moveHint, vertexHint } from "./edit-tools.mjs";
 /** Snap distances of the add tools (px): a node under the pointer, a conduit to insert on. */
 const SNAP_NODE = 10,
   SNAP_LINK = 6;
@@ -129,7 +129,8 @@ export function sketch(text, inputs = {}, dir = "") {
   const s = sections(text);
   const sidecar = s["[2D_MESH_FILE]"]?.find((row) => /^FILE$/i.test(row[0]))?.[1]?.replace(/^"(.*)"$/, "$1");
   const bytes = sidecar && (inputs[dir + sidecar] || inputs[sidecar]);
-  const mesh = bytes ? sections(new TextDecoder().decode(bytes)) : s;
+  const meshText = bytes ? new TextDecoder().decode(bytes) : text;
+  const mesh = bytes ? sections(meshText) : s;
   const vertices = mesh["[2D_VERTICES]"] || [];
   const { network, links, mapUnits } = networkOf(s);
   return {
@@ -143,6 +144,7 @@ export function sketch(text, inputs = {}, dir = "") {
     links, // every link as a polyline (saved with a run's geometry)
     network, // per kind, as the layer tree (layers.mjs) lists them
     mapUnits,
+    meshSI: /^\s*;;\s*UNITS\s*:\s*SI\b/im.test(meshText), // a mesh that declares itself metric
     // What the live forcings can address, and the units their values are in.
     gages: (s["[RAINGAGES]"] || []).map((row) => row[0]),
     nodes: ["JUNCTIONS", "OUTFALLS", "STORAGE", "DIVIDERS"].flatMap((k) =>
@@ -188,11 +190,17 @@ export class ModelView {
     this.adding = null;
     this.hover = null;
     this.tracing = null;
-    for (const tool of ["select", "box", "lasso", "line"]) el("tool-" + tool).onclick = () => this.setTool(tool);
+    this.ring = null; // the subcatchment being drawn: its corners
+    // "move" drags a node or rain gage; "vertex" edits the vertices of `vertexLink`. `editing` is the
+    // drag under way: {kind, id, from, at} for a move, {link, index, from, at} for a vertex.
+    this.editing = null;
+    this.vertexLink = null;
+    for (const tool of ["select", "box", "lasso", "line", "move", "vertex"]) el("tool-" + tool).onclick = () => this.setTool(tool);
     this.canvas.oncontextmenu = (e) => {
-      if (this.tool !== "add") return;
+      if (this.tool !== "add" && this.tool !== "vertex") return;
       e.preventDefault();
-      this.addBack();
+      if (this.tool === "add") this.addBack();
+      else this.vertexContext(e.offsetX, e.offsetY);
     };
     this.canvas.onpointerdown = (e) => {
       if (this.tool === "line") {
@@ -205,7 +213,12 @@ export class ModelView {
         this.draw();
         return;
       }
-      if (this.tool !== "select" && this.tool !== "add") {
+      // Move and Edit vertices: a press on a node, gage or vertex drags it; elsewhere the map pans.
+      if ((this.tool === "move" || this.tool === "vertex") && e.button === 0 && this.editDown(e.offsetX, e.offsetY)) {
+        this.canvas.setPointerCapture(e.pointerId);
+        return;
+      }
+      if (!["select", "add", "move", "vertex"].includes(this.tool)) {
         this.band = { pts: [[e.offsetX, e.offsetY]] };
         this.canvas.setPointerCapture(e.pointerId);
         return;
@@ -214,7 +227,9 @@ export class ModelView {
       this.canvas.setPointerCapture(e.pointerId);
     };
     this.canvas.onpointermove = (e) => {
+      if (this.editing) return this.editMove(e.offsetX, e.offsetY);
       if (this.tool === "add" && !this.drag) return this.addMove(e.offsetX, e.offsetY);
+      if ((this.tool === "move" || this.tool === "vertex") && !this.drag) return this.editHover(e.offsetX, e.offsetY);
       if (this.tool === "line" && this.trace) {
         this.trace.at = this.unproject(e.offsetX, e.offsetY);
         this.draw();
@@ -235,38 +250,54 @@ export class ModelView {
       }
     };
     this.canvas.onpointerup = (e) => {
+      if (this.editing) return this.editUp();
       if (this.band) return this.finishBand(e);
       if (
         this.drag &&
         Math.hypot(e.clientX - this.drag[0], e.clientY - this.drag[1]) < 4
       ) {
-        if (this.tool !== "add") this.click(e.offsetX, e.offsetY, e);
-        else if (e.button === 0) this.addClick(e.offsetX, e.offsetY);
+        if (this.tool === "add") e.button === 0 && this.addClick(e.offsetX, e.offsetY);
+        else if (this.tool === "vertex") e.button === 0 && this.vertexClick(e.offsetX, e.offsetY);
+        else this.click(e.offsetX, e.offsetY, e);
       }
       this.drag = null;
     };
     this.canvas.onpointercancel = () => {
-      this.drag = this.band = null;
+      this.drag = this.band = this.editing = null;
       this.draw();
     };
-    this.canvas.ondblclick = () => this.tool === "line" && this.finishTrace();
+    this.canvas.ondblclick = () => {
+      if (this.tool === "line") this.finishTrace();
+      else if (this.tool === "add" && this.ring) this.finishRing();
+    };
     // Escape drops a box, lasso or profile line being drawn, else the selection; Enter ends a line.
     document.addEventListener("keydown", (e) => {
       if (e.target.closest?.("input, textarea, select, dialog")) return;
       if (e.key === "Enter" && this.trace) return this.finishTrace();
-      // Adding: Backspace drops the last bend; Escape drops the link being drawn, then the tool.
+      // Adding: Backspace drops the last bend or corner, Enter closes a subcatchment; Escape drops the
+      // link or subcatchment being drawn, then the tool.
       if (this.tool === "add") {
-        if (e.key === "Backspace" && this.tracing) {
+        if (e.key === "Backspace" && (this.tracing || this.ring)) {
           e.preventDefault();
           this.addBack();
-        } else if (e.key === "Escape") {
-          if (this.tracing) {
-            this.tracing = null;
+        } else if (e.key === "Enter" && this.ring) this.finishRing();
+        else if (e.key === "Escape") {
+          if (this.tracing || this.ring) {
+            this.tracing = this.ring = null;
             this.hint(addHint(this.adding));
             this.draw();
           } else this.setTool("select");
         }
         return;
+      }
+      // Move and Edit vertices: Escape drops a drag, then the link being edited, then the tool.
+      if ((this.tool === "move" || this.tool === "vertex") && e.key === "Escape") {
+        if (this.editing) this.editing = null;
+        else if (this.vertexLink) {
+          this.vertexLink = null;
+          this.hint(vertexHint(null));
+        } else return this.setTool("select");
+        return this.draw();
       }
       // Delete (or Backspace) deletes the selected network objects, after a confirmation.
       if ((e.key === "Delete" || e.key === "Backspace") && this.selection?.items.some((i) => i.kind !== "cell")) {
@@ -820,15 +851,16 @@ export class ModelView {
     this.band = null;
     if (tool !== "line") this.trace = null;
     this.adding = tool === "add" ? adding : null;
-    this.hover = this.tracing = null;
-    // Box and lasso take the pointer from the basemap while they are active; adding leaves it to the
-    // basemap (its clicks and moves come from the map) so a drag still pans.
-    el("scene").classList.toggle("tool-band", tool !== "select" && tool !== "add");
-    el("scene").classList.toggle("tool-add", tool === "add");
-    for (const t of ["select", "box", "lasso", "line", "add"]) el("tool-" + t).setAttribute("aria-pressed", String(t === tool));
+    this.hover = this.tracing = this.ring = this.editing = this.vertexLink = null;
+    // Box and lasso take the pointer from the basemap while they are active; the editing tools leave
+    // it to the basemap (its clicks and moves come from the map) so a drag still pans.
+    const editTool = ["add", "move", "vertex"].includes(tool);
+    el("scene").classList.toggle("tool-band", tool !== "select" && !editTool);
+    el("scene").classList.toggle("tool-add", editTool);
+    for (const t of ["select", "box", "lasso", "line", "add", "move", "vertex"]) el("tool-" + t).setAttribute("aria-pressed", String(t === tool));
     el("tool-add").title = tool === "add" ? "Adding: " + adding.label.toLowerCase() + " (Esc ends)" : "Add objects to the model";
     if (this.map) this.map.doubleClickZoom[tool === "add" ? "disable" : "enable"]();
-    this.hint(tool === "add" ? addHint(adding) : "");
+    this.hint(tool === "add" ? addHint(adding) : tool === "move" ? moveHint : tool === "vertex" ? vertexHint(null) : "");
     this.draw();
   }
   /** The add tools' line on the map (what a click does, or why it was refused); empty hides it. */
@@ -850,11 +882,69 @@ export class ModelView {
           d = Math.hypot(px - x, py - y);
         if (d <= bestD && ids[k]?.[i] !== undefined) {
           bestD = d;
-          best = { id: ids[k][i], point: p, virtual: !!n.virtual?.has(ids[k][i]) };
+          best = { kind: "node", id: ids[k][i], point: p, virtual: !!n.virtual?.has(ids[k][i]) };
         }
       });
     }
     return best;
+  }
+  /** The visible rain gage nearest screen (x, y) within `SNAP_NODE` px: {kind, id, point}, or null. */
+  gageAt(x, y) {
+    const n = this.network || {};
+    if (!this.layers.visible("gages")) return null;
+    let best = null,
+      bestD = SNAP_NODE;
+    (n.gages || []).forEach((p, i) => {
+      const [px, py] = this.project(p[0], p[1]),
+        d = Math.hypot(px - x, py - y);
+      if (d <= bestD && n.ids?.gages?.[i] !== undefined) [best, bestD] = [{ kind: "gage", id: n.ids.gages[i], point: p }, d];
+    });
+    return best;
+  }
+  /** A link's polyline (its end nodes included), model coordinates, or null. */
+  linkLine(id) {
+    const n = this.network || {};
+    for (const k of linkKinds) {
+      const i = n.ids?.[k]?.indexOf(id) ?? -1;
+      if (i >= 0) return n[k][i];
+    }
+    return null;
+  }
+  /** The interior vertex of `line` within 7 px of screen (x, y): its index in the polyline, or -1. */
+  handleAt(line, x, y) {
+    let best = -1,
+      bestD = 7;
+    for (let i = 1; i < line.length - 1; i++) {
+      const [px, py] = this.project(line[i][0], line[i][1]),
+        d = Math.hypot(px - x, py - y);
+      if (d <= bestD) [best, bestD] = [i, d];
+    }
+    return best;
+  }
+  /**
+   * The ground elevation under (x, y) in model coordinates, from the 2D mesh's vertex elevations
+   * (linear in the triangle that holds the point), or undefined off the mesh or without one.
+   */
+  bedAt(x, y) {
+    const g = this.geo,
+      z = g?.z;
+    if (!z?.length || !this.polys?.length) return undefined;
+    const i = this.locate(x, y);
+    if (i === undefined) return undefined;
+    const cell = g.cells[i];
+    for (let k = 1; k + 1 < cell.length; k++) {
+      const [a, b, c] = [cell[0], cell[k], cell[k + 1]];
+      const d = (g.y[b] - g.y[c]) * (g.x[a] - g.x[c]) + (g.x[c] - g.x[b]) * (g.y[a] - g.y[c]);
+      if (!d) continue;
+      const w1 = ((g.y[b] - g.y[c]) * (x - g.x[c]) + (g.x[c] - g.x[b]) * (y - g.y[c])) / d,
+        w2 = ((g.y[c] - g.y[a]) * (x - g.x[c]) + (g.x[a] - g.x[c]) * (y - g.y[c])) / d,
+        w3 = 1 - w1 - w2;
+      if (w1 >= -1e-9 && w2 >= -1e-9 && w3 >= -1e-9) {
+        const v = w1 * z[a] + w2 * z[b] + w3 * z[c];
+        return Number.isFinite(v) ? v : undefined;
+      }
+    }
+    return undefined;
   }
   /**
    * The visible conduit nearest screen (x, y) within `SNAP_LINK` px: {id, t, point}, `t` the fraction
@@ -909,6 +999,15 @@ export class ModelView {
     if (!a || !at) return;
     this.hint(this.tracing ? this.traceHint() : addHint(a)); // a refusal below says why instead
     if (a.kind === "gage") return this.onAdd?.({ op: "gage", x: at[0], y: at[1] });
+    // Subcatchments: clicks place corners; a double-click or Enter closes the outline.
+    if (a.kind === "subcatchment") {
+      this.ring ||= { pts: [] };
+      const last = this.ring.pts.at(-1);
+      // A double-click's second press lands on the same point: keep one.
+      if (!last || Math.hypot(...this.project(...last).map((v, i) => v - [x, y][i])) > 3) this.ring.pts.push(at);
+      this.hint("Click the next corner; a double-click or Enter closes the subcatchment. Backspace drops a corner; Esc stops.");
+      return this.draw();
+    }
     const node = this.nodeAt(x, y);
     if (a.kind === "node") {
       if (node) return this.hint(node.id + " is already there: click a free spot" + (a.type === "OUTFALL" ? "." : " or a conduit."));
@@ -921,7 +1020,7 @@ export class ModelView {
         if (a.type === "OUTFALL") return this.hint("This tool requires a free location; select another point away from " + conduit.id + ".");
         return this.onAdd?.({ op: "insert", type: a.type, link: conduit.id, t: conduit.t });
       }
-      return this.onAdd?.({ op: "node", type: a.type, x: at[0], y: at[1] });
+      return this.onAdd?.({ op: "node", type: a.type, x: at[0], y: at[1], bed: this.bedAt(at[0], at[1]) });
     }
     // Links: start on a node, bend on a free spot, end on another node; the next link starts there.
     if (node?.virtual) return this.hint(node.id + " is a virtual junction: it keeps the two conduits it splits.");
@@ -937,11 +1036,109 @@ export class ModelView {
     } else if (!node) t.bends.push(at);
     this.draw();
   }
+  /** The pointer over the map with Move or Edit vertices: what a press would take. */
+  editHover(x, y) {
+    const h =
+      this.tool === "move"
+        ? this.nodeAt(x, y) || this.gageAt(x, y)
+        : this.vertexLink && this.handleAt(this.linkLine(this.vertexLink) || [], x, y) > 0
+          ? { handle: true }
+          : null;
+    const was = !!this.hover?.target;
+    this.hover = h ? { target: h } : null;
+    el("scene").classList.toggle("over-target", !!h);
+    if (was || h) this.draw();
+  }
+  /** A press with Move or Edit vertices: true when it took a node, gage or vertex to drag. */
+  editDown(x, y) {
+    if (this.tool === "move") {
+      const t = this.nodeAt(x, y) || this.gageAt(x, y);
+      if (!t) return false;
+      this.editing = { kind: t.kind, id: t.id, from: t.point, at: t.point };
+      return true;
+    }
+    const line = this.vertexLink && this.linkLine(this.vertexLink);
+    const i = line ? this.handleAt(line, x, y) : -1;
+    if (i < 1) return false;
+    this.editing = { link: this.vertexLink, index: i, from: line[i], at: line[i] };
+    return true;
+  }
+  editMove(x, y) {
+    const at = this.unproject(x, y);
+    if (at) this.editing.at = at;
+    this.draw();
+  }
+  /** The drag ends: a move or the link's new vertices go to `onEdit` (nothing when it did not move). */
+  editUp() {
+    const ed = this.editing;
+    this.editing = null;
+    const [x0, y0] = this.project(...ed.from),
+      [x1, y1] = this.project(...ed.at);
+    if (Math.hypot(x1 - x0, y1 - y0) < 2) return this.draw();
+    if (ed.kind) this.onEdit?.({ op: "move", kind: ed.kind, id: ed.id, x: ed.at[0], y: ed.at[1] });
+    else {
+      const vertices = this.linkLine(ed.link).slice(1, -1);
+      vertices[ed.index - 1] = ed.at;
+      this.onEdit?.({ op: "vertices", link: ed.link, vertices });
+    }
+    this.draw();
+  }
+  /** A click with Edit vertices: the link under it becomes the one edited (and the selection). */
+  vertexClick(x, y) {
+    const hit = pickAt(this.scene("click"), x, y);
+    this.vertexLink = hit?.kind === "link" ? hit.id : null;
+    if (hit?.kind === "link") this.selection?.apply([hit], "replace", "map");
+    this.hint(vertexHint(this.vertexLink));
+    this.draw();
+  }
+  /** A right-click with Edit vertices: on a vertex it goes; on the link's line one is added there. */
+  vertexContext(x, y) {
+    const line = this.vertexLink && this.linkLine(this.vertexLink);
+    if (!line) return;
+    const vertices = line.slice(1, -1),
+      i = this.handleAt(line, x, y);
+    if (i > 0) {
+      vertices.splice(i - 1, 1);
+      return this.onEdit?.({ op: "vertices", link: this.vertexLink, vertices });
+    }
+    let best = null,
+      bestD = SNAP_LINK;
+    for (let j = 0; j + 1 < line.length; j++) {
+      const [ax, ay] = this.project(...line[j]),
+        [bx, by] = this.project(...line[j + 1]),
+        dx = bx - ax,
+        dy = by - ay,
+        f = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1))),
+        d = Math.hypot(ax + f * dx - x, ay + f * dy - y);
+      if (d <= bestD) [best, bestD] = [{ j, f }, d];
+    }
+    if (!best) return;
+    const a = line[best.j],
+      b = line[best.j + 1];
+    vertices.splice(best.j, 0, [a[0] + best.f * (b[0] - a[0]), a[1] + best.f * (b[1] - a[1])]);
+    this.onEdit?.({ op: "vertices", link: this.vertexLink, vertices });
+  }
   traceHint() {
     return "From " + this.tracing.from + ": click to add bends, click another node to end. Backspace drops a bend; Esc stops.";
   }
+  /** Close the subcatchment being drawn: three corners or more go to `onAdd`. */
+  finishRing() {
+    const pts = this.ring?.pts || [];
+    this.ring = null;
+    this.hint(pts.length >= 3 ? addHint(this.adding) : "A subcatchment needs three corners or more.");
+    if (pts.length >= 3) this.onAdd?.({ op: "subcatchment", ring: pts });
+    this.draw();
+  }
   /** Right-click or Backspace while tracing: drop the last bend, or the link when it has none. */
   addBack() {
+    if (this.ring) {
+      this.ring.pts.pop();
+      if (!this.ring.pts.length) {
+        this.ring = null;
+        this.hint(addHint(this.adding));
+      }
+      return this.draw();
+    }
     const t = this.tracing;
     if (!t) return;
     if (t.bends.length) t.bends.pop();
@@ -1370,6 +1567,27 @@ export class ModelView {
           c.setLineDash([]);
         };
       const color = (symbols[a.leaf]?.fill || symbols[a.leaf]?.stroke || flag);
+      if (this.ring?.pts.length) {
+        const pts = h?.at ? [...this.ring.pts, h.at] : this.ring.pts;
+        c.beginPath();
+        pts.forEach((p, j) => {
+          const [x, y] = this.project(p[0], p[1]);
+          if (j) c.lineTo(x, y);
+          else c.moveTo(x, y);
+        });
+        c.closePath();
+        c.fillStyle = symbols.subcatchments.fill;
+        c.fill();
+        polyline([...pts, pts[0]], 5, "rgba(255,255,255,0.85)");
+        polyline([...pts, pts[0]], 2, symbols.subcatchments.outline, [6, 4]);
+        for (const p of this.ring.pts) {
+          const [x, y] = this.project(p[0], p[1]);
+          c.beginPath();
+          c.arc(x, y, 3, 0, 2 * Math.PI);
+          c.fillStyle = symbols.subcatchments.outline;
+          c.fill();
+        }
+      }
       if (this.tracing) {
         const t = this.tracing,
           end = h?.node && h.node.id !== t.from && !h.node.virtual ? h.node.point : h?.at;
@@ -1400,6 +1618,50 @@ export class ModelView {
           c.lineWidth = 1.5;
           c.strokeStyle = color;
           c.stroke();
+        }
+      }
+    }
+    if (this.tool === "move" || this.tool === "vertex") {
+      const handle = (p, active) => {
+        const [x, y] = this.project(p[0], p[1]);
+        c.beginPath();
+        c.rect(x - 4, y - 4, 8, 8);
+        c.fillStyle = active ? flag : "#fff";
+        c.fill();
+        c.lineWidth = 1.5;
+        c.strokeStyle = active ? "#fff" : flag;
+        c.stroke();
+      };
+      const ed = this.editing;
+      if (this.tool === "move") {
+        if (this.hover?.target) {
+          const [x, y] = this.project(...this.hover.target.point);
+          c.beginPath();
+          c.arc(x, y, 9, 0, 2 * Math.PI);
+          c.lineWidth = 2;
+          c.strokeStyle = flag;
+          c.stroke();
+        }
+        if (ed) {
+          // The links that end at the node follow it (a dashed preview), and the node itself.
+          const n = this.network || {},
+            same = (p) => p[0] === ed.from[0] && p[1] === ed.from[1];
+          if (ed.kind === "node")
+            for (const k of linkKinds)
+              for (const line of n[k] || []) {
+                if (!same(line[0]) && !same(line.at(-1))) continue;
+                const moved = line.map((p, j) => ((j === 0 || j === line.length - 1) && same(p) ? ed.at : p));
+                polyline(moved, 2, flag, [5, 4]);
+              }
+          handle(ed.at, true);
+        }
+      } else if (this.vertexLink) {
+        const line = this.linkLine(this.vertexLink);
+        if (line) {
+          const shown = ed ? line.map((p, j) => (j === ed.index ? ed.at : p)) : line;
+          polyline(shown, 6, "rgba(255,255,255,0.85)");
+          polyline(shown, 2.5, flag);
+          shown.slice(1, -1).forEach((p, j) => handle(p, ed?.index === j + 1));
         }
       }
     }
@@ -1626,13 +1888,26 @@ export class ModelView {
         ? this.onPick(e.lngLat)
         : this.tool === "add"
           ? this.addClick(e.point.x, e.point.y)
-          : this.click(e.point.x, e.point.y, e.originalEvent),
+          : this.tool === "vertex"
+            ? this.vertexClick(e.point.x, e.point.y)
+            : this.click(e.point.x, e.point.y, e.originalEvent),
     );
-    this.map.on("mousemove", (e) => this.tool === "add" && this.addMove(e.point.x, e.point.y));
+    this.map.on("dblclick", () => this.tool === "add" && this.ring && this.finishRing());
+    this.map.on("mousemove", (e) => {
+      if (this.editing) this.editMove(e.point.x, e.point.y);
+      else if (this.tool === "add") this.addMove(e.point.x, e.point.y);
+      else if (this.tool === "move" || this.tool === "vertex") this.editHover(e.point.x, e.point.y);
+    });
+    // A press on a node, gage or vertex drags it instead of the map.
+    this.map.on("mousedown", (e) => {
+      if ((this.tool === "move" || this.tool === "vertex") && e.originalEvent.button === 0 && this.editDown(e.point.x, e.point.y)) e.preventDefault();
+    });
+    this.map.on("mouseup", () => this.editing && this.editUp());
     this.map.on("contextmenu", (e) => {
-      if (this.tool !== "add") return;
+      if (this.tool !== "add" && this.tool !== "vertex") return;
       e.originalEvent.preventDefault();
-      this.addBack();
+      if (this.tool === "add") this.addBack();
+      else this.vertexContext(e.point.x, e.point.y);
     });
     this.map.on("error", (e) =>
       this.onMapError?.(
