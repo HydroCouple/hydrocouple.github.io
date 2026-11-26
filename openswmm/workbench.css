@@ -2689,7 +2689,12 @@ dialog:has(.lid-usage-editor) {
   max-width: 100%;
   overflow-x: auto;
 }
-.scoped-table td input,
+.scoped-table td input {
+  min-width: 64px;
+}
 .scoped-table td select {
-  min-width: 84px;
+  min-width: 112px;
+}
+dialog:has(.scoped-table) {
+  width: min(1040px, 96vw);
 }

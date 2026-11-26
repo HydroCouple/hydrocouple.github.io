@@ -76,7 +76,7 @@ const tableName = (s, i) => (i >= 0 && i < s.tables.length ? s.tables.getId(i) :
 const pumpCurves = [TableType.CURVE_PUMP1, TableType.CURVE_PUMP2, TableType.CURVE_PUMP3, TableType.CURVE_PUMP4, TableType.CURVE_PUMP5];
 const placements = [["AUTOMATIC", "Automatic"], ["ON_GRADE", "On grade"], ["ON_SAG", "On sag"]];
 /** The ten values of a [FROZEN_GROUND] row, in the engine's order (SI whatever the project's units). */
-const frostFields = [
+export const frostFields = [
   ["thickness", "Thickness", "m"],
   ["conductivity", "Conductivity", "W/m/K"],
   ["heatCapacity", "Heat capacity", "J/m³/K"],
@@ -89,7 +89,18 @@ const frostFields = [
   ["snowDensity", "Snow density", "kg/m³"],
 ];
 /** What a new row starts from when the model has no `*` row (the desktop's defaults). */
-const frostDefaults = [0.15, 1.5, 2.4e6, 0.3, 8, 3, 5, 11, 0.25, 250];
+export const frostDefaults = [0.15, 1.5, 2.4e6, 0.3, 8, 3, 5, 11, 0.25, 250];
+/** The ten values of a frozen-ground card, checked as the engine checks them (FrozenGround.cpp validate). */
+export function frostValues(values, need) {
+  const v = frostFields.map(([name, label]) => num(values[name], "the " + label.toLowerCase()));
+  need(v[0] > 0, "The thickness must be above 0.");
+  need(v[1] > 0 && v[2] > 0, "The conductivity and heat capacity must be above 0.");
+  need(v[3] >= 0 && v[3] <= 1, "The water content is between 0 and 1.");
+  need(v[5] > 0.5 * v[0], "The deep depth must be more than half the thickness.");
+  need(v[7] >= 1, "The exponent must be at least 1.");
+  need(v[8] > 0 && v[9] > 0, "The snow conductivity and density must be above 0.");
+  return v;
+}
 const concUnits = ["MG/L", "UG/L", "#/L"];
 const bottoms = ["CURRENT", "SEALED", "MESH_AQUIFER"];
 const yes = (v) => String(v ?? "").toUpperCase() === "YES";
@@ -677,15 +688,7 @@ export function applyGroup(session, kind, id, key, values) {
     if (values.row !== "own") {
       if (s.frozenGroundRows()[id]) s.removeFrozenGround(id);
     } else {
-      const v = frostFields.map(([name, label]) => num(values[name], "the " + label.toLowerCase()));
-      // The engine's checks (FrozenGround.cpp validate).
-      need(v[0] > 0, "The thickness must be above 0.");
-      need(v[1] > 0 && v[2] > 0, "The conductivity and heat capacity must be above 0.");
-      need(v[3] >= 0 && v[3] <= 1, "The water content is between 0 and 1.");
-      need(v[5] > 0.5 * v[0], "The deep depth must be more than half the thickness.");
-      need(v[7] >= 1, "The exponent must be at least 1.");
-      need(v[8] > 0 && v[9] > 0, "The snow conductivity and density must be above 0.");
-      s.setFrozenGround(id, v);
+      s.setFrozenGround(id, frostValues(values, need));
     }
   } else if (kind === "node" && key === "lid") {
     const lids = s.infrastructure.lids;

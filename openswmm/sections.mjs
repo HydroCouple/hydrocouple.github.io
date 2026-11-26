@@ -10,9 +10,10 @@ import { withCString, withCStrings } from "./vendor/engine/mem.js";
 import { raiseForCode } from "./vendor/engine/errors.js";
 import { TransportDispersionMode, catalog } from "./vendor/engine/index.js";
 import { options2dGroups, applyOptions2d } from "./options2d.mjs";
+import { frostFields, frostDefaults, frostValues } from "./properties.mjs";
 
 /** Edit object kinds that are one section of the deck (E3c) or one settings card (E3d-1). */
-export const sectionKinds = ["options2d", "title", "report", "files", "transport", "ueb", "components"];
+export const sectionKinds = ["options2d", "snow2d", "title", "report", "files", "transport", "ueb", "components"];
 /** The ARD transport component; its settings are saved only in its file ([PROCESS_COMPONENTS]). */
 const ARD = "org.hydrocouple.openswmm.transport.ard";
 /** The desktop's UEB parameters (openswmm.gui snowclimatesettings.h uebFields): key, label, group, range. */
@@ -104,6 +105,31 @@ function projectFile(session, path) {
 export function sectionGroups(session, kind) {
   const x = session.solver;
   if (kind === "options2d") return options2dGroups(session);
+  if (kind === "snow2d") {
+    if (!session.cells?.mannings?.length) return [{ key: "snow-none", title: "2D snow", fields: [], note: "This model has no 2D surface." }];
+    const o = x.surface2d.snow.options,
+      frost = x.frozenGroundRows(true)["*"];
+    return [
+      {
+        key: "snowOptions",
+        title: "2D snowmelt",
+        fields: [
+          { name: "mode", label: "Snowmelt on the mesh", type: "choice", value: o.mode, choices: [["AUTO", "Automatic (where a snowpack is assigned)"], ["YES", "On"], ["NO", "Off"]] },
+          { name: "step", label: "Snow time step", unit: "s", type: "number", value: o.stepSeconds },
+        ],
+        note: "A step of 0 is the model's snow step ([2D_SNOW_OPTIONS]).",
+      },
+      {
+        key: "frost2d",
+        title: "2D frozen ground",
+        fields: [
+          { name: "row", label: "Use", type: "choice", value: frost ? "own" : "", choices: [["", "None"], ["own", "Values for all cells"]] },
+          ...frostFields.map(([name, label, unit], k) => ({ name, label, unit, type: "number", value: (frost ?? frostDefaults)[k], when: { name: "row", in: ["own"] } })),
+        ],
+        note: "One row for every cell of the mesh ([2D_FROZEN_GROUND] *), in SI units.",
+      },
+    ];
+  }
   if (kind === "title")
     return [{ key: "title", title: "Title and notes", fields: [{ name: "text", label: "Title and notes", type: "textarea", value: titleLines(session).join("\n") }], note: "The first line is the title the report shows. Blank lines are not kept." }];
   if (kind === "report") {
@@ -201,6 +227,28 @@ const ardRow = (x) => [...x.processComponents].find((c) => c.id === ARD) ?? null
 export function applySection(session, kind, key, values) {
   const x = session.solver;
   if (kind === "options2d") return applyOptions2d(session, key, values);
+  if (kind === "snow2d" && key === "snowOptions") {
+    const need = (cond, message) => {
+      if (!cond) throw new Error(message);
+    };
+    need(["AUTO", "YES", "NO"].includes(values.mode), "Choose automatic, on or off.");
+    const step = Number(values.step);
+    need(values.step !== "" && Number.isFinite(step) && step >= 0, "The snow time step is 0 (the model's) or more seconds.");
+    const snow = x.surface2d.snow,
+      c = snow.configuration();
+    const options = [...(values.mode === "AUTO" ? [] : ["SNOWMELT " + values.mode]), ...(step > 0 ? ["SNOW_STEP " + step] : [])].join("\n");
+    snow.applyConfiguration(options, c.defaults, c.cells);
+    return sectionGroups(session, kind).find((g) => g.key === key);
+  }
+  if (kind === "snow2d" && key === "frost2d") {
+    const need = (cond, message) => {
+      if (!cond) throw new Error(message);
+    };
+    if (values.row !== "own") {
+      if (x.frozenGroundRows(true)["*"]) x.removeFrozenGround("*", true);
+    } else x.setFrozenGround("*", frostValues(values, need), true);
+    return sectionGroups(session, kind).find((g) => g.key === key);
+  }
   const need = (cond, message) => {
     if (!cond) throw new Error(message);
   };

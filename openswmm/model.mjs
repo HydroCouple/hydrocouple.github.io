@@ -17,7 +17,7 @@ const subviews = {
   "link.orifice.": "ORIFICE",
   "link.outlet.": "OUTLET",
 };
-export const objectKinds = ["options", "model", "options2d", "quality2d", "title", "report", "files", "transport", "ueb", "components", "userflags", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet", "controls", "events"];
+export const objectKinds = ["options", "model", "options2d", "quality2d", "infil2d", "snow2d", "title", "report", "files", "transport", "ueb", "components", "userflags", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet", "controls", "events"];
 /** Record kinds: edited as whole tables in the record editor rather than as property rows. */
 export const recordKinds = ["timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet"];
 /** A new street cross-section (SWMM 5.2 [STREETS]); slopes in percent, gutter depression in in or mm. */
