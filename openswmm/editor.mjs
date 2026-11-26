@@ -30,6 +30,7 @@ const kindLabels = {
   report: "Report",
   files: "Files",
   transport: "Transport (ARD)",
+  reactions: "Reactions",
   ueb: "Snow (UEB)",
   components: "Process components",
   userflags: "User flags",
@@ -61,7 +62,7 @@ const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time 
 /** Kinds the map can select (selection.mjs). */
 const pickKinds = ["node", "link", "subcatchment", "gage", "cell"];
 /** Kinds edited as one whole (no object list). */
-const globalKinds = ["model", "options", "options2d", "quality2d", "infil2d", "snow2d", "title", "report", "files", "transport", "ueb", "components", "userflags", "controls", "events"];
+const globalKinds = ["model", "options", "options2d", "quality2d", "infil2d", "snow2d", "title", "report", "files", "transport", "reactions", "ueb", "components", "userflags", "controls", "events"];
 /** Kinds that are one section card (sections.mjs). */
 const sectionKinds = ["options2d", "title", "report", "files", "transport", "ueb", "components"];
 const node = (tag, props = {}, ...children) => {
@@ -239,6 +240,8 @@ export class Editor {
     if (kind === "quality2d") return this.showScoped(kind, ["coverage", "loading", "curb", "initQuality", "bedQuality"]);
     if (kind === "infil2d") return this.showScoped(kind, ["infilDefaults"]);
     if (kind === "snow2d") return this.showScoped(kind, ["snow"], { groups: true });
+    if (kind === "transport") return this.showScoped(kind, ["ardDispersion", "ardBoundaries", "ardSources"], { groups: true });
+    if (kind === "reactions") return this.showReactions();
     if (qualityKinds.includes(kind) && !key) return this.showQuality(kind, null, props, current);
     const global = kind === "model" || kind === "options" || sectionKinds.includes(kind);
     if ((!global && !key) || (kind === "cell" && !this.summary?.cells)) {
@@ -642,6 +645,69 @@ export class Editor {
       }),
     );
   }
+  /** The reaction system ([REACTION_*]): a summary and its .rxn text editor. */
+  async showReactions() {
+    const props = $("props");
+    let r;
+    try {
+      r = await this.call("reactions");
+    } catch (e) {
+      props.replaceChildren();
+      return this.fail(e);
+    }
+    if ($("objkind").value !== "reactions") return;
+    const edit = node("button", { type: "button", className: "tb ghost", textContent: r.text ? "Edit reaction system…" : "Add a reaction system…" });
+    edit.onclick = () => this.openReactions(r);
+    const where = r.embedded ? "Kept in the deck's [REACTION_*] sections." : r.registered ? "Saved in model.rxn (a process component)." : "A first system registers the reactions component with model.rxn, as the desktop does; Apply saves it with the deck.";
+    props.replaceChildren(
+      node(
+        "div",
+        { className: "record-card" },
+        node("h4", { className: "group-title", textContent: "Reactions" }),
+        node("p", { className: "record-desc", textContent: r.species.length ? r.species.length + " species: " + r.species.join(", ") : "No reaction system." }),
+        node("p", { className: "hint", textContent: "Multi-species reactions in pipes and tanks (the .rxn format: options, species, coefficients, terms, pipe and tank expressions, …). " + where }),
+        edit,
+      ),
+    );
+  }
+  openReactions(r) {
+    const template = "[REACTION_OPTIONS]\nSOLVER RK5\n\n[REACTION_SPECIES]\n;;BULK|WALL name units\n\n[REACTION_PIPES]\n;;RATE species expression\n\n[REACTION_TANKS]\n";
+    const area = node("textarea", { value: r.text || template, spellcheck: false, ariaLabel: "Reaction system (.rxn)", rows: 18 });
+    area.className = "rxn-text";
+    const message = node("p", { className: "hint record-message", role: "status" });
+    const check = node("button", { type: "button", textContent: "Check" });
+    check.onclick = async () => {
+      const result = await this.call("checkReactions", area.value);
+      message.textContent = result.valid ? "The engine reads it." : result.message;
+      message.classList.toggle("ok", result.valid);
+    };
+    const save = node("button", { type: "button", className: "primary", textContent: "Save to model" });
+    const cancel = node("button", { type: "button", textContent: "Cancel" });
+    cancel.onclick = () => this.closeDialog();
+    save.onclick = async () => {
+      try {
+        const before = await this.call("setReactions", area.value);
+        this.edits.push({ op: "reactions", kind: "reactions", before });
+        this.closeDialog();
+        this.note();
+        this.show();
+      } catch (e) {
+        message.classList.remove("ok");
+        message.textContent = e.message || String(e);
+      }
+    };
+    this.openDialog(
+      "Reaction system",
+      node(
+        "div",
+        { className: "record-editor" },
+        area,
+        node("p", { className: "hint", textContent: "Checked as a whole when saved: nothing changes unless the engine reads all of it." }),
+        message,
+        node("div", { className: "actions end" }, check, cancel, save),
+      ),
+    );
+  }
   /** User flag definitions ([USER_FLAGS]): a summary and the flags dialog. */
   async showUserFlags() {
     const props = $("props");
@@ -890,6 +956,7 @@ export class Editor {
       else if (edit.op === "events") await this.call("setEvents", edit.before);
       else if (edit.op === "userflags") await this.call("setUserFlags", edit.before.definitions, edit.before.values);
       else if (edit.op === "scoped") await this.call("setScopedRows", edit.name, edit.before);
+      else if (edit.op === "reactions") await this.call("setReactions", null, edit.before);
       else if (edit.op === "inflows") await this.call("setInflows", edit.key, edit.before);
       else if (edit.op === "co") await this.call("setCoPollutant", edit.key, edit.before);
       else if (edit.op === "landuse") await this.call("setLanduse", edit.key, edit.before);

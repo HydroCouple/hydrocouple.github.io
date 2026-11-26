@@ -6,6 +6,9 @@ import { parseLabels, labelsText } from "./labels.mjs";
 import { propertyGroups, applyGroup, replacedRows } from "./properties.mjs";
 import { sectionKinds, sectionGroups, applySection, reportOptions } from "./sections.mjs";
 import { scopedRows, setScopedRows } from "./surface-sections.mjs";
+import { transportTables, transportRows, setTransportRows } from "./transport-tables.mjs";
+/** The reaction system's component: its settings are saved only in its file (or embedded in the deck). */
+const RXN = "org.hydrocouple.openswmm.reactions";
 
 /** Sub-view path prefixes that only apply to one object type. */
 const subviews = {
@@ -17,7 +20,7 @@ const subviews = {
   "link.orifice.": "ORIFICE",
   "link.outlet.": "OUTLET",
 };
-export const objectKinds = ["options", "model", "options2d", "quality2d", "infil2d", "snow2d", "title", "report", "files", "transport", "ueb", "components", "userflags", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet", "controls", "events"];
+export const objectKinds = ["options", "model", "options2d", "quality2d", "infil2d", "snow2d", "title", "report", "files", "transport", "reactions", "ueb", "components", "userflags", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet", "controls", "events"];
 /** Record kinds: edited as whole tables in the record editor rather than as property rows. */
 export const recordKinds = ["timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet"];
 /** A new street cross-section (SWMM 5.2 [STREETS]); slopes in percent, gutter depression in in or mm. */
@@ -285,6 +288,8 @@ export class ModelSession {
     fs.chdir("/edit");
     this.entry = localPath(project.entry);
     this.inputNames = Object.keys(project.inputs); // the files a [FILES] USE row may name
+    // A deck that embeds its [REACTION_*] sections keeps them there; else they go to model.rxn.
+    this.reactionsEmbedded = /^\s*\[REACTION_[A-Z_]+\]/im.test(new TextDecoder().decode(project.inputs[project.entry] || new Uint8Array()));
     for (const [name, data] of Object.entries(project.inputs)) {
       localPath(name);
       if (name.includes("/")) fs.mkdirTree(name.slice(0, name.lastIndexOf("/")));
@@ -772,13 +777,64 @@ export class ModelSession {
     return this.events();
   }
   // ---- Scoped 2D section rows (surface-sections.mjs): all cells, a tag or one cell.
-  /** A scoped 2D section's columns and rows. */
+  /** A scoped 2D section's (or an ARD transport table's) columns and rows. */
   scopedRows(name) {
-    return scopedRows(this, name);
+    return transportTables.includes(name) ? transportRows(this, name) : scopedRows(this, name);
   }
-  /** Replace a scoped 2D section's rows (checked first); returns the rows there were. */
+  /** Replace a scoped 2D section's (or ARD table's) rows (checked first); returns the rows there were. */
   setScopedRows(name, rows) {
-    return setScopedRows(this, name, rows);
+    return transportTables.includes(name) ? setTransportRows(this, name, rows) : setScopedRows(this, name, rows);
+  }
+  /** The model's time series by name. */
+  timeseriesIds() {
+    const t = this.solver.tables;
+    return range(t.length)
+      .filter((i) => t.getType(i) === TableType.TIMESERIES)
+      .map((i) => t.getId(i));
+  }
+  // ---- Reactions ([REACTION_*], a .rxn system), as the desktop's Reaction System dialog's text.
+  /** The reaction system as .rxn text, its species and where it is saved. */
+  reactions() {
+    const re = this.solver.reactions;
+    return { text: re.serialize(), species: [...re.species].map((s) => s.name), registered: [...this.solver.processComponents].some((c) => c.id === RXN), embedded: !!this.reactionsEmbedded };
+  }
+  /** A dry run of .rxn text: `{valid, message}`; nothing changes. */
+  checkReactions(text) {
+    return this.solver.reactions.checkText(String(text ?? ""));
+  }
+  /**
+   * Replace the reaction system from .rxn text (all or nothing). A deck that does not embed its
+   * reactions gets the component with model.rxn first, as the desktop does. With `restore` (undo) the
+   * system there was comes back; a first system goes again with its component. Returns the one before.
+   */
+  setReactions(text, restore = null) {
+    const before = this.reactions(),
+      re = this.solver.reactions,
+      pc = this.solver.processComponents;
+    if (restore) {
+      if (restore.text) re.applyText(restore.text);
+      else {
+        // The engine refuses empty text: terms, then species (their pipe and tank expressions cleared
+        // first: a species with one cannot go), then coefficients go one by one.
+        for (let i = re.terms.length - 1; i >= 0; i--) re.terms.remove(i);
+        for (let i = re.species.length - 1; i >= 0; i--) {
+          const sp = re.species.get(i);
+          for (const scope of [0, 1])
+            try {
+              sp.setExpression(scope, 0, "");
+            } catch {} // no expression in that scope
+          re.species.remove(i);
+        }
+        for (let i = re.coefficients.length - 1; i >= 0; i--) re.coefficients.remove(i);
+      }
+      if (!restore.registered && before.registered) pc.remove(RXN);
+      return before;
+    }
+    const check = re.checkText(String(text ?? ""));
+    if (!check.valid) throw new Error(check.message);
+    if (!before.embedded && !before.registered) pc.register(RXN, "model.rxn");
+    re.applyText(String(text));
+    return before;
   }
   // ---- User flags ([USER_FLAGS], OpenSWMM): named, typed values on nodes, links, subcatchments and
   // rain gages (as the desktop's User Flags Manager and its per-object rows).

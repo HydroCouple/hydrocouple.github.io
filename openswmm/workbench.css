@@ -2698,3 +2698,13 @@ dialog:has(.lid-usage-editor) {
 dialog:has(.scoped-table) {
   width: min(1040px, 96vw);
 }
+/* The reaction system's .rxn text (editor.mjs openReactions). */
+.record-editor textarea.rxn-text {
+  width: 100%;
+  min-height: 320px;
+  font: 12px/1.5 "JetBrains Mono", ui-monospace, monospace;
+  resize: vertical;
+}
+.record-message.ok:not(:empty) {
+  color: var(--ok-ink);
+}
