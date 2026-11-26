@@ -11,7 +11,10 @@
  * (`detail: {kind, id}`, kind = visible | order | opacity | content | enabled | note | legend).
  */
 
-/** Desktop default symbols: marker shape and size in pixels, line width in pixels, colors. */
+/**
+ * Desktop default symbols: marker shape and size in pixels, line width in pixels, colors. The symbol
+ * style (symbol-style.mjs) starts from them; what the map draws is the style.
+ */
 export const symbols = {
   junctions: { shape: "circle", size: 8, fill: "#0078ff" },
   outfalls: { shape: "triangle", size: 12.5, fill: "#dc0000" },

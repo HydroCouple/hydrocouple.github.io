@@ -16,6 +16,8 @@ import { DepthStyle, depthStyleDefaults } from "./depth-style.mjs";
 import { depthStyleForm } from "./depth-style-view.mjs";
 import { StreakStyle } from "./streak-style.mjs";
 import { streakStyleForm } from "./streak-style-view.mjs";
+import { SymbolStyle, styledLeaves } from "./symbol-style.mjs";
+import { symbolStyleForm } from "./symbol-style-view.mjs";
 import { basemapPicker } from "./basemaps-view.mjs";
 import { ProfileSet, networkOf, route, pipeProfile, peakIndex, lineSamples, atSamples } from "./profiles.mjs";
 import { profilePanel } from "./profile-view.mjs";
@@ -43,11 +45,16 @@ try {
 } catch {}
 // The layer tree is the one model the Layers panel and the map both read.
 const layers = new LayerTree({ reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches });
+// Symbols of the SWMM kinds and the mesh (MVC): the map, the 3D view, the swatches and the forms.
+const symbolStyle = new SymbolStyle();
 layersPanel($("layertree"), layers, {
+  symbols: symbolStyle,
   onStyle: (leaf) =>
-    leaf === "streaks"
-      ? dialog("Flow streaks style", streakStyleForm(streakStyle, { onClose: () => $("dialog").close() }))
-      : dialog("Water depth style", depthStyleForm(depthStyle, { dry: view.modelDry(), onClose: () => $("dialog").close() })),
+    styledLeaves.includes(leaf)
+      ? dialog(layers.label(leaf) + " style", symbolStyleForm(symbolStyle, leaf, { label: layers.label(leaf), elevations: view.meshElevations(), onClose: () => $("dialog").close() }))
+      : leaf === "streaks"
+        ? dialog("Flow streaks style", streakStyleForm(streakStyle, { onClose: () => $("dialog").close() }))
+        : dialog("Water depth style", depthStyleForm(depthStyle, { dry: view.modelDry(), onClose: () => $("dialog").close() })),
   onAddBasemap: () =>
     dialog(
       "Add basemap",
@@ -63,6 +70,7 @@ layersPanel($("layertree"), layers, {
     ),
 });
 const view = new ModelView(config.mapboxPublicToken, layers);
+view.useSymbolStyle(symbolStyle);
 // The selection (MVC): the map and the inspector both change it and both follow it.
 const selection = new SelectionModel();
 view.useSelection(selection);
@@ -80,6 +88,13 @@ const panelLayout = new PanelLayout();
 let plotRead = null; // the worker reading series now
 let plotFlowUnits = "CFS"; // the current deck's FLOW_UNITS (SWMM's default when it has none)
 view.onMapError = (message) => layers.setNote("basemap", message);
+/** Whether a run's mesh has the deck's vertices in the deck's order (so the deck's elevations fit it). */
+function sameVertices(run, deck) {
+  const n = run.x?.length;
+  if (!n || deck?.x?.length !== n || deck.z?.length !== n) return false;
+  const near = (a, b) => Math.abs(a - b) <= 1e-6 * Math.max(1, Math.abs(a));
+  return [0, n >> 1, n - 1].every((i) => near(run.x[i], deck.x[i]) && near(run.y[i], deck.y[i]));
+}
 /** Show a geometry on the map and list what it holds in the layer tree. */
 function showGeometry(geo, place) {
   layers.setContent(contentOf(geo));
@@ -127,7 +142,7 @@ selection.addEventListener("change", ({ detail }) => {
 });
 // Map editing: the Add palette arms the map's add tool; what it places, inserts or traces and what
 // Delete removes go through the editing session (editor.mjs), which hands the network back.
-addPalette({ root: $("addpalette"), button: $("tool-add"), onPick: (spec) => view.setTool("add", spec) });
+addPalette({ root: $("addpalette"), button: $("tool-add"), symbols: symbolStyle, onPick: (spec) => view.setTool("add", spec) });
 view.onAdd = (spec) =>
   (spec.op === "inlet" ? editor.addInlet(spec) : editor
     .mapEdit(
@@ -520,7 +535,7 @@ function launch(data) {
         break;
       case "geometry":
         geometry = m.geometry
-          ? { ...m.geometry, links: preview.links }
+          ? { ...m.geometry, links: preview.links, z: sameVertices(m.geometry, preview) ? preview.z : undefined } // the bed elevations stay (mesh fill by elevation, ground inverts)
           : preview;
         showGeometry({ ...geometry, network: preview.network });
         $("cells").textContent = geometry.cells.length;

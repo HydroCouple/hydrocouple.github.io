@@ -5,7 +5,7 @@
  * A view of the same models as the map canvas: the ModelView's geometry, frame and depth scheme, and
  * the layer tree. The canvas keeps what moves or answers the pointer: streaks, selection, box/lasso.
  */
-import { symbols, markerOutline } from "./layers.mjs";
+import { markerPoints } from "./symbol-style.mjs";
 import { chainSegments } from "./depth-style.mjs";
 
 const linkKinds = ["conduits", "pumps", "orifices", "weirs", "outlets"],
@@ -143,35 +143,28 @@ function groundLayer(id) {
   };
 }
 
-/** A node or gage marker as the map canvas draws it (2× pixels), for a symbol layer icon. */
-function markerImage(kind) {
-  const s = symbols[kind],
-    r = s.size / 2,
-    size = Math.ceil(s.size + 2 * markerOutline.width + 2),
+/** A node or gage marker in its symbol `s` as the map canvas draws it (2× pixels), for a symbol layer icon. */
+function markerImage(s) {
+  const r = s.size / 2,
+    size = Math.ceil(s.size + 2 * s.outlineWidth + 2),
     c = new OffscreenCanvas(2 * size, 2 * size).getContext("2d");
   c.scale(2, 2);
   const x = size / 2,
-    y = size / 2;
+    y = size / 2,
+    pts = markerPoints(s.shape, r);
   c.beginPath();
-  if (s.shape === "circle") c.arc(x, y, r, 0, 2 * Math.PI);
-  else if (s.shape === "square") c.rect(x - r, y - r, 2 * r, 2 * r);
-  else if (s.shape === "triangle") {
-    c.moveTo(x, y - r);
-    c.lineTo(x + r, y + r * 0.8);
-    c.lineTo(x - r, y + r * 0.8);
-    c.closePath();
-  } else {
-    c.moveTo(x, y - r);
-    c.lineTo(x + r, y);
-    c.lineTo(x, y + r);
-    c.lineTo(x - r, y);
+  if (!pts) c.arc(x, y, r, 0, 2 * Math.PI);
+  else {
+    pts.forEach(([dx, dy], j) => (j ? c.lineTo(x + dx, y + dy) : c.moveTo(x + dx, y + dy)));
     c.closePath();
   }
   c.fillStyle = s.fill;
   c.fill();
-  c.strokeStyle = markerOutline.stroke;
-  c.lineWidth = markerOutline.width;
-  c.stroke();
+  if (s.outlineWidth > 0) {
+    c.strokeStyle = s.outline;
+    c.lineWidth = s.outlineWidth;
+    c.stroke();
+  }
   return c.getImageData(0, 0, 2 * size, 2 * size);
 }
 
@@ -190,7 +183,7 @@ export class Scene3D {
     this.on = true;
     if (!m || !this.view.styleReady || m.getLayer("osw-depth")) return this.sync(); // style.load attaches again
     this.keys = {};
-    for (const kind of markerKinds) if (!m.hasImage("osw-" + kind)) m.addImage("osw-" + kind, markerImage(kind), { pixelRatio: 2 });
+    this.addMarkerImages();
     m.addSource("osw-network", { type: "geojson", data: empty });
     m.addSource("osw-contours", { type: "geojson", data: empty });
     this.meshes = groundLayer("osw-meshes");
@@ -199,23 +192,20 @@ export class Scene3D {
       surface = getComputedStyle(this.view.canvas).getPropertyValue("--surface").trim() || "#fff";
     for (const layer of [
       this.meshes,
-      { id: "osw-subcatch-fill", type: "fill", source: "osw-network", filter: ["==", ["get", "kind"], "subcatchments"], paint: { "fill-color": symbols.subcatchments.fill } },
-      { id: "osw-subcatch-line", type: "line", source: "osw-network", filter: ["==", ["get", "kind"], "subcatchments"], paint: { "line-color": symbols.subcatchments.outline, "line-width": symbols.subcatchments.width } },
+      { id: "osw-subcatch-fill", type: "fill", source: "osw-network", filter: ["==", ["get", "kind"], "subcatchments"], paint: this.paintOf("osw-subcatch-fill") },
+      { id: "osw-subcatch-line", type: "line", source: "osw-network", filter: ["==", ["get", "kind"], "subcatchments"], paint: this.paintOf("osw-subcatch-line") },
       {
         id: "osw-links",
         type: "line",
         source: "osw-network",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
-          "line-color": ["match", ["get", "kind"], ...linkKinds.flatMap((k) => [k, symbols[k].stroke]), "#000"],
-          "line-width": ["match", ["get", "kind"], ...linkKinds.flatMap((k) => [k, symbols[k].width]), 1],
-        },
+        paint: this.paintOf("osw-links"),
       },
       {
         id: "osw-markers",
         type: "symbol",
         source: "osw-network",
-        layout: { "icon-image": ["concat", "osw-", ["get", "kind"]], "icon-allow-overlap": true, "icon-ignore-placement": true, "symbol-sort-key": ["get", "order"] },
+        layout: { "icon-image": this.iconImage(), "icon-allow-overlap": true, "icon-ignore-placement": true, "symbol-sort-key": ["get", "order"] },
       },
       this.depth,
       { id: "osw-contours", type: "line", source: "osw-contours", paint: { "line-color": ink, "line-width": ["case", ["get", "index"], 1.6, 0.8] } },
@@ -229,6 +219,39 @@ export class Scene3D {
     ])
       m.addLayer(layer);
     this.sync();
+  }
+  /** The marker icons in the symbols now, under names that change with them (`osw-<kind>-<version>`). */
+  addMarkerImages() {
+    const m = this.map;
+    this.imageVersion = (this.imageVersion || 0) + 1;
+    for (const kind of markerKinds) m.addImage("osw-" + kind + "-" + this.imageVersion, markerImage(this.view.sym(kind)), { pixelRatio: 2 });
+  }
+  iconImage() {
+    return ["concat", "osw-", ["get", "kind"], "-" + this.imageVersion];
+  }
+  /** The paint of a network layer from the symbols now (symbol-style.mjs). */
+  paintOf(id) {
+    const v = this.view,
+      sub = v.sym("subcatchments");
+    if (id === "osw-subcatch-fill") return { "fill-color": sub.fill, "fill-opacity": sub.fillOpacity };
+    if (id === "osw-subcatch-line") return { "line-color": sub.outline, "line-width": sub.outlineWidth };
+    return {
+      "line-color": ["match", ["get", "kind"], ...linkKinds.flatMap((k) => [k, v.sym(k).color]), "#000"],
+      "line-width": ["match", ["get", "kind"], ...linkKinds.flatMap((k) => [k, v.sym(k).width]), 1],
+    };
+  }
+  /** Follow a symbol change: new marker icons, or the paint of the link and subcatchment layers. */
+  restyle(leaf) {
+    const m = this.map;
+    if (!this.on || !m?.getLayer("osw-markers")) return;
+    if (markerKinds.includes(leaf)) {
+      const old = this.imageVersion;
+      this.addMarkerImages();
+      m.setLayoutProperty("osw-markers", "icon-image", this.iconImage());
+      for (const kind of markerKinds) if (m.hasImage("osw-" + kind + "-" + old)) m.removeImage("osw-" + kind + "-" + old);
+    } else if (linkKinds.includes(leaf) || leaf === "subcatchments")
+      for (const id of leaf === "subcatchments" ? ["osw-subcatch-fill", "osw-subcatch-line"] : ["osw-links"])
+        for (const [k, value] of Object.entries(this.paintOf(id))) m.setPaintProperty(id, k, value);
   }
   /** Take the model's layers out of the map (back to the flat map, drawn on the canvas). */
   detach() {

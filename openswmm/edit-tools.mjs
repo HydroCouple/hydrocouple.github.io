@@ -62,12 +62,12 @@ export function vertexHint(link) {
     : "Click a link to edit its vertices. Esc ends.";
 }
 
-/** The inlet junction's swatch: the desktop's filled diamond in the junction blue. */
-function diamond() {
+/** The inlet junction's swatch: the desktop's filled diamond in the junction color. */
+function diamond(fill = "#0078ff") {
   const sw = swatch("junctions");
   sw.replaceChildren();
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  for (const [k, v] of Object.entries({ d: "M7 1.5L12.5 7L7 12.5L1.5 7Z", fill: "#0078ff", stroke: "#fff", "stroke-width": 1 })) path.setAttribute(k, v);
+  for (const [k, v] of Object.entries({ d: "M7 1.5L12.5 7L7 12.5L1.5 7Z", fill, stroke: "#fff", "stroke-width": 1 })) path.setAttribute(k, v);
   sw.append(path);
   return sw;
 }
@@ -79,9 +79,15 @@ const el = (tag, props = {}, ...children) => {
 
 /**
  * Build the palette into `root` (emptied) and open it from `button`. `onPick(spec)` arms a tool;
- * the palette closes on a pick, on Escape and on a click elsewhere.
+ * the palette closes on a pick, on Escape and on a click elsewhere. The swatches show the symbols
+ * in `symbols` (symbol-style.mjs) as they are when the palette opens.
  */
-export function addPalette({ root, button, onPick }) {
+export function addPalette({ root, button, onPick, symbols }) {
+  const icon = (spec) => {
+    const s = symbols && spec.leaf !== "labels" ? symbols.of(spec.leaf) : undefined;
+    return spec.inlet ? diamond(s?.fill) : swatch(spec.leaf, s);
+  };
+  const shown = []; // [spec, its button]
   const close = () => {
     root.hidden = true;
     button.setAttribute("aria-expanded", "false");
@@ -93,7 +99,8 @@ export function addPalette({ root, button, onPick }) {
         { className: "add-group", role: "group", ariaLabel: group + " to add" }, // not the layer tree's "Nodes"/"Links"
         el("small", { textContent: group }),
         ...items.map((spec) => {
-          const item = el("button", { type: "button", className: "add-item", role: "menuitem" }, spec.inlet ? diamond() : swatch(spec.leaf), el("span", { textContent: spec.label }));
+          const item = el("button", { type: "button", className: "add-item", role: "menuitem" }, icon(spec), el("span", { textContent: spec.label }));
+          shown.push([spec, item]);
           if (spec.virtual) item.classList.add("virtual");
           if (spec.inlet) item.classList.add("inlet");
           item.onclick = () => {
@@ -109,6 +116,7 @@ export function addPalette({ root, button, onPick }) {
   button.setAttribute("aria-expanded", "false");
   button.onclick = () => {
     const open = root.hidden;
+    if (open) for (const [spec, item] of shown) item.firstChild.replaceWith(icon(spec));
     root.hidden = !open;
     button.setAttribute("aria-expanded", String(open));
     if (open) root.querySelector("button")?.focus();

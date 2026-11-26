@@ -3,7 +3,8 @@
  * (layers.mjs) and updated from its `change` events. Checkboxes, the move buttons and the opacity
  * sliders send their changes to the model; nothing here draws the map.
  */
-import { symbols, markerOutline } from "./layers.mjs";
+import { symbolDefaults, styledLeaves, markerPoints, elevationColor } from "./symbol-style.mjs";
+import { rgbOf } from "./streak-style.mjs";
 
 const el = (tag, props = {}, ...children) => {
   const node = Object.assign(document.createElement(tag), props);
@@ -11,11 +12,20 @@ const el = (tag, props = {}, ...children) => {
   return node;
 };
 const svgNS = "http://www.w3.org/2000/svg";
-/** A 14 px swatch: the kind's marker, line or area symbol; CSS swatches for the surface rows. */
-export function swatch(leaf) {
+const rgba = (hex, a) => "rgba(" + rgbOf(hex).join(",") + "," + a + ")";
+/**
+ * A 14 px swatch: the kind's marker, line or area symbol `s` (symbol-style.mjs; the desktop's by
+ * default); CSS swatches for the surface rows, the mesh ones tinted by their symbol.
+ */
+export function swatch(leaf, s = symbolDefaults[leaf]) {
   const css = leaf.startsWith("bm-") ? "map" : { depth: "ramp", streaks: "streak", meshfill: "meshfill", edges: "mesh", basemap: "map", buildings: "buildings", labels: "label" }[leaf];
-  if (css) return el("span", { className: "sw " + css, ariaHidden: "true" }); // decoration: not part of a row's name
-  const s = symbols[leaf];
+  if (css) {
+    const sw = el("span", { className: "sw " + css, ariaHidden: "true" }); // decoration: not part of a row's name
+    if (leaf === "meshfill" && s)
+      sw.style.background = s.mode === "elevation" ? "linear-gradient(to right, " + [0, 0.25, 0.5, 0.75, 1].map((f) => elevationColor(s.ramp, f, s.invert)).join(", ") + ")" : rgba(s.color, Math.max(0.18, s.opacity));
+    if (leaf === "edges" && s) sw.style.background = "repeating-linear-gradient(45deg, transparent 0 3px, " + rgba(s.color, Math.max(0.5, s.opacity)) + " 3px 4px)";
+    return sw;
+  }
   const svg = document.createElementNS(svgNS, "svg");
   svg.setAttribute("viewBox", "0 0 14 14");
   svg.setAttribute("class", "sw");
@@ -25,15 +35,14 @@ export function swatch(leaf) {
     for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
     svg.append(node);
   };
-  if (s.stroke) shape("path", { d: "M1 7h12", stroke: s.stroke, "stroke-width": Math.max(1.5, s.width) });
-  else if (s.outline) shape("rect", { x: 1.5, y: 2.5, width: 11, height: 9, fill: s.fill, stroke: s.outline, "stroke-width": 1.5 });
+  if (s.color) shape("path", { d: "M1 7h12", stroke: s.color, "stroke-width": Math.min(5, Math.max(1.5, s.width)) });
+  else if (s.outline && !s.shape) shape("rect", { x: 1.5, y: 2.5, width: 11, height: 9, fill: s.fill, "fill-opacity": s.fillOpacity, stroke: s.outline, "stroke-width": Math.min(2, s.outlineWidth) });
   else {
     const r = Math.min(6, s.size / 2),
-      common = { fill: s.fill, stroke: markerOutline.stroke, "stroke-width": markerOutline.width };
-    if (s.shape === "circle") shape("circle", { cx: 7, cy: 7, r, ...common });
-    else if (s.shape === "square") shape("rect", { x: 7 - r, y: 7 - r, width: 2 * r, height: 2 * r, ...common });
-    else if (s.shape === "triangle") shape("path", { d: `M7 ${7 - r}L${7 + r} ${7 + r * 0.8}H${7 - r}Z`, ...common });
-    else shape("path", { d: `M7 ${7 - r}L${7 + r} 7L7 ${7 + r}L${7 - r} 7Z`, ...common });
+      pts = markerPoints(s.shape, r),
+      common = { fill: s.fill, stroke: s.outline, "stroke-width": Math.min(2, s.outlineWidth) };
+    if (!pts) shape("circle", { cx: 7, cy: 7, r, ...common });
+    else shape("path", { d: "M" + pts.map(([x, y]) => (7 + x).toFixed(2) + " " + (7 + y).toFixed(2)).join("L") + "Z", ...common });
   }
   return svg;
 }
@@ -43,10 +52,11 @@ export function swatch(leaf) {
  * @param {import("./layers.mjs").LayerTree} layers
  */
 /**
- * @param {{onStyle?: (leaf: string) => void, onAddBasemap?: () => void}} [o] `onStyle` opens a layer's
- * style (the water depth); `onAddBasemap` opens the basemap picker
+ * @param {{onStyle?: (leaf: string) => void, onAddBasemap?: () => void, symbols?: import("./symbol-style.mjs").SymbolStyle}} [o]
+ * `onStyle` opens a layer's style (water depth, flow streaks, a SWMM kind's or the mesh's symbol);
+ * `onAddBasemap` opens the basemap picker; the swatches follow `symbols`
  */
-export function layersPanel(root, layers, { onStyle, onAddBasemap } = {}) {
+export function layersPanel(root, layers, { onStyle, onAddBasemap, symbols } = {}) {
   const checks = new Map(), // id → checkbox (leaves, groups, categories)
     rows = new Map(), // leaf → row element
     groupBoxes = new Map(), // group id → element
@@ -61,6 +71,16 @@ export function layersPanel(root, layers, { onStyle, onAddBasemap } = {}) {
     return box;
   };
   let note, scale, legendRow, ramp, classes, bmRows, streakLegend, streakRamp, streakScale;
+  const swatches = new Map(); // styled leaf → its swatch
+  const swatchOf = (leaf) => {
+    const sw = swatch(leaf, styledLeaves.includes(leaf) && symbols ? symbols.of(leaf) : undefined);
+    if (styledLeaves.includes(leaf)) swatches.set(leaf, sw);
+    return sw;
+  };
+  symbols?.addEventListener("change", ({ detail }) => {
+    const old = swatches.get(detail.leaf);
+    if (old) old.replaceWith(swatchOf(detail.leaf));
+  });
   /** One leaf's row (and, for some leaves, what follows it) appended to `host`. */
   function leafRow(leaf, host, nested) {
     const count = el("small", { className: "layer-count" });
@@ -68,13 +88,15 @@ export function layersPanel(root, layers, { onStyle, onAddBasemap } = {}) {
     const row = el(
       "div",
       { className: "layer-row" + (nested ? " nested" : "") },
-      el("label", { className: "check" }, checkbox(leaf, leaf === "basemap" ? { id: "basemap" } : {}), swatch(leaf), el("span", { textContent: layers.label(leaf) })),
+      el("label", { className: "check" }, checkbox(leaf, leaf === "basemap" ? { id: "basemap" } : {}), swatchOf(leaf), el("span", { textContent: layers.label(leaf) })),
       count,
     );
     rows.set(leaf, row);
     host.append(row);
-    if ((leaf === "depth" || leaf === "streaks") && onStyle) {
-      const style = el("button", { type: "button", className: "tb ghost layer-style", textContent: "Style…", ariaLabel: layers.label(leaf) + " style" });
+    if ((leaf === "depth" || leaf === "streaks" || styledLeaves.includes(leaf)) && onStyle) {
+      // An icon (the row has a name, a count and this): the name says what it styles.
+      const style = el("button", { type: "button", className: "tb icon ghost layer-style", ariaLabel: layers.label(leaf) + " style", title: "Style…" });
+      style.innerHTML = '<svg aria-hidden="true"><use href="#i-sliders" /></svg>';
       style.onclick = () => onStyle(leaf);
       row.append(style);
     }

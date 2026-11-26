@@ -1,10 +1,11 @@
-import { symbols, markerOutline, basemapSource } from "./layers.mjs";
+import { markerOutline, basemapSource } from "./layers.mjs";
 import { pickAt, pickInRect, pickInPolygon, modeFor, describeSelection } from "./selection.mjs";
 import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isolines, rampColor } from "./depth-style.mjs";
 import { Scene3D } from "./scene3d.mjs";
 import { rgbOf, isLight } from "./streak-style.mjs";
 import { addHint, moveHint, vertexHint } from "./edit-tools.mjs";
 import { deckLabels } from "./labels.mjs";
+import { SymbolStyle, elevationColor, markerPoints } from "./symbol-style.mjs";
 /** Snap distances of the add tools (px): a node under the pointer, a conduit to insert on. */
 const SNAP_NODE = 10,
   SNAP_LINK = 6;
@@ -181,6 +182,7 @@ export class ModelView {
     this.canvas = el("plot");
     this.ctx = this.canvas.getContext("2d");
     this.geo = { x: [], y: [], cells: [], links: [] };
+    this.symbolStyle = new SymbolStyle({ storage: null }); // the desktop's symbols until useSymbolStyle
     this.particles = [];
     this.zoom = 1;
     this.pan = [0, 0];
@@ -370,6 +372,7 @@ export class ModelView {
    */
   geometry(geo, placement) {
     this.geo = geo;
+    this.meshColors = null;
     if (placement !== undefined) this.placement = placement;
     this.frame = null;
     this.particles = [];
@@ -744,6 +747,154 @@ export class ModelView {
         this.draw();
       }
     });
+  }
+  /**
+   * Observe a symbol style model (symbol-style.mjs): markers, lines, arrows, areas, ID labels and the
+   * mesh follow it, here and in the 3D view.
+   */
+  useSymbolStyle(style) {
+    this.symbolStyle = style;
+    style.addEventListener("change", ({ detail }) => {
+      if (detail.leaf === "meshfill") this.meshColors = null;
+      if (this.mode3d) this.scene3d.restyle(detail.leaf);
+      this.underReady = false;
+      this.draw();
+    });
+  }
+  /** A leaf's symbol now (symbol-style.mjs). */
+  sym(leaf) {
+    return this.symbolStyle.state[leaf];
+  }
+  /**
+   * The mesh fill by bed elevation: 64 ramp colors and each cell's step (its vertices' mean
+   * elevation between the mesh's lowest and highest cell; -1 for a cell without elevations).
+   */
+  meshShades(F) {
+    const key = F.ramp + ":" + F.invert;
+    if (this.meshColors?.key === key) return this.meshColors;
+    const { cells, z } = this.geo;
+    const mean = new Float64Array(cells.length).fill(NaN);
+    let lo = Infinity,
+      hi = -Infinity;
+    cells.forEach((v, i) => {
+      let s = 0,
+        k = 0;
+      for (const j of v)
+        if (Number.isFinite(z[j])) {
+          s += z[j];
+          k++;
+        }
+      if (!k) return;
+      mean[i] = s / k;
+      lo = Math.min(lo, mean[i]);
+      hi = Math.max(hi, mean[i]);
+    });
+    const span = hi - lo || 1,
+      cell = new Int16Array(cells.length).fill(-1);
+    mean.forEach((m, i) => {
+      if (Number.isFinite(m)) cell[i] = Math.min(63, Math.floor(((m - lo) / span) * 64));
+    });
+    const palette = Array.from({ length: 64 }, (_, k) => elevationColor(F.ramp, (k + 0.5) / 64, F.invert));
+    return (this.meshColors = { key, cell, palette, range: Number.isFinite(lo) ? [lo, hi] : null });
+  }
+  /** The mesh's bed elevations, lowest to highest cell (mean of its vertices), or null without any. */
+  meshElevations() {
+    if (!this.geo.z?.length || !this.geo.cells?.length) return null;
+    return this.meshShades(this.sym("meshfill")).range;
+  }
+  /** The point halfway along a polyline on screen and the direction there, or null if it is shorter than `min` px. */
+  midway(points, min = 0) {
+    if (!points || points.length < 2) return null;
+    const P = points.map((p) => this.project(...p));
+    let total = 0;
+    for (let i = 1; i < P.length; i++) total += Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]);
+    if (total <= 0 || total < min) return null;
+    let acc = 0;
+    for (let i = 1; i < P.length; i++) {
+      const [x0, y0] = P[i - 1],
+        [x1, y1] = P[i],
+        seg = Math.hypot(x1 - x0, y1 - y0);
+      if (seg > 0 && acc + seg >= total / 2) {
+        const t = (total / 2 - acc) / seg;
+        return { x: x0 + t * (x1 - x0), y: y0 + t * (y1 - y0), cs: (x1 - x0) / seg, sn: (y1 - y0) / seg };
+      }
+      acc += seg;
+    }
+    return null;
+  }
+  /** Add a link's flow arrow to the path: a triangle halfway along it pointing from → to (desktop drawFlowArrow). */
+  arrowPath(c, points, length, width) {
+    const m = this.midway(points, 2 * length);
+    if (!m) return false;
+    const l = length / 2,
+      h = width / 2;
+    c.moveTo(m.x + l * m.cs, m.y + l * m.sn);
+    c.lineTo(m.x - l * m.cs - h * m.sn, m.y - l * m.sn + h * m.cs);
+    c.lineTo(m.x - l * m.cs + h * m.sn, m.y - l * m.sn - h * m.cs);
+    c.closePath();
+    return true;
+  }
+  /**
+   * ID labels of the kinds whose symbol shows them: right of a marker, halfway along a link, at the
+   * middle of an area; on a halo that sets the label's color off (dark under light colors). A label
+   * that would overlap one already drawn is left out (nodes first, then links, then areas).
+   */
+  drawIdLabels(c, n) {
+    const order = ["junctions", "dividers", "storage", "outfalls", "gages", "conduits", "pumps", "orifices", "weirs", "outlets", "subcatchments"];
+    const kinds = order.filter((k) => this.layers.visible(k) && this.sym(k).labels);
+    if (!kinds.length) return;
+    const w = this.canvas.clientWidth,
+      h = this.canvas.clientHeight;
+    // Taken screen space on a 6 px grid.
+    const G = 6,
+      cols = Math.ceil(w / G) + 1,
+      rows = Math.ceil(h / G) + 1,
+      taken = new Uint8Array(cols * rows);
+    const claim = (x0, y0, x1, y1) => {
+      const a = Math.max(0, Math.floor(x0 / G)),
+        b = Math.min(cols - 1, Math.floor(x1 / G)),
+        p = Math.max(0, Math.floor(y0 / G)),
+        q = Math.min(rows - 1, Math.floor(y1 / G));
+      for (let r = p; r <= q; r++) for (let k = a; k <= b; k++) if (taken[r * cols + k]) return false;
+      for (let r = p; r <= q; r++) taken.fill(1, r * cols + a, r * cols + b + 1);
+      return true;
+    };
+    c.save();
+    c.lineJoin = "round";
+    c.textBaseline = "middle";
+    for (const kind of kinds) {
+      const s = this.sym(kind),
+        names = n.ids?.[kind] || [],
+        point = !linkKinds.includes(kind) && kind !== "subcatchments";
+      c.font = "500 " + s.labelSize + "px Inter, system-ui, sans-serif";
+      c.textAlign = point ? "left" : "center";
+      c.fillStyle = s.labelColor;
+      c.strokeStyle = isLight(rgbOf(s.labelColor)) ? "rgba(10,28,46,0.85)" : "rgba(255,255,255,0.9)";
+      c.lineWidth = 3;
+      (n[kind] || []).forEach((g, i) => {
+        const text = names[i];
+        if (!text) return;
+        let x, y;
+        if (point) {
+          [x, y] = this.project(...g);
+          x += s.size / 2 + 3;
+        } else if (kind === "subcatchments") {
+          [x, y] = this.project(g.reduce((a, p) => a + p[0], 0) / g.length, g.reduce((a, p) => a + p[1], 0) / g.length);
+        } else {
+          const m = this.midway(g);
+          if (!m) return;
+          ({ x, y } = m);
+          y -= s.width / 2 + s.labelSize / 2 + 1;
+        }
+        if (x < -100 || y < -20 || x > w + 100 || y > h + 20) return;
+        const tw = text.length * s.labelSize * 0.58, // about the text's width, without measuring it
+          x0 = point ? x : x - tw / 2;
+        if (!claim(x0, y - s.labelSize / 2, x0 + tw, y + s.labelSize / 2)) return;
+        c.strokeText(text, x, y);
+        c.fillText(text, x, y);
+      });
+    }
+    c.restore();
   }
   /** Observe a streak style model (streak-style.mjs): the streaks and their legend follow it. */
   useStreakStyle(style) {
@@ -1237,9 +1388,9 @@ export class ModelView {
       lines = [],
       areas = [];
     const add = (list, item) => item.id !== undefined && list.push(item);
-    if (L.visible("gages")) (n.gages || []).forEach((p, i) => add(points, { kind: "gage", id: ids.gages?.[i], type: "rain gage", ...xy(P(p)), r: symbols.gages.size / 2 + 2 }));
+    if (L.visible("gages")) (n.gages || []).forEach((p, i) => add(points, { kind: "gage", id: ids.gages?.[i], type: "rain gage", ...xy(P(p)), r: this.sym("gages").size / 2 + 2 }));
     for (const k of nodeKinds)
-      if (L.visible(k)) (n[k] || []).forEach((p, i) => add(points, { kind: "node", id: ids[k]?.[i], type: typeNames[k], ...xy(P(p)), r: symbols[k].size / 2 + 2 }));
+      if (L.visible(k)) (n[k] || []).forEach((p, i) => add(points, { kind: "node", id: ids[k]?.[i], type: typeNames[k], ...xy(P(p)), r: this.sym(k).size / 2 + 2 }));
     for (const k of linkKinds) if (L.visible(k)) (n[k] || []).forEach((pl, i) => add(lines, { kind: "link", id: ids[k]?.[i], type: typeNames[k], pts: pl.map(P) }));
     if (L.visible("subcatchments"))
       (n.subcatchments || []).forEach((ring, i) => {
@@ -1263,7 +1414,7 @@ export class ModelView {
     for (const k of kinds) {
       const i = ids[k]?.indexOf(item.id) ?? -1;
       if (i < 0) continue;
-      if (item.kind === "node" || item.kind === "gage") return { point: n[k][i], r: symbols[k].size / 2 };
+      if (item.kind === "node" || item.kind === "gage") return { point: n[k][i], r: this.sym(k).size / 2 };
       if (item.kind === "link") return { line: n[k][i] };
       return { ring: n[k][i] };
     }
@@ -1308,28 +1459,20 @@ export class ModelView {
         else c.moveTo(x, y);
       });
     };
-    const marker = (kind, [px, py]) => {
-      const s = symbols[kind],
-        [x, y] = this.project(px, py),
-        r = s.size / 2;
+    // A node's or gage's marker in its kind's symbol (stroke style set by the caller).
+    const marker = (s, [px, py]) => {
+      const [x, y] = this.project(px, py),
+        r = s.size / 2,
+        pts = markerPoints(s.shape, r);
       c.beginPath();
-      if (s.shape === "circle") c.arc(x, y, r, 0, 2 * Math.PI);
-      else if (s.shape === "square") c.rect(x - r, y - r, 2 * r, 2 * r);
-      else if (s.shape === "triangle") {
-        c.moveTo(x, y - r);
-        c.lineTo(x + r, y + r * 0.8);
-        c.lineTo(x - r, y + r * 0.8);
-        c.closePath();
-      } else {
-        c.moveTo(x, y - r);
-        c.lineTo(x + r, y);
-        c.lineTo(x, y + r);
-        c.lineTo(x - r, y);
+      if (!pts) c.arc(x, y, r, 0, 2 * Math.PI);
+      else {
+        pts.forEach(([dx, dy], j) => (j ? c.lineTo(x + dx, y + dy) : c.moveTo(x + dx, y + dy)));
         c.closePath();
       }
       c.fillStyle = s.fill;
       c.fill();
-      c.stroke();
+      if (s.outlineWidth > 0) c.stroke();
     };
     const n = this.network || {};
     let PV = null;
@@ -1340,45 +1483,85 @@ export class ModelView {
         const fill = L.visible("meshfill"),
           edges = L.visible("edges");
         if (!fill && !edges) return;
-        c.fillStyle = "rgba(74,100,128,.12)";
-        c.strokeStyle = "rgba(47,93,134,.6)";
-        c.lineWidth = 0.75;
+        const F = this.sym("meshfill"),
+          E = this.sym("edges"),
+          base = c.globalAlpha;
+        // By elevation: each cell takes its vertices' mean bed elevation on the ramp (64 steps).
+        const shades = fill && F.mode === "elevation" && this.geo.z?.length ? this.meshShades(F) : null;
+        const fillAlpha = base * (shades ? 1 : F.opacity),
+          edgeAlpha = base * E.opacity;
+        c.fillStyle = F.color;
+        c.strokeStyle = E.color;
+        c.lineWidth = E.width;
         const V = vertices();
-        for (const cell of this.geo.cells) {
+        this.geo.cells.forEach((cell, i) => {
           c.beginPath();
           cell.forEach((v, j) => (j ? c.lineTo(V[2 * v], V[2 * v + 1]) : c.moveTo(V[2 * v], V[2 * v + 1])));
           c.closePath();
-          if (fill) c.fill();
-          if (edges) c.stroke();
-        }
+          if (fill && (!shades || shades.cell[i] >= 0)) {
+            if (shades) c.fillStyle = shades.palette[shades.cell[i]];
+            c.globalAlpha = fillAlpha;
+            c.fill();
+          }
+          if (edges) {
+            c.globalAlpha = edgeAlpha;
+            c.stroke();
+          }
+        });
+        c.globalAlpha = base;
       },
       swmm: () => {
         if (L.visible("subcatchments")) {
-          const s = symbols.subcatchments;
+          const s = this.sym("subcatchments"),
+            base = c.globalAlpha;
           c.fillStyle = s.fill;
           c.strokeStyle = s.outline;
-          c.lineWidth = s.width;
+          c.lineWidth = s.outlineWidth;
           for (const ring of n.subcatchments || []) {
             line(ring);
             c.closePath();
+            c.globalAlpha = base * s.fillOpacity;
             c.fill();
-            c.stroke();
+            c.globalAlpha = base;
+            if (s.outlineWidth > 0) c.stroke();
           }
         }
         c.lineCap = c.lineJoin = "round";
-        for (const kind of ["conduits", "pumps", "orifices", "weirs", "outlets"]) {
+        for (const kind of linkKinds) {
           if (!L.visible(kind)) continue;
-          c.strokeStyle = symbols[kind].stroke;
-          c.lineWidth = symbols[kind].width;
+          const s = this.sym(kind);
+          c.strokeStyle = s.color;
+          c.lineWidth = s.width;
           for (const points of n[kind] || []) {
             line(points);
             c.stroke();
           }
         }
+        // Flow-direction arrows over the links (desktop: at the middle of the polyline, from → to),
+        // left off links shorter on screen than twice the arrow.
+        for (const kind of linkKinds) {
+          const s = this.sym(kind);
+          if (!L.visible(kind) || !s.arrows) continue;
+          c.fillStyle = s.arrowColor;
+          c.beginPath();
+          let k = 0;
+          for (const points of n[kind] || [])
+            if (this.arrowPath(c, points, s.arrowLength, s.arrowWidth) && ++k % 256 === 0) {
+              c.fill(); // a path of many closed subpaths gets slow in Chrome: fill in batches
+              c.beginPath();
+            }
+          c.fill();
+        }
+        for (const kind of ["junctions", "dividers", "storage", "outfalls", "gages"]) {
+          if (!L.visible(kind)) continue;
+          const s = this.sym(kind);
+          c.strokeStyle = s.outline;
+          c.lineWidth = s.outlineWidth;
+          for (const p of n[kind] || []) marker(s, p);
+        }
+        this.drawIdLabels(c, n);
         c.strokeStyle = markerOutline.stroke;
         c.lineWidth = markerOutline.width;
-        for (const kind of ["junctions", "dividers", "storage", "outfalls", "gages"])
-          if (L.visible(kind)) for (const p of n[kind] || []) marker(kind, p);
         // Map labels ([LABELS]): ink on a light halo, the text's top left at the label's point; the
         // boxes are kept for the label tools (click to edit, drag to move).
         this.labelBoxes = [];
@@ -1422,7 +1605,7 @@ export class ModelView {
               c.lineTo(cx, cy);
               c.setLineDash([4, 3]);
               c.lineWidth = 1.5;
-              c.strokeStyle = symbols.junctions.fill;
+              c.strokeStyle = this.sym("junctions").fill;
               c.stroke();
               c.setLineDash([]);
             }
@@ -1433,7 +1616,7 @@ export class ModelView {
             c.lineTo(x, y + r);
             c.lineTo(x - r, y);
             c.closePath();
-            c.fillStyle = symbols.junctions.fill;
+            c.fillStyle = this.sym("junctions").fill;
             c.fill();
             c.lineWidth = markerOutline.width;
             c.strokeStyle = markerOutline.stroke;
@@ -1446,12 +1629,12 @@ export class ModelView {
           c.save();
           c.setLineDash([1.5, 2]);
           c.lineWidth = 1.2;
-          c.strokeStyle = symbols.junctions.fill;
+          c.strokeStyle = this.sym("junctions").fill;
           (n.ids?.junctions || []).forEach((id, i) => {
             if (!n.virtual.has(id)) return;
             const [x, y] = this.project(...n.junctions[i]);
             c.beginPath();
-            c.arc(x, y, symbols.junctions.size / 2 + 3, 0, 2 * Math.PI);
+            c.arc(x, y, this.sym("junctions").size / 2 + 3, 0, 2 * Math.PI);
             c.stroke();
           });
           c.restore();
@@ -1655,7 +1838,8 @@ export class ModelView {
           c.stroke();
           c.setLineDash([]);
         };
-      const color = (symbols[a.leaf]?.fill || symbols[a.leaf]?.stroke || flag);
+      const tint = this.symbolStyle.state[a.leaf],
+        color = tint?.fill || tint?.color || flag;
       if (this.ring?.pts.length) {
         const pts = h?.at ? [...this.ring.pts, h.at] : this.ring.pts;
         c.beginPath();
@@ -1665,15 +1849,15 @@ export class ModelView {
           else c.moveTo(x, y);
         });
         c.closePath();
-        c.fillStyle = symbols.subcatchments.fill;
+        c.fillStyle = this.sym("subcatchments").fill;
         c.fill();
         polyline([...pts, pts[0]], 5, "rgba(255,255,255,0.85)");
-        polyline([...pts, pts[0]], 2, symbols.subcatchments.outline, [6, 4]);
+        polyline([...pts, pts[0]], 2, this.sym("subcatchments").outline, [6, 4]);
         for (const p of this.ring.pts) {
           const [x, y] = this.project(p[0], p[1]);
           c.beginPath();
           c.arc(x, y, 3, 0, 2 * Math.PI);
-          c.fillStyle = symbols.subcatchments.outline;
+          c.fillStyle = this.sym("subcatchments").outline;
           c.fill();
         }
       }
@@ -1681,12 +1865,12 @@ export class ModelView {
         const t = this.tracing,
           end = h?.node && h.node.id !== t.from && !h.node.virtual ? h.node.point : h?.at;
         polyline([t.start, ...t.bends, ...(end ? [end] : [])], 5, "rgba(255,255,255,0.85)");
-        polyline([t.start, ...t.bends, ...(end ? [end] : [])], 2.5, symbols[a.leaf]?.stroke || flag, [6, 4]);
+        polyline([t.start, ...t.bends, ...(end ? [end] : [])], 2.5, tint?.color || flag, [6, 4]);
         for (const p of t.bends) {
           const [x, y] = this.project(p[0], p[1]);
           c.beginPath();
           c.arc(x, y, 3, 0, 2 * Math.PI);
-          c.fillStyle = symbols[a.leaf]?.stroke || flag;
+          c.fillStyle = tint?.color || flag;
           c.fill();
         }
         ring(t.start, 8, flag);
