@@ -4,6 +4,7 @@ import { classBreaks, contourLevels, triangles, vertexValues, contourBands, isol
 import { Scene3D } from "./scene3d.mjs";
 import { rgbOf, isLight } from "./streak-style.mjs";
 import { addHint, moveHint, vertexHint } from "./edit-tools.mjs";
+import { deckLabels } from "./labels.mjs";
 /** Snap distances of the add tools (px): a node under the pointer, a conduit to insert on. */
 const SNAP_NODE = 10,
   SNAP_LINK = 6;
@@ -61,7 +62,9 @@ function sections(inp) {
  * are named in `virtual`. The map editor refreshes this alone after an edit (the mesh is untouched).
  */
 export function deckNetwork(text) {
-  return networkOf(sections(text));
+  const out = networkOf(sections(text));
+  out.network.labels = deckLabels(text); // quoted text: read from the lines, not the split rows
+  return out;
 }
 function networkOf(s) {
   const nodes = new Map((s["[COORDINATES]"] || []).map(([id, x, y]) => [id, [+x, +y]]));
@@ -98,7 +101,7 @@ function networkOf(s) {
       nodes.has(row[1]) && nodes.has(row[2]) ? [nodes.get(row[1]), ...(bends.get(row[0]) || []), nodes.get(row[2])] : null,
     );
   const network = {
-    junctions: at("junctions", ["JUNCTIONS", "VIRTUAL_JUNCTIONS"]),
+    junctions: at("junctions", ["JUNCTIONS", "VIRTUAL_JUNCTIONS", "INLET_JUNCTIONS"]),
     outfalls: at("outfalls", "OUTFALLS"),
     storage: at("storage", "STORAGE"),
     dividers: at("dividers", "DIVIDERS"),
@@ -114,6 +117,9 @@ function networkOf(s) {
     gages: shapes("gages", "RAINGAGES", (row) => symbolsAt.get(row[0])?.[0]),
     ids,
     virtual: new Set((s["[VIRTUAL_JUNCTIONS]"] || []).map((row) => row[0])),
+    // Inlet junctions ([INLET_JUNCTIONS]: name invert depth design capture …) and where each sends
+    // what it captures.
+    inlets: new Map((s["[INLET_JUNCTIONS]"] || []).map((row) => [row[0], row[4]])),
   };
   const links = ["conduits", "pumps", "weirs", "orifices", "outlets"].flatMap((k) => network[k]);
   // [MAP] UNITS: what a coordinate unit is (FEET, METERS, DEGREES or NONE), for traced lengths.
@@ -133,6 +139,7 @@ export function sketch(text, inputs = {}, dir = "") {
   const mesh = bytes ? sections(meshText) : s;
   const vertices = mesh["[2D_VERTICES]"] || [];
   const { network, links, mapUnits } = networkOf(s);
+  network.labels = deckLabels(text);
   return {
     x: vertices.map((v) => +v[0]),
     y: vertices.map((v) => +v[1]),
@@ -882,7 +889,7 @@ export class ModelView {
           d = Math.hypot(px - x, py - y);
         if (d <= bestD && ids[k]?.[i] !== undefined) {
           bestD = d;
-          best = { kind: "node", id: ids[k][i], point: p, virtual: !!n.virtual?.has(ids[k][i]) };
+          best = { kind: "node", id: ids[k][i], point: p, virtual: !!(n.virtual?.has(ids[k][i]) || n.inlets?.has(ids[k][i])) };
         }
       });
     }
@@ -900,6 +907,18 @@ export class ModelView {
       if (d <= bestD && n.ids?.gages?.[i] !== undefined) [best, bestD] = [{ kind: "gage", id: n.ids.gages[i], point: p }, d];
     });
     return best;
+  }
+  /** The map label drawn under screen (x, y) (the last drawn on top): {kind, index, point}, or null. */
+  labelAt(x, y) {
+    const boxes = this.labelBoxes || [];
+    for (let i = boxes.length - 1; i >= 0; i--) {
+      const b = boxes[i];
+      if (x >= b.x - 3 && x <= b.x + b.w + 3 && y >= b.y - 3 && y <= b.y + b.h + 3) {
+        const l = this.network.labels[b.index];
+        return { kind: "label", index: b.index, id: l.text, point: [l.x, l.y] };
+      }
+    }
+    return null;
   }
   /** A link's polyline (its end nodes included), model coordinates, or null. */
   linkLine(id) {
@@ -999,6 +1018,10 @@ export class ModelView {
     if (!a || !at) return;
     this.hint(this.tracing ? this.traceHint() : addHint(a)); // a refusal below says why instead
     if (a.kind === "gage") return this.onAdd?.({ op: "gage", x: at[0], y: at[1] });
+    if (a.kind === "label") {
+      const hit = this.labelAt(x, y);
+      return this.onLabel?.(hit ? { index: hit.index } : { x: at[0], y: at[1] });
+    }
     // Subcatchments: clicks place corners; a double-click or Enter closes the outline.
     if (a.kind === "subcatchment") {
       this.ring ||= { pts: [] };
@@ -1012,6 +1035,10 @@ export class ModelView {
     if (a.kind === "node") {
       if (node) return this.hint(node.id + " is already there: click a free spot" + (a.type === "OUTFALL" ? "." : " or a conduit."));
       const conduit = this.conduitAt(x, y);
+      if (a.inlet) {
+        if (!conduit) return this.hint("Inlet junctions are inserted on a conduit — click a conduit.");
+        return this.onAdd?.({ op: "inlet", link: conduit.id, t: conduit.t, x: at[0], y: at[1] });
+      }
       if (a.virtual) {
         if (!conduit) return this.hint("Virtual junctions are inserted on a conduit — click a conduit.");
         return this.onAdd?.({ op: "insert", type: "JUNCTION", link: conduit.id, t: conduit.t, virtual: true });
@@ -1040,7 +1067,7 @@ export class ModelView {
   editHover(x, y) {
     const h =
       this.tool === "move"
-        ? this.nodeAt(x, y) || this.gageAt(x, y)
+        ? this.nodeAt(x, y) || this.gageAt(x, y) || this.labelAt(x, y)
         : this.vertexLink && this.handleAt(this.linkLine(this.vertexLink) || [], x, y) > 0
           ? { handle: true }
           : null;
@@ -1052,9 +1079,9 @@ export class ModelView {
   /** A press with Move or Edit vertices: true when it took a node, gage or vertex to drag. */
   editDown(x, y) {
     if (this.tool === "move") {
-      const t = this.nodeAt(x, y) || this.gageAt(x, y);
+      const t = this.nodeAt(x, y) || this.gageAt(x, y) || this.labelAt(x, y);
       if (!t) return false;
-      this.editing = { kind: t.kind, id: t.id, from: t.point, at: t.point };
+      this.editing = { kind: t.kind, id: t.id, index: t.index, from: t.point, at: t.point };
       return true;
     }
     const line = this.vertexLink && this.linkLine(this.vertexLink);
@@ -1075,7 +1102,7 @@ export class ModelView {
     const [x0, y0] = this.project(...ed.from),
       [x1, y1] = this.project(...ed.at);
     if (Math.hypot(x1 - x0, y1 - y0) < 2) return this.draw();
-    if (ed.kind) this.onEdit?.({ op: "move", kind: ed.kind, id: ed.id, x: ed.at[0], y: ed.at[1] });
+    if (ed.kind) this.onEdit?.({ op: "move", kind: ed.kind, id: ed.id, index: ed.index, x: ed.at[0], y: ed.at[1] });
     else {
       const vertices = this.linkLine(ed.link).slice(1, -1);
       vertices[ed.index - 1] = ed.at;
@@ -1352,6 +1379,68 @@ export class ModelView {
         c.lineWidth = markerOutline.width;
         for (const kind of ["junctions", "dividers", "storage", "outfalls", "gages"])
           if (L.visible(kind)) for (const p of n[kind] || []) marker(kind, p);
+        // Map labels ([LABELS]): ink on a light halo, the text's top left at the label's point; the
+        // boxes are kept for the label tools (click to edit, drag to move).
+        this.labelBoxes = [];
+        if (L.visible("labels") && n.labels?.length) {
+          c.save();
+          c.textBaseline = "top";
+          c.textAlign = "left";
+          c.lineJoin = "round";
+          const ink = getComputedStyle(this.canvas).getPropertyValue("--ink").trim() || "#0a1c2e",
+            halo = getComputedStyle(this.canvas).getPropertyValue("--surface").trim() || "#fff";
+          n.labels.forEach((l, index) => {
+            const size = Math.max(8, Math.min(32, l.size || 10));
+            c.font = (l.italic ? "italic " : "") + (l.bold ? "700 " : "500 ") + size + "px " + (l.font ? '"' + l.font + '", ' : "") + "Inter, system-ui, sans-serif";
+            const [x, y] = this.project(l.x, l.y),
+              w = c.measureText(l.text).width;
+            c.lineWidth = 3;
+            c.strokeStyle = halo;
+            c.strokeText(l.text, x, y);
+            c.fillStyle = ink;
+            c.fillText(l.text, x, y);
+            this.labelBoxes.push({ index, x, y, w, h: size * 1.2 });
+          });
+          c.restore();
+          c.strokeStyle = markerOutline.stroke;
+          c.lineWidth = markerOutline.width;
+        }
+        // An inlet junction is a filled diamond, with a dashed line to its capture node (desktop).
+        if (L.visible("junctions") && n.inlets?.size) {
+          const where = new Map();
+          for (const k of nodeKinds) (n.ids?.[k] || []).forEach((id, i) => where.set(id, n[k][i]));
+          c.save();
+          for (const [id, capture] of n.inlets) {
+            const at = where.get(id),
+              to = where.get(capture);
+            if (!at) continue;
+            const [x, y] = this.project(...at);
+            if (to) {
+              const [cx, cy] = this.project(...to);
+              c.beginPath();
+              c.moveTo(x, y);
+              c.lineTo(cx, cy);
+              c.setLineDash([4, 3]);
+              c.lineWidth = 1.5;
+              c.strokeStyle = symbols.junctions.fill;
+              c.stroke();
+              c.setLineDash([]);
+            }
+            const r = 5.5;
+            c.beginPath();
+            c.moveTo(x, y - r);
+            c.lineTo(x + r, y);
+            c.lineTo(x, y + r);
+            c.lineTo(x - r, y);
+            c.closePath();
+            c.fillStyle = symbols.junctions.fill;
+            c.fill();
+            c.lineWidth = markerOutline.width;
+            c.strokeStyle = markerOutline.stroke;
+            c.stroke();
+          }
+          c.restore();
+        }
         // A virtual junction is the junction dot with a dotted ring around it (as in the desktop).
         if (L.visible("junctions") && n.virtual?.size) {
           c.save();

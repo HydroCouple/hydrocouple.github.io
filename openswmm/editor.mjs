@@ -984,6 +984,13 @@ export class Editor {
           made.gage && made.outlet
             ? made.id + " drains to " + made.outlet + " with rain from " + made.gage + " (the nearest); change them in its properties."
             : made.id + " needs " + [!made.gage && "a rain gage", !made.outlet && "an outlet"].filter(Boolean).join(" and ") + ": set it in its properties.";
+      } else if (spec.op === "move" && spec.kind === "label") {
+        const labels = await this.call("labels");
+        labels[spec.index] = { ...labels[spec.index], x: spec.x, y: spec.y };
+        const before = await this.call("setLabels", labels);
+        made = { id: spec.id };
+        undo = ["setLabels", before];
+        select = null;
       } else if (spec.op === "move") {
         // A moved node's conduits take their new length on the map (the desktop's auto-length).
         const r = await this.call("moveObject", spec.kind, spec.id, spec.x, spec.y);
@@ -1002,9 +1009,111 @@ export class Editor {
       this.fail(e);
       throw e; // the map's hint line says why too
     }
-    this.edits.push({ op: "map", kind: select.kind, key: made.id, undo });
+    this.edits.push({ op: "map", kind: select?.kind ?? "label", key: made.id, undo });
     await this.afterMapEdit(select, message);
     return made;
+  }
+  /**
+   * An inlet junction on a street conduit (the desktop's New Inlet Junction): the inlet design, the
+   * node that receives what it captures (nearest to the click first) and its placement; the conduit
+   * splits around it. Throws when the conduit is no street or the model has no inlet design.
+   */
+  async addInlet(spec) {
+    const c = await this.call("inletChoices", spec.link, spec.x, spec.y);
+    if (!c.street) throw new Error("Inlet junctions can only be placed on street conduits.");
+    if (!c.designs.length) throw new Error("This model has no inlet design: add one under Inlets in Edit object first.");
+    if (!c.captures.length) throw new Error("No node can receive this inlet's flow.");
+    const design = node("select", { ariaLabel: "Inlet design" });
+    for (const d of c.designs) design.add(new Option(d, d));
+    const capture = node("select", { ariaLabel: "Capture node" });
+    for (const n of c.captures) capture.add(new Option(n, n));
+    const placement = node("select", { ariaLabel: "Placement" });
+    for (const [v, t] of [["AUTOMATIC", "Automatic"], ["ON_GRADE", "On grade"], ["ON_SAG", "On sag"]]) placement.add(new Option(t, v));
+    const ok = node("button", { type: "button", className: "tb primary", textContent: "Insert inlet junction" });
+    const cancel = node("button", { type: "button", className: "tb ghost", textContent: "Cancel" });
+    const status = node("p", { className: "hint", role: "status" });
+    cancel.onclick = () => this.closeDialog();
+    ok.onclick = async () => {
+      try {
+        const made = await this.call("insertInlet", spec.link, spec.t, design.value, capture.value, placement.value);
+        this.closeDialog();
+        this.edits.push({ op: "map", kind: "node", key: made.id, undo: ["removeInlet", made.id] });
+        await this.afterMapEdit(
+          { kind: "node", id: made.id, type: "inlet junction" },
+          "Inserted inlet junction " + made.id + " on " + spec.link + " (now " + spec.link + " and " + made.link + "); it sends what it captures to " + capture.value + ".",
+        );
+      } catch (e) {
+        status.textContent = e.message;
+      }
+    };
+    const row = (caption, input) => node("label", { className: "prop" }, node("span", { textContent: caption }), input);
+    this.openDialog(
+      "New inlet junction on " + spec.link,
+      node(
+        "div",
+        { className: "inlet-editor" },
+        node("p", { className: "hint", textContent: "An inlet junction captures street flow into a separate drainage node. Choose the inlet design and the node it discharges to." }),
+        row("Inlet design", design),
+        row("Capture node", capture),
+        row("Placement", placement),
+        status,
+        node("div", { className: "pair" }, cancel, ok),
+      ),
+    );
+    ok.focus();
+  }
+  /**
+   * A map label's dialog (the desktop's text tool): `{x, y}` places a new one there, `{index}` changes
+   * or deletes an existing one. Text, size, bold and italic are what [LABELS] holds.
+   */
+  async editLabel(at) {
+    const labels = await this.call("labels");
+    const old = at.index !== undefined ? labels[at.index] : null;
+    const label = old || { x: at.x, y: at.y, text: "", anchor: "", font: "Arial", size: 14, bold: false, italic: false };
+    const text = node("input", { type: "text", value: label.text, ariaLabel: "Label text", required: true });
+    const size = node("input", { type: "number", min: "1", step: "1", value: String(label.size), ariaLabel: "Label size" });
+    const bold = node("input", { type: "checkbox", checked: label.bold, ariaLabel: "Bold" });
+    const italic = node("input", { type: "checkbox", checked: label.italic, ariaLabel: "Italic" });
+    const save = node("button", { type: "button", className: "tb primary", textContent: old ? "Save" : "Add label" });
+    const cancel = node("button", { type: "button", className: "tb ghost", textContent: "Cancel" });
+    const remove = node("button", { type: "button", className: "tb danger", textContent: "Delete" });
+    const status = node("p", { className: "hint", role: "status" });
+    const commit = async (next, message) => {
+      try {
+        const before = await this.call("setLabels", next);
+        this.closeDialog();
+        this.edits.push({ op: "map", kind: "label", key: label.text, undo: ["setLabels", before] });
+        await this.afterMapEdit(null, message);
+      } catch (e) {
+        status.textContent = e.message;
+      }
+    };
+    save.onclick = () => {
+      const changed = { ...label, text: text.value.trim(), size: Number(size.value), bold: bold.checked, italic: italic.checked };
+      const next = [...labels];
+      if (old) next[at.index] = changed;
+      else next.push(changed);
+      commit(next, (old ? "Changed" : "Added") + " the label " + changed.text + ".");
+    };
+    remove.onclick = () => commit(labels.filter((_, i) => i !== at.index), "Deleted the label " + label.text + ".");
+    cancel.onclick = () => this.closeDialog();
+    text.onkeydown = (e) => {
+      if (e.key === "Enter") save.click();
+    };
+    const row = (caption, input) => node("label", { className: "prop" }, node("span", { textContent: caption }), input);
+    this.openDialog(
+      old ? "Label " + old.text : "New label",
+      node(
+        "div",
+        { className: "label-editor" },
+        row("Text", text),
+        row("Size", size),
+        node("div", { className: "pair" }, node("label", { className: "check" }, bold, "Bold"), node("label", { className: "check" }, italic, "Italic")),
+        status,
+        node("div", { className: "pair" }, ...(old ? [remove] : []), cancel, save),
+      ),
+    );
+    text.focus();
   }
   /**
    * "Convert to" on a node's or link's card (the desktop's type conversion): it acts on the selected

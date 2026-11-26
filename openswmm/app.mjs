@@ -129,7 +129,7 @@ selection.addEventListener("change", ({ detail }) => {
 // Delete removes go through the editing session (editor.mjs), which hands the network back.
 addPalette({ root: $("addpalette"), button: $("tool-add"), onPick: (spec) => view.setTool("add", spec) });
 view.onAdd = (spec) =>
-  editor
+  (spec.op === "inlet" ? editor.addInlet(spec) : editor
     .mapEdit(
       spec.op === "link"
         ? { ...spec, length: tracedLength(spec.line) }
@@ -138,9 +138,10 @@ view.onAdd = (spec) =>
           : spec.op === "node"
             ? { ...spec, invert: groundInvert(spec.bed) }
             : spec,
-    )
+    ))
     .catch((e) => view.hint(e.message));
 view.onEdit = (spec) => editor.mapEdit(spec).catch((e) => view.hint(e.message));
+view.onLabel = (at) => editor.editLabel(at).catch((e) => view.hint(e.message));
 view.onDelete = (items) => editor.deleteObjects(items);
 /**
  * A node's invert from the ground under it (the 2D mesh's bed), as the desktop's terrain assistance

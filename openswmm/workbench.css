@@ -577,6 +577,14 @@ main {
   background: #e2ebe0;
   border: 1px solid #b9c9c0;
 }
+/* Map labels: a letter, drawn as the labels are (ink on a light halo). */
+.sw.label::before {
+  content: "A";
+  display: block;
+  font: 700 11px/14px Inter, system-ui, sans-serif;
+  text-align: center;
+  color: var(--ink);
+}
 /* Layer tree (layers-panel.mjs): categories in the desktop's order, groups, kind rows. */
 .layer-cat {
   padding-top: 6px;

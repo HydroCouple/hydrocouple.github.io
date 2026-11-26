@@ -20,7 +20,7 @@ test("categories follow the desktop's seed order and the top of the tree paints 
       ["Nodes", ["junctions", "outfalls", "storage", "dividers"]],
       ["Links", ["conduits", "pumps", "orifices", "weirs", "outlets"]],
       ["Areas", ["subcatchments"]],
-      ["Other", ["gages"]],
+      ["Other", ["gages", "labels"]],
     ],
   );
   layers.setContent({ cells: 10, junctions: 3, conduits: 2 });

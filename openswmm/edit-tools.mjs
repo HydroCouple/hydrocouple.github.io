@@ -16,6 +16,7 @@ export const addKinds = [
       { kind: "node", type: "DIVIDER", label: "Flow divider", noun: "flow divider", leaf: "dividers" },
       { kind: "node", type: "STORAGE", label: "Storage unit", noun: "storage unit", leaf: "storage" },
       { kind: "node", type: "JUNCTION", virtual: true, label: "Virtual junction", noun: "virtual junction", leaf: "junctions" },
+      { kind: "node", type: "JUNCTION", inlet: true, label: "Inlet junction", noun: "inlet junction", leaf: "junctions" },
     ],
   },
   {
@@ -29,23 +30,31 @@ export const addKinds = [
     ],
   },
   { group: "Areas", items: [{ kind: "subcatchment", type: "SUBCATCHMENT", label: "Subcatchment", noun: "subcatchment", leaf: "subcatchments" }] },
-  { group: "Other", items: [{ kind: "gage", type: "GAGE", label: "Rain gage", noun: "rain gage", leaf: "gages" }] },
+  {
+    group: "Other",
+    items: [
+      { kind: "gage", type: "GAGE", label: "Rain gage", noun: "rain gage", leaf: "gages" },
+      { kind: "label", type: "LABEL", label: "Map label", noun: "label", leaf: "labels" },
+    ],
+  },
 ];
 
 /** What a click does with an add tool armed (the desktop's status text). */
 export function addHint(spec) {
   if (spec.kind === "gage") return "Click to place a rain gage. Esc ends.";
+  if (spec.kind === "label") return "Click to place a label, or click a label to change or delete it. Esc ends.";
   if (spec.kind === "subcatchment")
     return "Click the corners of the subcatchment; a double-click or Enter closes it. Backspace drops a corner; Esc ends.";
   if (spec.kind === "link")
     return "Click a node to start the " + spec.noun + ", click to add bends, click another node to end it. Backspace drops a bend; Esc ends.";
   if (spec.virtual) return "Click a conduit to insert a virtual junction at that point. Esc ends.";
+  if (spec.inlet) return "Click a street conduit to insert an inlet junction at that point. Esc ends.";
   if (spec.type === "OUTFALL") return "Click to place an outfall. Outfalls end a network, so they cannot be inserted on a conduit. Esc ends.";
   return "Click to place a " + spec.noun + ", or click a conduit to split it and insert the " + spec.noun + " there. Esc ends.";
 }
 
 /** The Move tool's line (the desktop's Move Node tool: nodes and rain gages). */
-export const moveHint = "Drag a node or rain gage to move it; a conduit that ends at a moved node takes its new length. Esc ends.";
+export const moveHint = "Drag a node, rain gage or label to move it; a conduit that ends at a moved node takes its new length. Esc ends.";
 /** The Edit vertices tool's line, before and after a link is chosen. */
 export function vertexHint(link) {
   return link
@@ -53,6 +62,15 @@ export function vertexHint(link) {
     : "Click a link to edit its vertices. Esc ends.";
 }
 
+/** The inlet junction's swatch: the desktop's filled diamond in the junction blue. */
+function diamond() {
+  const sw = swatch("junctions");
+  sw.replaceChildren();
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  for (const [k, v] of Object.entries({ d: "M7 1.5L12.5 7L7 12.5L1.5 7Z", fill: "#0078ff", stroke: "#fff", "stroke-width": 1 })) path.setAttribute(k, v);
+  sw.append(path);
+  return sw;
+}
 const el = (tag, props = {}, ...children) => {
   const node = Object.assign(document.createElement(tag), props);
   node.append(...children);
@@ -75,8 +93,9 @@ export function addPalette({ root, button, onPick }) {
         { className: "add-group", role: "group", ariaLabel: group + " to add" }, // not the layer tree's "Nodes"/"Links"
         el("small", { textContent: group }),
         ...items.map((spec) => {
-          const item = el("button", { type: "button", className: "add-item", role: "menuitem" }, swatch(spec.leaf), el("span", { textContent: spec.label }));
+          const item = el("button", { type: "button", className: "add-item", role: "menuitem" }, spec.inlet ? diamond() : swatch(spec.leaf), el("span", { textContent: spec.label }));
           if (spec.virtual) item.classList.add("virtual");
+          if (spec.inlet) item.classList.add("inlet");
           item.onclick = () => {
             close();
             onPick(spec);

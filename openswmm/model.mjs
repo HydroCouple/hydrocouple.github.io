@@ -1,7 +1,8 @@
 // Engine-as-model: one solver kept in the OPENED state so edits go through the engine API
 // (catalog field paths) and the INP deck becomes a derived artifact written by the engine.
-import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField, InletType, GrateType, ThroatType, OutfallType, DividerType, OrificeType, WeirType, OutletRatingType, GageRainType, WeirView, InfilModel } from "./vendor/engine/index.js";
+import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField, InletType, GrateType, ThroatType, OutfallType, DividerType, OrificeType, WeirType, OutletRatingType, GageRainType, WeirView, InfilModel, InletPlacement } from "./vendor/engine/index.js";
 import { localPath } from "./simulation.mjs";
+import { parseLabels, labelsText } from "./labels.mjs";
 
 /** Sub-view path prefixes that only apply to one object type. */
 const subviews = {
@@ -60,7 +61,7 @@ const conversionRules = {
   635: "This conduit hosts an inlet usage. Remove the assignment first.",
 };
 /** Name prefixes of objects placed on the map (the desktop's defaults); a new name takes the first free number. */
-export const namePrefixes = { JUNCTION: "J", VIRTUAL: "VJ", OUTFALL: "O", STORAGE: "S", DIVIDER: "D", CONDUIT: "C", PUMP: "Pu", ORIFICE: "Or", WEIR: "W", OUTLET: "Ou", GAGE: "RG", SUBCATCHMENT: "Sub" };
+export const namePrefixes = { JUNCTION: "J", VIRTUAL: "VJ", INLET: "IJ", OUTFALL: "O", STORAGE: "S", DIVIDER: "D", CONDUIT: "C", PUMP: "Pu", ORIFICE: "Or", WEIR: "W", OUTLET: "Ou", GAGE: "RG", SUBCATCHMENT: "Sub" };
 /**
  * Creation values of objects placed on the map: the desktop's object defaults (US customary, with
  * the SI set's lengths, areas and unit-dependent coefficients). Junctions keep the engine's zeros.
@@ -1835,8 +1836,10 @@ export class ModelSession {
       code = LinkType[type];
     if (code === undefined || typeof code !== "number") throw new Error("Unknown link type " + type + ".");
     if (same(from, to)) throw new Error("A link needs two different nodes.");
-    for (const n of [from, to])
-      if (s.nodes.get(n).isVirtual) throw new Error(n + " is a virtual junction: it keeps the two conduits it splits.");
+    for (const n of [from, to]) {
+      const node = s.nodes.get(n);
+      if (node.isVirtual) throw new Error(n + " is " + (node.isInlet ? "an inlet" : "a virtual") + " junction: it keeps the two conduits it splits.");
+    }
     const id = this.nextName(namePrefixes[type], "link");
     const l = s.links.add(id, code);
     l.setNodes(from, to);
@@ -2100,6 +2103,71 @@ export class ModelSession {
       before[id] = link.length;
       if (length > 0) link.length = length;
     }
+    return before;
+  }
+  /**
+   * What an inlet junction on `link` can use: whether the link is a STREET conduit, the inlet designs,
+   * and the nodes that can capture its flow (not the conduit's own ends, not virtual or inlet
+   * junctions — engine rule 627), nearest to (x, y) first.
+   */
+  inletChoices(link, x, y) {
+    const s = this.solver,
+      l = s.links.get(link);
+    const ends = [l.fromNode.id, l.toNode.id].map((id) => id.toUpperCase());
+    const captures = s.nodes.ids
+      .filter((id) => !ends.includes(id.toUpperCase()) && !s.nodes.get(id).isVirtual)
+      .map((id) => {
+        const [nx, ny] = s.spatial.nodeCoord(id);
+        return { id, d: Math.hypot(nx - x, ny - y) };
+      })
+      .sort((a, b) => a.d - b.d)
+      .map((c) => c.id);
+    return { street: l.type === LinkType.CONDUIT && l.xsect.shape === XSectShape.STREET_XSECT, designs: [...s.infrastructure.inlets], captures };
+  }
+  /**
+   * Insert an inlet junction on a street conduit at fraction `t`: the conduit splits around it (the
+   * second piece `<link>_B`), and the junction's inlet `design` sends what it captures to `capture`
+   * (placement AUTOMATIC, ON_GRADE or ON_SAG).
+   */
+  insertInlet(link, t, design, capture, placement = "AUTOMATIC") {
+    const s = this.solver;
+    if (!this.inletChoices(link, 0, 0).street) throw new Error("Inlet junctions can only be placed on street conduits.");
+    if (InletPlacement[placement] === undefined) throw new Error("Unknown inlet placement " + placement + ".");
+    const id = this.nextName(namePrefixes.INLET, "node"),
+      piece = this.splitName(link);
+    s.editor.splitConduitInlet(link, Math.min(0.99, Math.max(0.01, t)), id, piece, design, capture);
+    if (placement !== "AUTOMATIC") {
+      const node = s.nodes.get(id).index,
+        u = s.infrastructure.inletUsages;
+      const row = u.get(u.findNode(node));
+      u.set(row.hostKind, row.hostIdx, row.designIdx, row.captureNodeIdx, {
+        numInlets: row.numInlets,
+        pctClogged: row.pctClogged,
+        flowLimit: row.flowLimit,
+        localDepress: row.localDepress,
+        localWidth: row.localWidth,
+        placement: InletPlacement[placement],
+      });
+    }
+    return { id, link: piece };
+  }
+  /** Undo an inlet junction: its usage goes and the two conduits fuse back (the engine's exact inverse). */
+  removeInlet(id) {
+    this.solver.editor.fuseInletJunction(id);
+  }
+  /** The map labels ([LABELS]): `{x, y, text, anchor, font, size, bold, italic}` in deck order. */
+  labels() {
+    return parseLabels(this.solver.spatial.getAnnotation("LABELS"));
+  }
+  /** Replace the map labels; returns the ones there were (a label needs some text). */
+  setLabels(labels) {
+    const before = this.labels();
+    for (const l of labels) {
+      if (!String(l.text ?? "").trim()) throw new Error("A label needs some text.");
+      if (!Number.isFinite(+l.x) || !Number.isFinite(+l.y)) throw new Error("A label needs a place on the map.");
+      if (!(+l.size > 0)) throw new Error("A label's size must be above 0.");
+    }
+    this.solver.spatial.setAnnotation("LABELS", labelsText(labels.map((l) => ({ ...l, x: +l.x, y: +l.y, size: +l.size }))));
     return before;
   }
   /** Undo a placement or a trace: the object goes again. */

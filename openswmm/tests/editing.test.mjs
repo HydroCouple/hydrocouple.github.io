@@ -301,3 +301,85 @@ test("nodes and links converted to another type: a preview, the new type's value
   assert.deepEqual(s.problems(), []);
   await reopened(s);
 });
+
+test("map labels ([LABELS]): read, added, changed, moved and deleted as the desktop writes them; the map reads them", async () => {
+  const s = await open(await fixture("example1.inp"));
+  const labels = s.labels();
+  assert.equal(labels.length, rows(decoder.decode(s.write()), "[LABELS]").length);
+  assert.deepEqual(labels[0], { x: 218.836, y: 1149.697, text: "S1", anchor: "", font: "Arial", size: 14, bold: false, italic: false });
+  const next = [...labels, { x: 10, y: 20, text: 'Two "words"', anchor: "", font: "Arial", size: 12, bold: true, italic: false }];
+  next[0] = { ...next[0], x: 300, y: 1200 };
+  const before = s.setLabels(next);
+  assert.deepEqual(before, labels);
+  const deck = await reopened(s);
+  const after = s.labels();
+  assert.equal(after.length, labels.length + 1);
+  assert.deepEqual(after.at(-1), { x: 10, y: 20, text: "Two 'words'", anchor: "", font: "Arial", size: 12, bold: true, italic: false });
+  assert.deepEqual([after[0].x, after[0].y], [300, 1200]);
+  // The map reads the same labels from the deck, spaces in their text kept.
+  assert.deepEqual(deckNetwork(deck).network.labels, after);
+  assert.throws(() => s.setLabels([{ x: 0, y: 0, text: "  ", size: 10 }]), /needs some text/);
+  assert.throws(() => s.setLabels([{ x: 0, y: 0, text: "A", size: 0 }]), /size must be above 0/);
+  s.setLabels(before); // undo
+  assert.deepEqual(s.labels(), labels);
+  s.setLabels([]);
+  assert.deepEqual(s.labels(), []);
+  await reopened(s);
+});
+
+const streetDeck = `[OPTIONS]
+FLOW_UNITS CFS
+FLOW_ROUTING DYNWAVE
+START_DATE 01/01/2026
+START_TIME 00:00:00
+END_DATE 01/01/2026
+END_TIME 01:00:00
+ROUTING_STEP 0:00:10
+[JUNCTIONS]
+J1 100 10 0 0 0
+J2 99 10 0 0 0
+J3 98 10 0 0 0
+[OUTFALLS]
+O1 95 FREE
+[CONDUITS]
+C1 J1 J2 400 0.016 0 0
+C2 J2 O1 400 0.013 0 0
+C3 J3 O1 400 0.013 0 0
+[XSECTIONS]
+C1 STREET ST1
+C2 CIRCULAR 1.5 0 0 0 1
+C3 CIRCULAR 1.5 0 0 0 1
+[STREETS]
+ST1 20 0.5 4 0.016 0 0 1 20 4 0.016
+[INLETS]
+IN1 GRATE 2 2 P_BAR-50
+[COORDINATES]
+J1 0 0
+J2 400 0
+J3 400 200
+O1 800 0
+`;
+
+test("inlet junctions on a street conduit: choices, the split, placement, the map's diamond and capture line, undo", async () => {
+  const s = await open(streetDeck);
+  const before = decoder.decode(s.write());
+  const choices = s.inletChoices("C1", 200, 150);
+  assert.deepEqual(choices, { street: true, designs: ["IN1"], captures: ["J3", "O1"] }); // not C1's ends; nearest first
+  assert.equal(s.inletChoices("C2", 0, 0).street, false);
+  assert.throws(() => s.insertInlet("C2", 0.5, "IN1", "J3"), /only be placed on street conduits/);
+  assert.deepEqual(s.insertInlet("C1", 0.5, "IN1", "J3", "ON_SAG"), { id: "IJ1", link: "C1_B" });
+  const deck = await reopened(s);
+  const row = rows(deck, "[INLET_JUNCTIONS]").find((r) => r[0] === "IJ1");
+  assert.deepEqual([row[3], row[4], row.at(-1)], ["IN1", "J3", "ON_SAG"]);
+  assert.deepEqual(rows(deck, "[CONDUITS]").find((r) => r[0] === "C1").slice(1, 3), ["J1", "IJ1"]);
+  assert.deepEqual(rows(deck, "[CONDUITS]").find((r) => r[0] === "C1_B").slice(1, 3), ["IJ1", "J2"]);
+  assert.throws(() => s.addLink("CONDUIT", "IJ1", "J3"), /IJ1 is an inlet junction/);
+  // The map: the junction is drawn (with the junctions), and it sends to J3.
+  const { network } = deckNetwork(deck);
+  assert.ok(network.ids.junctions.includes("IJ1"));
+  assert.equal(network.inlets.get("IJ1"), "J3");
+  s.removeInlet("IJ1");
+  const fused = decoder.decode(s.write());
+  for (const section of ["[JUNCTIONS]", "[CONDUITS]", "[XSECTIONS]", "[COORDINATES]"]) assert.deepEqual(rows(fused, section), rows(before, section), section);
+  assert.deepEqual(rows(fused, "[INLET_JUNCTIONS]"), []);
+});
