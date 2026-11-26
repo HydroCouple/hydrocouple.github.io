@@ -7,7 +7,7 @@ import { test } from "node:test";
 import { readFile } from "node:fs/promises";
 import create from "../vendor/engine/openswmm_engine.js";
 import { ModelSession } from "../model.mjs";
-import { groupValues } from "../properties.mjs";
+import { groupValues, undoValues } from "../properties.mjs";
 
 const decoder = new TextDecoder();
 const fixture = (name) => readFile(new URL("./fixtures/" + name, import.meta.url), "utf8");
@@ -170,4 +170,136 @@ test("infiltration: each method's parameters with legacy rules; groundwater with
   k.setGroup("subcatchment", "S1", "groundwater", { ...gw, aquifer: "" });
   deck = await reopened(k);
   assert.equal(row(deck, "[GROUNDWATER]", "S1"), undefined);
+});
+
+test("inlets: a street conduit's inlet (design, capture node, legacy values, the shape rule) and an inlet junction's, undo", async () => {
+  const s = await open(await fixture("street.inp"));
+  const none = values(s, "link", "C1", "inlet");
+  assert.equal(none.design, "");
+  // The conduit's own ends cannot capture what its inlet takes.
+  assert.deepEqual(group(s, "link", "C1", "inlet").fields.find((f) => f.name === "capture").choices.map(([v]) => v).sort(), ["J3", "O1"]);
+  const on = { ...none, design: "IN1", capture: "J3", number: 2, clogged: 10, flowLimit: 1, depress: 0.5, width: 2, placement: "ON_SAG" };
+  const refuse = (v, re, id = "C1") => assert.throws(() => s.setGroup("link", id, "inlet", { ...on, ...v }), re);
+  refuse({ capture: "J1" }, /end of the conduit itself/);
+  refuse({ capture: "" }, /Choose the node/);
+  refuse({ number: 0 }, /whole number of at least 1/);
+  refuse({ number: 2.5 }, /whole number/);
+  refuse({ clogged: 100 }, /between 0 and 99/);
+  refuse({ depress: -1 }, /cannot be negative/);
+  refuse({ capture: "J1" }, /does not fit this cross-section/, "C3"); // a circular pipe takes no grate
+  s.setGroup("link", "C1", "inlet", on);
+  let deck = await reopened(s);
+  assert.deepEqual(row(deck, "[INLET_USAGE]", "C1"), ["C1", "IN1", "J3", "2", "10", "1", "0.5", "2", "ON_SAG"]);
+  assert.deepEqual(values(s, "link", "C1", "inlet"), on);
+  s.setGroup("link", "C1", "inlet", none); // undo
+  deck = await reopened(s);
+  assert.equal(row(deck, "[INLET_USAGE]", "C1"), undefined);
+  // An inlet junction (the map tool's): its card changes the values and never removes the inlet.
+  const { id } = s.insertInlet("C1", 0.5, "IN1", "J3");
+  const ij = values(s, "node", id, "inlet");
+  assert.deepEqual([ij.design, ij.capture, ij.number, ij.placement], ["IN1", "J3", 1, "AUTOMATIC"]);
+  assert.ok(!group(s, "node", id, "inlet").fields[0].choices.some(([v]) => v === ""));
+  assert.throws(() => s.setGroup("node", id, "inlet", { ...ij, design: "" }), /needs an inlet design/);
+  assert.throws(() => s.setGroup("node", id, "inlet", { ...ij, capture: id }), /itself/);
+  s.setGroup("node", id, "inlet", { ...ij, number: 3, clogged: 20 });
+  await reopened(s);
+  assert.deepEqual([values(s, "node", id, "inlet").number, values(s, "node", id, "inlet").clogged], [3, 20]);
+  s.setGroup("node", id, "inlet", ij); // undo
+  assert.deepEqual(values(s, "node", id, "inlet"), ij);
+});
+
+test("initial quality: a value per pollutant on nodes and links, water age and temperature with their options, blank = none, undo", async () => {
+  const s = await open(await fixture("example1.inp"));
+  assert.deepEqual(values(s, "node", "J1", "quality"), { "q:TSS": "" });
+  assert.throws(() => s.setGroup("node", "J1", "quality", { "q:TSS": -1 }), /TSS cannot be negative/);
+  s.setGroup("node", "J1", "quality", { "q:TSS": 12.5 });
+  s.setGroup("link", "C1", "quality", { "q:TSS": 0.2 });
+  let deck = await reopened(s);
+  assert.deepEqual(rows(deck, "[INITIAL_QUALITY]").map((r) => [r[0], r[1], r[2], +r[3]]), [["NODE", "J1", "TSS", 12.5], ["LINK", "C1", "TSS", 0.2]]);
+  assert.deepEqual(values(s, "link", "C1", "quality"), { "q:TSS": 0.2 });
+  // Water age and temperature appear with their options and may be below 0.
+  s.solver.options.set("WATER_AGE", "YES");
+  s.solver.options.set("HEAT_TRANSPORT", "YES");
+  const q = group(s, "node", "J1", "quality");
+  assert.deepEqual(q.fields.map((f) => [f.label, f.unit]), [["TSS", "MG/L"], ["Water age", "hours"], ["Temperature", "°C"]]);
+  s.setGroup("node", "J1", "quality", { "q:TSS": 12.5, "q:__WATER_AGE__": 3, "q:__TEMPERATURE__": -2 });
+  deck = await reopened(s);
+  assert.ok(rows(deck, "[INITIAL_QUALITY]").some((r) => r[1] === "J1" && r[2] === "__TEMPERATURE__" && +r[3] === -2));
+  // Undo: blank removes the rows the change made.
+  s.setGroup("node", "J1", "quality", groupValues(q));
+  s.setGroup("link", "C1", "quality", { "q:TSS": "" });
+  deck = await reopened(s);
+  assert.deepEqual(rows(deck, "[INITIAL_QUALITY]").map((r) => r.slice(0, 3)), [["NODE", "J1", "TSS"]]);
+  assert.deepEqual(values(s, "node", "J1", "quality"), { "q:TSS": 12.5, "q:__WATER_AGE__": "", "q:__TEMPERATURE__": "" });
+});
+
+test("frozen ground: none, the model default (*) or values of its own, the engine's checks, undo", async () => {
+  const s = await open(await fixture("example1.inp"));
+  const none = values(s, "subcatchment", "S1", "frost");
+  assert.equal(none.row, "");
+  assert.equal(none.thickness, 0.15); // the desktop's defaults seed the values
+  assert.deepEqual(group(s, "subcatchment", "S1", "frost").fields[0].choices, [["", "None"], ["own", "Own values"]]);
+  const own = { ...none, row: "own", thickness: 0.2 };
+  const refuse = (v, re) => assert.throws(() => s.setGroup("subcatchment", "S1", "frost", { ...own, ...v }), re);
+  refuse({ thickness: 0 }, /thickness must be above 0/);
+  refuse({ waterContent: 1.5 }, /between 0 and 1/);
+  refuse({ deepDepth: 0.05 }, /more than half the thickness/);
+  refuse({ exponent: 0.5 }, /at least 1/);
+  refuse({ snowDensity: 0 }, /snow conductivity and density/);
+  s.setGroup("subcatchment", "S1", "frost", own);
+  let deck = await reopened(s);
+  assert.deepEqual(row(deck, "[FROZEN_GROUND]", "S1").slice(1).map(Number), [0.2, 1.5, 2.4e6, 0.3, 8, 3, 5, 11, 0.25, 250]);
+  // A model default row: offered as such, and it seeds a subcatchment without values of its own.
+  s.solver.setFrozenGround("*", [0.3, 1.5, 2.4e6, 0.3, 8, 3, 5, 11, 0.25, 250]);
+  const s2 = values(s, "subcatchment", "S2", "frost");
+  assert.deepEqual([s2.row, s2.thickness], ["", 0.3]);
+  assert.equal(group(s, "subcatchment", "S2", "frost").fields[0].choices[0][1], "Model default (*)");
+  s.setGroup("subcatchment", "S1", "frost", none); // undo
+  deck = await reopened(s);
+  assert.deepEqual(rows(deck, "[FROZEN_GROUND]").map((r) => r[0]), ["*"]);
+});
+
+test("storage-node LIDs: control, saturation and bottom; layer anchors on links; undo puts depth and offsets back", async () => {
+  const s = await open(await fixture("lid-nodes.inp"));
+  const a = values(s, "node", "A", "lid");
+  assert.deepEqual([a.control, a.saturation, a.bottom], ["Train", 10, "CURRENT"]);
+  // No 2D aquifer bed under A: no mesh-aquifer bottom.
+  assert.deepEqual(group(s, "node", "A", "lid").fields[2].choices.map(([v]) => v), ["CURRENT", "SEALED"]);
+  const refuse = (v, re) => assert.throws(() => s.setGroup("node", "A", "lid", { ...a, ...v }), re);
+  refuse({ saturation: 150 }, /between 0 and 100/);
+  refuse({ control: "Nope" }, /No storage-node LID control/);
+  refuse({ bottom: "MESH_AQUIFER" }, /needs an enabled 2D aquifer/);
+  s.setGroup("node", "A", "lid", { ...a, saturation: 50, bottom: "SEALED" });
+  let deck = await reopened(s);
+  assert.deepEqual(row(deck, "[LID_NODES]", "A").slice(0, 3), ["A", "Train", "50"]);
+  // The anchor of a link with one LID end: layers of A's control, top or bottom.
+  const w = values(s, "link", "W_A", "lidAnchor");
+  assert.deepEqual([w.layer, w.position], ["1", "BOTTOM"]);
+  assert.deepEqual(group(s, "link", "W_A", "lidAnchor").fields[0].choices.map(([, l]) => l), ["— none (the link's own offset) —", "1 · Surface", "2 · Media", "3 · Aggregate"]);
+  assert.equal(group(s, "link", "V_AB", "lidAnchor"), undefined); // both ends have a LID
+  const offsets = () => [s.solver.links.get("W_A").offsetUp, s.solver.links.get("W_A").offsetDn];
+  const before = offsets(),
+    shown = group(s, "link", "W_A", "lidAnchor");
+  assert.throws(() => s.setGroup("link", "W_A", "lidAnchor", { ...w, layer: "9" }), /1 to 3/);
+  s.setGroup("link", "W_A", "lidAnchor", { ...w, layer: "2", position: "TOP" });
+  deck = await reopened(s);
+  assert.deepEqual(row(deck, "[LID_NODE_OUTLETS]", "W_A"), ["W_A", "2", "TOP"]);
+  assert.notDeepEqual(offsets(), before);
+  s.setGroup("link", "W_A", "lidAnchor", undoValues(shown)); // undo: the snapshot the card carried
+  assert.deepEqual(offsets(), before);
+  assert.deepEqual(row(decoder.decode(s.write()), "[LID_NODE_OUTLETS]", "W_A"), ["W_A", "1", "BOTTOM"]);
+  // Removing the LID and undoing it: the assignment and its anchors come back exactly.
+  const b = group(s, "node", "B", "lid"),
+    vbr = [s.solver.links.get("V_BR").offsetUp, s.solver.links.get("V_BR").offsetDn];
+  s.setGroup("node", "B", "lid", { ...groupValues(b), control: "" });
+  deck = await reopened(s);
+  assert.equal(row(deck, "[LID_NODES]", "B"), undefined);
+  assert.equal(row(deck, "[LID_NODE_OUTLETS]", "V_BR"), undefined);
+  assert.equal(group(s, "link", "V_BR", "lidAnchor"), undefined); // no LID end any more
+  s.setGroup("node", "B", "lid", undoValues(b));
+  deck = await reopened(s);
+  assert.deepEqual(row(deck, "[LID_NODES]", "B"), ["B", "Train", "10"]);
+  assert.deepEqual(row(deck, "[LID_NODE_OUTLETS]", "V_BR"), ["V_BR", "3", "BOTTOM"]);
+  assert.deepEqual([s.solver.links.get("V_BR").offsetUp, s.solver.links.get("V_BR").offsetDn], vbr);
+  assert.deepEqual(groupValues(group(s, "node", "B", "lid")), groupValues(b));
 });

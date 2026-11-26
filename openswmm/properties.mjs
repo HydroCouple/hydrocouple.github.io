@@ -1,13 +1,15 @@
 /**
  * Property groups of map objects that the engine's field catalog has no rows for (interaction phase
- * E3b): a link's cross-section, losses, discharge coefficient and pump curve; an outfall's, storage
- * unit's and divider's parameters; a subcatchment's infiltration and groundwater. Each group is read
+ * E3b): a link's cross-section, losses, discharge coefficient, pump curve, inlet and LID layer anchor;
+ * an outfall's, storage unit's (and its LID's) and divider's parameters, an inlet junction's inlet; a
+ * subcatchment's infiltration, groundwater and frozen ground; the initial quality of nodes and links.
+ * Each group is read
  * as `{key, title, fields, note}` — a field `{name, label, unit, type: "number" | "choice" | "text",
  * value, choices: [[value, label]], when: {name, in: [...]}}` shows only while the named field holds one
  * of `in` — and written back whole, checked as legacy SWMM 5.2.4 checks it. The session (model.mjs)
  * owns the engine; these functions take it.
  */
-import { NodeType, LinkType, TableType, XSectShape, OutfallType, StorageShape, DividerType, InfilModel, GwfType, WeirView, catalog } from "./vendor/engine/index.js";
+import { NodeType, LinkType, TableType, XSectShape, OutfallType, StorageShape, DividerType, InfilModel, GwfType, WeirView, InletPlacement, LidType, LidNodeLayerKind, catalog } from "./vendor/engine/index.js";
 
 /** Catalog rows a group shows instead (bare indices or a type that the group's fields follow). */
 export const replacedRows = new Set(["node.outfall.type", "node.outfall.route_to", "node.storage.shape", "node.storage.curve", "node.divider.type", "link.pump.curve", "subcatchment.infiltration.model"]);
@@ -72,6 +74,91 @@ function tableIndex(s, types, name) {
 }
 const tableName = (s, i) => (i >= 0 && i < s.tables.length ? s.tables.getId(i) : "");
 const pumpCurves = [TableType.CURVE_PUMP1, TableType.CURVE_PUMP2, TableType.CURVE_PUMP3, TableType.CURVE_PUMP4, TableType.CURVE_PUMP5];
+const placements = [["AUTOMATIC", "Automatic"], ["ON_GRADE", "On grade"], ["ON_SAG", "On sag"]];
+/** The ten values of a [FROZEN_GROUND] row, in the engine's order (SI whatever the project's units). */
+const frostFields = [
+  ["thickness", "Thickness", "m"],
+  ["conductivity", "Conductivity", "W/m/K"],
+  ["heatCapacity", "Heat capacity", "J/m³/K"],
+  ["waterContent", "Water content", ""],
+  ["deepTemperature", "Deep temperature", "°C"],
+  ["deepDepth", "Deep depth", "m"],
+  ["initialTemperature", "Initial temperature", "°C"],
+  ["exponent", "Exponent", ""],
+  ["snowConductivity", "Snow conductivity", "W/m/K"],
+  ["snowDensity", "Snow density", "kg/m³"],
+];
+/** What a new row starts from when the model has no `*` row (the desktop's defaults). */
+const frostDefaults = [0.15, 1.5, 2.4e6, 0.3, 8, 3, 5, 11, 0.25, 250];
+const concUnits = ["MG/L", "UG/L", "#/L"];
+const bottoms = ["CURRENT", "SEALED", "MESH_AQUIFER"];
+const yes = (v) => String(v ?? "").toUpperCase() === "YES";
+
+/**
+ * An inlet's usage on its host (a conduit, or an inlet junction): design, capture node and the legacy
+ * [INLET_USAGE] values. A conduit may have none; `ends` are the nodes it cannot capture into.
+ */
+function inletGroup(s, u, kind, row, ends) {
+  const designs = [...s.infrastructure.inlets];
+  const captures = s.nodes.ids.filter((n) => !ends.some((e) => same(e, n)) && !s.nodes.get(n).isVirtual);
+  const on = { name: "design", in: designs };
+  return {
+    key: "inlet",
+    title: "Inlet",
+    fields: [
+      { name: "design", label: "Inlet design", type: "choice", value: row ? designs[row.designIdx] ?? "" : "", choices: [...(kind === "link" ? [["", "— none —"]] : []), ...designs.map((d) => [d, d])] },
+      { name: "capture", label: "Capture node", type: "choice", value: row ? s.nodes.getId(row.captureNodeIdx) : "", choices: captures.map((n) => [n, n]), when: on },
+      { name: "number", label: "Number of inlets", type: "number", value: row ? row.numInlets : 1, when: on },
+      { name: "clogged", label: "Percent clogged", unit: "%", type: "number", value: row ? row.pctClogged : 0, when: on },
+      { name: "flowLimit", label: "Flow restriction", unit: u("flow"), type: "number", value: row ? row.flowLimit : 0, when: on },
+      { name: "depress", label: "Local depression height", unit: u("length"), type: "number", value: row ? row.localDepress : 0, when: on },
+      { name: "width", label: "Local depression width", unit: u("length"), type: "number", value: row ? row.localWidth : 0, when: on },
+      { name: "placement", label: "Placement", type: "choice", value: row ? InletPlacement[row.placement] : "AUTOMATIC", choices: placements, when: on },
+    ],
+    note: "A flow restriction of 0 means none. Inlet designs are records (Inlets).",
+  };
+}
+
+/** Initial quality of a node or link ([INITIAL_QUALITY]): a row per pollutant, water age, temperature. */
+function qualityGroup(session, kind, id) {
+  const s = session.solver,
+    q = s.initialQuality,
+    isLink = kind === "link",
+    index = (isLink ? s.links : s.nodes).get(id).index;
+  const constituents = session.pollutantIds().map((p) => [p, p, concUnits[s.pollutants.get(p).units] ?? ""]);
+  if (yes(s.options.get("WATER_AGE"))) constituents.push([q.WATER_AGE, "Water age", "hours"]);
+  if (yes(s.options.get("HEAT_TRANSPORT"))) constituents.push([q.TEMPERATURE, "Temperature", "°C"]);
+  if (!constituents.length) return null;
+  const rows = [...q].map((r, i) => ({ ...r, i })).filter((r) => r.isLink === isLink && r.elemIndex === index);
+  const fields = constituents.map(([c, label, unit]) => {
+    const r = rows.find((r) => (c.startsWith("__") ? r.constituent === c : same(r.constituent, c)));
+    return { name: "q:" + c, label, unit, type: "number", value: r ? r.value : "", readonly: r ? q.isFile(r.i) : false };
+  });
+  return { key: "quality", title: "Initial quality", fields, note: "Blank starts the constituent at its model-wide initial value." + (fields.some((f) => f.readonly) ? " Values from the initial-quality file are edited there." : "") };
+}
+
+/** The storage-node LID controls (type NODE), by name. */
+const nodeLids = (s) => {
+  const lids = s.infrastructure.lids;
+  return Array.from({ length: lids.length }, (_, i) => i).filter((i) => lids.getType(i) === LidType.NODE).map((i) => lids.getId(i));
+};
+/** The one end of a link that is a storage node with a LID, or null (none, or both). */
+function lidEnd(s, link) {
+  const lids = s.infrastructure.lids;
+  const ends = [link.fromNode.id, link.toNode.id].filter((n) => s.nodes.get(n).type === NodeType.STORAGE && lids.nodeAssignment(n));
+  return ends.length === 1 ? ends[0] : null;
+}
+/** Whether a mesh-aquifer bottom could be chosen for a node (the desktop's check: a 2D aquifer bed). */
+function meshBottomAllowed(s, id) {
+  try {
+    const g = s.groundwater2d,
+      beds = g.nodes;
+    g.replaceNodes(beds, beds, { bottoms: [[s.nodes.get(id).index, bottoms.indexOf(s.infrastructure.lids.nodeBottom(id)), 2]], apply: false });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /** The property groups of a node, link or subcatchment (`session` a ModelSession). */
 export function propertyGroups(session, kind, id) {
@@ -126,6 +213,28 @@ export function propertyGroups(session, kind, id) {
         ],
         note: "Flap gate and seepage rate are rows above.",
       });
+      const usages = s.infrastructure.inletUsages,
+        at = usages.findLink(l.index);
+      if (s.infrastructure.inlets.length || at >= 0) groups.push(inletGroup(s, u, "link", at >= 0 ? usages.get(at) : null, [l.fromNode.id, l.toNode.id]));
+    }
+    const end = lidEnd(s, l);
+    if (end) {
+      const lids = s.infrastructure.lids,
+        [control] = lids.nodeAssignment(end),
+        anchor = lids.getOutletAnchor(id);
+      const layers = lids.getLayers(control).filter((x) => x.kind !== LidNodeLayerKind.BOTTOM);
+      const names = layers.map((x, k) => String(k + 1));
+      groups.push({
+        key: "lidAnchor",
+        title: "LID outlet",
+        fields: [
+          { name: "layer", label: "Layer of " + end, type: "choice", value: String(anchor ? anchor[0] : 0), choices: [["0", "— none (the link's own offset) —"], ...layers.map((x, k) => [names[k], names[k] + " · " + LidNodeLayerKind[x.kind][0] + LidNodeLayerKind[x.kind].slice(1).toLowerCase()])] },
+          { name: "position", label: "At the layer's", type: "choice", value: anchor ? anchor[1] : "BOTTOM", choices: [["BOTTOM", "Bottom"], ["TOP", "Top"]], when: { name: "layer", in: names } },
+        ],
+        restore: lids.nodeSnapshot(end),
+        refresh: true,
+        note: "An anchored link's offset at " + end + " follows the layer.",
+      });
     }
     if (type === "ORIFICE" || type === "OUTLET")
       groups.push({ key: "coefficient", title: type === "ORIFICE" ? "Orifice" : "Outlet rating", fields: [{ name: "cd", label: type === "ORIFICE" ? "Discharge coefficient" : "Coefficient", type: "number", value: new WeirView(l).dischargeCoeff }] });
@@ -176,6 +285,30 @@ export function propertyGroups(session, kind, id) {
         { name: "imd", label: "Exfiltration initial deficit", type: "number", value: imd },
       );
       groups.push({ key: "storage", title: "Storage", fields, note: "Zero exfiltration values mean none (the seepage rate is a row above)." });
+      const lids = s.infrastructure.lids,
+        controls = nodeLids(s),
+        assigned = lids.nodeAssignment(id);
+      if (controls.length || assigned) {
+        const bottom = assigned ? lids.nodeBottom(id) : "CURRENT",
+          on = { name: "control", in: controls };
+        groups.push({
+          key: "lid",
+          title: "LID",
+          fields: [
+            { name: "control", label: "LID control", type: "choice", value: assigned ? lids.getId(assigned[0]) : "", choices: [["", "— none —"], ...controls.map((c) => [c, c])] },
+            { name: "saturation", label: "Initial saturation", unit: "%", type: "number", value: assigned ? assigned[1] : 0, when: on },
+            { name: "bottom", label: "Bottom", type: "choice", value: bottom, choices: [["CURRENT", "Keep current behavior"], ["SEALED", "Sealed"], ...(bottom === "MESH_AQUIFER" || meshBottomAllowed(s, id) ? [["MESH_AQUIFER", "Mesh aquifer"]] : [])], when: on },
+          ],
+          restore: lids.nodeSnapshot(id),
+          refresh: true,
+          note: "The node's maximum depth follows the control's layers; links are anchored to a layer on their own cards.",
+        });
+      }
+    }
+    if (n.isInlet) {
+      const usages = s.infrastructure.inletUsages,
+        at = usages.findNode(n.index);
+      if (at >= 0) groups.push(inletGroup(s, u, "node", usages.get(at), [id]));
     }
     if (type === "DIVIDER") {
       const d = n.divider,
@@ -243,6 +376,21 @@ export function propertyGroups(session, kind, id) {
       ],
       note: "Blank expressions keep SWMM's standard groundwater flow.",
     });
+    const frost = s.frozenGroundRows(),
+      seed = frost[id] ?? frost["*"] ?? frostDefaults;
+    groups.push({
+      key: "frost",
+      title: "Frozen ground",
+      fields: [
+        { name: "row", label: "Use", type: "choice", value: frost[id] ? "own" : "", choices: [["", frost["*"] ? "Model default (*)" : "None"], ["own", "Own values"]] },
+        ...frostFields.map(([name, label, unit], k) => ({ name, label, unit, type: "number", value: seed[k], when: { name: "row", in: ["own"] } })),
+      ],
+      note: "SI values whatever the project's units." + (frost["*"] ? " Without values of its own the model's default row (*) applies." : ""),
+    });
+  }
+  if (kind === "node" || kind === "link") {
+    const q = qualityGroup(session, kind, id);
+    if (q) groups.push(q);
   }
   return groups;
 }
@@ -405,9 +553,112 @@ export function applyGroup(session, kind, id, key, values) {
       s.subcatchments.setGwfExpression(id, GwfType.LATERAL, String(values.lateral ?? "").trim());
       s.subcatchments.setGwfExpression(id, GwfType.DEEP, String(values.deep ?? "").trim());
     }
+  } else if (key === "inlet" && (kind === "link" || kind === "node")) {
+    const usages = s.infrastructure.inletUsages,
+      host = kind === "link" ? s.links.get(id) : s.nodes.get(id),
+      at = kind === "link" ? usages.findLink(host.index) : usages.findNode(host.index);
+    need(kind === "link" ? host.type === LinkType.CONDUIT : host.isInlet, "Inlets are placed on conduits and inlet junctions.");
+    if (!values.design) {
+      need(kind === "link", "An inlet junction needs an inlet design.");
+      if (at >= 0) usages.remove(at);
+    } else {
+      const design = [...s.infrastructure.inlets].findIndex((d) => same(d, values.design));
+      need(design >= 0, "No inlet design " + values.design + ".");
+      need(values.capture && s.nodes.has(values.capture), "Choose the node that receives what the inlet captures.");
+      const capture = s.nodes.get(values.capture);
+      if (kind === "link") need(![host.fromNode.id, host.toNode.id].some((e) => same(e, values.capture)), "The capture node cannot be an end of the conduit itself.");
+      else need(!same(values.capture, id), "An inlet junction cannot capture into itself.");
+      need(!capture.isVirtual, "The capture node cannot be a virtual or inlet junction.");
+      const number = num(values.number, "the number of inlets");
+      need(Number.isInteger(number) && number >= 1, "The number of inlets is a whole number of at least 1.");
+      const clogged = num(values.clogged, "the percent clogged");
+      need(clogged >= 0 && clogged <= 99, "The percent clogged is between 0 and 99.");
+      const [flowLimit, depress, width] = [num(values.flowLimit, "the flow restriction"), num(values.depress, "the depression height"), num(values.width, "the depression width")];
+      need(flowLimit >= 0 && depress >= 0 && width >= 0, "The flow restriction and local depression cannot be negative.");
+      need(InletPlacement[values.placement] !== undefined, "Unknown placement " + values.placement + ".");
+      try {
+        usages.set(kind === "link" ? 0 : 1, host.index, design, capture.index, { numInlets: number, pctClogged: clogged, flowLimit, localDepress: depress, localWidth: width, placement: InletPlacement[values.placement] });
+      } catch (e) {
+        // Legacy inlet_validate (inlet.c:498-505), engine error 635.
+        if (e.code === 635) throw new Error("Inlet design " + values.design + " does not fit this cross-section: grate, curb, slotted and combination inlets need a street; drop inlets an open rectangular or trapezoidal channel.");
+        throw e;
+      }
+    }
+  } else if (key === "quality" && (kind === "node" || kind === "link")) {
+    const q = s.initialQuality,
+      isLink = kind === "link",
+      index = (isLink ? s.links : s.nodes).get(id).index,
+      group = qualityGroup(session, kind, id);
+    need(group, "This model has no pollutants, water age or temperature.");
+    const blank = (v) => v === "" || v === null || v === undefined;
+    const given = group.fields.filter((f) => f.name in values);
+    for (const f of given) {
+      const v = values[f.name];
+      if (f.readonly) need(blank(v) ? f.value === "" : Number(v) === f.value, f.label + " comes from the initial-quality file; edit it there.");
+      else if (!blank(v)) {
+        const x = num(v, f.label);
+        if (!f.name.startsWith("q:__")) need(x >= 0, f.label + " cannot be negative.");
+      }
+    }
+    for (const f of given) {
+      if (f.readonly) continue;
+      const c = f.name.slice(2),
+        v = values[f.name];
+      if (!blank(v)) q.set(c, Number(v), isLink ? { link: id } : { node: id });
+      else {
+        const i = [...q].findIndex((r) => r.isLink === isLink && r.elemIndex === index && (c.startsWith("__") ? r.constituent === c : same(r.constituent, c)));
+        if (i >= 0) q.remove(i);
+      }
+    }
+  } else if (kind === "subcatchment" && key === "frost") {
+    if (values.row !== "own") {
+      if (s.frozenGroundRows()[id]) s.removeFrozenGround(id);
+    } else {
+      const v = frostFields.map(([name, label]) => num(values[name], "the " + label.toLowerCase()));
+      // The engine's checks (FrozenGround.cpp validate).
+      need(v[0] > 0, "The thickness must be above 0.");
+      need(v[1] > 0 && v[2] > 0, "The conductivity and heat capacity must be above 0.");
+      need(v[3] >= 0 && v[3] <= 1, "The water content is between 0 and 1.");
+      need(v[5] > 0.5 * v[0], "The deep depth must be more than half the thickness.");
+      need(v[7] >= 1, "The exponent must be at least 1.");
+      need(v[8] > 0 && v[9] > 0, "The snow conductivity and density must be above 0.");
+      s.setFrozenGround(id, v);
+    }
+  } else if (kind === "node" && key === "lid") {
+    const lids = s.infrastructure.lids;
+    need(s.nodes.get(id).type === NodeType.STORAGE, "LIDs are placed on storage units.");
+    if (values.restore) lids.replaceNode(id, values.restore); // undo: the node as it was, anchors and offsets too
+    else if (!values.control) lids.replaceNode(id, lids.prepareNode(id, null));
+    else {
+      need(nodeLids(s).some((c) => same(c, values.control)), "No storage-node LID control " + values.control + ".");
+      const saturation = num(values.saturation, "the initial saturation");
+      need(saturation >= 0 && saturation <= 100, "The initial saturation is between 0 and 100 %.");
+      const bottom = bottoms.indexOf(values.bottom);
+      need(bottom >= 0, "Unknown bottom " + values.bottom + ".");
+      if (values.bottom === "MESH_AQUIFER" && lids.nodeBottom(id) !== "MESH_AQUIFER") need(meshBottomAllowed(s, id), id + " needs an enabled 2D aquifer and a bed under it with a contact area above 0 for a mesh-aquifer bottom.");
+      const control = nodeLids(s).find((c) => same(c, values.control));
+      lids.replaceNode(id, lids.prepareNode(id, control, { initialSaturation: saturation, bottom }));
+    }
+  } else if (kind === "link" && key === "lidAnchor") {
+    const lids = s.infrastructure.lids,
+      end = lidEnd(s, s.links.get(id));
+    need(end, "Link " + id + " has no single storage end with a LID.");
+    if (values.restore) lids.replaceNode(end, values.restore); // undo: the anchors and offsets as they were
+    else {
+      const count = lids.getLayers(lids.nodeAssignment(end)[0]).filter((x) => x.kind !== LidNodeLayerKind.BOTTOM).length;
+      const layer = Number(values.layer);
+      need(Number.isInteger(layer) && layer >= 0 && layer <= count, "Choose a layer of " + end + "'s LID (1 to " + count + ") or none.");
+      need(values.position === "TOP" || values.position === "BOTTOM", "Choose the layer's top or bottom.");
+      lids.setOutletAnchor(id, layer, { position: values.position });
+    }
   } else throw new Error("No property group " + key + " for this " + kind + ".");
   return propertyGroups(session, kind, id).find((g) => g.key === key);
 }
 
-/** The values of a group as `setGroup` takes them (for undo). */
+/** The values of a group as `setGroup` takes them. */
 export const groupValues = (group) => Object.fromEntries(group.fields.map((f) => [f.name, f.value]));
+/**
+ * What puts a group back as it was shown (undo): its values, or — for a group that carries `restore`,
+ * the engine's snapshot of a LID node — that snapshot, which gives back depth and offsets exactly.
+ */
+export const undoValues = (group) => (group.restore ? { restore: group.restore } : groupValues(group));

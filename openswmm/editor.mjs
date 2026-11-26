@@ -16,7 +16,7 @@ import { aquiferEditor, describeAquifer } from "./aquifers.mjs";
 import { snowpackEditor, describeSnowpack } from "./snowpacks.mjs";
 import { streetEditor, describeStreet, inletEditor, describeInlet, inletNames } from "./streets.mjs";
 import { groupCard } from "./groups-view.mjs";
-import { groupValues } from "./properties.mjs";
+import { groupValues, undoValues } from "./properties.mjs";
 const $ = (id) => document.getElementById(id);
 const kindLabels = {
   options: "Simulation options",
@@ -1192,9 +1192,10 @@ export class Editor {
       let shown = g;
       const onApply = async (values) => {
         const after = await this.call("setGroup", kind, key, g.key, values);
-        this.edits.push({ op: "group", kind, key, group: g.key, before: groupValues(shown), after: groupValues(after) });
+        this.edits.push({ op: "group", kind, key, group: g.key, before: undoValues(shown), after: groupValues(after) });
         shown = after;
         this.note();
+        if (g.refresh) this.show(); // a LID moves the node's depth and its links' offsets (rows above)
         return after;
       };
       props.append(groupCard(g, onApply));

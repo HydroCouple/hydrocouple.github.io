@@ -31,7 +31,7 @@ export function groupCard(group, onApply) {
       input.value = f.value ?? "";
     } else if (f.type === "text") input = el("input", { type: "text", value: f.value ?? "", spellcheck: false });
     else input = el("input", { type: "number", step: "any", value: String(f.value ?? 0) });
-    input.disabled = !!group.readonly;
+    input.disabled = !!group.readonly || !!f.readonly;
     const caption = el("span", { textContent: f.label });
     const unit = el("small", { textContent: f.unit ? " " + f.unit : "" });
     caption.append(unit);
