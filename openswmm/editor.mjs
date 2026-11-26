@@ -4,7 +4,7 @@
 // subcatchment's land uses and loadings, the climate, transects, LID controls and their placement,
 // edits sent to the model worker, undo, and
 // "Apply to model" which installs the engine-written deck.
-import { objectKinds, recordKinds, qualityKinds, patternLength, concentrationUnits, lidTypes, lidDefaults } from "./model.mjs";
+import { objectKinds, recordKinds, qualityKinds, patternLength, concentrationUnits, lidTypes, lidDefaults, inletTypes } from "./model.mjs";
 import { recordEditor, drawRecord, describeRecord, curveTypes } from "./records.mjs";
 import { rulesEditor } from "./rules.mjs";
 import { inflowsEditor, describeInflows, hydrographEditor, describeHydrograph, hydrographCurve, monthRows } from "./inflows.mjs";
@@ -12,6 +12,9 @@ import { landuseEditor, describeLanduse, subQualityEditor, describeSubQuality, t
 import { climateEditor, describeClimate } from "./climate.mjs";
 import { transectEditor, describeTransect, drawTransect } from "./transects.mjs";
 import { lidEditor, describeLid, lidNames, lidUsageEditor, describeLidUsage } from "./lids.mjs";
+import { aquiferEditor, describeAquifer } from "./aquifers.mjs";
+import { snowpackEditor, describeSnowpack } from "./snowpacks.mjs";
+import { streetEditor, describeStreet, inletEditor, describeInlet, inletNames } from "./streets.mjs";
 const $ = (id) => document.getElementById(id);
 const kindLabels = {
   options: "Simulation options",
@@ -29,14 +32,19 @@ const kindLabels = {
   hydrograph: "Unit hydrographs",
   transect: "Transects",
   lid: "LID controls",
+  aquifer: "Aquifers",
+  snowpack: "Snowpacks",
+  street: "Streets",
+  inlet: "Inlets",
   controls: "Control rules",
+  events: "Events",
 };
-const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern", hydrograph: "unit hydrograph", pollutant: "pollutant", landuse: "land use", transect: "transect", lid: "LID control" };
-const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern", hydrograph: "Unit hydrograph", pollutant: "Pollutant", landuse: "Land use", transect: "Transect", lid: "LID control" };
+const recordNoun = { timeseries: "time series", curve: "curve", pattern: "time pattern", hydrograph: "unit hydrograph", pollutant: "pollutant", landuse: "land use", transect: "transect", lid: "LID control", aquifer: "aquifer", snowpack: "snowpack", street: "street", inlet: "inlet" };
+const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time pattern", hydrograph: "Unit hydrograph", pollutant: "Pollutant", landuse: "Land use", transect: "Transect", lid: "LID control", aquifer: "Aquifer", snowpack: "Snowpack", street: "Street", inlet: "Inlet" };
 /** Kinds the map can select (selection.mjs). */
 const pickKinds = ["node", "link", "subcatchment", "gage", "cell"];
 /** Kinds edited as one whole (no object list). */
-const globalKinds = ["model", "options", "controls"];
+const globalKinds = ["model", "options", "controls", "events"];
 const node = (tag, props = {}, ...children) => {
   const n = Object.assign(document.createElement(tag), props);
   n.append(...children);
@@ -196,6 +204,7 @@ export class Editor {
     const current = () => mine === this.showSeq && key === this.key();
     if (recordKinds.includes(kind)) return this.showRecord(kind, key, current);
     if (kind === "controls") return this.showRules();
+    if (kind === "events") return this.showEvents();
     if (qualityKinds.includes(kind) && !key) return this.showQuality(kind, null, props, current);
     const global = kind === "model" || kind === "options";
     if ((!global && !key) || (kind === "cell" && !this.summary?.cells)) {
@@ -528,6 +537,86 @@ export class Editor {
       ),
     );
   }
+  /** Events ([EVENTS]): the card lists the periods; the dialog edits them as rows. */
+  async showEvents() {
+    const props = $("props");
+    let rows;
+    try {
+      rows = await this.call("events");
+    } catch (e) {
+      props.replaceChildren();
+      return this.fail(e);
+    }
+    if ($("objkind").value !== "events") return;
+    const edit = node("button", { type: "button", className: "tb ghost", textContent: rows.length ? "Edit events…" : "Add events…" });
+    edit.onclick = () => this.openEvents(rows);
+    props.replaceChildren(
+      node(
+        "div",
+        { className: "record-card" },
+        node("p", {
+          className: "record-desc",
+          textContent: rows.length ? rows.length + " event" + (rows.length > 1 ? "s" : "") + ": " + rows.slice(0, 4).map((r) => r.start + " – " + r.end).join("; ") + (rows.length > 4 ? " …" : "") : "No events: the run covers the whole simulation period.",
+        }),
+        node("p", { className: "hint", textContent: "Events limit a run to these periods (SWMM 5.2 [EVENTS]); times are the model's clock." }),
+        edit,
+      ),
+    );
+  }
+  openEvents(before) {
+    const work = before.map((r) => ({ ...r }));
+    const message = node("p", { className: "hint record-message", role: "status" });
+    const body = node("tbody");
+    const render = () =>
+      body.replaceChildren(
+        ...work.map((r, i) => {
+          const cell = (key, label) => {
+            const input = node("input", { value: r[key], placeholder: "YYYY-MM-DD HH:MM", ariaLabel: label + " " + (i + 1) });
+            input.oninput = () => (r[key] = input.value);
+            return node("td", {}, input);
+          };
+          const drop = node("button", { type: "button", className: "tb ghost", textContent: "Remove", ariaLabel: "Remove event " + (i + 1) });
+          drop.onclick = () => {
+            work.splice(i, 1);
+            render();
+          };
+          return node("tr", {}, node("td", { textContent: String(i + 1) }), cell("start", "Start of event"), cell("end", "End of event"), node("td", {}, drop));
+        }),
+      );
+    render();
+    const add = node("button", { type: "button", className: "tb ghost", textContent: "Add event" });
+    add.onclick = () => {
+      const last = work[work.length - 1];
+      work.push({ start: last?.end || "", end: "" });
+      render();
+    };
+    const save = node("button", { type: "button", className: "primary", textContent: "Save to model" });
+    const cancel = node("button", { type: "button", textContent: "Cancel" });
+    cancel.onclick = () => this.closeDialog();
+    save.onclick = async () => {
+      try {
+        const after = await this.call("setEvents", work);
+        this.edits.push({ op: "events", kind: "events", before, after });
+        this.closeDialog();
+        this.note();
+        this.show();
+      } catch (e) {
+        message.textContent = e.message || String(e);
+      }
+    };
+    this.openDialog(
+      "Events",
+      node(
+        "div",
+        { className: "record-editor" },
+        node("table", { className: "events-table" }, node("thead", {}, node("tr", {}, node("th", { textContent: "#" }), node("th", { textContent: "Start" }), node("th", { textContent: "End" }), node("th"))), body),
+        add,
+        node("p", { className: "hint", textContent: "Dates and times as YYYY-MM-DD HH:MM on the model's clock; each event starts before it ends." }),
+        message,
+        node("div", { className: "actions end" }, cancel, save),
+      ),
+    );
+  }
   async openRules() {
     let rules;
     try {
@@ -636,6 +725,7 @@ export class Editor {
       if (edit.bulk) throw new Error("A bulk cell edit cannot be undone; reload the project to discard it.");
       if (edit.op === "record") await this.call("setRecord", edit.kind, edit.key, edit.before);
       else if (edit.op === "rules") await this.call("setRules", edit.before);
+      else if (edit.op === "events") await this.call("setEvents", edit.before);
       else if (edit.op === "inflows") await this.call("setInflows", edit.key, edit.before);
       else if (edit.op === "co") await this.call("setCoPollutant", edit.key, edit.before);
       else if (edit.op === "landuse") await this.call("setLanduse", edit.key, edit.before);
@@ -686,8 +776,9 @@ export class Editor {
     }
     if (!current()) return; // another object was picked meanwhile
     const preview = node("canvas", { width: 260, height: 64, className: "record-spark", ariaLabel: "Preview of " + record.id });
-    preview.hidden = kind === "lid";
-    const edit = node("button", { type: "button", className: "tb ghost", textContent: { transect: "Edit cross-section…", lid: "Edit layers…" }[kind] ?? "Edit values…" });
+    const noPreview = ["lid", "aquifer", "snowpack", "street", "inlet"].includes(kind);
+    preview.hidden = noPreview;
+    const edit = node("button", { type: "button", className: "tb ghost", textContent: { transect: "Edit cross-section…", lid: "Edit layers…", aquifer: "Edit parameters…", snowpack: "Edit snowpack…", street: "Edit cross-section…", inlet: "Edit design…" }[kind] ?? "Edit values…" });
     edit.disabled = !!record.file || record.type === "NODE"; // a FILE series is edited in its file; a node LID stack in Edit INP
     edit.onclick = () => this.openRecord(kind, record.id);
     const name = node("input", { type: "text", value: record.id, ariaLabel: "Name of the " + noun });
@@ -697,8 +788,23 @@ export class Editor {
     name.disabled = fixedName;
     const remove = node("button", { type: "button", className: "tb ghost", textContent: "Delete" });
     remove.onclick = () => this.confirmDelete(kind, record.id, users, card);
+    const unitSystem = this.summary?.unitSystem;
     const describe =
-      kind === "hydrograph" ? describeHydrograph(record) : kind === "transect" ? describeTransect(record) : kind === "lid" ? describeLid(record) : describeRecord(record);
+      kind === "hydrograph"
+        ? describeHydrograph(record)
+        : kind === "transect"
+          ? describeTransect(record)
+          : kind === "lid"
+            ? describeLid(record)
+            : kind === "aquifer"
+              ? describeAquifer(record, unitSystem)
+              : kind === "snowpack"
+                ? describeSnowpack(record, unitSystem)
+                : kind === "street"
+                  ? describeStreet(record, unitSystem)
+                  : kind === "inlet"
+                    ? describeInlet(record, unitSystem)
+                    : describeRecord(record);
     card.append(
       node("p", { className: "record-desc", textContent: describe }),
       preview,
@@ -713,7 +819,7 @@ export class Editor {
     );
     props.replaceChildren(card);
     if (kind === "transect") drawTransect(preview, record);
-    else if (kind === "lid") return;
+    else if (noPreview) return;
     else if (kind === "hydrograph") {
       const months = record.entries.map((e) => e.month);
       drawRecord(preview, { kind: "curve", points: hydrographCurve(monthRows(record, months.includes(-1) ? -1 : Math.min(...months))) });
@@ -723,8 +829,8 @@ export class Editor {
   newRecordForm(kind, card, button) {
     const name = node("input", { type: "text", ariaLabel: "New " + recordNoun[kind] + " name", placeholder: "Name" });
     const type = node("select", { ariaLabel: "New " + recordNoun[kind] + " type" });
-    const types = kind === "curve" ? curveTypes : kind === "pattern" ? Object.keys(patternLength) : kind === "pollutant" ? Object.keys(concentrationUnits) : kind === "lid" ? lidTypes : [];
-    for (const t of types) type.add(new Option(kind === "pollutant" ? t : kind === "lid" ? lidNames[t] : t[0] + t.slice(1).toLowerCase(), t));
+    const types = kind === "curve" ? curveTypes : kind === "pattern" ? Object.keys(patternLength) : kind === "pollutant" ? Object.keys(concentrationUnits) : kind === "lid" ? lidTypes : kind === "inlet" ? inletTypes : [];
+    for (const t of types) type.add(new Option(kind === "pollutant" ? t : kind === "lid" ? lidNames[t] : kind === "inlet" ? inletNames[t] : t[0] + t.slice(1).toLowerCase(), t));
     if (kind === "pollutant") type.ariaLabel = "New pollutant units";
     type.hidden = !types.length;
     const ok = node("button", { type: "button", className: "tb primary", textContent: "Create" });
@@ -804,6 +910,14 @@ export class Editor {
         ? transectEditor({ record, unitSystem: this.summary?.unitSystem, onSave, onCancel })
         : kind === "lid"
         ? lidEditor({ record, defaults: lidDefaults(this.summary?.unitSystem), unitSystem: this.summary?.unitSystem, onSave, onCancel })
+        : kind === "aquifer"
+        ? aquiferEditor({ record, patterns: (this.summary?.objects.pattern || []).filter((p) => p.type === "MONTHLY").map((p) => p.id), unitSystem: this.summary?.unitSystem, onSave, onCancel })
+        : kind === "snowpack"
+        ? snowpackEditor({ record, subcatchments: (this.summary?.objects.subcatchment || []).map((x) => x.id), unitSystem: this.summary?.unitSystem, onSave, onCancel })
+        : kind === "street"
+        ? streetEditor({ record, unitSystem: this.summary?.unitSystem, onSave, onCancel })
+        : kind === "inlet"
+        ? inletEditor({ record, curves: (this.summary?.objects.curve || []).filter((c) => c.type === "DIVERSION" || c.type === "RATING").map((c) => c.id), unitSystem: this.summary?.unitSystem, onSave, onCancel })
         : kind === "hydrograph"
         ? hydrographEditor({
             record,

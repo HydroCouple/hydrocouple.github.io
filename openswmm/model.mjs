@@ -1,6 +1,6 @@
 // Engine-as-model: one solver kept in the OPENED state so edits go through the engine API
 // (catalog field paths) and the INP deck becomes a derived artifact written by the engine.
-import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField } from "./vendor/engine/index.js";
+import { Solver, FIELDS, catalog, NodeType, LinkType, TableType, PatternType, XSectShape, FlowUnits, ConcentrationUnits, LidType, LidExtraField, InletType, GrateType, ThroatType } from "./vendor/engine/index.js";
 import { localPath } from "./simulation.mjs";
 
 /** Sub-view path prefixes that only apply to one object type. */
@@ -13,9 +13,38 @@ const subviews = {
   "link.orifice.": "ORIFICE",
   "link.outlet.": "OUTLET",
 };
-export const objectKinds = ["options", "model", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "controls"];
+export const objectKinds = ["options", "model", "node", "link", "subcatchment", "gage", "cell", "pollutant", "landuse", "timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet", "controls", "events"];
 /** Record kinds: edited as whole tables in the record editor rather than as property rows. */
-export const recordKinds = ["timeseries", "curve", "pattern", "hydrograph", "transect", "lid"];
+export const recordKinds = ["timeseries", "curve", "pattern", "hydrograph", "transect", "lid", "aquifer", "snowpack", "street", "inlet"];
+/** A new street cross-section (SWMM 5.2 [STREETS]); slopes in percent, gutter depression in in or mm. */
+export function streetDefaults(unitSystem) {
+  const si = unitSystem === "SI";
+  return { tCrown: si ? 6 : 20, hCurb: si ? 0.15 : 0.5, sx: 2, nRoad: 0.016, gutterDepres: 0, gutterWidth: 0, sides: 2, backWidth: 0, backSlope: 0, backN: 0 };
+}
+/** Inlet types (SWMM 5.2 [INLETS]; COMBO is a grate and a curb opening), grate types and throats. */
+export const inletTypes = ["GRATE", "CURB", "COMBO", "SLOTTED", "DROP_GRATE", "DROP_CURB", "CUSTOM"];
+export const grateTypes = ["P_BAR_50", "P_BAR_50x100", "P_BAR_30", "CURVED_VANE", "TILT_BAR_45", "TILT_BAR_30", "RETICULINE", "GENERIC"];
+export const throatTypes = ["HORIZONTAL", "INCLINED", "VERTICAL"];
+/** The parts of an inlet design each type uses. */
+export const inletParts = { GRATE: ["grate"], CURB: ["curb"], COMBO: ["grate", "curb"], SLOTTED: ["slot"], DROP_GRATE: ["grate"], DROP_CURB: ["curb"], CUSTOM: ["curve"] };
+/** A new inlet's dimensions (lengths in ft or m). */
+export function inletDefaults(unitSystem) {
+  const k = unitSystem === "SI" ? 0.3 : 1;
+  return { grate: { length: 2 * k, width: 2 * k, grateType: "P_BAR_50", openArea: 0, splashVeloc: 0 }, curb: { length: 2 * k, height: 0.5 * k, throat: "HORIZONTAL" }, slot: { length: 2 * k, width: 0.5 * k }, curve: "" };
+}
+/** [AQUIFERS] parameters in the engine's AquiferParam order. */
+export const aquiferParams = ["porosity", "wiltingPoint", "fieldCapacity", "conductivity", "conductSlope", "tensionSlope", "upperEvapFrac", "lowerEvapDepth", "lowerLossCoeff", "bottomElev", "waterTableElev", "upperMoisture"];
+/** A new aquifer's starting values (SWMM's usual ones; the engine starts at zeros, which SWMM refuses). */
+export const aquiferDefaults = { porosity: 0.5, wiltingPoint: 0.15, fieldCapacity: 0.3, conductivity: 5, conductSlope: 10, tensionSlope: 15, upperEvapFrac: 0.35, lowerEvapDepth: 14, lowerLossCoeff: 0.002, bottomElev: 0, waterTableElev: 10, upperMoisture: 0.3 };
+/** Snowpack surfaces and their seven parameters (the last: plowable fraction, or depth at 100 % cover). */
+export const snowSurfaces = ["plowable", "impervious", "pervious"];
+export const snowSurfaceFields = ["cmin", "cmax", "tbase", "fwfrac", "sd0", "fw0", "last"];
+export const snowRemovalFields = ["dsnow", "fout", "fimp", "fperv", "fimelt", "fsubcatch"];
+/** A new snowpack's starting values (the engine starts at zeros); base temperature in °F or °C. */
+export function snowpackDefaults(unitSystem) {
+  const surface = { cmin: 0.001, cmax: 0.001, tbase: unitSystem === "SI" ? 0 : 32, fwfrac: 0.1, sd0: 0, fw0: 0, last: 0 };
+  return { plowable: { ...surface }, impervious: { ...surface }, pervious: { ...surface }, removal: { dsnow: 1, fout: 0, fimp: 0, fperv: 0, fimelt: 0, fsubcatch: 0 }, removalSubcatch: "" };
+}
 /** Water-quality objects: property rows plus a name, new and delete like a record. */
 export const qualityKinds = ["pollutant", "landuse"];
 /** Buildup functions, normalizers and washoff functions by their engine codes ([BUILDUP], [WASHOFF]). */
@@ -181,6 +210,13 @@ function empty(fs, dir) {
     } else fs.unlink(path);
   }
 }
+/** "YYYY-MM-DD HH:MM" (or with a T) as a UTC wall-clock Date, or null when it is not one. */
+function parseStamp(text) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/.exec(String(text || "").trim());
+  if (!m) return null;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]));
+  return d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3] && +m[4] < 24 ? d : null;
+}
 export class ModelSession {
   constructor(engine) {
     this.engine = engine;
@@ -245,6 +281,10 @@ export class ModelSession {
         landuse: this.landuseIds().map((id) => ({ id })),
         transect: this.transectIds().map((id) => ({ id })),
         lid: this.lidIds().map((id, i) => ({ id, type: lidTypes[s.infrastructure.lids.getType(i)] ?? "NODE" })),
+        aquifer: this.aquiferIds().map((id) => ({ id })),
+        snowpack: this.snowpackIds().map((id) => ({ id })),
+        street: [...s.infrastructure.streets].map((id) => ({ id })),
+        inlet: [...s.infrastructure.inlets].map((id) => ({ id })),
       },
     };
   }
@@ -274,6 +314,10 @@ export class ModelSession {
     if (kind === "hydrograph") return this.hydrograph(id);
     if (kind === "transect") return this.transect(id);
     if (kind === "lid") return this.lid(id);
+    if (kind === "aquifer") return this.aquifer(id);
+    if (kind === "snowpack") return this.snowpack(id);
+    if (kind === "street") return this.street(id);
+    if (kind === "inlet") return this.inlet(id);
     if (kind === "pattern") {
       const p = s.patterns.get(id);
       return { kind, id: p.id, type: PatternType[p.type], factors: p.factors };
@@ -294,6 +338,10 @@ export class ModelSession {
     if (kind === "hydrograph") return this.setHydrograph(id, data);
     if (kind === "transect") return this.setTransect(id, data);
     if (kind === "lid") return this.setLid(id, data);
+    if (kind === "aquifer") return this.setAquifer(id, data);
+    if (kind === "snowpack") return this.setSnowpack(id, data);
+    if (kind === "street") return this.setStreet(id, data);
+    if (kind === "inlet") return this.setInlet(id, data);
     if (kind === "pattern") {
       const type = PatternType[data.type];
       if (type === undefined) throw new Error("Unknown pattern type " + data.type + ".");
@@ -345,6 +393,27 @@ export class ModelSession {
       const defaults = lidDefaults(this.unitSystem);
       this.setLid(id, { type, layers: Object.fromEntries(lidLayers[type].map((n) => [n, defaults[n]])), removals: [] });
       return this.lid(id);
+    }
+    if (kind === "aquifer") {
+      if (this.aquiferIds().some((a) => same(a, id))) throw new Error("An aquifer named " + id + " exists.");
+      s.aquifers.add(id);
+      return this.setAquifer(id, { params: { ...aquiferDefaults }, evapPattern: "" });
+    }
+    if (kind === "snowpack") {
+      if (this.snowpackIds().some((a) => same(a, id))) throw new Error("A snowpack named " + id + " exists.");
+      s.snowpacks.add(id);
+      return this.setSnowpack(id, snowpackDefaults(this.unitSystem));
+    }
+    if (kind === "street") {
+      if (this.has("street", id)) throw new Error("A street named " + id + " exists.");
+      s.infrastructure.streets.add(id);
+      return this.setStreet(id, { params: streetDefaults(this.unitSystem) });
+    }
+    if (kind === "inlet") {
+      if (this.has("inlet", id)) throw new Error("An inlet named " + id + " exists.");
+      if (!inletTypes.includes(type)) throw new Error("Unknown inlet type " + type + ".");
+      s.infrastructure.inlets.add(id, type === "COMBO" ? "GRATE" : type);
+      return this.setInlet(id, { type, ...inletDefaults(this.unitSystem), comment: "" });
     }
     if (kind === "transect") {
       if (this.transectIds().some((t) => same(t, id))) throw new Error("A transect named " + id + " exists.");
@@ -399,7 +468,13 @@ export class ModelSession {
                 ? this.transectIds().some((t) => same(t, next))
                 : kind === "lid"
                   ? this.lidIds().some((l) => same(l, next))
-                  : this.findTable(kind, next) >= 0;
+                  : kind === "aquifer"
+                    ? this.aquiferIds().some((a) => same(a, next))
+                    : kind === "snowpack"
+                      ? this.snowpackIds().some((a) => same(a, next))
+                      : kind === "street" || kind === "inlet"
+                        ? this.has(kind, next)
+                        : this.findTable(kind, next) >= 0;
     if (taken && next.toUpperCase() !== id.toUpperCase()) throw new Error(next + " is taken.");
     // Buildup, washoff, coverages, loadings, treatment and inflow rows follow a pollutant or land use.
     if (kind === "pollutant") s.pollutants.rename(this.name("pollutant", id), next);
@@ -407,6 +482,10 @@ export class ModelSession {
     else if (kind === "hydrograph") s.inflows.renameHydrographGroup(this.group(id), next); // RDII rows follow
     else if (kind === "pattern") s.patterns.rename(id, next);
     else if (kind === "lid") s.infrastructure.lids.rename(this.lidIndex(id), next); // [LID_USAGE] rows follow
+    else if (kind === "aquifer") s.aquifers.rename(this.named("aquifer", id), next); // [GROUNDWATER] rows follow
+    else if (kind === "snowpack") s.snowpacks.rename(this.named("snowpack", id), next); // subcatchments follow
+    else if (kind === "street") s.infrastructure.streets.rename(this.named("street", id), next); // street links follow
+    else if (kind === "inlet") s.infrastructure.inlets.rename(this.named("inlet", id), next); // [INLET_USAGE] rows follow
     else if (kind === "transect") {
       // The engine renames the transect but its links keep the old name, and the deck no longer
       // opens (engine item 11): a transect in use keeps its name.
@@ -437,7 +516,15 @@ export class ModelSession {
                 ? s.editor.analyzeTransectImpact(this.transectIndex(id))
                 : kind === "lid"
                   ? s.editor.analyzeLidImpact(this.lidIds()[this.lidIndex(id)])
-                  : s.editor.analyzeTableImpact(this.table(kind, id));
+                  : kind === "aquifer"
+                    ? s.editor.analyzeAquiferImpact(this.named("aquifer", id))
+                    : kind === "snowpack"
+                      ? s.editor.analyzeSnowpackImpact(this.named("snowpack", id))
+                      : kind === "street"
+                        ? s.editor.analyzeStreetImpact(this.named("street", id))
+                        : kind === "inlet"
+                          ? s.editor.analyzeInletImpact(this.named("inlet", id))
+                          : s.editor.analyzeTableImpact(this.table(kind, id));
     const named = (list, i) => list.ids?.[i] ?? list.getId?.(i);
     // The engine's pollutant impact leaves out initial loadings, which its delete removes too (engine
     // item 8): listed here from the subcatchments.
@@ -466,6 +553,11 @@ export class ModelSession {
         else if (type === "pollutant") name = this.pollutantIds()[e.objIdx];
         else if (type === "treatment") return { object: "node " + s.nodes.ids[e.objIdx], field: "treatment" };
         else if (type === "lid_usage") return { object: "subcatchment " + s.subcatchments.ids[s.infrastructure.lids.usageRecord(e.objIdx).subcatchIndex], field: "LID usage" };
+        else if (type === "inlet_usage") {
+          const u = s.infrastructure.inletUsages.get(e.objIdx);
+          const host = u.hostKind === 0 ? "link " + s.links.ids[u.hostIdx] : "node " + s.nodes.ids[u.hostIdx];
+          return { object: "inlet " + s.infrastructure.inlets.getId(u.designIdx) + " on " + host, field: "inlet usage" };
+        }
         else if (type === "ext_inflow") {
           const [n, constituent] = s.inflows.getExternal(e.objIdx);
           return { object: "external " + constituent + " inflow at " + s.nodes.ids[n], field: "constituent" };
@@ -488,9 +580,247 @@ export class ModelSession {
     else if (kind === "landuse") this.solver.editor.deleteLanduse(this.name("landuse", id));
     else if (kind === "transect") this.solver.editor.deleteTransect(this.transectIndex(id));
     else if (kind === "lid") this.solver.editor.deleteLid(this.lidIds()[this.lidIndex(id)]);
+    else if (kind === "aquifer") this.solver.editor.deleteAquifer(this.named("aquifer", id));
+    else if (kind === "snowpack") this.solver.editor.deleteSnowpack(this.named("snowpack", id));
+    else if (kind === "street") this.solver.editor.deleteStreet(this.named("street", id));
+    else if (kind === "inlet") this.solver.editor.deleteInlet(this.named("inlet", id));
     else this.solver.editor.deleteTable(this.table(kind, id));
     if (kind === "timeseries") this.files.delete(String(id).toUpperCase());
     return { impact, token };
+  }
+  // ---- Aquifers ([AQUIFERS]) and snowpacks ([SNOWPACKS]): named parameter sets that subcatchments use.
+  aquiferIds() {
+    return [...this.solver.aquifers];
+  }
+  snowpackIds() {
+    return [...this.solver.snowpacks];
+  }
+  /** The stored name of an aquifer, snowpack, street or inlet (names match without case). */
+  named(kind, id) {
+    const list = { aquifer: () => this.aquiferIds(), snowpack: () => this.snowpackIds(), street: () => [...this.solver.infrastructure.streets], inlet: () => [...this.solver.infrastructure.inlets] }[kind]();
+    const found = list.find((n) => same(n, id));
+    if (found === undefined) throw new Error("No " + kind + " named " + id + ".");
+    return found;
+  }
+  aquifer(id) {
+    const a = this.solver.aquifers,
+      name = this.named("aquifer", id);
+    return { kind: "aquifer", id: name, params: Object.fromEntries(aquiferParams.map((k, i) => [k, a.getParam(name, i)])), evapPattern: a.getEvapPattern(name) };
+  }
+  /** Problems with an aquifer as legacy SWMM checks it (gwater_validateAquifer); empty when fine. */
+  checkAquifer(data) {
+    const p = data.params,
+      errors = [];
+    for (const k of aquiferParams) if (!Number.isFinite(+p[k])) errors.push("Every parameter needs a number.");
+    if (errors.length) return errors.slice(0, 1);
+    const v = Object.fromEntries(aquiferParams.map((k) => [k, +p[k]]));
+    if (v.porosity <= 0) errors.push("Porosity must be above 0.");
+    if (v.fieldCapacity >= v.porosity) errors.push("Field capacity must be below porosity.");
+    if (v.wiltingPoint >= v.fieldCapacity) errors.push("Wilting point must be below field capacity.");
+    if (v.conductivity <= 0) errors.push("Conductivity must be above 0.");
+    for (const [k, name] of [["conductSlope", "Conductivity slope"], ["tensionSlope", "Tension slope"], ["upperEvapFrac", "Upper evaporation fraction"], ["lowerEvapDepth", "Lower evaporation depth"]])
+      if (v[k] < 0) errors.push(name + " cannot be negative.");
+    if (v.waterTableElev < v.bottomElev) errors.push("The water table cannot be below the aquifer bottom.");
+    if (v.upperMoisture > v.porosity || v.upperMoisture < v.wiltingPoint) errors.push("Unsaturated zone moisture must lie between the wilting point and porosity.");
+    const pattern = data.evapPattern || "";
+    if (pattern) {
+      const s = this.solver;
+      if (!s.patterns.has(pattern)) errors.push("No time pattern named " + pattern + ".");
+      else if (PatternType[s.patterns.get(pattern).type] !== "MONTHLY") errors.push("The evaporation pattern must be a monthly pattern.");
+    }
+    return errors;
+  }
+  setAquifer(id, data) {
+    const errors = this.checkAquifer(data);
+    if (errors.length) throw new Error(errors.join(" "));
+    const a = this.solver.aquifers,
+      name = this.named("aquifer", id);
+    aquiferParams.forEach((k, i) => a.setParam(name, i, +data.params[k]));
+    a.setEvapPattern(name, data.evapPattern || "");
+    return this.aquifer(name);
+  }
+  snowpack(id) {
+    const sp = this.solver.snowpacks,
+      name = this.named("snowpack", id);
+    return {
+      kind: "snowpack",
+      id: name,
+      plowable: sp.getPlowable(name),
+      impervious: sp.getImpervious(name),
+      pervious: sp.getPervious(name),
+      removal: sp.getRemoval(name),
+      removalSubcatch: sp.getRemovalSubcatch(name),
+    };
+  }
+  /** Problems with a snowpack as legacy SWMM checks it (snow_validateSnowmelt); empty when fine. */
+  checkSnowpack(data) {
+    const errors = [];
+    const numbers = [...snowSurfaces.flatMap((k) => snowSurfaceFields.map((f) => data[k]?.[f])), ...snowRemovalFields.map((f) => data.removal?.[f])];
+    if (!numbers.every((v) => Number.isFinite(+v))) return ["Every parameter needs a number."];
+    for (const k of snowSurfaces) {
+      const v = data[k],
+        name = k[0].toUpperCase() + k.slice(1);
+      if (+v.cmin > +v.cmax) errors.push(name + ": the minimum melt coefficient exceeds the maximum.");
+      if (+v.fwfrac < 0 || +v.fwfrac > 1) errors.push(name + ": the free water capacity is a fraction from 0 to 1.");
+    }
+    if (+data.plowable.last < 0 || +data.plowable.last > 1) errors.push("The plowable fraction of impervious area is a fraction from 0 to 1.");
+    const sum = ["fout", "fimp", "fperv", "fimelt", "fsubcatch"].reduce((t, f) => t + +data.removal[f], 0);
+    if (sum > 1.01) errors.push("The removal fractions add up to more than 1.");
+    const sub = data.removalSubcatch || "";
+    if (sub && !this.solver.subcatchments.ids.some((x) => same(x, sub))) errors.push("No subcatchment named " + sub + ".");
+    return errors;
+  }
+  setSnowpack(id, data) {
+    const errors = this.checkSnowpack(data);
+    if (errors.length) throw new Error(errors.join(" "));
+    const sp = this.solver.snowpacks,
+      name = this.named("snowpack", id);
+    const num = (o, fields) => Object.fromEntries(fields.map((f) => [f, +o[f]]));
+    sp.setPlowable(name, num(data.plowable, snowSurfaceFields));
+    sp.setImpervious(name, num(data.impervious, snowSurfaceFields));
+    sp.setPervious(name, num(data.pervious, snowSurfaceFields));
+    sp.setRemoval(name, num(data.removal, snowRemovalFields));
+    sp.setRemovalSubcatch(name, data.removalSubcatch || "");
+    return this.snowpack(name);
+  }
+  has(kind, id) {
+    try {
+      this.named(kind, id);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  // ---- Events ([EVENTS], SWMM 5.2): the periods a run is limited to, as "YYYY-MM-DD HH:MM" in UTC
+  // wall-clock time (SWMM dates are never converted).
+  events() {
+    const stamp = (d) => d.toISOString().slice(0, 16).replace("T", " ");
+    return [...this.solver.events].map((e) => ({ start: stamp(e.start), end: stamp(e.end) }));
+  }
+  /** Problems with event rows as legacy SWMM reads them (readEvent: the start before the end). */
+  checkEvents(rows) {
+    const errors = [];
+    rows.forEach((r, i) => {
+      const a = parseStamp(r.start),
+        b = parseStamp(r.end);
+      if (!a || !b) errors.push("Event " + (i + 1) + ": dates are YYYY-MM-DD HH:MM.");
+      else if (a >= b) errors.push("Event " + (i + 1) + ": the start must come before the end.");
+    });
+    return errors;
+  }
+  setEvents(rows) {
+    const errors = this.checkEvents(rows);
+    if (errors.length) throw new Error(errors.join(" "));
+    const ev = this.solver.events;
+    ev.clear();
+    for (const r of rows) ev.append({ start: parseStamp(r.start), end: parseStamp(r.end) });
+    return this.events();
+  }
+  // ---- Streets ([STREETS]) and inlets ([INLETS]), SWMM 5.2: street cross-sections that STREET links
+  // use, and inlet designs that [INLET_USAGE] places on street links.
+  street(id) {
+    const st = this.solver.infrastructure.streets,
+      name = this.named("street", id);
+    return { kind: "street", id: name, params: st.getParams(st.getIndex(name)) };
+  }
+  /** Problems with a street as legacy SWMM reads it (street_readParams); empty when fine. */
+  checkStreet(data) {
+    const v = data.params,
+      errors = [];
+    if (!["tCrown", "hCurb", "sx", "nRoad", "gutterDepres", "gutterWidth", "sides", "backWidth", "backSlope", "backN"].every((k) => Number.isFinite(+v[k]))) return ["Every parameter needs a number."];
+    for (const [k, name] of [["tCrown", "The distance to the crown"], ["hCurb", "The curb height"], ["sx", "The cross slope"], ["nRoad", "The road's Manning n"]]) if (!(+v[k] > 0)) errors.push(name + " must be above 0.");
+    if (+v.gutterDepres < 0 || +v.gutterWidth < 0) errors.push("The gutter depression and width cannot be negative.");
+    if (![1, 2].includes(+v.sides)) errors.push("A street has 1 or 2 sides.");
+    if (+v.backWidth < 0) errors.push("The backing width cannot be negative.");
+    if (+v.backWidth > 0 && !(+v.backSlope > 0 && +v.backN > 0)) errors.push("A backing needs a slope and a Manning n above 0.");
+    return errors;
+  }
+  setStreet(id, data) {
+    const errors = this.checkStreet(data);
+    if (errors.length) throw new Error(errors.join(" "));
+    const st = this.solver.infrastructure.streets,
+      name = this.named("street", id);
+    st.setParams(st.getIndex(name), Object.fromEntries(Object.entries(data.params).map(([k, v]) => [k, k === "sides" ? Math.round(+v) : +v])));
+    return this.street(name);
+  }
+  inlet(id) {
+    const inl = this.solver.infrastructure.inlets,
+      name = this.named("inlet", id),
+      d = inl.getDesign(name);
+    return {
+      kind: "inlet",
+      id: name,
+      type: InletType[d.type],
+      grate: { length: d.grateLength, width: d.grateWidth, grateType: GrateType[d.grateType], openArea: d.openArea, splashVeloc: d.splashVeloc },
+      // A part the type does not use reads back as the engine leaves it; its throat shows the usual one.
+      curb: { length: d.curbLength, height: d.curbHeight, throat: inletParts[InletType[d.type]]?.includes("curb") ? ThroatType[d.throat] : "HORIZONTAL" },
+      slot: { length: d.slotLength, width: d.slotWidth },
+      curve: d.curveId || "",
+      comment: inl.getComment(name),
+    };
+  }
+  /** The engine's design for inlet data (only the parts its type uses). */
+  inletDesign(data) {
+    const parts = inletParts[data.type] || [],
+      g = data.grate || {},
+      c = data.curb || {},
+      sl = data.slot || {};
+    const on = (part) => parts.includes(part);
+    return {
+      type: InletType[data.type],
+      grateLength: on("grate") ? +g.length : 0,
+      grateWidth: on("grate") ? +g.width : 0,
+      grateType: on("grate") ? GrateType[g.grateType] ?? 0 : 0,
+      openArea: on("grate") && g.grateType === "GENERIC" ? +g.openArea : 0,
+      splashVeloc: on("grate") && g.grateType === "GENERIC" ? +g.splashVeloc : 0,
+      curbLength: on("curb") ? +c.length : 0,
+      curbHeight: on("curb") ? +c.height : 0,
+      throat: on("curb") ? ThroatType[c.throat] ?? 0 : 0,
+      slotLength: on("slot") ? +sl.length : 0,
+      slotWidth: on("slot") ? +sl.width : 0,
+      curveId: on("curve") ? String(data.curve || "") : "",
+    };
+  }
+  /** Problems with an inlet design as legacy SWMM reads it, then as the engine validates it. */
+  checkInlet(data) {
+    if (!inletTypes.includes(data.type)) return ["Unknown inlet type " + data.type + "."];
+    const parts = inletParts[data.type],
+      errors = [];
+    const positive = (v, name) => !(+v > 0) && errors.push(name + " must be above 0.");
+    if (parts.includes("grate")) {
+      positive(data.grate.length, "The grate length");
+      positive(data.grate.width, "The grate width");
+      if (!grateTypes.includes(data.grate.grateType)) errors.push("Unknown grate type " + data.grate.grateType + ".");
+      if (data.grate.grateType === "GENERIC") {
+        positive(data.grate.openArea, "A generic grate's open area");
+        positive(data.grate.splashVeloc, "A generic grate's splash-over velocity");
+      }
+    }
+    if (parts.includes("curb")) {
+      positive(data.curb.length, "The curb opening length");
+      positive(data.curb.height, "The curb opening height");
+    }
+    if (parts.includes("slot")) {
+      positive(data.slot.length, "The slot length");
+      positive(data.slot.width, "The slot width");
+    }
+    if (parts.includes("curve") && !(data.curve && this.findTable("curve", data.curve) >= 0)) errors.push("A custom inlet names a diversion or rating curve.");
+    if (errors.length) return errors;
+    try {
+      this.solver.infrastructure.inlets.validateDesign(this.inletDesign(data));
+    } catch (e) {
+      return [e.message || String(e)];
+    }
+    return [];
+  }
+  setInlet(id, data) {
+    const errors = this.checkInlet(data);
+    if (errors.length) throw new Error(errors.join(" "));
+    const inl = this.solver.infrastructure.inlets,
+      name = this.named("inlet", id);
+    inl.setDesign(name, this.inletDesign(data));
+    inl.setComment(name, data.comment || "");
+    return this.inlet(name);
   }
   // ---- Unit hydrographs ([HYDROGRAPHS]): a group names a rain gage and holds up to three responses
   // (0 short, 1 medium, 2 long term) for all months (-1) or for one month (0 = January … 11).

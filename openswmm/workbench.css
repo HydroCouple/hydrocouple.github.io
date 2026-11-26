@@ -2084,6 +2084,52 @@ dialog:has(.lid-usage-editor) {
   overflow: auto;
   padding: 0 10px 10px;
 }
+/* Events: one row per period (interaction phase E3a). */
+.events-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+.events-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--ink-soft);
+  padding: 2px 4px;
+}
+.events-table td {
+  padding: 2px 4px;
+}
+.events-table input {
+  width: 100%;
+  font-family: var(--mono);
+}
+/* Snowpack melt parameters: one column per surface (interaction phase E3a). */
+.snow-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+}
+.snow-table th {
+  padding: 3px 6px 3px 0;
+  text-align: left;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.snow-table thead th {
+  font-weight: 700;
+  color: var(--ink);
+}
+.snow-table td {
+  padding: 2px 3px;
+}
+.snow-table input {
+  width: 100%;
+  min-width: 64px;
+}
+.quality-part.snow-melt {
+  grid-column: 1 / -1;
+}
 /* Style forms: a slider with its value (interaction phase L1). */
 .style-slider {
   display: flex;
