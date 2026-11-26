@@ -63,7 +63,8 @@ const node = (tag, props = {}, ...children) => {
 export class Editor {
   /**
    * @param {object} o
-   * @param {(bytes: Uint8Array, count: number) => void} o.onApply installs the engine-written deck
+   * @param {(files: Object<string, Uint8Array>, count: number) => void} o.onApply installs the files the
+   *   engine wrote: the deck and, for a mesh kept beside it, the sidecar
    * @param {(title: string, content: Node) => void} o.openDialog shows the record editor
    * @param {() => void} o.closeDialog
    * @param {(bytes: Uint8Array, select: object|null) => void} o.onNetwork shows the session's network
@@ -1314,16 +1315,16 @@ export class Editor {
       this.fail(e);
     }
   }
-  /** Install the edited deck in the project; true when it was applied (else the note says why). */
+  /** Install the edited model (the deck and the files beside it) in the project; true when applied. */
   async apply() {
     try {
       // A deck the engine could not open again would leave the project unopenable: say what is missing.
       const problems = await this.call("problems");
       if (problems.length) throw new Error(problems.join(" "));
-      const bytes = await this.call("write");
+      const files = await this.call("writeAll");
       const count = this.edits.length;
       this.edits = [];
-      this.onApply(bytes, count);
+      this.onApply(files, count);
       return true;
     } catch (e) {
       this.fail(e);

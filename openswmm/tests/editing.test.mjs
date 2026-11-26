@@ -383,3 +383,28 @@ test("inlet junctions on a street conduit: choices, the split, placement, the ma
   for (const section of ["[JUNCTIONS]", "[CONDUITS]", "[XSECTIONS]", "[COORDINATES]"]) assert.deepEqual(rows(fused, section), rows(before, section), section);
   assert.deepEqual(rows(fused, "[INLET_JUNCTIONS]"), []);
 });
+
+test("Apply keeps every file the engine writes: a cell edit on Bellinge lands in its .2dm sidecar", async () => {
+  // Bellinge keeps its mesh beside the deck ([2D_MESH_FILE]); the engine writes cell edits there.
+  const dir = new URL("../examples/bellinge/", import.meta.url),
+    names = ["BellingeSWMM_v021_nopervious.inp", "BellingeSWMM_v021_nopervious.2dm", "rg_bellinge_2012-06-28_30.dat"];
+  const inputs = Object.fromEntries(await Promise.all(names.map(async (n) => [n, new Uint8Array(await readFile(new URL(n, dir)))])));
+  const s = new ModelSession(await create());
+  s.open({ name: names[0], entry: names[0], inputs, anchor: null, split: false });
+  s.set("cell.init_depth", "0", 0.123);
+  s.set("cell.tag", "0", "APPLIED");
+  const files = s.writeAll();
+  assert.deepEqual(Object.keys(files).sort(), [names[1], names[0]].sort(), "the deck and its sidecar");
+  assert.ok(!decoder.decode(files[names[0]]).includes("APPLIED"), "not in the deck");
+  assert.ok(decoder.decode(files[names[1]]).includes("APPLIED"), "in the sidecar");
+  s.close();
+  // The project as Apply installs it opens with the edit.
+  const t = new ModelSession(await create());
+  t.open({ name: names[0], entry: names[0], inputs: { ...inputs, ...files }, anchor: null, split: false });
+  const cell = Object.fromEntries(t.fields("cell", "0").map((r) => [r.path, r.value]));
+  assert.deepEqual([cell["cell.init_depth"], cell["cell.tag"]], [0.123, "APPLIED"]);
+  t.close();
+  // A deck with nothing beside it: the deck alone.
+  const one = await open(await fixture("example1.inp"));
+  assert.deepEqual(Object.keys(one.writeAll()), ["m.inp"]);
+});

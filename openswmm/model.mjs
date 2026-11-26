@@ -2378,6 +2378,27 @@ export class ModelSession {
     this.solver.write(this.entry);
     return this.engine.FS.readFile(this.entry);
   }
+  /**
+   * Every file the engine writes for the model, as `{path: bytes}` under the project's names: the deck
+   * and what it keeps beside it (a `[2D_MESH_FILE]` sidecar holds the cells, so a cell edit is there,
+   * not in the deck). Apply installs them all.
+   */
+  writeAll() {
+    const fs = this.engine.FS,
+      staged = [];
+    if (!fs.analyzePath("_stage").exists) fs.mkdir("_stage");
+    this.solver.writeStaged(this.entry, (path) => {
+      const to = "_stage/" + staged.length;
+      staged.push([path.replace(/^\/edit\//, ""), to]);
+      return to;
+    });
+    const files = {};
+    for (const [path, to] of staged) {
+      files[path] = fs.readFile(to);
+      fs.unlink(to);
+    }
+    return files;
+  }
   close() {
     if (!this.solver) return;
     for (const step of ["close", "destroy"])

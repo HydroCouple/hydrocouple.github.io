@@ -129,11 +129,12 @@ const editor = new Editor({
   selected: () => selection.items,
   // The editing session went with map edits not applied: the map shows the project's network again.
   onDiscard: () => project && showNetwork(deckNetwork(decoder.decode(project.inputs[project.entry])), null),
-  onApply(bytes, count) {
-    install({ ...project, inputs: { ...project.inputs, [project.entry]: bytes } });
+  onApply(files, count) {
+    install({ ...project, inputs: { ...project.inputs, ...files } });
     persist();
+    const others = Object.keys(files).filter((path) => path !== project.entry);
     status(
-      count + " edit" + (count > 1 ? "s" : "") + " applied · " + project.entry + " rewritten by the engine.",
+      count + " edit" + (count > 1 ? "s" : "") + " applied · " + [project.entry, ...others].join(" and ") + " rewritten by the engine.",
     );
   },
 });
