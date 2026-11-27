@@ -40,7 +40,7 @@ export function scopedTable(data, { onSave, onCancel }) {
           let input;
           if (c.type === "choice") {
             input = el("select", { ariaLabel: c.label + " of row " + n });
-            input.add(new Option("— choose —", ""));
+            input.add(new Option(c.blankLabel ?? "— choose —", ""));
             for (const v of c.choices) input.add(new Option(c.labels?.[v] ?? v, v));
             input.value = row.values[c.key] ?? "";
           } else input = el("input", { type: "number", step: "any", value: row.values[c.key] ?? "", ariaLabel: c.label + " of row " + n });

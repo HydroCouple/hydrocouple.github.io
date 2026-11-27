@@ -26,6 +26,8 @@ const kindLabels = {
   quality2d: "2D surface quality",
   infil2d: "2D infiltration",
   snow2d: "2D snow and frozen ground",
+  gw2d: "2D groundwater",
+  gwtransport2d: "2D groundwater transport",
   title: "Title and notes",
   report: "Report",
   files: "Files",
@@ -62,7 +64,7 @@ const recordTitle = { timeseries: "Time series", curve: "Curve", pattern: "Time 
 /** Kinds the map can select (selection.mjs). */
 const pickKinds = ["node", "link", "subcatchment", "gage", "cell"];
 /** Kinds edited as one whole (no object list). */
-const globalKinds = ["model", "options", "options2d", "quality2d", "infil2d", "snow2d", "title", "report", "files", "transport", "reactions", "ueb", "components", "userflags", "controls", "events"];
+const globalKinds = ["model", "options", "options2d", "quality2d", "infil2d", "snow2d", "gw2d", "gwtransport2d", "title", "report", "files", "transport", "reactions", "ueb", "components", "userflags", "controls", "events"];
 /** Kinds that are one section card (sections.mjs). */
 const sectionKinds = ["options2d", "title", "report", "files", "transport", "ueb", "components"];
 const node = (tag, props = {}, ...children) => {
@@ -237,10 +239,12 @@ export class Editor {
     if (kind === "controls") return this.showRules();
     if (kind === "events") return this.showEvents();
     if (kind === "userflags") return this.showUserFlags();
-    if (kind === "quality2d") return this.showScoped(kind, ["coverage", "loading", "curb", "initQuality", "bedQuality"]);
-    if (kind === "infil2d") return this.showScoped(kind, ["infilDefaults"]);
-    if (kind === "snow2d") return this.showScoped(kind, ["snow"], { groups: true });
-    if (kind === "transport") return this.showScoped(kind, ["ardDispersion", "ardBoundaries", "ardSources"], { groups: true });
+    if (kind === "quality2d") return this.showScoped(kind, ["coverage", "loading", "curb", "initQuality", "bedQuality"], current);
+    if (kind === "infil2d") return this.showScoped(kind, ["infilDefaults"], current);
+    if (kind === "snow2d") return this.showScoped(kind, ["snow"], current, { groups: true });
+    if (kind === "transport") return this.showScoped(kind, ["ardDispersion", "ardBoundaries", "ardSources"], current, { groups: true });
+    if (kind === "gw2d") return this.showScoped(kind, ["aquifer", "nodeBeds", "aquiferLinks"], current, { groups: true });
+    if (kind === "gwtransport2d") return this.showScoped(kind, ["gwParams", "gwSorption", "gwInitialQuality"], current, { groups: true });
     if (kind === "reactions") return this.showReactions();
     if (qualityKinds.includes(kind) && !key) return this.showQuality(kind, null, props, current);
     const global = kind === "model" || kind === "options" || sectionKinds.includes(kind);
@@ -604,16 +608,16 @@ export class Editor {
     );
   }
   /** Scoped 2D section tables (surface-sections.mjs): a line per section and its table dialog. */
-  async showScoped(kind, names, { groups = false } = {}) {
+  async showScoped(kind, names, current, { groups = false } = {}) {
     const props = $("props");
     let sections;
     try {
       sections = await Promise.all(names.map((n) => this.call("scopedRows", n)));
     } catch (e) {
-      props.replaceChildren(node("div", { className: "record-card" }, node("p", { className: "hint", textContent: e.message || String(e) })));
+      if (current()) props.replaceChildren(node("div", { className: "record-card" }, node("p", { className: "hint", textContent: e.message || String(e) })));
       return;
     }
-    if ($("objkind").value !== kind) return;
+    if (!current()) return; // a later show() draws (two for one kind would both append option cards)
     const scopeText = (r) => (r.scope === "GLOBAL" ? "all cells" : r.scope === "TAG" ? "tag " + r.target : "cell " + r.target);
     props.replaceChildren(
       ...sections.map((d) => {
@@ -628,7 +632,7 @@ export class Editor {
         );
       }),
     );
-    if (groups) await this.showGroups(kind, null, props, () => $("objkind").value === kind); // option cards of the same kind
+    if (groups) await this.showGroups(kind, null, props, current); // option cards of the same kind
   }
   openScoped(data) {
     this.openDialog(

@@ -10,10 +10,18 @@ import { CellScope } from "./vendor/engine/index.js";
 
 const scopes = { GLOBAL: "All cells", TAG: "Tag", CELL: "Cell" };
 const yes = (v) => String(v ?? "").toUpperCase() === "YES";
+const reactionSpecies = (session) => {
+  try {
+    return [...session.solver.reactions.species].map((sp) => sp.name);
+  } catch {
+    return [];
+  }
+};
 /** 2D species: the pollutants, and water age and temperature when the model carries them (engine names). */
 function species(session) {
   const o = session.solver.options,
     list = session.pollutantIds().map((p) => [p, p]);
+  for (const sp of reactionSpecies(session)) if (!list.some(([v]) => same(v, sp))) list.push([sp, sp]);
   if (yes(o.get("WATER_AGE"))) list.push(["__WATER_AGE__", "Water age"]);
   if (yes(o.get("HEAT_TRANSPORT"))) list.push(["__TEMPERATURE__", "Temperature"]);
   return list;
@@ -213,6 +221,231 @@ sections.snow = {
   },
   note: "The snowpack of the cells with a tag, of one cell, or of all cells ([2D_SNOW_DEFAULTS], [2D_SNOW]); NONE keeps snow off them. Blank overrides keep the snowpack's values and the cells' own slope and aspect.",
 };
+// ---- 2D groundwater (E3d-2c): [2D_AQUIFER] rows, node beds, links; [GW_TRANSPORT_PARAMS],
+// [GW_SORPTION], [GW_INITIAL_QUALITY] (the desktop's 2D groundwater dialog; spec in workplans).
+const soilLaws = ["RUSSO", "GARDNER", "BROOKS_COREY", "VAN_GENUCHTEN"];
+const closures = { "-1": "AUTO", 0: "CLOSED_FORM", 1: "ENSLAVED", 2: "SIGMA" };
+const rowExtras = { PSI_B: 0.2, LAMBDA: 0.4, N: 1.6, L: 0.5 }; // engine defaults: written back only when they differ
+const unitsOf = (session) => (session.unitSystem === 0 ? { rate: "in/hr", len: "ft", area: "ft²" } : { rate: "mm/hr", len: "m", area: "m²" });
+const num = (v) => (blankish(v) ? NaN : Number(v));
+sections.aquifer = {
+  title: "2D aquifer",
+  columns: (session) => {
+    const u = unitsOf(session);
+    return [
+      { key: "ks", label: "Ks (" + u.rate + ")", type: "number" },
+      { key: "zs", label: "zs (" + u.len + ")", type: "number" },
+      { key: "thetaS", label: "Porosity θs", type: "number" },
+      { key: "thetaR", label: "Residual θr", type: "number" },
+      { key: "alpha", label: "α (1/" + u.len + ")", type: "number" },
+      { key: "hg0", label: "Initial hg (" + u.len + ")", type: "number", blank: true },
+      { key: "cLoss", label: "Deep loss (" + u.rate + ")", type: "number", blank: true },
+      { key: "soil", label: "Soil law", type: "choice", choices: soilLaws, blankLabel: "Options" },
+      { key: "closure", label: "Closure", type: "choice", choices: Object.values(closures), blankLabel: "Options" },
+    ];
+  },
+  read: (sf) => {
+    const g = sf.groundwater;
+    return g.rows.map((r, i) => {
+      const p = (k) => {
+        try {
+          return g.rowProperty(i, k);
+        } catch {
+          return NaN;
+        }
+      };
+      const set = (k) => (Number.isFinite(p(k)) && p(k) >= 0 ? p(k) : ""); // the engine reads an unset value as negative
+      const values = { ks: r.ks, zs: r.zs, thetaS: r.thetaS, thetaR: r.thetaR, alpha: r.alpha, hg0: set("HG0"), cLoss: set("C_LOSS"), soil: p("SOIL_CHAR_SET") ? soilLaws[p("SOIL_CHAR")] ?? "" : "", closure: p("CLOSURE_SET") ? closures[p("CLOSURE")] ?? "" : "" };
+      // Properties the table does not show ride along, so replacing the rows keeps them.
+      for (const [k, d] of Object.entries(rowExtras)) if (Number.isFinite(p(k)) && Math.abs(p(k) - d) > 1e-12) values["x:" + k] = p(k);
+      const layers = p("M_LAYERS");
+      if (Number.isFinite(layers) && layers >= 2) values["x:M_LAYERS"] = layers;
+      return { scope: CellScope[r.scope], target: target(r), values };
+    });
+  },
+  check: (session, row, label) => {
+    const v = row.values,
+      n = (k) => num(v[k]);
+    if (!(n("ks") > 0)) return label + ": Ks must be above 0.";
+    if (!(n("zs") > 0)) return label + ": zs must be above 0.";
+    if (!(n("thetaS") > 0 && n("thetaS") <= 1)) return label + ": the porosity θs is above 0 and at most 1.";
+    if (!(n("thetaR") >= 0 && n("thetaR") < n("thetaS"))) return label + ": the residual θr is 0 or more and below θs.";
+    if (!(n("alpha") > 0)) return label + ": α must be above 0.";
+    for (const k of ["hg0", "cLoss"]) if (!blankish(v[k]) && !(n(k) >= 0)) return label + ": " + (k === "hg0" ? "the initial hg" : "the deep loss") + " cannot be negative.";
+    if (!blankish(v.soil) && !soilLaws.includes(v.soil)) return label + ": choose a soil law.";
+    if (!blankish(v.closure) && !Object.values(closures).includes(v.closure)) return label + ": choose a closure.";
+    return null;
+  },
+  replace: (sf, rows) => {
+    const g = sf.groundwater;
+    for (let i = g.rows.length - 1; i >= 0; i--) g.removeRow(i);
+    for (const r of rows) {
+      const v = r.values;
+      g.addRow({ scope: CellScope[r.scope], tag: r.at.tag ?? "", cell: r.at.cell ?? -1, ks: num(v.ks), zs: num(v.zs), thetaS: num(v.thetaS), thetaR: num(v.thetaR), alpha: num(v.alpha) });
+      const i = g.rows.length - 1;
+      if (!blankish(v.hg0)) g.setRowProperty(i, "HG0", num(v.hg0));
+      if (!blankish(v.cLoss)) g.setRowProperty(i, "C_LOSS", num(v.cLoss));
+      if (!blankish(v.soil)) g.setRowProperty(i, "SOIL_CHAR", soilLaws.indexOf(v.soil));
+      if (!blankish(v.closure)) g.setRowProperty(i, "CLOSURE", Number(Object.keys(closures).find((c) => closures[c] === v.closure)));
+      for (const k of [...Object.keys(rowExtras), "M_LAYERS"]) if (!blankish(v["x:" + k])) g.setRowProperty(i, k, num(v["x:" + k]));
+    }
+  },
+  note: "The soil of all cells, the cells with a tag, or one cell ([2D_AQUIFER]); a blank soil law or closure follows the groundwater options. Saved to 6 significant digits.",
+};
+sections.nodeBeds = {
+  title: "2D aquifer node beds",
+  scopes: null,
+  columns: (session) => {
+    const u = unitsOf(session);
+    return [
+      { key: "node", label: "Node", type: "choice", choices: session.solver.nodes.ids },
+      { key: "cell", label: "Cell (blank: located)", type: "number", blank: true },
+      { key: "kc", label: "Bed Kc (" + u.rate + ")", type: "number" },
+      { key: "dc", label: "Bed thickness (" + u.len + ")", type: "number" },
+      { key: "area", label: "Exchange area (" + u.area + ")", type: "number" },
+      { key: "exchange", label: "Exchange", type: "choice", choices: ["YES", "NO"] },
+    ];
+  },
+  read: (sf) => sf.groundwater.nodes.filter((b) => !b.automatic).map((b) => ({ values: { node: b.node, cell: b.locate || b.cell < 0 ? "" : b.cell + 1, kc: b.kc, dc: b.dc, area: b.area, exchange: b.exchange ? "YES" : "NO" } })),
+  check: (session, row, label) => {
+    const v = row.values;
+    if (!session.solver.nodes.ids.some((x) => same(x, v.node))) return label + ": choose the node.";
+    if (!blankish(v.cell) && !(Number.isInteger(num(v.cell)) && num(v.cell) >= 1 && num(v.cell) <= session.cells.mannings.length)) return label + ": a cell is a number from 1 to " + session.cells.mannings.length + ", or blank to locate it.";
+    for (const k of ["kc", "dc", "area"]) if (!(num(v[k]) >= 0)) return label + ": " + k + " is 0 or more.";
+    if (!["YES", "NO"].includes(v.exchange)) return label + ": choose whether it exchanges.";
+    return null;
+  },
+  key: (row) => String(row.values.node).toUpperCase(),
+  replace: (sf, rows, session) => {
+    const g = sf.groundwater,
+      current = g.nodes;
+    const next = rows.map(({ values: v }) => ({
+      node: session.solver.nodes.ids.find((x) => same(x, v.node)),
+      cell: blankish(v.cell) ? -1 : num(v.cell) - 1,
+      locate: blankish(v.cell),
+      exchange: v.exchange === "YES",
+      automatic: false,
+      kc: num(v.kc),
+      dc: num(v.dc),
+      area: num(v.area),
+    }));
+    g.replaceNodes(current, [...current.filter((b) => b.automatic), ...next]); // atomic: all or nothing
+  },
+  note: "Where a node's bed exchanges water with the aquifer ([2D_AQUIFER_NODE]): its cell (blank locates it from the node), bed conductivity, thickness and area (0 uses the cell's).",
+};
+sections.aquiferLinks = {
+  title: "2D aquifer links",
+  scopes: null,
+  columns: (session) => {
+    const u = unitsOf(session);
+    return [
+      { key: "link", label: "Conduit", type: "choice", choices: session.solver.links.ids.filter((id) => session.solver.links.get(id).type === 0) },
+      { key: "kc", label: "Kc (" + u.rate + ")", type: "number" },
+      { key: "dc", label: "Thickness (" + u.len + ")", type: "number" },
+      { key: "exchange", label: "Exchange", type: "choice", choices: ["YES", "NO"] },
+    ];
+  },
+  read: (sf) => sf.groundwater.links.map((l) => ({ values: { link: l.link, kc: l.kc, dc: l.dc, exchange: l.exchange ? "YES" : "NO" } })),
+  check: (session, row, label) => {
+    const v = row.values,
+      s = session.solver;
+    if (!s.links.ids.some((x) => same(x, v.link) && s.links.get(x).type === 0)) return label + ": choose a conduit.";
+    for (const k of ["kc", "dc"]) if (!(num(v[k]) >= 0)) return label + ": " + k + " is 0 or more.";
+    if (!["YES", "NO"].includes(v.exchange)) return label + ": choose whether it exchanges.";
+    return null;
+  },
+  key: (row) => String(row.values.link).toUpperCase(),
+  replace: (sf, rows, session) => {
+    const g = sf.groundwater;
+    for (let i = g.links.length - 1; i >= 0; i--) g.removeLink(i);
+    for (const { values: v } of rows) g.addLink(session.solver.links.ids.find((x) => same(x, v.link)), num(v.kc), num(v.dc), v.exchange === "YES");
+  },
+  note: "A conduit's bed exchanging with the aquifer ([2D_AQUIFER_LINKS]): Kc 0 uses the conduit's seepage rate, thickness 0 its full depth.",
+};
+const gwParamColumns = [
+  ["rhoS", "Grain density (kg/m³)", 2650],
+  ["cS", "Grain specific heat (J/kg/K)", 880],
+  ["lambdaS", "Grain conductivity (W/m/K)", 2],
+  ["aS", "Specific surface (m²/kg)", 0],
+  ["alphaL", "Longitudinal dispersivity (m)", 1],
+  ["alphaT", "Transverse dispersivity (m)", 0.1],
+  ["dM", "Molecular diffusivity (m²/s)", 1e-9],
+  ["dV", "Vapor diffusivity (m²/s)", 1e-9],
+  ["geoFlux", "Geothermal flux (W/m²)", 0.065],
+];
+sections.gwParams = {
+  title: "2D groundwater transport parameters",
+  columns: () => gwParamColumns.map(([key, label]) => ({ key, label, type: "number" })),
+  read: (sf) => sf.groundwater.transport.parameters.map((r) => ({ scope: CellScope[r.scope], target: r.scope === CellScope.TAG ? r.tag : r.scope === CellScope.CELL ? String(r.cell + 1) : "", values: Object.fromEntries(gwParamColumns.map(([k]) => [k, r[k]])) })),
+  check: (session, row, label) => {
+    for (const [k, l] of gwParamColumns) {
+      const n = num(row.values[k]);
+      if (!Number.isFinite(n)) return label + ": enter the " + l.replace(/ \(.*$/, "").toLowerCase() + ".";
+      if (k !== "geoFlux" && n < 0) return label + ": the " + l.replace(/ \(.*$/, "").toLowerCase() + " cannot be negative.";
+    }
+    return null;
+  },
+  clear: (sf) => {
+    const tr = sf.groundwater.transport;
+    for (let i = tr.parameters.length - 1; i >= 0; i--) tr.removeParameters(i);
+  },
+  write: (sf, row, at) => sf.groundwater.transport.setParameters({ scope: row.scope, tag: at.tag ?? "", cell: at.cell ?? -1, ...Object.fromEntries(gwParamColumns.map(([k]) => [k, num(row.values[k])])) }),
+  note: "Grain and pore-water properties for groundwater transport and soil heat, in SI units ([GW_TRANSPORT_PARAMS]).",
+};
+sections.gwSorption = {
+  title: "2D groundwater sorption",
+  columns: (session) => [
+    { key: "species", label: "Species", type: "choice", choices: species(session).map(([v]) => v), labels: Object.fromEntries(species(session)) },
+    { key: "kd", label: "Kd (L/kg)", type: "number" },
+    { key: "decay", label: "Decay (1/day)", type: "number", blank: true },
+  ],
+  read: (sf) => sf.groundwater.transport.sorption.map((r) => ({ scope: CellScope[r.scope], target: target(r), values: { species: r.species, kd: r.kd, decay: r.decay < 0 ? "" : r.decay } })),
+  check: (session, row, label) => {
+    // An unknown species is taken and written, and then the deck cannot be opened again.
+    if (!species(session).some(([v]) => same(v, row.values.species))) return label + ": choose a species (" + species(session).map(([, l]) => l).join(", ") + ").";
+    if (!(num(row.values.kd) >= 0)) return label + ": Kd is 0 or more.";
+    if (!blankish(row.values.decay) && !(num(row.values.decay) >= 0)) return label + ": the decay is 0 or more (blank: the pollutant's).";
+    return null;
+  },
+  key: (row) => String(row.values.species).toUpperCase(),
+  canon: (session, row) => ({ ...row, values: { ...row.values, species: species(session).find(([v]) => same(v, row.values.species))[0] } }),
+  clear: (sf) => {
+    const tr = sf.groundwater.transport;
+    for (let i = tr.sorption.length - 1; i >= 0; i--) tr.removeSorption(i);
+  },
+  write: (sf, row, at) => sf.groundwater.transport.setSorption({ scope: row.scope, tag: at.tag ?? "", cell: at.cell ?? -1, species: row.values.species, kd: num(row.values.kd), decay: blankish(row.values.decay) ? -1 : num(row.values.decay) }),
+  note: "Linear sorption of a species onto the aquifer's grains ([GW_SORPTION]); a blank decay uses the pollutant's.",
+};
+sections.gwInitialQuality = {
+  title: "2D groundwater initial quality",
+  columns: (session) => {
+    const layered = sections.gwInitialQuality.read(session.solver.surface2d).map((r) => r.values.zone).filter((z) => /^LAYER /.test(z));
+    return [
+      { key: "zone", label: "Zone", type: "choice", choices: ["SAT", "UNSAT", ...new Set(layered)] },
+      { key: "species", label: "Species", type: "choice", choices: species(session).map(([v]) => v), labels: Object.fromEntries(species(session)) },
+      { key: "value", label: "Initial value", type: "number" },
+    ];
+  },
+  read: (sf) => sf.groundwater.transport.initialQuality.map((r) => ({ scope: CellScope[r.scope], target: target(r), values: { zone: r.zone === 0 ? "SAT" : r.zone === 1 ? "UNSAT" : "LAYER " + r.layer, species: r.species, value: r.value } })),
+  check: (session, row, label) => {
+    if (!/^(SAT|UNSAT|LAYER \d+)$/.test(row.values.zone)) return label + ": choose the zone.";
+    if (!species(session).some(([v]) => same(v, row.values.species))) return label + ": choose a species (" + species(session).map(([, l]) => l).join(", ") + ").";
+    if (!Number.isFinite(num(row.values.value))) return label + ": enter the initial value.";
+    return null;
+  },
+  key: (row) => row.values.zone + "|" + String(row.values.species).toUpperCase(),
+  keyName: "zone and species",
+  canon: (session, row) => ({ ...row, values: { ...row.values, species: species(session).find(([v]) => same(v, row.values.species))[0] } }),
+  clear: (sf) => {
+    const tr = sf.groundwater.transport;
+    for (let i = tr.initialQuality.length - 1; i >= 0; i--) tr.removeInitialQuality(i);
+  },
+  write: (sf, row, at) => {
+    const z = row.values.zone;
+    sf.groundwater.transport.setInitialQuality({ scope: row.scope, tag: at.tag ?? "", cell: at.cell ?? -1, zone: z === "SAT" ? 0 : z === "UNSAT" ? 1 : 2, layer: z.startsWith("LAYER") ? Number(z.slice(6)) : -1, species: row.values.species, value: num(row.values.value) });
+  },
+  note: "The aquifer's water at the start ([GW_INITIAL_QUALITY]): saturated (SAT) or unsaturated (UNSAT) zone, in the species' units (water age in seconds, temperature in °C).",
+};
 export const scopedSections = Object.keys(sections);
 
 /** A section's columns and rows (only for a model with a mesh). */
@@ -220,7 +453,7 @@ export function scopedRows(session, name) {
   const sec = sections[name];
   if (!sec) throw new Error("No 2D section " + name + ".");
   if (!session.cells?.mannings?.length) throw new Error("This model has no 2D surface.");
-  return { name, title: sec.title, scopes: sec.scopes || scopes, columns: sec.columns(session), rows: sec.read(session.solver.surface2d, session), note: sec.note, tags: [...new Set(session.cells.tag.filter(Boolean))].sort(), cells: session.cells.mannings.length };
+  return { name, title: sec.title, scopes: sec.scopes === null ? null : sec.scopes || scopes, columns: sec.columns(session), rows: sec.read(session.solver.surface2d, session), note: sec.note, tags: [...new Set(session.cells.tag.filter(Boolean))].sort(), cells: session.cells.mannings.length };
 }
 
 /** Replace a section's rows, all checked first; returns the rows there were (undo). */
@@ -231,15 +464,15 @@ export function setScopedRows(session, name, rows) {
     seen = new Set();
   rows.forEach((row, i) => {
     const label = "Row " + (i + 1);
-    const scope = row.scope,
+    const scope = sec.scopes === null ? "NONE" : row.scope,
       t = String(row.target ?? "").trim();
-    if (!(scope in (sec.scopes || scopes))) return errors.push(label + ": choose " + Object.values(sec.scopes || scopes).join(", ").toLowerCase() + ".");
+    if (sec.scopes !== null && !(scope in (sec.scopes || scopes))) return errors.push(label + ": choose " + Object.values(sec.scopes || scopes).join(", ").toLowerCase() + ".");
     if (scope === "TAG" && !tags.some((x) => same(x, t))) return errors.push(label + ": no cell has the tag " + (t || "(blank)") + (tags.length ? " (tags: " + tags.join(", ") + ")." : "; this mesh has no tags."));
     if (scope === "CELL" && !(Number.isInteger(Number(t)) && Number(t) >= 1 && Number(t) <= cells)) return errors.push(label + ": a cell is a number from 1 to " + cells + ".");
     const problem = sec.check(session, row, label);
     if (problem) return errors.push(problem);
     const key = scope + ":" + (scope === "GLOBAL" ? "*" : t.toUpperCase()) + ":" + (sec.key ? sec.key(row) : "");
-    if (seen.has(key)) errors.push(label + " repeats an earlier row's scope" + (sec.key ? " and species" : "") + ".");
+    if (seen.has(key)) errors.push(label + " repeats an earlier row" + (sec.scopes === null ? "" : "'s scope" + (sec.key ? " and " + (sec.keyName || "species") : "")) + ".");
     seen.add(key);
   });
   if (errors.length) throw new Error(errors.join(" "));

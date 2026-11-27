@@ -11,9 +11,10 @@ import { raiseForCode } from "./vendor/engine/errors.js";
 import { TransportDispersionMode, catalog } from "./vendor/engine/index.js";
 import { options2dGroups, applyOptions2d } from "./options2d.mjs";
 import { frostFields, frostDefaults, frostValues } from "./properties.mjs";
+import { groundwaterGroups, applyGroundwater } from "./groundwater-options.mjs";
 
 /** Edit object kinds that are one section of the deck (E3c) or one settings card (E3d-1). */
-export const sectionKinds = ["options2d", "snow2d", "title", "report", "files", "transport", "ueb", "components"];
+export const sectionKinds = ["options2d", "snow2d", "gw2d", "gwtransport2d", "title", "report", "files", "transport", "ueb", "components"];
 /** The ARD transport component; its settings are saved only in its file ([PROCESS_COMPONENTS]). */
 const ARD = "org.hydrocouple.openswmm.transport.ard";
 /** The desktop's UEB parameters (openswmm.gui snowclimatesettings.h uebFields): key, label, group, range. */
@@ -105,6 +106,7 @@ function projectFile(session, path) {
 export function sectionGroups(session, kind) {
   const x = session.solver;
   if (kind === "options2d") return options2dGroups(session);
+  if (kind === "gw2d" || kind === "gwtransport2d") return groundwaterGroups(session, kind);
   if (kind === "snow2d") {
     if (!session.cells?.mannings?.length) return [{ key: "snow-none", title: "2D snow", fields: [], note: "This model has no 2D surface." }];
     const o = x.surface2d.snow.options,
@@ -227,6 +229,7 @@ const ardRow = (x) => [...x.processComponents].find((c) => c.id === ARD) ?? null
 export function applySection(session, kind, key, values) {
   const x = session.solver;
   if (kind === "options2d") return applyOptions2d(session, key, values);
+  if (kind === "gw2d" || kind === "gwtransport2d") return applyGroundwater(session, kind, key, values);
   if (kind === "snow2d" && key === "snowOptions") {
     const need = (cond, message) => {
       if (!cond) throw new Error(message);
