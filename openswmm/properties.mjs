@@ -2,14 +2,15 @@
  * Property groups of map objects that the engine's field catalog has no rows for (interaction phase
  * E3b): a link's cross-section, losses, discharge coefficient, pump curve, inlet and LID layer anchor;
  * an outfall's, storage unit's (and its LID's) and divider's parameters, an inlet junction's inlet; a
- * subcatchment's infiltration, groundwater and frozen ground; the initial quality of nodes and links.
+ * subcatchment's infiltration, groundwater and frozen ground; the initial quality of nodes and links
+ * (reaction species too) and a node's 2D coupling (E3d-3).
  * Each group is read
  * as `{key, title, fields, note}` — a field `{name, label, unit, type: "number" | "choice" | "text",
  * value, choices: [[value, label]], when: {name, in: [...]}}` shows only while the named field holds one
  * of `in` — and written back whole, checked as legacy SWMM 5.2.4 checks it. The session (model.mjs)
  * owns the engine; these functions take it.
  */
-import { NodeType, LinkType, TableType, XSectShape, OutfallType, StorageShape, DividerType, InfilModel, GwfType, WeirView, InletPlacement, LidType, LidNodeLayerKind, catalog } from "./vendor/engine/index.js";
+import { NodeType, LinkType, TableType, XSectShape, OutfallType, StorageShape, DividerType, InfilModel, GwfType, WeirView, InletPlacement, LidType, LidNodeLayerKind, NodeCoupling2DType, catalog } from "./vendor/engine/index.js";
 
 /** Catalog rows a group shows instead (bare indices or a type that the group's fields follow). */
 export const replacedRows = new Set(["node.outfall.type", "node.outfall.route_to", "node.storage.shape", "node.storage.curve", "node.divider.type", "link.pump.curve", "subcatchment.infiltration.model"]);
@@ -130,6 +131,64 @@ function inletGroup(s, u, kind, row, ends) {
   };
 }
 
+/** The structures each node class may couple as (the desktop's nodecoupling2d.cpp allowedTypes). */
+const couplingTypes = { JUNCTION: ["NONE", "MANHOLE", "GRATE", "CURB"], DIVIDER: ["NONE", "MANHOLE", "GRATE", "CURB"], STORAGE: ["NONE", "MANHOLE", "GRATE", "CURB", "OPEN"], OUTFALL: ["NONE", "OUTFALL"] };
+const couplingLabels = { NONE: "Not coupled", MANHOLE: "Manhole", GRATE: "Grate", CURB: "Curb", OPEN: "Open storage", OUTFALL: "Outfall" };
+const exchanging = ["MANHOLE", "GRATE", "CURB", "OPEN"];
+/**
+ * [2D_NODE_COUPLING] keys as the desktop's node card shows them (swmmnodepropertyadapter.cpp): key,
+ * label, unit or choices, the structures it applies to (propertiespanel.cpp applyCouplingRowFlags).
+ */
+const couplingKeys = [
+  ["D", "Manhole diameter", "length", ["MANHOLE"]],
+  ["PERIMETER", "Inlet perimeter", "length", ["GRATE", "CURB", "OPEN"]],
+  ["AREA", "Opening area", "area", ["GRATE", "CURB", "OPEN"]],
+  ["CHAMBER_AREA", "Chamber area", "area", exchanging],
+  ["LID_OPEN_FRACTION", "Lid open fraction", "", exchanging],
+  ["CREST", "Crest elevation", [["", "Default (node rim)"], ["NODE_RIM", "Node rim"], ["MESH_BED", "Mesh bed"], ["MAX", "Higher of rim and bed"], ["MIN", "Lower of rim and bed"]], exchanging],
+  ["LAW", "Exchange law", [["", "From 2D options"], ["ORIFICE", "Orifice"], ["WEIR_ORIFICE", "Weir and orifice"]], exchanging],
+  ["COEFFS", "Coefficients", [["", "From 2D options"], ["DEFAULT", "Default"], ["RUBINATO2017", "Rubinato 2017"], ["RUBINATO2017_LOWER", "Rubinato 2017, lower"], ["RUBINATO2017_UPPER", "Rubinato 2017, upper"]], exchanging],
+  ["CW", "Weir coefficient (Cw)", "", exchanging],
+  ["CSW", "Submerged weir coefficient (Csw)", "", exchanging],
+  ["COI", "Orifice coefficient in (Coi)", "", exchanging],
+  ["COO", "Orifice coefficient out (Coo)", "", exchanging],
+  ["SPREAD", "Discharge spread", "length", ["OUTFALL"]],
+  ["TAILWATER_RELAX", "Tailwater relaxation", "s", ["OUTFALL"]],
+];
+/** Does any node carry a [2D_NODE_COUPLING] row? */
+const anyCoupling = (s) => s.nodes.ids.some((n) => s.surface2d.getNodeCouplingType(s.nodes.get(n).index)[1]);
+
+/**
+ * A node's 1D ↔ 2D coupling ([2D_NODE_COUPLING]), as the desktop's node card: the structure (blank =
+ * the class default, no row) and its parameters (blank = the structure's default or the 2D options).
+ * Shown for junctions, storage units, dividers and outfalls of a model with a mesh or with coupling
+ * rows; inlet and virtual junctions do not couple (an inlet already takes street flow into the sewer).
+ */
+function couplingGroup(session, u, id) {
+  const s = session.solver,
+    n = s.nodes.get(id),
+    types = couplingTypes[NodeType[n.type]];
+  if (!types || n.isInlet || n.isVirtual) return null;
+  if (!session.cells?.mannings?.length && !anyCoupling(s)) return null;
+  const g = s.surface2d,
+    [type, authored] = g.getNodeCouplingType(n.index),
+    def = NodeCoupling2DType[g.getNodeCouplingDefaultType(n.index)];
+  const fields = [{ name: "type", label: "Structure", type: "choice", value: authored ? NodeCoupling2DType[type] : "", choices: [["", "Default (" + couplingLabels[def].toLowerCase() + ")"], ...types.map((t) => [t, couplingLabels[t]])] }];
+  for (const [key, label, unit, on] of couplingKeys) {
+    if (!on.some((t) => types.includes(t))) continue;
+    const token = authored ? g.getNodeCouplingParam(n.index, key) : "";
+    const when = { name: "type", in: [...on, ...(on.includes(def) ? [""] : [])] };
+    if (Array.isArray(unit)) fields.push({ name: "c:" + key, label, type: "choice", value: token, choices: unit, when });
+    else fields.push({ name: "c:" + key, label, unit: unit === "s" ? "s" : unit ? u(unit) : undefined, type: "number", value: token === "" ? "" : Number(token), when });
+  }
+  return {
+    key: "coupling2d",
+    title: "2D coupling",
+    fields,
+    note: "Blank uses the structure's default or the 2D options." + (types.includes("OUTFALL") ? " Tailwater relaxation applies to outfalls that are not FREE." : ""),
+  };
+}
+
 /** Initial quality of a node or link ([INITIAL_QUALITY]): a row per pollutant, water age, temperature. */
 function qualityGroup(session, kind, id) {
   const s = session.solver,
@@ -139,12 +198,24 @@ function qualityGroup(session, kind, id) {
   const constituents = session.pollutantIds().map((p) => [p, p, concUnits[s.pollutants.get(p).units] ?? ""]);
   if (yes(s.options.get("WATER_AGE"))) constituents.push([q.WATER_AGE, "Water age", "hours"]);
   if (yes(s.options.get("HEAT_TRANSPORT"))) constituents.push([q.TEMPERATURE, "Temperature", "°C"]);
-  if (!constituents.length) return null;
   const rows = [...q].map((r, i) => ({ ...r, i })).filter((r) => r.isLink === isLink && r.elemIndex === index);
   const fields = constituents.map(([c, label, unit]) => {
     const r = rows.find((r) => (c.startsWith("__") ? r.constituent === c : same(r.constituent, c)));
     return { name: "q:" + c, label, unit, type: "number", value: r ? r.value : "", readonly: r ? q.isFile(r.i) : false };
   });
+  // Reaction species ([REACTION_QUALITY] NODE|LINK, saved with the reaction system), any species on
+  // either, as the desktop's reaction editor; bulk per liter, wall per the system's area units.
+  const re = s.reactions,
+    species = [...re.species];
+  if (species.length) {
+    const area = re.getOption("AREA_UNITS") || "FT2",
+      own = [...re.initial].filter((r) => r.isLink === isLink && r.elemIndex === index);
+    species.forEach((sp, k) => {
+      const r = own.find((r) => r.speciesIndex === k);
+      fields.push({ name: "r:" + sp.name, label: sp.name + (sp.isWall ? " (wall)" : ""), unit: sp.units + "/" + (sp.isWall ? area : "L"), type: "number", value: r ? r.value : "" });
+    });
+  }
+  if (!fields.length) return null;
   return { key: "quality", title: "Initial quality", fields, note: "Blank starts the constituent at its model-wide initial value." + (fields.some((f) => f.readonly) ? " Values from the initial-quality file are edited there." : "") };
 }
 
@@ -443,6 +514,10 @@ export function propertyGroups(session, kind, id) {
       note: "SI values whatever the project's units." + (frost["*"] ? " Without values of its own the model's default row (*) applies." : ""),
     });
   }
+  if (kind === "node") {
+    const c = couplingGroup(session, u, id);
+    if (c) groups.push(c);
+  }
   if (kind === "node" || kind === "link") {
     const q = qualityGroup(session, kind, id);
     if (q) groups.push(q);
@@ -660,10 +735,11 @@ export function applyGroup(session, kind, id, key, values) {
     }
   } else if (key === "quality" && (kind === "node" || kind === "link")) {
     const q = s.initialQuality,
+      re = s.reactions,
       isLink = kind === "link",
       index = (isLink ? s.links : s.nodes).get(id).index,
       group = qualityGroup(session, kind, id);
-    need(group, "This model has no pollutants, water age or temperature.");
+    need(group, "This model has no pollutants, water age, temperature or reaction species.");
     const blank = (v) => v === "" || v === null || v === undefined;
     const given = group.fields.filter((f) => f.name in values);
     for (const f of given) {
@@ -678,12 +754,49 @@ export function applyGroup(session, kind, id, key, values) {
       if (f.readonly) continue;
       const c = f.name.slice(2),
         v = values[f.name];
-      if (!blank(v)) q.set(c, Number(v), isLink ? { link: id } : { node: id });
+      if (f.name.startsWith("r:")) {
+        const k = [...re.species].findIndex((sp) => sp.name === c),
+          i = [...re.initial].findIndex((r) => r.isLink === isLink && r.elemIndex === index && r.speciesIndex === k);
+        if (!blank(v)) re.initial.set(isLink, index, c, Number(v));
+        else if (i >= 0) re.initial.remove(i);
+      } else if (!blank(v)) q.set(c, Number(v), isLink ? { link: id } : { node: id });
       else {
         const i = [...q].findIndex((r) => r.isLink === isLink && r.elemIndex === index && (c.startsWith("__") ? r.constituent === c : same(r.constituent, c)));
         if (i >= 0) q.remove(i);
       }
     }
+  } else if (kind === "node" && key === "coupling2d") {
+    const g = s.surface2d,
+      n = s.nodes.get(id),
+      shown = couplingGroup(session, () => "", id),
+      blank = (v) => v === "" || v === null || v === undefined;
+    need(shown, id + " does not couple to the 2D surface.");
+    const types = couplingTypes[NodeType[n.type]],
+      type = values.type ?? "";
+    // The engine refuses with a bare code; say why as the desktop's choices do.
+    need(type === "" || types.includes(type), NodeType[n.type] === "OUTFALL" ? "An outfall couples as an outfall or not at all." : NodeType[n.type] === "STORAGE" ? "A storage unit couples as a manhole, grate, curb or open storage, or not at all." : "A junction or divider couples as a manhole, grate or curb, or not at all.");
+    const effective = type || NodeCoupling2DType[g.getNodeCouplingDefaultType(n.index)],
+      changed = type !== shown.fields[0].value,
+      params = {};
+    for (const [key, label, unit, on] of couplingKeys) {
+      const v = values["c:" + key];
+      if (blank(v) || effective === "NONE") continue;
+      // A new structure keeps only what applies to it (the desktop clears the rest); an unchanged one
+      // keeps its row as it was.
+      if (changed && !on.includes(effective)) continue;
+      if (Array.isArray(unit)) {
+        need(unit.some(([t]) => t && t === v), label + " is one of " + unit.filter(([t]) => t).map(([, l]) => l.toLowerCase()).join(", ") + ".");
+        params[key] = v;
+        continue;
+      }
+      const x = num(v, label);
+      if (key === "LID_OPEN_FRACTION") need(x > 0 && x <= 1, "The lid open fraction is above 0 and at most 1.");
+      else if (key === "SPREAD" || key === "TAILWATER_RELAX") need(x >= 0, label + " cannot be negative.");
+      else need(x > 0, label + " must be above 0.");
+      params[key] = x;
+    }
+    if (type === "" && !Object.keys(params).length) g.resetNodeCoupling(n.index);
+    else g.replaceNodeCoupling(n.index, NodeCoupling2DType[effective], params);
   } else if (kind === "subcatchment" && key === "frost") {
     if (values.row !== "own") {
       if (s.frozenGroundRows()[id]) s.removeFrozenGround(id);
