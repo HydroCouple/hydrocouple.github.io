@@ -5,16 +5,22 @@
  * desktop does). Boundaries and sources apply to reaction species only (the engine's resolver). Read as
  * `{columns, rows}` without scopes (scoped-table.mjs) and replaced whole, checked here first.
  */
-const ARD = "org.hydrocouple.openswmm.transport.ard";
+export const ARD = "org.hydrocouple.openswmm.transport.ard";
 const same = (a, b) => String(a).toUpperCase() === String(b).toUpperCase();
 const blankish = (v) => v === "" || v === null || v === undefined;
 const stem = (session) => session.entry.replace(/^.*\//, "").replace(/\.[^.]*$/, "");
 const conduits = (s) => s.links.ids.filter((id) => s.links.get(id).type === 0);
+// One row's element, found without building the conduit list (a link view costs ~1 ms: Bellinge has 1,044).
+const conduitId = (s, id) => {
+  const c = s.links.ids.find((x) => same(x, id));
+  return c !== undefined && s.links.get(c).type === 0 ? c : undefined;
+};
+const nodeId = (s, id) => s.nodes.ids.find((x) => same(x, id));
 const reactionSpecies = (s) => [...s.reactions.species].map((sp) => sp.name);
 const seriesNames = (session) => session.timeseriesIds?.() ?? [];
 
 /** A boundary or source table: an element, a reaction species, a value or a time series. */
-const rowTable = (title, element, elements, source, note) => ({
+const rowTable = (title, element, elements, elementId, source, note) => ({
   title,
   columns: (session) => [
     { key: "element", label: element, type: "choice", choices: elements(session.solver) },
@@ -30,7 +36,7 @@ const rowTable = (title, element, elements, source, note) => ({
   check: (session, row, label) => {
     const s = session.solver,
       v = row.values;
-    if (!elements(s).some((e) => same(e, v.element))) return label + ": choose the " + element.toLowerCase() + ".";
+    if (elementId(s, v.element) === undefined) return label + ": choose the " + element.toLowerCase() + ".";
     if (!reactionSpecies(s).some((sp) => same(sp, v.species))) return label + ": choose a reaction species" + (reactionSpecies(s).length ? "." : " (define them under Reactions).");
     if (v.from === "TIMESERIES") {
       if (!seriesNames(session).some((t) => same(t, v.series))) return label + ": choose the time series.";
@@ -47,7 +53,7 @@ const rowTable = (title, element, elements, source, note) => ({
       s = session.solver;
     for (let i = (source ? t.sources : t.boundaries).length - 1; i >= 0; i--) (source ? t.removeSource(i) : t.removeBoundary(i));
     for (const { values: v } of rows) {
-      const el = elements(s).find((e) => same(e, v.element)),
+      const el = elementId(s, v.element),
         sp = reactionSpecies(s).find((x) => same(x, v.species));
       const ts = v.from === "TIMESERIES" ? seriesNames(session).find((x) => same(x, v.series)) : null;
       source ? t.setSource(el, sp, ts ? 0 : Number(v.value), ts) : t.setBoundary(el, sp, ts ? 0 : Number(v.value), ts);
@@ -65,7 +71,7 @@ const tables = {
     ],
     read: (s) => s.transport.conduitDispersion.map((r) => ({ values: { conduit: s.links.getId(r.linkIndex), value: r.value } })),
     check: (session, row, label) => {
-      if (!conduits(session.solver).some((c) => same(c, row.values.conduit))) return label + ": choose a conduit.";
+      if (conduitId(session.solver, row.values.conduit) === undefined) return label + ": choose a conduit.";
       const n = Number(row.values.value);
       return blankish(row.values.value) || !(n >= 0) ? label + ": the coefficient is 0 or more." : null;
     },
@@ -74,18 +80,28 @@ const tables = {
       const t = session.solver.transport,
         s = session.solver;
       for (let i = t.conduitDispersion.length - 1; i >= 0; i--) t.removeConduitDispersion(i);
-      for (const { values: v } of rows) t.setConduitDispersion(s.links.get(conduits(s).find((c) => same(c, v.conduit))).index, Number(v.value));
+      for (const { values: v } of rows) t.setConduitDispersion(s.links.get(conduitId(s, v.conduit)).index, Number(v.value));
     },
     note: "A conduit's own dispersion coefficient, in place of the model-wide dispersion.",
   },
-  ardBoundaries: rowTable("Transport boundaries", "Node", (s) => s.nodes.ids, false, "A reaction species' concentration held at a node: a value or a time series."),
-  ardSources: rowTable("Transport sources", "Conduit", conduits, true, "A reaction species added along a conduit (a negative rate takes it out): a value or a time series."),
+  ardBoundaries: rowTable("Transport boundaries", "Node", (s) => s.nodes.ids, nodeId, false, "A reaction species' concentration held at a node: a value or a time series."),
+  ardSources: rowTable("Transport sources", "Conduit", conduits, conduitId, true, "A reaction species added along a conduit (a negative rate takes it out): a value or a time series."),
 };
 export const transportTables = Object.keys(tables);
 
 export function transportRows(session, name) {
   const t = tables[name];
   return { name, title: t.title, scopes: null, columns: t.columns(session), rows: t.read(session.solver), note: t.note };
+}
+
+/** A table's rows alone (no columns: a card needs only its own rows). */
+export function readTransportRows(session, name) {
+  return tables[name].read(session.solver);
+}
+
+/** Check one row as the table does (`label` starts the message); null when it is good. */
+export function checkTransportRow(session, name, row, label) {
+  return tables[name].check(session, row, label);
 }
 
 /** Replace a table's rows (checked first; the component is registered on the first change). */

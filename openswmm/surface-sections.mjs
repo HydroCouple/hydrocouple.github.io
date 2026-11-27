@@ -226,7 +226,7 @@ sections.snow = {
 const soilLaws = ["RUSSO", "GARDNER", "BROOKS_COREY", "VAN_GENUCHTEN"];
 const closures = { "-1": "AUTO", 0: "CLOSED_FORM", 1: "ENSLAVED", 2: "SIGMA" };
 const rowExtras = { PSI_B: 0.2, LAMBDA: 0.4, N: 1.6, L: 0.5 }; // engine defaults: written back only when they differ
-const unitsOf = (session) => (session.unitSystem === 0 ? { rate: "in/hr", len: "ft", area: "ft²" } : { rate: "mm/hr", len: "m", area: "m²" });
+export const unitsOf = (session) => (session.unitSystem === 0 ? { rate: "in/hr", len: "ft", area: "ft²" } : { rate: "mm/hr", len: "m", area: "m²" });
 const num = (v) => (blankish(v) ? NaN : Number(v));
 sections.aquifer = {
   title: "2D aquifer",
@@ -312,6 +312,7 @@ sections.nodeBeds = {
     if (!session.solver.nodes.ids.some((x) => same(x, v.node))) return label + ": choose the node.";
     if (!blankish(v.cell) && !(Number.isInteger(num(v.cell)) && num(v.cell) >= 1 && num(v.cell) <= session.cells.mannings.length)) return label + ": a cell is a number from 1 to " + session.cells.mannings.length + ", or blank to locate it.";
     for (const k of ["kc", "dc", "area"]) if (!(num(v[k]) >= 0)) return label + ": " + k + " is 0 or more.";
+    if (num(v.kc) > 0 && !(num(v.dc) > 0)) return label + ": a bed with Kc above 0 needs a thickness above 0."; // the engine's rule (swmm_gw2d_node_replace)
     if (!["YES", "NO"].includes(v.exchange)) return label + ": choose whether it exchanges.";
     return null;
   },
@@ -456,10 +457,24 @@ export function scopedRows(session, name) {
   return { name, title: sec.title, scopes: sec.scopes === null ? null : sec.scopes || scopes, columns: sec.columns(session), rows: sec.read(session.solver.surface2d, session), note: sec.note, tags: [...new Set(session.cells.tag.filter(Boolean))].sort(), cells: session.cells.mannings.length };
 }
 
+/** Check one row as the section's table does (`label` starts the message); null when it is good. */
+export function checkScopedRow(session, name, row, label) {
+  return sections[name].check(session, row, label);
+}
+
+/** A section's rows alone (no columns: a card needs only its own rows; columns list every link). */
+export function readScopedRows(session, name) {
+  if (!session.cells?.mannings?.length) throw new Error("This model has no 2D surface.");
+  return sections[name].read(session.solver.surface2d, session);
+}
+
 /** Replace a section's rows, all checked first; returns the rows there were (undo). */
 export function setScopedRows(session, name, rows) {
   const sec = sections[name];
-  const { rows: before, tags, cells } = scopedRows(session, name);
+  if (!sec) throw new Error("No 2D section " + name + ".");
+  const before = readScopedRows(session, name),
+    tags = [...new Set(session.cells.tag.filter(Boolean))].sort(),
+    cells = session.cells.mannings.length;
   const errors = [],
     seen = new Set();
   rows.forEach((row, i) => {

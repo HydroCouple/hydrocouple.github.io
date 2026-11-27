@@ -618,7 +618,9 @@ export class Editor {
       return;
     }
     if (!current()) return; // a later show() draws (two for one kind would both append option cards)
-    const scopeText = (r) => (r.scope === "GLOBAL" ? "all cells" : r.scope === "TAG" ? "tag " + r.target : "cell " + r.target);
+    // A table without cell scopes (node beds, links, ARD) names its object (and species).
+    const objectText = (v) => [v.node ?? v.link ?? v.conduit ?? v.element, v.species].filter((x) => x !== undefined && x !== "").join(" ");
+    const scopeText = (r) => (!r.scope ? objectText(r.values) : r.scope === "GLOBAL" ? "all cells" : r.scope === "TAG" ? "tag " + r.target : "cell " + r.target);
     props.replaceChildren(
       ...sections.map((d) => {
         const edit = node("button", { type: "button", className: "tb ghost", textContent: "Edit " + d.title.replace(/^2D /, "").toLowerCase() + "…" });

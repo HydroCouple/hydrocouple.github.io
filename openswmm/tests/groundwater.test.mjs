@@ -66,6 +66,7 @@ test("aquifer rows, node beds and links: checked, written, reopened, extras kept
   assert.equal(s.solver.groundwater2d.rowProperty(0, "N"), 2.2);
   refuse("nodeBeds", [{ values: { node: "NOPE", cell: "", kc: 0, dc: 0, area: 0, exchange: "YES" } }], /choose the node/);
   refuse("nodeBeds", [{ values: { node: "J1", cell: 99, kc: 0, dc: 0, area: 0, exchange: "YES" } }], /a cell is a number from 1 to/);
+  refuse("nodeBeds", [{ values: { node: "J1", cell: "", kc: 0.1, dc: 0, area: 0, exchange: "YES" } }], /a bed with Kc above 0 needs a thickness above 0/);
   s.setScopedRows("nodeBeds", [{ values: { node: "j1", cell: "", kc: 0.1, dc: 0.5, area: 0, exchange: "YES" } }]);
   s.setScopedRows("aquiferLinks", [{ values: { link: "C1", kc: 0, dc: 0, exchange: "YES" } }]);
   const out = decoder.decode(s.writeAll()["m.inp"]);

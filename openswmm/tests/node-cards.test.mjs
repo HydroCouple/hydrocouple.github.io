@@ -92,3 +92,65 @@ test("initial quality: reaction species on nodes and links, saved with the react
   s.setGroup("node", "J1", "quality", before); // undo
   assert.deepEqual(lines(decoder.decode(s.writeAll()["model.rxn"]), "[REACTION_QUALITY]"), ["LINK C1 W 1.5"]);
 });
+
+// E3d-3b: the table rows that name a node or conduit, edited on its card.
+const rows = (s, name) => s.scopedRows(name).rows.map((r) => r.values);
+
+test("aquifer bed and link on cards: the table's rows and checks, in place, written, reopened, undo", async () => {
+  const s = await open((await read("../examples/coupled.inp")) + "\n[POLLUTANTS]\nTSS MG/L 0 0 0 0 NO * 0 0 0\n");
+  s.setScopedRows("nodeBeds", [{ values: { node: "ST1", cell: "", kc: 0.2, dc: 1, area: 0, exchange: "NO" } }]);
+  const bed = group(s, "node", "J1", "aquiferBed");
+  assert.equal(bed.fields[0].value, "", "no bed yet");
+  const before = s.groups("node", "J1").find((g) => g.key === "aquiferBed");
+  assert.throws(() => set(s, "node", "J1", "aquiferBed", { bed: "own", kc: -1 }), /The bed: kc is 0 or more/);
+  assert.throws(() => set(s, "node", "J1", "aquiferBed", { bed: "own", cell: 99 }), /a cell is a number from 1 to 8/);
+  assert.throws(() => set(s, "node", "J1", "aquiferBed", { bed: "own", kc: 0.1, dc: 0 }), /The bed: a bed with Kc above 0 needs a thickness above 0/); // the engine says only "invalid"
+  set(s, "node", "J1", "aquiferBed", { bed: "own", kc: 0.1, dc: 0.5 });
+  assert.deepEqual(rows(s, "nodeBeds").map((r) => [r.node, r.kc, r.exchange]), [["ST1", 0.2, "NO"], ["J1", 0.1, "YES"]], "the table shows the card's row");
+  set(s, "node", "ST1", "aquiferBed", { kc: 0.3 }); // edited in place: the order stays
+  assert.deepEqual(rows(s, "nodeBeds").map((r) => [r.node, r.kc]), [["ST1", 0.3], ["J1", 0.1]]);
+  set(s, "link", "C1", "aquiferLink", { row: "own", kc: 0.05, dc: 0.2 });
+  assert.throws(() => set(s, "link", "C2", "aquiferLink", { row: "own", dc: -1 }), /The bed: dc is 0 or more/);
+  const out = decoder.decode(s.writeAll()["m.inp"]);
+  assert.deepEqual(lines(out, "[2D_AQUIFER_NODE]").map((r) => r.split(" ")[0]), ["ST1", "J1"]);
+  assert.deepEqual(lines(out, "[2D_AQUIFER_LINKS]").map((r) => r.split(" ")[0]), ["C1"]);
+  const t = await open(out);
+  assert.deepEqual([group(t, "node", "J1", "aquiferBed").fields[0].value, groupValues(group(t, "link", "C1", "aquiferLink")).kc], ["own", 0.05]);
+  s.setGroup("node", "J1", "aquiferBed", { restore: before.restore }); // undo puts the table back exactly
+  assert.deepEqual(rows(s, "nodeBeds").map((r) => [r.node, r.kc]), [["ST1", 0.2]]);
+  set(s, "node", "ST1", "aquiferBed", { bed: "" }); // none removes the row
+  assert.deepEqual(rows(s, "nodeBeds"), []);
+});
+
+test("ARD on cards: boundaries, dispersion and sources as the Transport (ARD) tables, written, reopened, undo", async () => {
+  const s = await open(await read("fixtures/example1.inp"));
+  assert.deepEqual([group(s, "node", "J1", "ardBoundary"), group(s, "link", "C1", "ard")], [undefined, undefined], "no species, no component");
+  s.setReactions("[REACTION_SPECIES]\nBULK X MG\n[REACTION_PIPES]\nRATE X -0.1*X\n[REACTION_TANKS]\nRATE X 0\n");
+  const node = group(s, "node", "J1", "ardBoundary"),
+    link = group(s, "link", "C1", "ard");
+  assert.deepEqual(node.fields.map((f) => f.name), ["b:X", "bv:X", "bt:X"]);
+  assert.deepEqual(link.fields.map((f) => f.name), ["disp", "s:X", "sv:X", "st:X"]);
+  assert.throws(() => set(s, "node", "J1", "ardBoundary", { "b:X": "VALUE", "bv:X": -1 }), /X boundary: a concentration cannot be negative/);
+  assert.throws(() => set(s, "node", "J1", "ardBoundary", { "b:X": "TIMESERIES" }), /X boundary: choose the time series/);
+  assert.throws(() => set(s, "link", "C1", "ard", { disp: -1 }), /Dispersion: the coefficient is 0 or more/);
+  assert.deepEqual(rows(s, "ardDispersion"), [], "a refused card writes nothing");
+  set(s, "node", "J1", "ardBoundary", { "b:X": "TIMESERIES", "bt:X": "2-yr" });
+  set(s, "link", "C1", "ard", { disp: 0.3, "s:X": "VALUE", "sv:X": -0.5 });
+  assert.deepEqual(rows(s, "ardBoundaries"), [{ element: "J1", species: "X", from: "TIMESERIES", value: "", series: "2-yr" }]);
+  assert.deepEqual([rows(s, "ardDispersion"), rows(s, "ardSources").map((r) => [r.element, r.value])], [[{ conduit: "C1", value: 0.3 }], [["C1", -0.5]]]);
+  // A table edit shows on the card.
+  s.setScopedRows("ardDispersion", [{ values: { conduit: "C1", value: 0.4 } }]);
+  assert.equal(groupValues(group(s, "link", "C1", "ard")).disp, 0.4);
+  const files = s.writeAll();
+  assert.deepEqual(Object.keys(files).sort(), ["m.ard", "m.inp", "model.rxn"]);
+  const t = await open(decoder.decode(files["m.inp"]), { "m.ard": files["m.ard"], "model.rxn": files["model.rxn"] });
+  assert.deepEqual([groupValues(group(t, "node", "J1", "ardBoundary"))["bt:X"], groupValues(group(t, "link", "C1", "ard"))["sv:X"]], ["2-yr", -0.5]);
+  // Undo puts both tables back as they were shown: the rows there were, not just none.
+  const shown = group(s, "link", "C1", "ard");
+  set(s, "link", "C1", "ard", { disp: 0.1, "s:X": "" });
+  assert.deepEqual([rows(s, "ardDispersion"), rows(s, "ardSources")], [[{ conduit: "C1", value: 0.1 }], []]);
+  s.setGroup("link", "C1", "ard", { restore: shown.restore });
+  assert.deepEqual([rows(s, "ardDispersion"), rows(s, "ardSources").map((r) => [r.element, r.value])], [[{ conduit: "C1", value: 0.4 }], [["C1", -0.5]]]);
+  s.setGroup("link", "C1", "ard", { restore: link.restore }); // back to before the first change
+  assert.deepEqual([rows(s, "ardDispersion"), rows(s, "ardSources")], [[], []]);
+});

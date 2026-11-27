@@ -3,7 +3,8 @@
  * E3b): a link's cross-section, losses, discharge coefficient, pump curve, inlet and LID layer anchor;
  * an outfall's, storage unit's (and its LID's) and divider's parameters, an inlet junction's inlet; a
  * subcatchment's infiltration, groundwater and frozen ground; the initial quality of nodes and links
- * (reaction species too) and a node's 2D coupling (E3d-3).
+ * (reaction species too), a node's 2D coupling (E3d-3) and the table rows that name a node or conduit
+ * (table-groups.mjs, E3d-3b).
  * Each group is read
  * as `{key, title, fields, note}` — a field `{name, label, unit, type: "number" | "choice" | "text",
  * value, choices: [[value, label]], when: {name, in: [...]}}` shows only while the named field holds one
@@ -11,6 +12,7 @@
  * owns the engine; these functions take it.
  */
 import { NodeType, LinkType, TableType, XSectShape, OutfallType, StorageShape, DividerType, InfilModel, GwfType, WeirView, InletPlacement, LidType, LidNodeLayerKind, NodeCoupling2DType, catalog } from "./vendor/engine/index.js";
+import { tableGroups, tableGroupKeys, applyTableGroup } from "./table-groups.mjs";
 
 /** Catalog rows a group shows instead (bare indices or a type that the group's fields follow). */
 export const replacedRows = new Set(["node.outfall.type", "node.outfall.route_to", "node.storage.shape", "node.storage.curve", "node.divider.type", "link.pump.curve", "subcatchment.infiltration.model"]);
@@ -518,6 +520,7 @@ export function propertyGroups(session, kind, id) {
     const c = couplingGroup(session, u, id);
     if (c) groups.push(c);
   }
+  if (kind === "node" || kind === "link") groups.push(...tableGroups(session, kind, id)); // aquifer bed/link, ARD
   if (kind === "node" || kind === "link") {
     const q = qualityGroup(session, kind, id);
     if (q) groups.push(q);
@@ -864,6 +867,8 @@ export function applyGroup(session, kind, id, key, values) {
       if (row) s.inflows.setRdiiDecay(row.uhName, r, p);
       else s.inflows.addRdiiDecay(id, r, p);
     }
+  } else if ((kind === "node" || kind === "link") && tableGroupKeys.includes(key)) {
+    applyTableGroup(session, kind, id, key, values);
   } else throw new Error("No property group " + key + " for this " + kind + ".");
   return propertyGroups(session, kind, id).find((g) => g.key === key);
 }
